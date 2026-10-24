@@ -1,0 +1,193 @@
+# LinMaster — Project Structure
+
+Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc thư mục** của LinMaster ở mức tổng quan: mỗi phần dùng để làm gì và code mới nên đặt ở đâu.
+
+> File này chỉ mô tả ở **cấp thư mục và nguyên tắc**, không liệt kê từng file. Thêm, đổi tên hay xóa file **không** cần sửa tài liệu này. Chỉ cập nhật khi thay đổi tech stack, thêm/bớt thư mục cấp cao, hoặc đổi nguyên tắc tổ chức code.
+
+---
+
+## 1. Kiến trúc tổng thể
+
+```
+                         ┌──────────────────────────────┐
+  Trình duyệt ─────────▶ │  client  (Next.js, Vercel)   │  https://<tên-miền>
+                         └──────────────┬───────────────┘
+                                        │ REST / JSON + JWT
+                                        ▼
+                         ┌──────────────────────────────┐
+                         │  server  (Express, Render)   │  https://api.<tên-miền>
+                         └───┬──────────────┬───────────┘
+                             │ Prisma       │ HTTPS
+                             ▼              ▼
+                   ┌──────────────┐  ┌──────────────┐
+                   │ PostgreSQL   │  │ Gemini API   │
+                   │ (Neon)       │  │ (Google)     │
+                   └──────────────┘  └──────────────┘
+
+  Audio Listening: Cloudflare R2        DNS + HTTPS: Cloudflare
+  Theo dõi: UptimeRobot                 CI: GitHub Actions
+```
+
+**Nguyên tắc:**
+- Front-end và back-end **tách riêng**, chỉ giao tiếp qua REST API có tài liệu (OpenAPI). Mỗi phía deploy độc lập.
+- **Logic quan trọng nằm ở server:** chấm điểm, tính giờ làm bài, lịch ôn SM-2, gọi AI. Client lo hiển thị và gửi thao tác của người dùng.
+- Dự án là **monorepo dùng npm workspaces**: `client`, `server` và `shared` (phần dùng chung cho cả hai).
+- Trong mỗi workspace, code **chia theo module** để các module phát triển song song mà không xung đột, và có thể gắn thêm module hay chức năng mới mà không sửa module cũ (mục 4.1).
+- Nội dung (đề thi) tách khỏi code.
+
+---
+
+## 2. Tech stack
+
+### 2.1. Front-end
+
+| Công nghệ | Vai trò | Lý do chọn |
+|---|---|---|
+| **Next.js** (App Router) + **TypeScript** | Framework React, routing theo thư mục, layout lồng nhau | Routing và layout có sẵn; deploy lên Vercel không cần cấu hình; dùng chung TypeScript với back-end |
+| **Tailwind CSS** + **shadcn/ui** | Styling và thư viện component | Giao diện hiện đại, đồng nhất, có sẵn a11y; code component nằm trong repo nên sửa được |
+| **Lucide**, font **Be Vietnam Pro** | Icon, font chữ | Đi kèm shadcn/ui; font hiển thị tiếng Việt đẹp |
+| **Recharts** | Biểu đồ dashboard | Viết dạng component React |
+| **React Context + `useReducer`** | Quản lý state (nhất là state phòng thi) | Đủ dùng, không thêm thư viện state riêng |
+
+### 2.2. Back-end
+
+| Công nghệ | Vai trò | Lý do chọn |
+|---|---|---|
+| **Node.js** (LTS) + **Express** + **TypeScript** | Web server, REST API | Đơn giản, phổ biến, cùng ngôn ngữ với front-end |
+| **Zod** | Validate request, biến môi trường, output của AI | Một schema vừa kiểm tra lúc chạy vừa sinh kiểu TypeScript |
+| **Prisma** | ORM, migration, seed | Schema dễ đọc, migration có lịch sử, sinh được ERD cho report |
+| **JWT** + **bcrypt** | Xác thực, hash mật khẩu | Chuẩn phổ biến cho REST API |
+| **Google Gen AI SDK** | Gọi Gemini | SDK chính thức |
+| Thư viện đọc PDF/DOCX | Lấy chữ từ file upload | Xử lý ở server, không lưu file |
+| **helmet**, **cors**, rate limit | Bảo mật tối thiểu | Theo Working_rules mục 11 |
+| **Swagger UI** + **zod-to-openapi** | API doc tại `/docs`, đặc tả OpenAPI 3 sinh tự động từ Zod schema | Giảng viên yêu cầu Swagger; sinh từ code nên doc luôn khớp với API |
+
+### 2.3. Dữ liệu và dịch vụ
+
+| Thành phần | Dịch vụ |
+|---|---|
+| Database | PostgreSQL trên Neon |
+| File audio | Cloudflare R2 |
+| AI | Google Gemini API (tên model cấu hình qua biến môi trường) |
+
+### 2.4. Công cụ phát triển và vận hành
+
+| Công cụ | Vai trò |
+|---|---|
+| npm workspaces | Quản lý monorepo |
+| gts (ESLint + Prettier của Google) | Lint và định dạng theo Google TypeScript Style |
+| Vitest, Supertest, Playwright | Unit test, API test, test end-to-end |
+| GitHub Actions | CI trên mỗi PR |
+| Vercel / Render | Deploy front-end (có preview cho từng PR) / back-end |
+| Cloudflare, UptimeRobot | Tên miền, HTTPS / theo dõi uptime |
+
+Phiên bản cụ thể được khóa trong `package.json` và lockfile, không ghi ở đây.
+
+---
+
+## 3. Cấu trúc thư mục
+
+```
+linmaster/
+├── .github/      Cấu hình CI và template cho Issue / Pull Request
+├── client/       Front-end (Next.js)
+├── server/       Back-end (Express) + database schema + API doc
+├── shared/       Code dùng chung cho client và server
+├── content/      Nội dung đề thi (tách khỏi code)
+└── docs/         Tài liệu dự án
+```
+
+Code của client, server và shared đều **chia theo module**: `core` (nền tảng) và các module nghiệp vụ `auth`, `content`, `exam`, `vocab`, `flashcard`, `stats`. Danh sách module, trách nhiệm và phụ thuộc giữa chúng xem [PLAN.md](PLAN.md) Phần B.
+
+### `client/` — Front-end
+
+| Thư mục | Ý nghĩa |
+|---|---|
+| `app/` | Các trang, tổ chức theo URL (quy ước App Router của Next.js). Trang được gom thành **3 nhóm layout**: công khai (landing, đăng nhập), ứng dụng (có thanh điều hướng, cần đăng nhập), phòng thi (toàn màn hình). File trang chỉ **ghép** component lấy từ `features/` |
+| `features/` | **Mỗi module một thư mục**, chứa API, component, hook của module đó. Mỗi thư mục có một điểm export công khai duy nhất |
+| `core/` | Khung ứng dụng: API client, phiên đăng nhập, layout, navbar, các registry (nav, widget trang chủ), tiện ích chung |
+| `components/ui/` | Component nền do shadcn/ui sinh ra, dùng chung cho mọi module |
+| `public/` | File tĩnh (ảnh, icon) |
+| `tests/` | Test end-to-end |
+
+### `server/` — Back-end
+
+| Thư mục | Ý nghĩa |
+|---|---|
+| `src/core/` | Hạ tầng chung: cấu hình, DB client, lỗi, validate, bảo mật, JWT, AI gateway, Swagger registry, nạp module |
+| `src/modules/` | **Mỗi module một thư mục**, chứa route, service, đăng ký Swagger, prompt AI (nếu có) và public API của module đó |
+| `prisma/` | Schema database (mỗi module một file), lịch sử migration, script seed |
+| `tests/` | Unit test và API test, chia theo module |
+
+**API doc (Swagger)** không có file viết tay. Mỗi endpoint đăng ký doc ngay cạnh route của nó, dùng lại chính Zod schema validate. Server sinh đặc tả OpenAPI lúc chạy và phục vụ:
+- Swagger UI tại `/docs`.
+- File đặc tả tại `/docs/openapi.json`.
+
+Chi tiết luật xem [Working_rules.md](Working_rules.md) mục 8.4.
+
+### `shared/` — Dùng chung
+
+**Mỗi module một thư mục** (cộng thêm `core`), chứa Zod schema của request/response, kiểu dữ liệu, hằng số nghiệp vụ và các registry dùng ở cả hai phía (ví dụ cách chấm từng dạng câu hỏi). Viết một lần, client và server cùng dùng, nên hai phía không bị lệch nhau.
+
+### `content/` — Nội dung
+
+Đề thi dạng file JSON, theo định dạng mô tả trong [PLAN.md](PLAN.md). Thêm đề mới chỉ cần thêm file, không phải sửa code. File audio Listening **không** commit vào git mà được upload lên R2.
+
+### `docs/` — Tài liệu
+
+Chỉ gồm `PLAN.md`, `Working_rules.md` và `Project_Structure.md`.
+
+---
+
+## 4. Nguyên tắc tổ chức code
+
+### 4.1. Chia theo module
+- Mỗi module nghiệp vụ là một **khối độc lập**, có mặt ở cả server, client và shared, luôn trong thư mục mang tên module.
+- Module chỉ giao tiếp với module khác qua **public API** của module đó. **Không** import file nội bộ của module khác.
+- Mỗi bảng trong database thuộc **đúng một module**. Chỉ module sở hữu được ghi vào bảng đó.
+- Phụ thuộc giữa các module đi **một chiều, không có vòng**. Module ở dưới không biết module ở trên. Chiều phụ thuộc cụ thể xem PLAN.md mục B2.
+- Ở client, feature không import feature khác. Liên kết giữa các trang dùng URL.
+- **Thêm module mới** = tạo thư mục module ở server / client / shared + thêm schema của module + đăng ký **một dòng** vào module registry (server) và nav registry (client). Không sửa code của module khác.
+- **Thêm chức năng vào module** ở những chỗ đã thiết kế dạng registry (dạng câu hỏi, nguồn trích từ, loại bài tập, widget…) = thêm một mục vào registry. Danh sách registry xem PLAN.md mục B4.
+
+### 4.2. Bên trong một module server: 3 tầng
+
+```
+Request ─▶ middleware (core) ─▶ routes ─▶ service ─▶ hạ tầng (core: DB, AI)
+```
+
+| Tầng | Trách nhiệm | Không được làm |
+|---|---|---|
+| **middleware** (core) | Việc chung cho mọi request: xác thực, giới hạn tần suất, xử lý lỗi | Chứa logic nghiệp vụ |
+| **routes** | Khai báo endpoint, validate input, đăng ký Swagger, gọi service, trả JSON | Chứa logic nghiệp vụ, truy cập DB trực tiếp |
+| **service** | Logic nghiệp vụ: chấm điểm, SM-2, trích từ, thống kê | Đọc request/response, trả mã HTTP |
+| **hạ tầng** (core) | Kết nối DB, gọi Gemini, định nghĩa lỗi | Chứa logic nghiệp vụ |
+
+**Vì sao chia như vậy:** service không phụ thuộc HTTP nên dễ viết unit test và dễ tái sử dụng. Mỗi dịch vụ ngoài (DB, Gemini) chỉ được truy cập qua **một điểm** trong `core`, nên đổi cấu hình hay thêm retry/cache chỉ sửa một chỗ. Prompt AI tách thành file riêng có đánh phiên bản, đặt trong module dùng nó.
+
+### 4.3. Front-end
+- **Trang mỏng, feature dày:** trang chỉ ghép component và lấy dữ liệu, giao diện chi tiết nằm trong `features/`.
+- **Một điểm gọi API:** mọi request tới back-end đi qua API client của `core`, nơi gắn JWT và xử lý lỗi.
+- **State phòng thi** gom trong một context riêng của feature exam.
+- **Phòng thi định danh theo lần làm bài (attempt)**, không theo đề. Nhờ vậy refresh không mất bài, đồng hồ tính theo giờ server, và kết quả có URL riêng.
+
+### 4.4. Chung
+- Kiểu dữ liệu và schema dùng ở cả hai phía đặt trong `shared/`, không định nghĩa lại ở từng phía.
+- Cấu hình và secret lấy từ biến môi trường, được validate khi khởi động. Mỗi app có file `.env.example` liệt kê tên biến.
+- Quy tắc đặt tên file và thư mục: xem [Working_rules.md](Working_rules.md) mục 7.
+
+---
+
+## 5. Thêm code mới: đặt ở đâu?
+
+| Muốn làm | Đặt ở |
+|---|---|
+| Trang mới | `client/app/`, trong nhóm layout phù hợp; trang chỉ ghép component từ `features/` |
+| Component, hook, hàm gọi API của một module | `client/features/<module>/` |
+| Thành phần dùng chung toàn app (layout, registry, tiện ích) | `client/core/` |
+| Endpoint mới | `server/src/modules/<module>/`: route + service + đăng ký Swagger; schema trong `shared/<module>`; có test |
+| Bảng hoặc cột mới | File schema của module trong `server/prisma/` + migration |
+| Prompt AI mới | Trong module dùng prompt đó, đăng ký vào AI task registry của `core` |
+| Module mới | Thư mục mới ở `server/src/modules/`, `client/features/`, `shared/` + đăng ký vào module registry và nav registry |
+| Đề thi mới | `content/` |
+| Biến môi trường mới | Phần validate env của app tương ứng + `.env.example` |
