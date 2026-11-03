@@ -1,0 +1,47 @@
+@startuml uc-04-exam
+!include ../_style.iuml
+title Use case phân rã — Thi thử (exam)
+left to right direction
+actor "Người học" as Learner
+actor "Gemini AI" as AI
+actor "Đồng hồ hệ thống" as Clock
+rectangle "exam" {
+  usecase "UC30 Tải đề lên" as UC30
+  usecase "Nhận diện đề và đáp án\nbằng AI" as PARSE
+  usecase "Kiểm tra đề trước khi lưu" as VALID
+  usecase "UC31 Quản lý đề của tôi\n(đổi tên, xóa)" as UC31
+  usecase "UC32 Làm bài thi" as UC32
+  usecase "Tự lưu bài" as SAVE
+  usecase "Highlight, ghi chú,\ngạch bỏ phương án" as TOOLS
+  usecase "Đánh dấu câu để xem lại" as FLAG
+  usecase "Nghe audio Listening" as AUDIO
+  usecase "UC33 Nộp bài" as UC33
+  usecase "Tự nộp khi hết giờ" as AUTO
+  usecase "Chấm điểm, quy ra band" as GRADE
+  usecase "UC34 Xem kết quả" as UC34
+  usecase "UC35 Mở bài đọc\ntrong Trình đọc" as UC35
+  usecase "UC36 Xem giải thích đáp án\n(Nên có)" as UC36
+}
+Learner --> UC30
+Learner --> UC31
+Learner --> UC32
+Learner --> UC33
+Learner --> UC34
+UC30 ..> PARSE : <<include>>
+UC30 ..> VALID : <<include>>
+PARSE --> AI
+UC32 ..> SAVE : <<include>>
+UC32 <.. TOOLS : <<extend>>
+UC32 <.. FLAG : <<extend>>
+UC32 <.. AUDIO : <<extend>>\n(Listening)
+UC33 ..> GRADE : <<include>>
+UC33 <.. AUTO : <<extend>>
+Clock --> AUTO
+UC34 <.. UC35 : <<extend>>
+UC34 <.. UC36 : <<extend>>
+UC36 --> AI
+note right of UC35
+  Tạo tài liệu đọc từ passage của bài đã nộp
+  → chuyển sang UC11 (vocab).
+end note
+@enduml

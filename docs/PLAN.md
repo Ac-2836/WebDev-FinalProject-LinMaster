@@ -171,7 +171,7 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 
 ## B6. Tài liệu thiết kế
 
-- Sơ đồ viết bằng **PlantUML** (file `.puml`) trong `docs/diagrams/`, review trong PR như code. Ảnh SVG xuất từ file `.puml` để dùng cho report, không vẽ hay sửa tay.
+- Sơ đồ viết bằng **PlantUML** (file `.puml`) trong thư mục `Analysis_Design/` ở gốc repo, review trong PR như code. Mỗi sơ đồ xuất thành một ảnh PNG độ phân giải cao (`bash Analysis_Design/render.sh`) đặt cạnh file nguồn, dùng cho report; không vẽ hay sửa ảnh bằng tay.
 - Sơ đồ thể hiện **thiết kế đã duyệt**. PR nào làm code khác đi so với thiết kế thì phải cập nhật sơ đồ liên quan ngay trong PR đó. Ở P5-07, ERD được sinh lại từ Prisma để đối chiếu.
 - **Đặc tả use case** dùng mẫu: Tên · Actor · Tiền điều kiện · Luồng chính · Luồng thay thế / lỗi · Hậu điều kiện. Chỉ đặc tả các use case chính của vòng học, không đặc tả các thao tác CRUD đơn giản.
 

@@ -1,0 +1,42 @@
+@startuml uc-00-tong-quat
+!include ../_style.iuml
+title Use case tổng quát — LinMaster
+left to right direction
+
+actor "Khách" as Guest
+actor "Người học" as Learner
+actor "Gemini AI\n<<hệ thống ngoài>>" as AI
+
+
+rectangle "Hệ thống LinMaster" {
+  usecase "Đăng ký, đăng nhập" as G1
+  usecase "Đổi ngôn ngữ giao diện" as G2
+  usecase "Quản lý tài khoản" as A1
+  usecase "Đọc tài liệu\nvà tra từ theo ngữ cảnh" as V1
+  usecase "Quản lý kho từ" as V2
+  usecase "Quản lý bộ thẻ" as F1
+  usecase "Học flashcard" as F2
+  usecase "Tải đề thi lên" as E1
+  usecase "Làm bài thi CBT" as E2
+  usecase "Xem kết quả thi" as E3
+  usecase "Dùng kho cộng đồng" as L1
+  usecase "Xem dashboard\nvà trang chủ" as S1
+}
+
+Guest --> G1
+Guest --> G2
+Learner --> A1
+Learner --> G2
+Learner --> V1
+Learner --> V2
+Learner --> F1
+Learner --> F2
+Learner --> E1
+Learner --> E2
+Learner --> E3
+Learner --> L1
+Learner --> S1
+V1 --> AI
+E1 --> AI
+F2 ..> AI : (Nên có)
+@enduml
