@@ -1,0 +1,42 @@
+@startuml seq-02-tra-tu
+!include ../_style.iuml
+title Sequence — Tra từ theo ngữ cảnh qua AI gateway (UC12)
+autonumber
+actor "Người học" as U
+participant "Trình đọc\n(Client)" as C
+participant "Vocab route\n(/vocab/lookups)" as R
+participant "VocabService" as S
+participant "AI gateway\n(core)" as G
+database "PostgreSQL" as DB
+participant "Gemini API" as AI
+U -> C : Bôi chọn từ, bấm "Giải thích"
+C -> R : POST /api/v1/vocab/lookups\n{ text, sentence, documentId? } + JWT
+R -> R : requireAuth + validate Zod\n(text ≤ 6 từ)
+R -> S : lookup(userId, input)
+S -> G : runJsonTask("explain-word.v1", { text, sentence })
+G -> DB : Đếm AiUsage hôm nay (không tính cache)
+alt Hết quota
+  G --> S : AiQuotaExceeded
+  S --> R : lỗi
+  R --> C : 429 AI_QUOTA_EXCEEDED { retryAt }
+else Còn quota
+  G -> DB : SELECT AiCache (task, inputHash)
+  alt Trúng cache
+    DB --> G : output
+  else Không có cache
+    loop Tối đa 3 lần cho đến khi output đúng schema
+      G -> AI : generateContent(prompt v1, responseSchema)
+      AI --> G : JSON
+      G -> G : Validate bằng Zod
+    end
+    G -> DB : INSERT AiCache
+  end
+  G -> DB : INSERT AiUsage (cached = true/false)
+  G --> S : explanation
+  S -> DB : INSERT VocabLookup (saved = false)
+  S -> DB : Từ này đã có trong kho chưa?
+  S --> R : explanation + alreadySaved
+  R --> C : 200
+  C --> U : Popover: nghĩa trong câu, IPA, cách dùng, collocations
+end
+@enduml

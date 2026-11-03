@@ -52,3 +52,9 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [act-06-lam-bai-thi](03_Activity/act-06-lam-bai-thi.png) | Làm bài thi CBT, tự lưu, nộp bài |
 | [act-07-dang-len-kho](03_Activity/act-07-dang-len-kho.png) | Đăng lên / gỡ khỏi kho |
 | [act-08-dung-kho](03_Activity/act-08-dung-kho.png) | Tìm, xem trước, chép, làm đề, báo cáo |
+
+### 04 — Sequence (P0-08, P0-09)
+| Sơ đồ | Nội dung |
+|---|---|
+| [seq-02-tra-tu](04_Sequence/seq-02-tra-tu.png) | Tra từ qua AI gateway (quota, cache, thử lại) |
+| [seq-03-loc-nhanh](04_Sequence/seq-03-loc-nhanh.png) | Lọc nhanh và lưu nhiều từ |
