@@ -73,3 +73,12 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [st-02-test-import](05_State/st-02-test-import.png) | Lượt tải đề |
 | [st-03-cong-khai-noi-dung](05_State/st-03-cong-khai-noi-dung.png) | private / public / hidden |
 | [st-04-tien-do-the](05_State/st-04-tien-do-the.png) | Mới / Đang học / Đã thuộc |
+
+### 06 — Kiến trúc (P0-11)
+| Sơ đồ | Nội dung |
+|---|---|
+| [arc-01-component](06_Architecture/arc-01-component.png) | Module client / server / shared và phụ thuộc |
+| [arc-02-deployment-local](06_Architecture/arc-02-deployment-local.png) | Môi trường local và CI |
+| [arc-03-deployment-online](06_Architecture/arc-03-deployment-online.png) | Vercel, Render, Neon, R2, Gemini |
+| [arc-04-class-module-registry](06_Architecture/arc-04-class-module-registry.png) | Hợp đồng module và các registry |
+| [arc-05-class-tang-module](06_Architecture/arc-05-class-tang-module.png) | Ba tầng trong một module server |

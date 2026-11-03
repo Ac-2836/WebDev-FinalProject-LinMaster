@@ -1,0 +1,31 @@
+@startuml arc-02-deployment-local
+!include ../_style.iuml
+title Deployment — Môi trường phát triển (local)
+node "Máy lập trình viên" {
+  node "Trình duyệt" as B
+  node "Node.js — npm run dev" {
+    artifact "client (Next.js dev)\n:3000" as C
+    artifact "server (Express)\n:4000" as S
+  }
+  folder "uploads/\n(driver lưu file local)" as UP
+  node "Docker" {
+    database "Postgres dev\n:5432" as PG
+    database "Postgres test" as PGT
+  }
+}
+cloud "Gemini API\n(key riêng hoặc mock)" as AI
+node "GitHub Actions (CI)" {
+  artifact "lint · typecheck · test · build" as CI
+  database "Postgres service" as PGCI
+}
+B --> C : HTTP
+C --> S : REST /api/v1
+S --> PG : Prisma
+S --> UP
+S --> AI : HTTPS
+CI --> PGCI
+note bottom of CI
+  CI luôn dùng AI mock,
+  không gọi Gemini thật.
+end note
+@enduml
