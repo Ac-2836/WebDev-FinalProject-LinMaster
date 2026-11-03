@@ -1,0 +1,44 @@
+@startuml arc-05-class-tang-module
+!include ../_style.iuml
+title Class — Ba tầng bên trong một module server (ví dụ vocab)
+hide empty members
+class "vocab/routes" as Routes <<routes>> {
+  + POST /vocab/lookups
+  + POST /vocab/documents
+  + GET /vocab/entries
+  --
+  validate Zod, đăng ký Swagger,
+  gọi service, trả JSON
+}
+class VocabService <<service>> {
+  + lookup(userId, input) : Explanation
+  + createDocument(userId, source, input) : Document
+  + scan(userId, docId, criteria) : Candidate[]
+  + saveMany(userId, items) : SaveResult
+}
+class "vocab public API" as PublicApi <<public>> {
+  + assertOwnership(userId, vocabIds)
+  + getEntries(userId, ids) : VocabEntry[]
+  + statsForUser(userId, range) : VocabStats
+}
+class "core: requireAuth, rateLimit,\nerrorHandler" as MW <<middleware>>
+class AiGateway <<core>>
+class "PrismaClient" as Prisma <<core>>
+class "exam public API" as ExamApi <<public>> {
+  + getPassageText(userId, attemptId, passageId)
+}
+MW --> Routes
+Routes --> VocabService
+VocabService --> AiGateway
+VocabService --> Prisma
+VocabService --> ExamApi : chỉ qua public API
+PublicApi --> VocabService
+note right of Routes
+  Routes không chứa logic nghiệp vụ,
+  không truy cập DB trực tiếp.
+end note
+note right of VocabService
+  Service không biết HTTP;
+  dễ unit test.
+end note
+@enduml

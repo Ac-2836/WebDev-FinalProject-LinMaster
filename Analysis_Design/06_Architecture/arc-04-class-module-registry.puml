@@ -1,0 +1,88 @@
+@startuml arc-04-class-module-registry
+!include ../_style.iuml
+title Class — Hợp đồng module và các registry (server, shared, client)
+hide empty members
+package "server/core" {
+  interface ModuleDefinition {
+    + name : string
+    + router : Router
+    + registerOpenApi(registry) : void
+    + aiTasks : AiTask[]
+  }
+  class ModuleRegistry {
+    + register(def : ModuleDefinition) : void
+    + mount(app) : void
+  }
+  interface AiTask<I, O> {
+    + name : string  « explain-word.v1 »
+    + inputSchema : ZodSchema<I>
+    + outputSchema : ZodSchema<O>
+    + buildPrompt(input : I) : Prompt
+    + cacheTtl : Duration
+  }
+  class AiGateway {
+    + runJsonTask(task, input, userId) : O
+    - checkQuota(userId)
+    - cache
+    - retry(max = 2)
+  }
+  interface StorageDriver {
+    + put(key, data, mime) : StoredFile
+    + get(key) : Stream
+    + delete(key) : void
+  }
+  class LocalStorageDriver
+  class R2StorageDriver
+}
+package "shared/exam" {
+  interface Certification {
+    + id : string  « IELTS_ACADEMIC »
+    + sections : SectionSpec[]
+    + toBand(skill, correct) : number
+  }
+  class SectionSpec {
+    + skill : Skill
+    + durationSec : int
+    + questionCount : int
+    + parts : int
+  }
+  interface QuestionKind {
+    + id : string  « tfng »
+    + answerSchema : ZodSchema
+    + normalize(given) : unknown
+    + grade(given, answer) : boolean
+  }
+}
+package "server/vocab" {
+  interface DocumentSource {
+    + id : string  « paste | file | exam »
+    + extract(input, userId) : Paragraph[]
+  }
+}
+package "client/core" {
+  class NavRegistry
+  class HomeWidgetRegistry
+  class DashboardWidgetRegistry
+}
+package "client/flashcard" {
+  interface StudyMode {
+    + id : string  « flip | learn | test | match »
+    + component : ReactComponent
+  }
+}
+ModuleRegistry o-- "*" ModuleDefinition
+ModuleDefinition o-- "*" AiTask
+AiGateway ..> AiTask : chạy
+StorageDriver <|.. LocalStorageDriver
+StorageDriver <|.. R2StorageDriver
+Certification *-- "1..*" SectionSpec
+note bottom of QuestionKind
+  Thêm dạng câu / chứng chỉ / nguồn tài liệu /
+  chế độ học = thêm một mục vào registry,
+  không sửa code của module khác (PLAN B4).
+end note
+AiTask -[hidden]down-> Certification
+AiTask -[hidden]down-> DocumentSource
+AiTask -[hidden]down-> NavRegistry
+AiTask -[hidden]down-> StudyMode
+@enduml

@@ -1,0 +1,85 @@
+@startuml arc-01-component
+!include ../_style.iuml
+title Component — Kiến trúc module của LinMaster
+skinparam componentStyle rectangle
+actor "Người học" as U
+
+package "client (Next.js)" {
+  component "app/ (trang, 3 nhóm layout)" as Pages
+  package "features/" {
+    component "auth" as FAuth
+    component "vocab" as FVocab
+    component "flashcard" as FFlash
+    component "exam" as FExam
+    component "library" as FLib
+    component "stats" as FStats
+  }
+  component "core\n(API client, phiên đăng nhập,\nnav / widget registry, i18n)" as CCore
+}
+
+package "shared (Zod schema, kiểu, registry dùng chung)" as Shared
+
+package "server (Express)" {
+  component "core\n(lỗi, validate, bảo mật, JWT,\nmodule registry, Swagger)" as SCore
+  component "AI gateway" as AIG
+  component "Storage" as STO
+  package "modules/" {
+    component "auth" as MAuth
+    component "exam" as MExam
+    component "vocab" as MVocab
+    component "flashcard" as MFlash
+    component "library" as MLib
+    component "stats" as MStats
+  }
+}
+
+database "PostgreSQL" as DB
+cloud "Gemini API" as Gemini
+cloud "Ổ đĩa local / Cloudflare R2" as Files
+
+U --> Pages
+Pages --> FAuth
+Pages --> FVocab
+Pages --> FFlash
+Pages --> FExam
+Pages --> FLib
+Pages --> FStats
+FAuth --> CCore
+FVocab --> CCore
+FFlash --> CCore
+FExam --> CCore
+FLib --> CCore
+FStats --> CCore
+CCore --> SCore : REST / JSON + JWT\n(/api/v1, Swagger /docs)
+
+MVocab ..> MExam : public API
+MFlash ..> MVocab : public API
+MLib ..> MFlash : public API
+MLib ..> MExam : public API
+MStats ..> MExam : public API
+MStats ..> MVocab : public API
+MStats ..> MFlash : public API
+MStats ..> MLib : public API
+
+SCore --> MAuth
+SCore --> MExam
+SCore --> MVocab
+SCore --> MFlash
+SCore --> MLib
+SCore --> MStats
+MVocab --> AIG
+MExam --> AIG
+MFlash --> AIG
+MExam --> STO
+AIG --> Gemini
+STO --> Files
+SCore --> DB : Prisma
+
+CCore ..> Shared
+SCore ..> Shared
+note right of Shared
+  Viết một lần, client và server cùng import:
+  schema request/response, certification
+  registry, question kind registry.
+end note
+@enduml
