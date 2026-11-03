@@ -1,0 +1,36 @@
+@startuml act-02-loc-nhanh-tu
+!include ../_style.iuml
+title Activity — Lọc nhanh từ theo trình độ / chủ đề (UC14)
+|Người học|
+start
+:Mở bảng "Lọc nhanh" trong Trình đọc;
+:Chọn trình độ CEFR và/hoặc chủ đề;
+|Hệ thống|
+if (Không chọn tiêu chí?) then (đúng)
+  :Mặc định: trình độ từ B2 trở lên;
+endif
+:Chia tài liệu thành các đoạn;
+|Gemini AI|
+:Lọc từ của từng đoạn theo tiêu chí,
+kèm câu gốc (các đoạn chạy song song);
+|Hệ thống|
+:Gộp kết quả, bỏ từ trùng;
+:Loại ứng viên có câu gốc
+không có thật trong văn bản;
+:Đánh dấu "Đã có" với từ đã trong kho;
+if (Còn ứng viên?) then (không)
+  :Hiện trạng thái trống,
+  gợi ý đổi tiêu chí;
+  stop
+else (có)
+  :Hiện danh sách có checkbox;
+endif
+|Người học|
+:Chọn các từ muốn lưu;
+:Bấm "Lưu các từ đã chọn";
+|Hệ thống|
+:Lưu từng từ như UC13
+(tạo mới hoặc thêm câu gốc);
+:Báo số từ đã lưu, nút "Tạo bộ thẻ";
+stop
+@enduml
