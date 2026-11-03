@@ -1,0 +1,60 @@
+@startuml act-01-tra-va-luu-tu
+!include ../_style.iuml
+title Activity — Đọc tài liệu, tra từ và lưu từ (UC11–UC13)
+|Người học|
+start
+:Mở tài liệu trong Trình đọc;
+|Hệ thống|
+:Tải nội dung tài liệu
+và các từ đã lưu;
+:Hiển thị bài đọc,
+tô màu các từ đã lưu;
+|Người học|
+repeat
+  :Bôi chọn từ hoặc cụm từ;
+  if (Chọn quá 6 từ?) then (có)
+    |Hệ thống|
+    :Khóa nút "Giải thích",
+    hiện gợi ý chọn ngắn hơn;
+  else (không)
+    |Người học|
+    :Bấm "Giải thích" (hoặc phím tắt);
+    |Hệ thống|
+    :Kiểm tra quota AI trong ngày;
+    if (Còn quota?) then (không)
+      :Báo hết lượt tra hôm nay;
+    else (có)
+      if (Có trong AiCache?) then (có)
+        :Lấy kết quả từ cache;
+      else (không)
+        |Gemini AI|
+        :Giải thích từ theo đúng câu chứa từ;
+        |Hệ thống|
+        :Kiểm tra kết quả bằng schema
+        (thử lại tối đa 2 lần);
+        :Lưu vào AiCache;
+      endif
+      :Ghi VocabLookup;
+      :Hiện popover: nghĩa trong câu, IPA,
+      cách dùng, collocations, CEFR;
+      |Người học|
+      if (Muốn lưu từ?) then (có)
+        :Bấm "Lưu";
+        |Hệ thống|
+        if (Từ đã có trong kho
+        (cùng lemma + loại từ)?) then (có)
+          :Thêm câu gốc mới (VocabContext);
+        else (chưa)
+          :Tạo VocabEntry + VocabContext;
+        endif
+        :Tô màu từ trong bài,
+        toast có nút "Tạo bộ thẻ";
+      else (không)
+      endif
+    endif
+  endif
+  |Người học|
+repeat while (Đọc tiếp?) is (có)
+->không;
+stop
+@enduml

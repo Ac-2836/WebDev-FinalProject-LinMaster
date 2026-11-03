@@ -1,0 +1,32 @@
+@startuml act-04-hoc-the-srs
+!include ../_style.iuml
+title Activity — Học bộ thẻ theo lặp lại ngắt quãng (UC25)
+|Người học|
+start
+:Chọn chế độ "Học" của bộ thẻ;
+|Hệ thống|
+:Mở StudySession;
+:Lấy thẻ đến hạn + thẻ mới
+(giới hạn mỗi ngày, giờ Việt Nam);
+if (Có thẻ để học?) then (không)
+  :Báo "Hôm nay đã ôn xong",
+  gợi ý chế độ Thẻ lật;
+  stop
+endif
+repeat
+  |Người học|
+  :Xem mặt trước;
+  :Lật thẻ (phím cách);
+  :Chấm Again / Hard / Good / Easy (phím 1–4);
+  |Hệ thống|
+  :Tính lại SM-2: easiness, interval, dueAt;
+  :Ghi ReviewLog, cập nhật CardProgress;
+  if (Chấm Again?) then (có)
+    :Đưa thẻ lại cuối hàng đợi của phiên;
+  endif
+repeat while (Còn thẻ trong hàng đợi?) is (có)
+->không;
+:Đóng StudySession (endedAt, số thẻ, số đúng);
+:Hiện tổng kết phiên;
+stop
+@enduml

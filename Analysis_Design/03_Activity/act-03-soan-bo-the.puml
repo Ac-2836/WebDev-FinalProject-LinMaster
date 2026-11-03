@@ -1,0 +1,40 @@
+@startuml act-03-soan-bo-the
+!include ../_style.iuml
+title Activity — Tạo / sửa bộ thẻ (UC20, UC21, UC23)
+|Người học|
+start
+switch (Bắt đầu từ đâu?)
+case (Tạo mới)
+  :Mở trình soạn trống;
+case (Từ kho từ)
+  :Chọn các từ trong kho,
+  bấm "Tạo bộ thẻ";
+  |Hệ thống|
+  :Điền sẵn thẻ: headword / nghĩa / câu gốc;
+case (Sửa bộ có sẵn)
+  |Hệ thống|
+  if (Là chủ sở hữu?) then (không)
+    :Báo 403;
+    stop
+  endif
+  :Tải bộ thẻ vào trình soạn;
+endswitch
+|Người học|
+:Nhập tiêu đề, mô tả;
+repeat
+  :Thêm / sửa / xóa / đổi thứ tự thẻ
+  (hoặc dán nhanh nhiều dòng — Nên có);
+  :Bấm "Lưu";
+  |Hệ thống|
+  :Kiểm tra: ít nhất 2 thẻ đủ
+  thuật ngữ và định nghĩa;
+  |Người học|
+repeat while (Có lỗi theo hàng?) is (có, sửa lại)
+->không;
+|Hệ thống|
+:Ghi danh sách thẻ trong một transaction:
+thẻ cũ cập nhật, thẻ mới thêm, thẻ bỏ xóa;
+:Giữ nguyên CardProgress của thẻ còn lại;
+:Chuyển tới trang bộ thẻ;
+stop
+@enduml

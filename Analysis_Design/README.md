@@ -40,3 +40,11 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [uc-05-library](02_UseCase/uc-05-library.png) | Phân rã: kho cộng đồng |
 | [uc-06-stats-home](02_UseCase/uc-06-stats-home.png) | Phân rã: dashboard và trang chủ |
 | [use-case-specs.md](02_UseCase/use-case-specs.md) | Đặc tả các use case chính |
+
+### 03 — Activity (P0-06, P0-07)
+| Sơ đồ | Nội dung |
+|---|---|
+| [act-01-tra-va-luu-tu](03_Activity/act-01-tra-va-luu-tu.png) | Đọc tài liệu, tra từ, lưu từ |
+| [act-02-loc-nhanh-tu](03_Activity/act-02-loc-nhanh-tu.png) | Lọc nhanh từ theo CEFR / chủ đề |
+| [act-03-soan-bo-the](03_Activity/act-03-soan-bo-the.png) | Tạo / sửa bộ thẻ |
+| [act-04-hoc-the-srs](03_Activity/act-04-hoc-the-srs.png) | Học thẻ theo SM-2 |
