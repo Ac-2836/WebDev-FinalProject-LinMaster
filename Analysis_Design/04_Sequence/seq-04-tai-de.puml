@@ -1,0 +1,46 @@
+@startuml seq-04-tai-de
+!include ../_style.iuml
+title Sequence — Tải đề lên và nhận diện bằng AI (UC30)
+autonumber
+actor "Người học" as U
+participant "Client" as C
+participant "Exam route\n(/tests/imports)" as R
+participant "ImportService" as S
+participant "Storage\n(local / R2)" as ST
+database "PostgreSQL" as DB
+participant "Import job\n(chạy nền)" as J
+participant "AI gateway" as G
+participant "Gemini API" as AI
+U -> C : Chọn loại đề, kéo thả file
+C -> C : Kiểm tra sơ bộ: đủ file, định dạng, dung lượng
+C -> R : POST /api/v1/tests/imports (multipart)
+R -> R : Kiểm tra MIME bằng nội dung file, giới hạn kích thước
+R -> S : createImport(userId, kind, files)
+S -> ST : put(PDF đề), put(PDF đáp án), put(audio?)
+S -> DB : INSERT StoredFile x n
+S -> DB : INSERT TestImport (queued)
+S -> J : enqueue(importId)
+S --> R : importId
+R --> C : 202 { importId }
+loop Mỗi 3 giây cho tới done / failed
+  C -> R : GET /api/v1/tests/imports/:id
+  R --> C : { status, errors? }
+end
+J -> DB : status = parsing
+J -> G : runJsonTask("parse-test.v1", PDF đề)
+G -> AI : generateContent(PDF + responseSchema)
+AI --> G : cấu trúc đề
+J -> G : runJsonTask("parse-answers.v1", PDF đáp án)
+G -> AI : generateContent
+AI --> G : đáp án theo kỹ năng + số câu
+J -> DB : status = validating
+J -> J : Ghép đáp án vào câu hỏi
+J -> J : Kiểm tra theo certification registry\nvà question kind registry
+alt Đạt
+  J -> DB : INSERT Test, TestSection, Passage,\nQuestionGroup, Question (transaction)
+  J -> DB : status = done, testId
+else Không đạt
+  J -> DB : status = failed, errors[] theo câu
+end
+C --> U : Đề mới trong "Đề của tôi"\nhoặc danh sách lỗi theo câu
+@enduml

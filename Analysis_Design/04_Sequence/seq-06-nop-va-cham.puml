@@ -1,0 +1,38 @@
+@startuml seq-06-nop-va-cham
+!include ../_style.iuml
+title Sequence — Nộp bài và chấm điểm (UC33)
+autonumber
+actor "Người học" as U
+participant "Phòng thi\n(Client)" as C
+participant "Attempt route" as R
+participant "AttemptService" as S
+participant "Question kind\nregistry (shared)" as Q
+participant "Certification\nregistry (shared)" as CR
+database "PostgreSQL" as DB
+alt Người học bấm "Nộp bài"
+  U -> C : Xác nhận nộp
+else Hết giờ
+  C -> C : Đồng hồ về 0
+end
+C -> R : POST /api/v1/attempts/:id/submit
+R -> S : submit(userId, attemptId)
+S -> DB : SELECT Attempt FOR UPDATE
+alt Đã submitted
+  S --> R : kết quả cũ (không chấm lại)
+else in_progress
+  S -> DB : SELECT các Question + answer của đề
+  loop Mỗi câu
+    S -> Q : normalize(kind, given) và grade(kind, given, answer)
+    Q --> S : isCorrect
+  end
+  S -> CR : toBand(certification, skill, correct)
+  CR --> S : band
+  S -> DB : INSERT AttemptAnswer x 40 / 80\n(chụp correctAnswer)
+  S -> DB : UPDATE Attempt: submitted, submittedAt,\nautoSubmitted, số câu đúng, band
+end
+S --> R : resultId
+R --> C : 200
+C -> R : GET /api/v1/attempts/:id/result
+R --> C : điểm, band, từng câu
+C --> U : Trang kết quả
+@enduml

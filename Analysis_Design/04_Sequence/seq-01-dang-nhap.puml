@@ -1,0 +1,31 @@
+@startuml seq-01-dang-nhap
+!include ../_style.iuml
+title Sequence — Đăng nhập (UC02)
+autonumber
+actor "Khách" as U
+participant "Client\n(Next.js)" as C
+participant "Auth route\n(/auth/login)" as R
+participant "AuthService" as S
+database "PostgreSQL" as DB
+U -> C : Nhập email, mật khẩu
+C -> R : POST /api/v1/auth/login {email, password}
+R -> R : Rate limit đăng nhập\n+ validate Zod
+alt Quá số lần thử
+  R --> C : 429 RATE_LIMITED
+else Hợp lệ
+  R -> S : login(email, password)
+  S -> DB : SELECT User WHERE email
+  DB --> S : user | null
+  alt Không có user hoặc bcrypt.compare sai
+    S --> R : InvalidCredentials
+    R --> C : 401 INVALID_CREDENTIALS
+    C --> U : "Email hoặc mật khẩu không đúng"
+  else Đúng
+    S -> S : Ký JWT (sub = userId, hết hạn 7 ngày)
+    S --> R : { token, user }
+    R --> C : 200 { token, user }
+    C -> C : Lưu token, đặt ngôn ngữ = user.locale
+    C --> U : Chuyển tới next hoặc /home
+  end
+end
+@enduml
