@@ -31,3 +31,11 @@ Các nền tảng hiện có thường chỉ giải quyết một trong hai vấ
 | [docs/Working_rules.md](docs/Working_rules.md) | Luật và quy trình làm việc cho thành viên và AI Agent: Git, PR, review, quy chuẩn code, API, bảo mật, deploy, checklist |
 | [docs/Project_Structure.md](docs/Project_Structure.md) | Tech stack, kiến trúc, cấu trúc thư mục và giải thích chi tiết |
 | [docs/PLAN.md](docs/PLAN.md) | Kế hoạch, phạm vi và lộ trình (đang tinh chỉnh) |
+
+## Luật merge vào `main`
+
+Repo đang **private** trên gói GitHub Free nên GitHub không bật được branch protection. Các luật dưới đây vẫn **bắt buộc** và được cả nhóm **tuân thủ thủ công** (chi tiết ở [Working_rules mục 5.5](docs/Working_rules.md)):
+
+- Không push thẳng vào `main`, không force push, không xóa `main`. Mọi thay đổi đi qua Pull Request từ branch `<loại>/<số-issue>-<mô-tả>`.
+- Mỗi PR cần **1 approve** của thành viên còn lại. Không tự approve, không tự merge khi chưa có approve.
+- Chỉ dùng **Squash and merge**, khi CI xanh (từ lúc có CI ở P0-17). Merge xong thì xóa branch.
