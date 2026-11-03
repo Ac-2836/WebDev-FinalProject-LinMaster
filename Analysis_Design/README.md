@@ -21,7 +21,10 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | Sơ đồ | Nội dung |
 |---|---|
 | [uc-00-tong-quat](02_UseCase/uc-00-tong-quat.png) | Use case tổng quát |
+| [uc-01-auth](02_UseCase/uc-01-auth.png) | Phân rã: tài khoản |
 | [uc-02-vocab](02_UseCase/uc-02-vocab.png) | Phân rã: đọc và học từ |
 | [uc-03-flashcard](02_UseCase/uc-03-flashcard.png) | Phân rã: flashcard |
 | [uc-04-exam](02_UseCase/uc-04-exam.png) | Phân rã: thi thử |
+| [uc-05-library](02_UseCase/uc-05-library.png) | Phân rã: kho cộng đồng |
+| [uc-06-stats-home](02_UseCase/uc-06-stats-home.png) | Phân rã: dashboard và trang chủ |
 | [use-case-specs.md](02_UseCase/use-case-specs.md) | Đặc tả các use case chính |

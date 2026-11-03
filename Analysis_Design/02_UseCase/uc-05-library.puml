@@ -1,0 +1,27 @@
+@startuml uc-05-library
+!include ../_style.iuml
+title Use case phân rã — Kho cộng đồng (library)
+left to right direction
+actor "Người học\n(chủ sở hữu)" as Owner
+actor "Người học\n(người dùng kho)" as User
+rectangle "library" {
+  usecase "UC40 Đăng lên / gỡ khỏi kho" as UC40
+  usecase "UC41 Duyệt và tìm kiếm kho" as UC41
+  usecase "Lọc theo loại, chủ đề, kỹ năng;\nsắp xếp mới / phổ biến" as FILTER
+  usecase "UC42 Xem trước nội dung" as UC42
+  usecase "UC43 Chép bộ thẻ về thư viện" as UC43
+  usecase "UC44 Làm đề từ kho" as UC44
+  usecase "UC45 Báo cáo vi phạm" as UC45
+  usecase "Tự ẩn khi đủ 3 báo cáo" as HIDE
+}
+usecase "UC32 Làm bài thi\n(exam)" as UC32
+Owner --> UC40
+User --> UC41
+User --> UC42
+User --> UC45
+UC41 <.. FILTER : <<extend>>
+UC42 <.. UC43 : <<extend>>
+UC42 <.. UC44 : <<extend>>
+UC44 ..> UC32 : <<include>>
+UC45 ..> HIDE : <<include>>
+@enduml
