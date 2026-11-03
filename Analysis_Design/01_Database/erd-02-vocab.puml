@@ -1,0 +1,22 @@
+@startuml erd-02-vocab
+!include ../_style.iuml
+title ERD — vocab (đọc và học từ)
+hide stereotype
+hide empty members
+entity "User" as User #EEEEEE
+!includesub _entities.iuml!VOCAB
+User ||--o{ Document
+User ||--o{ VocabEntry
+User ||--o{ VocabLookup
+VocabEntry ||--|{ VocabContext : có các câu gốc
+Document |o--o{ VocabContext : xuất hiện trong
+Document |o--o{ VocabLookup : tra trong
+note right of VocabContext
+  Lưu cùng một từ ở câu khác thì thêm VocabContext,
+  không tạo VocabEntry mới.
+  documentId null + sourceUrl: tra từ extension (Mở rộng).
+end note
+note bottom of VocabLookup
+  Nhật ký mỗi lần tra từ (cho lịch hoạt động trên dashboard).
+end note
+@enduml

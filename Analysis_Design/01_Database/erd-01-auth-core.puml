@@ -1,0 +1,19 @@
+@startuml erd-01-auth-core
+!include ../_style.iuml
+title ERD — auth và core
+hide stereotype
+hide empty members
+!includesub _entities.iuml!USER
+!includesub _entities.iuml!AI
+!includesub _entities.iuml!FILE
+User ||--o{ AiUsage : dùng AI
+User ||--o{ StoredFile : tải lên
+note right of AiCache
+  Cache theo (task, inputHash).
+  Không gắn người dùng: hai người tra
+  cùng từ trong cùng câu dùng chung kết quả.
+end note
+note bottom of AiUsage
+  Dùng để tính quota AI mỗi người mỗi ngày.
+end note
+@enduml

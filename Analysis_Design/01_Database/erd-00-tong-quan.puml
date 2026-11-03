@@ -1,0 +1,68 @@
+@startuml erd-00-tong-quan
+!include ../_style.iuml
+title ERD tổng quan — LinMaster (tên bảng và quan hệ)
+hide members
+hide stereotype
+top to bottom direction
+
+package "auth" #F3F7FD {
+!includesub _entities.iuml!USER
+}
+package "core" #F6F6F6 {
+!includesub _entities.iuml!AI
+!includesub _entities.iuml!FILE
+}
+package "vocab" #F2FAF4 {
+!includesub _entities.iuml!VOCAB
+}
+package "flashcard" #FFF9EE {
+!includesub _entities.iuml!FLASHCARD
+}
+package "exam" #FBF2F7 {
+!includesub _entities.iuml!EXAM
+}
+package "library" #F4F2FB {
+!includesub _entities.iuml!LIBRARY
+}
+
+User ||--o{ AiUsage
+User ||--o{ StoredFile
+User ||--o{ Document
+User ||--o{ VocabEntry
+User ||--o{ VocabLookup
+User ||--o{ FlashcardSet
+User ||--o{ CardProgress
+User ||--o{ StudySession
+User ||--o{ ReviewLog
+User ||--o{ Test
+User ||--o{ TestImport
+User ||--o{ Attempt
+User ||--o{ Report
+
+VocabEntry ||--|{ VocabContext
+Document |o--o{ VocabContext
+Document |o--o{ VocabLookup
+
+FlashcardSet ||--o{ Card
+FlashcardSet |o--o{ FlashcardSet : bản chép
+VocabEntry |o--o{ Card
+Card ||--o{ CardProgress
+FlashcardSet ||--o{ StudySession
+Card ||--o{ ReviewLog
+StudySession |o--o{ ReviewLog
+
+Test ||--|{ TestSection
+TestSection ||--|{ Passage
+Passage ||--|{ QuestionGroup
+QuestionGroup ||--|{ Question
+StoredFile |o--o{ TestSection : audio
+StoredFile |o--o{ QuestionGroup : ảnh
+StoredFile ||--o{ TestImport : file đề / đáp án / audio
+TestImport |o--o| Test : tạo ra
+Test ||--o{ Attempt
+Attempt ||--o{ AttemptAnswer
+Question |o--o{ AttemptAnswer
+
+Report }o..o| FlashcardSet : targetId
+Report }o..o| Test : targetId
+@enduml

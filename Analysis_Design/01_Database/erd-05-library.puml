@@ -1,0 +1,28 @@
+@startuml erd-05-library
+!include ../_style.iuml
+title ERD — library (kho cộng đồng)
+hide stereotype
+hide empty members
+entity "User" as User #EEEEEE
+!includesub _entities.iuml!LIBRARY
+entity "FlashcardSet" as FlashcardSet #EEEEEE {
+  visibility
+  publishedAt
+  copiedFromId
+  copyCount
+}
+entity "Test" as Test #EEEEEE {
+  visibility
+  publishedAt
+  attemptCount
+}
+User ||--o{ Report : báo cáo
+Report }o..o| FlashcardSet : targetType = flashcard_set
+Report }o..o| Test : targetType = test
+note bottom of Report
+  Quan hệ đa hình qua (targetType, targetId), không có FK.
+  Từ 3 báo cáo "open" trở lên: nội dung chuyển visibility = hidden.
+  Các cột công khai nằm trên bảng của module sở hữu nội dung;
+  library chỉ đổi chúng qua public API của module đó.
+end note
+@enduml
