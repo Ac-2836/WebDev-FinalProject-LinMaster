@@ -16,7 +16,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 3. [Luật riêng cho AI Agent](#3-luật-riêng-cho-ai-agent)
 4. [Vòng đời một task](#4-vòng-đời-một-task)
 5. [Git: branch, commit, pull request, review](#5-git-branch-commit-pull-request-review)
-6. [Nhịp làm việc](#6-nhịp-làm-việc)
+6. [Quản lý công việc bằng Kanban](#6-quản-lý-công-việc-bằng-kanban)
 7. [Quy chuẩn code](#7-quy-chuẩn-code)
 8. [REST API và API doc](#8-rest-api-và-api-doc)
 9. [Database](#9-database)
@@ -34,7 +34,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 
 | Chuẩn của giảng viên | Mức | Được đáp ứng bởi |
 |---|---|---|
-| Lịch sử PR đều đặn, quản lý dự án sát thực tế | Cao | Mục 4, 5, 6 |
+| Lịch sử PR đều đặn, quản lý dự án sát thực tế | Cao | Mục 4, 5, 6 (Kanban trên GitHub Projects) |
 | Publishment tốt: deploy, quản lý website, tên miền | Cao | Mục 13 |
 | Có database | Tối thiểu | Mục 9 |
 | Có API doc (bắt buộc dùng Swagger) | Tối thiểu | Mục 8.4 |
@@ -53,7 +53,8 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 
 | Hành động | Thành viên | AI Agent |
 |---|---|---|
-| Tạo, giao, đóng Issue | ✅ | Chỉ **đề xuất** nội dung issue |
+| Tạo Issue khi phát hiện việc mới (mục 6.4) | ✅ ai phát hiện thì người đó tạo | Chỉ **đề xuất** nội dung issue |
+| Nhận việc (kéo thẻ, gán mình vào Assignees) | ✅ theo luật kéo việc (mục 6.3) | ❌ |
 | Viết code, test, tài liệu kỹ thuật | ✅ | ✅ trong phạm vi issue được giao |
 | Commit trên branch tính năng | ✅ | Chỉ khi thành viên phụ trách yêu cầu |
 | Push, mở PR | ✅ bằng tài khoản của mình | ❌ |
@@ -108,15 +109,16 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 Issue ─▶ Branch ─▶ Code ─▶ Tự kiểm tra ─▶ Pull Request ─▶ Review ─▶ CI xanh ─▶ Squash merge ─▶ Done
 ```
 
-| Bước | Ai | Việc | Trạng thái trên board |
+| Bước | Ai | Việc | Cột trên board Kanban |
 |---|---|---|---|
-| 1. Issue | Người | Tạo Issue theo template: mô tả, tiêu chí hoàn thành, label, người phụ trách, milestone | Backlog → To do |
-| 2. Branch | Người | Tạo từ `main` mới nhất theo quy tắc đặt tên (mục 5.1) | In progress |
-| 3. Code | Người / AI | Code, viết test, cập nhật API doc nếu có | In progress |
-| 4. Tự kiểm tra | Người / AI | `lint`, `test`, `build` chạy qua ở máy; chạy thử luồng thật | In progress |
-| 5. Pull Request | Người | Mở PR theo template, gắn `Closes #<issue>` | In review |
-| 6. Review | Người còn lại | Review theo mục 5.4, chạy thử trên link preview | In review |
-| 7. Merge | Người mở PR | 1 approve + CI xanh → Squash and merge, xóa branch | Done |
+| 1. Issue | Người | Tạo Issue theo template (Task / Bug / Idea): mô tả, tiêu chí hoàn thành, label, Module, Cỡ | Backlog |
+| 2. Làm rõ | Cả nhóm (buổi xem lại tuần) | Đủ tiêu chí hoàn thành, các việc cần trước đã xong → chuyển sang Ready | Ready |
+| 3. Kéo việc | Người rảnh tay | Lấy thẻ **trên cùng** của Ready, gán mình vào Assignees (mục 6.3) | In progress |
+| 4. Branch + code | Người / AI | Branch từ `main` mới nhất (mục 5.1); code, test, cập nhật API doc nếu có | In progress |
+| 5. Tự kiểm tra | Người / AI | `lint`, `test`, `build` chạy qua ở máy; chạy thử luồng thật | In progress |
+| 6. Pull Request | Người | Mở PR theo template, gắn `Closes #<issue>`. Board tự chuyển thẻ | In review |
+| 7. Review | Người còn lại | Review theo mục 5.4, chạy thử trên link preview | In review |
+| 8. Merge | Người mở PR | 1 approve + CI xanh → Squash and merge, xóa branch. Issue tự đóng | Done |
 
 ### Definition of Done
 Một task **chỉ** được coi là xong khi đủ các điều sau:
@@ -193,20 +195,101 @@ Refs #12
 - Bắt buộc merge qua PR, cần 1 approve, CI (lint + test + build + kiểm tra mọi route có trong Swagger) phải xanh.
 - Cấm push thẳng, cấm force push, cấm xóa nhánh.
 - Lỗi gấp trên production vẫn đi qua PR (`fix/<issue>-...`), người review ưu tiên xử lý ngay.
+- Repo **private** trên gói GitHub Free không bật được branch protection. Khi đó các luật trên vẫn bắt buộc và được tuân thủ thủ công. Chuyển repo sang public (hoặc dùng GitHub Pro) để GitHub tự chặn.
 
 ---
 
-## 6. Nhịp làm việc
+## 6. Quản lý công việc bằng Kanban
+
+Nhóm dùng **Kanban** trên **GitHub Projects** (Project "LinMaster"), không dùng tool ngoài. Lý do: nhóm chỉ có 2 người và thời gian ngắn. Kanban không cần thêm vai trò hay nhiều buổi họp, nhưng vẫn giữ board luôn đúng thực tế và PR đều đặn nhờ giới hạn WIP.
+
+### 6.1. Board và các cột
+
+```
+Backlog ──▶ Ready ──▶ In progress ──▶ In review ──▶ Done
+```
+
+| Cột | Ý nghĩa | Giới hạn WIP |
+|---|---|---|
+| **Backlog** | Mọi việc đã biết nhưng chưa sẵn sàng làm. Việc mới phát sinh luôn vào đây trước | Không giới hạn |
+| **Ready** | Đã đủ rõ để bắt tay làm ngay: có mô tả, tiêu chí hoàn thành, các việc cần trước đã xong. Sắp theo ưu tiên, trên cùng là việc cần làm nhất | Không giới hạn |
+| **In progress** | Đang code, đã có người nhận | **Tối đa 2 thẻ mỗi người** |
+| **In review** | Đã mở PR, đang chờ review hoặc đang sửa theo review | **Tối đa 3 thẻ toàn nhóm** |
+| **Done** | Đã merge vào `main`, đạt Definition of Done (mục 4) | — |
+
+**Các trường của mỗi thẻ:** Status (cột), Priority (Gấp / Cao / Thường / Thấp), Module, Cỡ (S / M / L), Phụ trách, Mã (`Pn-xx` trong PLAN nếu có), Assignees.
+
+**Labels:** `module:*`, `type:feature|chore|devops|test|docs|content|release`, `bug`, `idea`, `blocked`, `size:S|M|L`.
+
+**Các view:**
+
+| View | Kiểu | Dùng để |
+|---|---|---|
+| Kanban | Board | Làm việc hằng ngày |
+| Backlog | Table | Sắp ưu tiên, làm rõ việc trong buổi xem lại tuần |
+| Của tôi | Board, lọc `assignee:@me` | Xem việc của mình |
+| Roadmap | Roadmap | Nhìn tổng thể theo thời gian, đưa vào report |
+
+**Tự động hóa (Workflows của Project):**
+- Issue/PR mới của repo tự thêm vào board, vào cột Backlog.
+- PR được mở → thẻ sang In review.
+- PR merge hoặc issue đóng → thẻ sang Done.
+
+### 6.2. Khởi đầu: nạp backlog
+- Mọi việc **bắt buộc** trong `PLAN.md` Phần D được tạo thành Issue, mỗi việc một Issue, ghi mã `Pn-xx` trong tiêu đề.
+- Sắp thứ tự trong Backlog theo thứ tự và phụ thuộc trong PLAN. Các việc đã đủ điều kiện làm ngay thì chuyển sang Ready.
+
+### 6.3. Luật kéo việc (pull) và giới hạn WIP
+- **Không giao việc theo kiểu đẩy.** Ai rảnh tay thì tự **kéo thẻ trên cùng của Ready** về mình, gán Assignees, rồi chuyển sang In progress.
+  - Được bỏ qua thẻ trên cùng nếu nó không thuộc vai trò của mình (ví dụ việc front-end với người phụ trách back-end).
+- **Tôn trọng giới hạn WIP.** Đang có đủ 2 thẻ ở In progress thì **không** kéo việc mới. Thay vào đó, ưu tiên theo thứ tự:
+  1. Review PR đang chờ.
+  2. Gỡ việc đang kẹt.
+  3. Hoàn thành việc dở.
+- Cột In review chạm giới hạn 3 thẻ thì cả nhóm dừng code mới để review cho xong.
+- Một thẻ chỉ có **một** người phụ trách chính. Cần người kia giúp thì ghi vào comment.
+- Thẻ ở In progress quá **2 ngày** thì phải tách nhỏ, hoặc gắn `blocked` kèm lý do.
+
+### 6.4. Việc phát sinh: khi nào tạo Issue mới
+
+| Tình huống | Tạo Issue mới? | Cách xử lý |
+|---|---|---|
+| Lỗi tìm thấy khi review một PR, nằm trong phạm vi PR đó | **Không** | Comment trong PR, chủ PR sửa trên cùng branch |
+| Lỗi trên `main` / production | **Có**, label `bug` | Ghi cách tái hiện, mức độ, module. Vào Backlog, hoặc Ready nếu cần làm ngay |
+| Lỗi **gấp** (sập trang, demo không chạy) | **Có**, `bug` + Priority **Gấp** | Đặt lên đầu Ready. **Là trường hợp duy nhất được vượt giới hạn WIP** |
+| Đang làm thì thấy việc ngoài phạm vi Issue (refactor, thiếu tính năng nhỏ) | **Có** | Tạo Issue mới vào Backlog. **Không** làm luôn trong PR hiện tại |
+| Việc đang làm hóa ra quá lớn (cỡ L, quá 400 dòng) | Tách nhỏ | Tạo sub-issue hoặc chia thành nhiều Issue nhỏ |
+| Ý tưởng hay nhưng ngoài MVP | **Có**, label `idea` | Để cuối Backlog, xem lại trong buổi tuần |
+
+- **Ai phát hiện việc thì người đó tạo Issue.** Issue mới **luôn vào Backlog trước**, không nhảy thẳng sang In progress. Lỗi gấp là ngoại lệ duy nhất.
+- Trước khi tạo, tìm xem đã có Issue trùng chưa. Trùng thì comment vào Issue cũ.
+- **[AI]** AI Agent chỉ soạn nội dung Issue đề xuất (mục 3.2), người tạo Issue trên GitHub.
+
+### 6.5. Nhịp làm việc
 
 | Nhịp | Việc cần làm | Ai |
 |---|---|---|
-| **Mỗi ngày làm việc** | Mỗi người ít nhất **1 PR** (mục tiêu 1–3). Cập nhật board. Có vướng mắc thì comment vào Issue | Người |
-| **Đầu tuần** | Tạo đủ Issue cho milestone của tuần, chia việc | Thành viên 1 |
-| **Giữa tuần** | Kiểm tra tiến độ so với milestone. Trễ thì cắt bớt phạm vi theo `PLAN.md` | Cả nhóm |
-| **Cuối tuần** | Đóng milestone, tạo tag release `vX.Y` kèm release notes trên GitHub Releases, kiểm tra production | Thành viên 2 |
-| **Họp tuần** | ~30 phút. Biên bản đăng ở **GitHub Discussions** (mục *Meetings*): đã làm, sẽ làm, vướng mắc, quyết định | Cả nhóm |
+| **Đầu ngày** | Mở view Kanban. Thứ tự ưu tiên: review PR đang chờ → làm tiếp việc dở → kéo việc mới từ Ready | Mỗi người |
+| **Trong ngày** | Mỗi người ít nhất **1 PR** được mở hoặc merge (mục tiêu 1–3). Thẻ luôn nằm đúng cột. Vướng mắc thì comment vào Issue và gắn `blocked` | Mỗi người |
+| **Daily (online, không bắt buộc)** | 2–3 dòng trong bài Discussions của tuần: hôm qua xong gì, hôm nay làm gì, vướng gì | Mỗi người |
+| **Xem lại tuần (~30 phút)** | Biên bản đăng ở **GitHub Discussions** (mục *Meetings*), theo mục 6.6 | Cả nhóm |
+| **Release** | Tại các mốc trong PLAN: tag `vX.Y` kèm release notes trên GitHub Releases, kiểm tra production | Thành viên 2 |
 
-**Lịch sử phải phản ánh đúng thực tế:**
+### 6.6. Buổi xem lại hằng tuần
+1. **Đã xong gì:** số thẻ Done trong tuần, link release (nếu có).
+2. **Thẻ kẹt:** thẻ ở In progress hoặc In review quá 2 ngày, thẻ `blocked`. Xử lý những thẻ này trước tiên.
+3. **Sắp lại Backlog:**
+   - Phân loại các Issue mới phát sinh: giữ, gộp hay đóng với lý do *not planned*.
+   - Đặt Priority.
+   - Chuyển các việc đủ điều kiện sang Ready cho tuần tới.
+4. **Đối chiếu với PLAN:** trễ thì cắt phạm vi theo thứ tự cắt giảm trong `PLAN.md` Phần G.
+5. **Chỉnh luật nếu cần:** giới hạn WIP còn hợp lý không, có nên tách việc nhỏ hơn không.
+
+### 6.7. Đo lường (dùng cho report)
+- Tab **Insights** của Project: biểu đồ số thẻ theo Status qua thời gian (tương tự Cumulative Flow Diagram), số thẻ Done mỗi tuần.
+- Thời gian từ lúc kéo thẻ tới lúc Done (lead time), tính bằng `gh` từ lịch sử Issue/PR khi viết report.
+
+### 6.8. Lịch sử phải phản ánh đúng thực tế
 - Làm đều mỗi ngày, không dồn vào cuối tuần hay sát hạn nộp.
 - **Không được** sửa ngày commit, viết lại lịch sử đã push, hay tạo commit/PR chỉ để tăng số lượng.
 - Mọi quyết định quan trọng phải để lại dấu vết trên GitHub (Issue, PR, Discussions), không chỉ nằm trong tin nhắn riêng.
@@ -225,7 +308,7 @@ Dự án theo các style guide của Google. Khi có điểm chưa rõ, bản g�
 - **[gts](https://github.com/google/gts)** (ESLint + Prettier của Google) dùng cho mọi workspace. Riêng `client/` gộp thêm `eslint-config-next`.
 - Lệnh `npm run lint` để kiểm tra, `npm run fix` để tự sửa.
 - CI chạy lint trên mỗi PR, lint lỗi thì không merge được.
-- **Định dạng do máy lo:** thụt lề 2 dấu cách, dòng tối đa 80 ký tự, có dấu `;`, dùng nháy đơn. Không tranh cãi về định dạng trong review.
+- **Định dạng do máy lo:** thụt lề 2 dấu cách, dòng tối đa 120 ký tự (nới từ mặc định 80 của gts cho phù hợp với JSX và class Tailwind), có dấu `;`, dùng nháy đơn. Không tranh cãi về định dạng trong review.
 
 ### 7.2. Đặt tên
 
@@ -246,7 +329,7 @@ Dự án theo các style guide của Google. Khi có điểm chưa rõ, bản g�
 - Dùng `const`, khi cần gán lại thì dùng `let`. **Không** dùng `var`.
 - **Named export.** Ngoại lệ là các file Next.js bắt buộc default export (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`).
 - **Không** dùng `any`. Chưa biết kiểu thì dùng `unknown` rồi thu hẹp. **Không** dùng `@ts-ignore`.
-- Dùng `===` / `!==`. Riêng `== null` được phép, vì nó kiểm tra cùng lúc `null` và `undefined`.
+- Luôn dùng `===` / `!==` (gts báo lỗi cả `== null`). Cần kiểm tra cả `null` lẫn `undefined` thì dùng `??`, `?.` hoặc so sánh tường minh.
 - Mô tả object dùng `interface`. Union, tuple, kiểu tính toán dùng `type`.
 - Trường không bắt buộc viết `name?: string`.
 - Ném lỗi luôn dùng `throw new Error(...)` (hoặc class lỗi của dự án), không throw chuỗi.
@@ -299,7 +382,7 @@ Kiến trúc module được mô tả ở [PLAN.md](PLAN.md) Phần B. Các lu�
 | Lấy một bản ghi | GET | `GET /api/v1/vocab/:id` | 200 |
 | Tạo mới | POST | `POST /api/v1/flashcards/decks` | 201 |
 | Cập nhật một phần | PATCH | `PATCH /api/v1/flashcards/decks/:id` | 200 |
-| Ghi đè | PUT | `PUT /api/v1/attempts/:id` | 200 |
+| Ghi đè | PUT | `PUT /api/v1/attempts/:id/state` | 200 |
 | Xóa | DELETE | `DELETE /api/v1/vocab/:id` | 204 |
 | Hành động đặc biệt | POST | `POST /api/v1/attempts/:id/submit` | 200 |
 
@@ -334,7 +417,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - **Sinh doc từ code:** đặc tả OpenAPI 3 được **sinh tự động từ các Zod schema** đang dùng để validate request/response, bằng thư viện `@asteasolutions/zod-to-openapi`. **Không** viết tay file YAML/JSON, để doc luôn khớp với code.
 - **Đăng ký endpoint:** mỗi endpoint phải được đăng ký vào registry của OpenAPI ngay cạnh route của nó, gồm:
   - Tóm tắt và mô tả.
-  - Tag theo module (`Auth`, `Vocab`, `Tests`, `Attempts`, `Decks`, `Stats`).
+  - Tag theo module (`Auth`, `Tests`, `Attempts`, `Vocab`, `Flashcards`, `Stats`).
   - Schema của request và response.
   - Ví dụ.
   - Các mã lỗi có thể trả về.
@@ -414,7 +497,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 ---
 
 ## 14. Nội dung đề thi
-- Mỗi đề là một file JSON trong `content/tests/`, đúng định dạng mô tả trong `PLAN.md` mục 5.1. CI và seed đều kiểm tra file bằng schema trong `shared/`.
+- Mỗi đề là một file JSON trong `content/tests/`, đúng định dạng mô tả trong `PLAN.md` Phần F. CI và seed đều kiểm tra file bằng schema trong `shared/`.
 - File audio để trong `content/audio/` (không commit), upload lên Cloudflare R2.
 - Trường `source` **phải** ghi rõ nguồn. Không dùng đề có bản quyền trên web công khai nếu chưa được phép.
 - Mỗi đề phải được **người thứ hai** kiểm tra đáp án trước khi merge.
@@ -438,7 +521,7 @@ Không tạo thêm file tài liệu khác khi chưa được cả nhóm đồng 
 
 **Report và thuyết trình:**
 - Chụp ảnh mỗi khi xong một tính năng.
-- **Ngừng thêm tính năng từ 14/11:** sau mốc này chỉ sửa lỗi và hoàn thiện.
+- **Ngừng thêm tính năng từ mốc đóng băng trong `PLAN.md`:** sau mốc này chỉ sửa lỗi và hoàn thiện. Từ mốc đó, Issue mới chỉ được là `bug` hoặc việc hoàn thiện; `idea` để dành cho mục "Hướng phát triển" của report.
 - Tuần cuối dành cho report, slide và kịch bản demo. **Phải** có video demo quay sẵn để dự phòng.
 - Report gồm các phần:
   - Tổng quan và lý do chọn đề tài.
@@ -460,9 +543,15 @@ Không tạo thêm file tài liệu khác khi chưa được cả nhóm đồng 
 - [ ] Đã cập nhật API doc, migration, `.env.example` và `Project_Structure.md` (nếu liên quan).
 - [ ] Đã điền đủ template PR, có `Closes #<issue>`.
 
-**Cuối mỗi tuần:**
-- [ ] Issue của milestone đã đóng, hoặc được chuyển sang tuần sau kèm lý do.
-- [ ] Đã tạo tag release kèm release notes.
+**Hằng ngày:**
+- [ ] Không ai vượt giới hạn WIP (trừ lỗi gấp).
+- [ ] Thẻ nằm đúng cột, thẻ bị kẹt có label `blocked` kèm lý do.
+- [ ] Mỗi người có ít nhất 1 PR được mở hoặc merge.
+
+**Cuối mỗi tuần (buổi xem lại):**
+- [ ] Đã xử lý mọi thẻ kẹt quá 2 ngày.
+- [ ] Đã phân loại Issue mới phát sinh, sắp lại Backlog, đưa đủ việc sang Ready cho tuần tới.
+- [ ] Đã tạo tag release kèm release notes (nếu tuần đó có mốc release).
 - [ ] Production chạy đúng trên tên miền, trang status báo xanh.
 - [ ] API doc khớp với code.
 - [ ] Đã đăng biên bản họp và chụp ảnh cho report.
