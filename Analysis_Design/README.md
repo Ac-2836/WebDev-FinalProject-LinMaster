@@ -65,3 +65,11 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [seq-07-mo-bai-doc-tu-ket-qua](04_Sequence/seq-07-mo-bai-doc-tu-ket-qua.png) | Mở passage của bài thi trong Trình đọc |
 | [seq-08-hoc-the](04_Sequence/seq-08-hoc-the.png) | Học thẻ SM-2 |
 | [seq-09-chep-bo-the](04_Sequence/seq-09-chep-bo-the.png) | Chép bộ thẻ từ kho |
+
+### 05 — State (P0-10)
+| Sơ đồ | Nội dung |
+|---|---|
+| [st-01-attempt](05_State/st-01-attempt.png) | Lượt làm bài (gồm Listening → Reading của đề Full) |
+| [st-02-test-import](05_State/st-02-test-import.png) | Lượt tải đề |
+| [st-03-cong-khai-noi-dung](05_State/st-03-cong-khai-noi-dung.png) | private / public / hidden |
+| [st-04-tien-do-the](05_State/st-04-tien-do-the.png) | Mới / Đang học / Đã thuộc |

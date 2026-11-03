@@ -1,0 +1,21 @@
+@startuml st-03-cong-khai-noi-dung
+!include ../_style.iuml
+title State — Trạng thái công khai của bộ thẻ / đề (visibility)
+[*] --> Private : tạo mới / chép từ kho / tải đề xong
+state "private" as Private
+state "public" as Public
+state "hidden" as Hidden
+Private : chỉ chủ sở hữu thấy
+Public : xuất hiện trong kho; người khác xem trước, chép, làm đề
+Hidden : bị ẩn khỏi kho do báo cáo; chủ sở hữu vẫn thấy
+Private --> Public : Đăng lên kho\n[đề phải có nguồn] / publishedAt = now
+Public --> Private : Gỡ khỏi kho
+Public --> Hidden : nhận đủ 3 báo cáo "open"
+Hidden --> Private : chủ sở hữu sửa nội dung\n/ đóng các báo cáo
+Private --> [*] : xóa
+Hidden --> [*] : xóa
+note bottom of Public
+  Gỡ xuống hay xóa không ảnh hưởng
+  các bản người khác đã chép về.
+end note
+@enduml
