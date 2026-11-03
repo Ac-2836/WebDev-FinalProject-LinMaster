@@ -1,0 +1,38 @@
+@startuml uc-02-vocab
+!include ../_style.iuml
+title Use case phân rã — Đọc và học từ (vocab)
+left to right direction
+actor "Người học" as Learner
+actor "Gemini AI" as AI
+rectangle "vocab" {
+  usecase "UC10 Tạo tài liệu đọc" as UC10
+  usecase "Dán văn bản" as UC10a
+  usecase "Tải file PDF / DOCX / TXT" as UC10b
+  usecase "UC11 Đọc tài liệu" as UC11
+  usecase "UC12 Tra từ theo ngữ cảnh" as UC12
+  usecase "UC13 Lưu từ vào kho" as UC13
+  usecase "UC14 Lọc nhanh từ\n(theo CEFR / chủ đề)" as UC14
+  usecase "UC15 Quản lý kho từ" as UC15
+  usecase "Tìm kiếm, lọc từ" as UC15a
+  usecase "Sửa ghi chú, xóa từ" as UC15b
+  usecase "Gọi AI qua AI gateway\n(cache, quota)" as AIG
+}
+Learner --> UC10
+Learner --> UC11
+Learner --> UC14
+Learner --> UC15
+UC10 <.. UC10a : <<extend>>
+UC10 <.. UC10b : <<extend>>
+UC11 <.. UC12 : <<extend>>
+UC12 <.. UC13 : <<extend>>
+UC14 <.. UC13 : <<extend>>
+UC12 ..> AIG : <<include>>
+UC14 ..> AIG : <<include>>
+UC15 ..> UC15a : <<include>>
+UC15 <.. UC15b : <<extend>>
+AIG --> AI
+note right of UC12
+  API tra từ không phụ thuộc giao diện web,
+  để extension trình duyệt dùng lại (Mở rộng).
+end note
+@enduml

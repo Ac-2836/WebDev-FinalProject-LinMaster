@@ -1,0 +1,39 @@
+@startuml uc-03-flashcard
+!include ../_style.iuml
+title Use case phân rã — Flashcard
+left to right direction
+actor "Người học" as Learner
+actor "Gemini AI" as AI
+rectangle "flashcard" {
+  usecase "UC20 Tạo bộ thẻ" as UC20
+  usecase "UC21 Sửa bộ thẻ" as UC21
+  usecase "UC22 Xóa bộ thẻ" as UC22
+  usecase "UC23 Tạo bộ thẻ từ kho từ" as UC23
+  usecase "Soạn thẻ\n(thêm, xóa, đổi thứ tự)" as ED
+  usecase "Dán nhanh nhiều thẻ\n(Nên có)" as PASTE
+  usecase "UC24 Học bằng thẻ lật" as UC24
+  usecase "UC25 Học theo lặp lại ngắt quãng" as UC25
+  usecase "Chấm thẻ\n(Again / Hard / Good / Easy)" as RATE
+  usecase "UC26 Kiểm tra / Ghép thẻ\n(Nên có)" as UC26
+  usecase "UC27 Luyện tập do AI sinh\n(Nên có)" as UC27
+  usecase "Ghi phiên học" as SESS
+}
+Learner --> UC20
+Learner --> UC21
+Learner --> UC22
+Learner --> UC23
+Learner --> UC24
+Learner --> UC25
+Learner --> UC26
+Learner --> UC27
+UC20 ..> ED : <<include>>
+UC21 ..> ED : <<include>>
+ED <.. PASTE : <<extend>>
+UC20 <.. UC23 : <<extend>>
+UC25 ..> RATE : <<include>>
+UC24 ..> SESS : <<include>>
+UC25 ..> SESS : <<include>>
+UC26 ..> SESS : <<include>>
+UC27 ..> SESS : <<include>>
+UC27 --> AI
+@enduml
