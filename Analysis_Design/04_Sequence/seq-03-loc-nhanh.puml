@@ -1,0 +1,53 @@
+@startuml seq-03-loc-nhanh
+!include ../_style.iuml
+title Sequence — Lọc nhanh từ trong tài liệu (UC14)
+autonumber
+actor "Người học" as U
+participant "Trình đọc\n(Client)" as C
+participant "Vocab route" as R
+participant "VocabService" as S
+participant "AI gateway" as G
+database "PostgreSQL" as DB
+participant "Gemini API" as AI
+U -> C : Chọn CEFR / chủ đề, bấm "Lọc"
+C -> R : POST /api/v1/vocab/documents/:id/scan\n{ levels?, topics? }
+R -> S : scan(userId, documentId, criteria)
+S -> DB : SELECT Document (kiểm tra chủ sở hữu)
+alt Không phải của người học
+  S --> R : NotFound
+  R --> C : 404
+else Đúng chủ sở hữu
+  S -> S : Chia văn bản thành các đoạn (~1.500 từ)
+  S -> G : Kiểm tra quota đủ cho số đoạn
+  alt Không đủ quota
+    G --> S : AiQuotaExceeded
+    S --> R : lỗi
+    R --> C : 429 AI_QUOTA_EXCEEDED { retryAt }
+  else Đủ quota
+  par Mỗi đoạn
+    S -> G : runJsonTask("scan-document.v1", { chunk, criteria })
+    G -> AI : generateContent
+    AI --> G : [{ word, lemma, sentence, cefr, topics }]
+    G --> S : candidates
+  end
+  note right of G
+    Mỗi lần runJsonTask đi qua cùng cơ chế
+    của AI gateway như seq-02: tra AiCache,
+    thử lại tối đa 3 lần đến khi đúng schema,
+    ghi AiUsage. Đoạn vẫn lỗi thì bỏ qua và báo
+    "một phần tài liệu chưa lọc được".
+  end note
+  S -> S : Bỏ ứng viên có sentence không nằm trong văn bản
+  S -> S : Gộp theo (lemma, loại từ)
+  S -> DB : Đánh dấu "Đã có" theo VocabEntry của người học
+  S --> R : candidates[]
+  R --> C : 200
+  C --> U : Danh sách có checkbox
+  U -> C : Chọn từ, "Lưu các từ đã chọn"
+  C -> R : POST /api/v1/vocab/entries [ ... ]
+  R -> S : saveMany
+  S -> DB : Upsert VocabEntry + INSERT VocabContext (transaction)
+  R --> C : 201 { saved, merged }
+  end
+end
+@enduml
