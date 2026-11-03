@@ -1,8 +1,19 @@
 @startuml act-01-tra-va-luu-tu
 !include ../_style.iuml
-title Activity — Đọc tài liệu, tra từ và lưu từ (UC11–UC13)
+title Activity — Đọc tài liệu, tra từ và lưu từ (UC10–UC13)
 |Người học|
 start
+:Tạo tài liệu: dán văn bản
+hoặc tải file PDF / DOCX / TXT;
+|Hệ thống|
+while (File sai định dạng, quá 5 MB hoặc không trích được chữ?) is (có)
+  :Báo lỗi cụ thể, giữ nguyên form;
+  |Người học|
+  :Chọn file khác hoặc dán văn bản;
+  |Hệ thống|
+endwhile (không)
+:Trích chữ, lưu Document;
+|Người học|
 :Mở tài liệu trong Trình đọc;
 |Hệ thống|
 :Tải nội dung tài liệu
@@ -32,8 +43,12 @@ repeat
         |Hệ thống|
         :Kiểm tra kết quả bằng schema
         (thử lại tối đa 2 lần);
-        :Lưu vào AiCache;
       endif
+      if (Có kết quả hợp lệ?) then (không)
+        :Báo AI đang lỗi, mời thử lại,
+        không trừ quota;
+      else (có)
+      :Lưu vào AiCache (nếu mới);
       :Ghi VocabLookup;
       :Hiện popover: nghĩa trong câu, IPA,
       cách dùng, collocations, CEFR;
@@ -50,6 +65,7 @@ repeat
         :Tô màu từ trong bài,
         toast có nút "Tạo bộ thẻ";
       else (không)
+      endif
       endif
     endif
   endif
