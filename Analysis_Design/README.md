@@ -48,3 +48,7 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [act-02-loc-nhanh-tu](03_Activity/act-02-loc-nhanh-tu.png) | Lọc nhanh từ theo CEFR / chủ đề |
 | [act-03-soan-bo-the](03_Activity/act-03-soan-bo-the.png) | Tạo / sửa bộ thẻ |
 | [act-04-hoc-the-srs](03_Activity/act-04-hoc-the-srs.png) | Học thẻ theo SM-2 |
+| [act-05-tai-de](03_Activity/act-05-tai-de.png) | Tải đề lên |
+| [act-06-lam-bai-thi](03_Activity/act-06-lam-bai-thi.png) | Làm bài thi CBT, tự lưu, nộp bài |
+| [act-07-dang-len-kho](03_Activity/act-07-dang-len-kho.png) | Đăng lên / gỡ khỏi kho |
+| [act-08-dung-kho](03_Activity/act-08-dung-kho.png) | Tìm, xem trước, chép, làm đề, báo cáo |

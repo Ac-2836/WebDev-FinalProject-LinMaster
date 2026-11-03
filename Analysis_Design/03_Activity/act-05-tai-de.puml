@@ -1,0 +1,50 @@
+@startuml act-05-tai-de
+!include ../_style.iuml
+title Activity — Tải đề lên (UC30)
+|Người học|
+start
+:Chọn loại đề: Reading / Listening / Full;
+:Kéo thả PDF đề, PDF đáp án
+(+ audio với Listening / Full);
+|Hệ thống|
+if (Đủ file, đúng định dạng,
+đúng dung lượng?) then (không)
+  :Báo lỗi ngay trên form;
+  stop
+endif
+:Lưu file (StoredFile);
+:Tạo TestImport = queued, trả importId;
+fork
+  |Người học|
+  :Xem tiến độ xử lý
+  (client hỏi trạng thái mỗi vài giây);
+fork again
+  |Hệ thống|
+  :TestImport = parsing;
+  |Gemini AI|
+  :Nhận diện PDF đề → section, passage,
+  nhóm câu, dạng câu, phương án;
+  :Đọc PDF đáp án → đáp án theo số câu,
+  tự nhận ra phần Listening / Reading;
+  |Hệ thống|
+  :TestImport = validating;
+  :Ghép đáp án vào câu hỏi;
+  :Kiểm tra: số câu từng phần theo chứng chỉ,
+  đánh số liên tục, đủ đáp án,
+  đáp án hợp lệ với dạng câu, audio đọc được;
+  if (Đạt?) then (có)
+    :Ghi Test (riêng tư) và các bảng con;
+    :TestImport = done;
+  else (không)
+    :TestImport = failed,
+    lưu danh sách lỗi theo từng câu;
+  endif
+end fork
+|Người học|
+if (Kết quả?) then (done)
+  :Đề xuất hiện trong "Đề của tôi";
+else (failed)
+  :Xem lỗi theo câu, sửa file, tải lại;
+endif
+stop
+@enduml
