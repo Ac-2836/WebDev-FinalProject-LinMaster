@@ -17,6 +17,18 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 
 ## Mục lục
 
+### 01 — Cơ sở dữ liệu (P0-05)
+| Sơ đồ | Nội dung |
+|---|---|
+| [erd-00-tong-quan](01_Database/erd-00-tong-quan.png) | Toàn bộ bảng và quan hệ, gom theo module |
+| [erd-01-auth-core](01_Database/erd-01-auth-core.png) | User, AiCache, AiUsage, StoredFile |
+| [erd-02-vocab](01_Database/erd-02-vocab.png) | Document, VocabEntry, VocabContext, VocabLookup |
+| [erd-03-flashcard](01_Database/erd-03-flashcard.png) | FlashcardSet, Card, CardProgress, StudySession, ReviewLog |
+| [erd-04-exam](01_Database/erd-04-exam.png) | Test → TestSection → Passage → QuestionGroup → Question; TestImport; Attempt, AttemptAnswer |
+| [erd-05-library](01_Database/erd-05-library.png) | Report và các cột công khai |
+| [erd-06-enums](01_Database/erd-06-enums.png) | Các kiểu liệt kê |
+| [data-dictionary.md](01_Database/data-dictionary.md) | Từ điển dữ liệu: cột, ràng buộc, index, quy tắc xóa |
+
 ### 02 — Use case (P0-03, P0-04)
 | Sơ đồ | Nội dung |
 |---|---|

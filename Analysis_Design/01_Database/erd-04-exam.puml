@@ -1,0 +1,32 @@
+@startuml erd-04-exam
+!include ../_style.iuml
+title ERD — exam (thi thử)
+hide stereotype
+hide empty members
+entity "User" as User #EEEEEE
+entity "StoredFile" as StoredFile #EEEEEE
+!includesub _entities.iuml!EXAM
+User ||--o{ Test : sở hữu
+User ||--o{ TestImport : tải đề
+User ||--o{ Attempt : làm bài
+Test ||--|{ TestSection : gồm kỹ năng
+TestSection ||--|{ Passage : passage / part
+Passage ||--|{ QuestionGroup : nhóm câu
+QuestionGroup ||--|{ Question : câu hỏi
+StoredFile |o--o{ TestSection : audio
+StoredFile |o--o{ QuestionGroup : ảnh sơ đồ
+StoredFile ||--o{ TestImport : file đề / đáp án / audio
+TestImport |o--o| Test : tạo ra
+Test ||--o{ Attempt
+Attempt ||--o{ AttemptAnswer : kết quả từng câu
+Question |o--o{ AttemptAnswer
+note right of Passage
+  Reading: paragraphs = các đoạn có nhãn A, B, C...
+  Listening: mỗi Part là một Passage,
+  paragraphs null, audioStartSec = mốc trong audio.
+end note
+note right of AttemptAnswer
+  correctAnswer chụp lại lúc chấm,
+  nên sửa đề sau không đổi kết quả cũ.
+end note
+@enduml

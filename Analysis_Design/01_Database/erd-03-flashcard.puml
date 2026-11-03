@@ -1,0 +1,24 @@
+@startuml erd-03-flashcard
+!include ../_style.iuml
+title ERD — flashcard
+hide stereotype
+hide empty members
+entity "User" as User #EEEEEE
+entity "VocabEntry" as VocabEntry #EEEEEE
+!includesub _entities.iuml!FLASHCARD
+User ||--o{ FlashcardSet : sở hữu
+FlashcardSet ||--o{ Card : gồm
+FlashcardSet |o--o{ FlashcardSet : bản chép (copiedFromId)
+VocabEntry |o--o{ Card : tạo từ kho từ
+User ||--o{ CardProgress
+Card ||--o{ CardProgress : tiến độ SM-2 theo từng người
+User ||--o{ StudySession
+FlashcardSet ||--o{ StudySession
+User ||--o{ ReviewLog
+Card ||--o{ ReviewLog
+StudySession |o--o{ ReviewLog
+note right of CardProgress
+  Tách khỏi Card: bộ thẻ chép từ kho
+  có tiến độ riêng của người chép.
+end note
+@enduml

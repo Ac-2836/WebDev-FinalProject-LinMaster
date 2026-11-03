@@ -1,0 +1,7 @@
+@startuml erd-06-enums
+!include ../_style.iuml
+title Kiểu liệt kê (enum) dùng trong CSDL
+hide stereotype
+hide empty members
+!includesub _entities.iuml!ENUMS
+@enduml

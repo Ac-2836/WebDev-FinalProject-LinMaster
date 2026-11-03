@@ -1,0 +1,376 @@
+' Định nghĩa đầy đủ mọi bảng. Các sơ đồ ERD lấy từng phần bằng !includesub.
+' Ký hiệu: * = NOT NULL, <<PK>> khóa chính, <<FK>> khóa ngoại, <<UQ>> duy nhất.
+
+!startsub USER
+entity "User" as User <<auth>> {
+  * id : uuid <<PK>>
+  --
+  * email : varchar(255) <<UQ>>
+  * passwordHash : varchar(255)
+  * displayName : varchar(80)
+  * locale : Locale = 'vi'
+  targetBand : decimal(2,1)
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+}
+!endsub
+
+!startsub AI
+entity "AiCache" as AiCache <<core>> {
+  * id : uuid <<PK>>
+  --
+  * task : varchar(60)
+  * inputHash : char(64)
+  * output : jsonb
+  * model : varchar(60)
+  * createdAt : timestamptz
+  expiresAt : timestamptz
+  ..
+  <<UQ>> (task, inputHash)
+}
+entity "AiUsage" as AiUsage <<core>> {
+  * id : uuid <<PK>>
+  --
+  * userId : uuid <<FK>>
+  * task : varchar(60)
+  * cached : boolean
+  inputTokens : int
+  outputTokens : int
+  * createdAt : timestamptz
+}
+!endsub
+
+!startsub FILE
+entity "StoredFile" as StoredFile <<core>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * storageKey : varchar(255) <<UQ>>
+  * mimeType : varchar(100)
+  * sizeBytes : int
+  * originalName : varchar(255)
+  durationSec : int
+  * createdAt : timestamptz
+}
+!endsub
+
+!startsub VOCAB
+entity "Document" as Document <<vocab>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * title : varchar(200)
+  * source : DocumentSource
+  * paragraphs : jsonb
+  sourceRef : jsonb
+  * wordCount : int
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+}
+entity "VocabEntry" as VocabEntry <<vocab>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * headword : varchar(120)
+  * lemma : varchar(120)
+  * partOfSpeech : varchar(20)
+  ipa : varchar(120)
+  * meaningVi : text
+  definitionEn : text
+  usageNote : text
+  * collocations : text[]
+  cefr : Cefr
+  * topics : text[]
+  note : text
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+  ..
+  <<UQ>> (ownerId, lemma, partOfSpeech)
+}
+entity "VocabContext" as VocabContext <<vocab>> {
+  * id : uuid <<PK>>
+  --
+  * entryId : uuid <<FK>>
+  documentId : uuid <<FK>>
+  * sentence : text
+  startOffset : int
+  endOffset : int
+  sourceUrl : varchar(2048)
+  * createdAt : timestamptz
+}
+entity "VocabLookup" as VocabLookup <<vocab>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  documentId : uuid <<FK>>
+  * text : varchar(120)
+  * sentence : text
+  * saved : boolean
+  * createdAt : timestamptz
+}
+!endsub
+
+!startsub FLASHCARD
+entity "FlashcardSet" as FlashcardSet <<flashcard>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * title : varchar(200)
+  description : text
+  * termLang : varchar(10)
+  * definitionLang : varchar(10)
+  * visibility : Visibility = 'private'
+  publishedAt : timestamptz
+  copiedFromId : uuid <<FK>>
+  * copyCount : int = 0
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+}
+entity "Card" as Card <<flashcard>> {
+  * id : uuid <<PK>>
+  --
+  * setId : uuid <<FK>>
+  * position : int
+  * term : text
+  * definition : text
+  example : text
+  vocabEntryId : uuid <<FK>>
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+}
+entity "CardProgress" as CardProgress <<flashcard>> {
+  * id : uuid <<PK>>
+  --
+  * userId : uuid <<FK>>
+  * cardId : uuid <<FK>>
+  * easiness : real = 2.5
+  * intervalDays : int = 0
+  * repetitions : int = 0
+  * lapses : int = 0
+  * dueAt : timestamptz
+  lastReviewedAt : timestamptz
+  ..
+  <<UQ>> (userId, cardId)
+}
+entity "StudySession" as StudySession <<flashcard>> {
+  * id : uuid <<PK>>
+  --
+  * userId : uuid <<FK>>
+  * setId : uuid <<FK>>
+  * mode : StudyMode
+  * startedAt : timestamptz
+  endedAt : timestamptz
+  * cardsStudied : int = 0
+  * correctCount : int = 0
+}
+entity "ReviewLog" as ReviewLog <<flashcard>> {
+  * id : uuid <<PK>>
+  --
+  * userId : uuid <<FK>>
+  * cardId : uuid <<FK>>
+  sessionId : uuid <<FK>>
+  * rating : Rating
+  * intervalBefore : int
+  * intervalAfter : int
+  * reviewedAt : timestamptz
+}
+!endsub
+
+!startsub EXAM
+entity "Test" as Test <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * certification : varchar(40)
+  * kind : TestKind
+  * title : varchar(200)
+  source : varchar(300)
+  * visibility : Visibility = 'private'
+  publishedAt : timestamptz
+  * attemptCount : int = 0
+  * createdAt : timestamptz
+  * updatedAt : timestamptz
+}
+entity "TestSection" as TestSection <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * testId : uuid <<FK>>
+  * skill : Skill
+  * position : int
+  * durationSec : int
+  audioFileId : uuid <<FK>>
+}
+entity "Passage" as Passage <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * sectionId : uuid <<FK>>
+  * position : int
+  * title : varchar(200)
+  paragraphs : jsonb
+  audioStartSec : int
+}
+entity "QuestionGroup" as QuestionGroup <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * passageId : uuid <<FK>>
+  * position : int
+  * kind : QuestionKind
+  * fromNo : int
+  * toNo : int
+  * instructions : text
+  sharedOptions : jsonb
+  wordLimit : int
+  imageFileId : uuid <<FK>>
+}
+entity "Question" as Question <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * groupId : uuid <<FK>>
+  * number : int
+  * prompt : text
+  options : jsonb
+  * answer : jsonb
+}
+entity "TestImport" as TestImport <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * ownerId : uuid <<FK>>
+  * kind : TestKind
+  * status : ImportStatus = 'queued'
+  * questionFileId : uuid <<FK>>
+  * answerFileId : uuid <<FK>>
+  audioFileId : uuid <<FK>>
+  errors : jsonb
+  testId : uuid <<FK>>
+  * createdAt : timestamptz
+  finishedAt : timestamptz
+}
+entity "Attempt" as Attempt <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * userId : uuid <<FK>>
+  * testId : uuid <<FK>>
+  * status : AttemptStatus
+  * startedAt : timestamptz
+  * deadlineAt : timestamptz
+  submittedAt : timestamptz
+  * autoSubmitted : boolean = false
+  * state : jsonb
+  listeningCorrect : int
+  readingCorrect : int
+  listeningBand : decimal(2,1)
+  readingBand : decimal(2,1)
+  * updatedAt : timestamptz
+}
+entity "AttemptAnswer" as AttemptAnswer <<exam>> {
+  * id : uuid <<PK>>
+  --
+  * attemptId : uuid <<FK>>
+  questionId : uuid <<FK>>
+  * questionNumber : int
+  * skill : Skill
+  * kind : QuestionKind
+  given : jsonb
+  * correctAnswer : jsonb
+  * isCorrect : boolean
+}
+!endsub
+
+!startsub LIBRARY
+entity "Report" as Report <<library>> {
+  * id : uuid <<PK>>
+  --
+  * reporterId : uuid <<FK>>
+  * targetType : ContentType
+  * targetId : uuid
+  * reason : ReportReason
+  detail : text
+  * status : ReportStatus = 'open'
+  * createdAt : timestamptz
+  ..
+  <<UQ>> (reporterId, targetType, targetId)
+}
+!endsub
+
+!startsub ENUMS
+enum "Locale" as Locale {
+  vi
+  en
+}
+enum "Cefr" as Cefr {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+enum "DocumentSource" as DocumentSource {
+  paste
+  file
+  exam
+}
+enum "Visibility" as Visibility {
+  private
+  public
+  hidden
+}
+enum "StudyMode" as StudyMode {
+  flip
+  learn
+  test
+  match
+  exercise
+}
+enum "Rating" as Rating {
+  again
+  hard
+  good
+  easy
+}
+enum "TestKind" as TestKind {
+  reading
+  listening
+  full
+}
+enum "Skill" as Skill {
+  listening
+  reading
+}
+enum "ImportStatus" as ImportStatus {
+  queued
+  parsing
+  validating
+  done
+  failed
+}
+enum "AttemptStatus" as AttemptStatus {
+  in_progress
+  submitted
+}
+enum "QuestionKind" as QuestionKind {
+  single_choice
+  multi_choice
+  tfng
+  ynng
+  matching
+  completion
+  short_answer
+  diagram_label
+}
+enum "ContentType" as ContentType {
+  flashcard_set
+  test
+}
+enum "ReportReason" as ReportReason {
+  wrong_content
+  copyright
+  inappropriate
+  other
+}
+enum "ReportStatus" as ReportStatus {
+  open
+  resolved
+  dismissed
+}
+!endsub
