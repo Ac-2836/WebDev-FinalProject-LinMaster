@@ -1,0 +1,49 @@
+@startuml seq-05-lam-bai-tu-luu
+!include ../_style.iuml
+title Sequence — Bắt đầu / tiếp tục làm bài và tự lưu (UC32)
+autonumber
+actor "Người học" as U
+participant "Phòng thi\n(Client)" as C
+participant "Attempt route" as R
+participant "AttemptService" as S
+database "PostgreSQL" as DB
+U -> C : Bấm "Bắt đầu" / "Tiếp tục"
+C -> R : POST /api/v1/attempts { testId }
+R -> S : startOrResume(userId, testId)
+S -> DB : Đề của mình hoặc đang public?
+S -> DB : Có Attempt in_progress của (user, test)?
+alt Có bài dở
+  DB --> S : attempt
+else Chưa có
+  S -> DB : INSERT Attempt (startedAt = now,\ndeadlineAt = now + tổng thời gian)
+end
+S --> R : attemptId
+R --> C : 201 { attemptId }
+C -> R : GET /api/v1/attempts/:id
+R -> S : get(userId, attemptId)
+alt now > deadlineAt và chưa nộp
+  S -> S : Nộp lười (xem seq-06)
+  R --> C : 409 ALREADY_SUBMITTED → trang kết quả
+else Còn giờ
+  S --> R : đề (không có đáp án) + state + serverNow\n+ vị trí audio tính theo giờ server
+  R --> C : 200
+  C -> C : Đồng bộ đồng hồ theo serverNow
+end
+loop Mỗi khi có thay đổi (gom 3 giây)
+  U -> C : Trả lời / highlight / ghi chú / đánh dấu
+  C -> R : PUT /api/v1/attempts/:id/state { state }
+  alt Mất mạng
+    C -> C : Giữ state ở trình duyệt, hiện "Mất kết nối"
+    C -> R : Gửi lại khi có mạng
+  end
+  R -> S : saveState
+  alt now > deadlineAt
+    S --> R : Quá hạn
+    R --> C : 409 ATTEMPT_EXPIRED → client gọi nộp bài
+  else
+    S -> DB : UPDATE Attempt.state, updatedAt
+    R --> C : 200 { savedAt }
+    C --> U : Chỉ báo "Đã lưu"
+  end
+end
+@enduml

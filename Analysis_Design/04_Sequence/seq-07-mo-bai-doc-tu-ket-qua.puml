@@ -1,0 +1,32 @@
+@startuml seq-07-mo-bai-doc-tu-ket-qua
+!include ../_style.iuml
+title Sequence — Mở bài đọc của bài thi trong Trình đọc (UC35)
+autonumber
+actor "Người học" as U
+participant "Trang kết quả\n(Client)" as C
+participant "Vocab route" as R
+participant "VocabService" as V
+participant "exam public API" as E
+database "PostgreSQL" as DB
+U -> C : Bấm "Mở bài đọc trong Trình đọc" (passage 2)
+C -> R : POST /api/v1/vocab/documents\n{ source: "exam", attemptId, passageId }
+R -> V : createFromExam(userId, attemptId, passageId)
+V -> DB : Đã có Document với sourceRef này?
+alt Đã có
+  DB --> V : document
+else Chưa có
+  V -> E : getPassageText(userId, attemptId, passageId)
+  E -> DB : Attempt của user và đã submitted?
+  alt Chưa nộp hoặc không phải của user
+    E --> V : Forbidden
+    V --> R : lỗi
+    R --> C : 403
+  else Hợp lệ
+    E --> V : { title, paragraphs }
+    V -> DB : INSERT Document (source = exam, sourceRef)
+  end
+end
+V --> R : documentId
+R --> C : 201 { documentId }
+C --> U : Chuyển tới /read/:documentId
+@enduml

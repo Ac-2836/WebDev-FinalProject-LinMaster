@@ -56,5 +56,12 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 ### 04 — Sequence (P0-08, P0-09)
 | Sơ đồ | Nội dung |
 |---|---|
+| [seq-01-dang-nhap](04_Sequence/seq-01-dang-nhap.png) | Đăng nhập, cấp JWT |
 | [seq-02-tra-tu](04_Sequence/seq-02-tra-tu.png) | Tra từ qua AI gateway (quota, cache, thử lại) |
 | [seq-03-loc-nhanh](04_Sequence/seq-03-loc-nhanh.png) | Lọc nhanh và lưu nhiều từ |
+| [seq-04-tai-de](04_Sequence/seq-04-tai-de.png) | Tải đề, job nền, AI nhận diện, kiểm tra |
+| [seq-05-lam-bai-tu-luu](04_Sequence/seq-05-lam-bai-tu-luu.png) | Bắt đầu / tiếp tục làm bài, tự lưu |
+| [seq-06-nop-va-cham](04_Sequence/seq-06-nop-va-cham.png) | Nộp bài và chấm điểm |
+| [seq-07-mo-bai-doc-tu-ket-qua](04_Sequence/seq-07-mo-bai-doc-tu-ket-qua.png) | Mở passage của bài thi trong Trình đọc |
+| [seq-08-hoc-the](04_Sequence/seq-08-hoc-the.png) | Học thẻ SM-2 |
+| [seq-09-chep-bo-the](04_Sequence/seq-09-chep-bo-the.png) | Chép bộ thẻ từ kho |

@@ -1,0 +1,33 @@
+@startuml seq-08-hoc-the
+!include ../_style.iuml
+title Sequence — Học thẻ theo SM-2 (UC25)
+autonumber
+actor "Người học" as U
+participant "Màn học\n(Client)" as C
+participant "Flashcard route" as R
+participant "StudyService" as S
+participant "Scheduler SM-2" as SM
+database "PostgreSQL" as DB
+U -> C : Chọn chế độ "Học"
+C -> R : POST /api/v1/flashcards/sessions { setId, mode: learn }
+R -> S : startSession
+S -> DB : INSERT StudySession
+R --> C : 201 { sessionId }
+C -> R : GET /api/v1/flashcards/sets/:id/study
+R -> S : dueCards(userId, setId, today theo giờ VN)
+S -> DB : CardProgress.dueAt ≤ now + thẻ chưa có tiến độ\n(giới hạn mỗi ngày)
+R --> C : cards[]
+loop Mỗi thẻ
+  U -> C : Lật thẻ, chấm Good (phím 3)
+  C -> R : POST /api/v1/flashcards/reviews\n{ cardId, rating, sessionId }
+  R -> S : review
+  S -> SM : next(progress, rating)
+  SM --> S : easiness, intervalDays, repetitions, dueAt
+  S -> DB : UPSERT CardProgress, INSERT ReviewLog
+  R --> C : 200 { nextDueAt }
+end
+C -> R : PATCH /api/v1/flashcards/sessions/:id { endedAt }
+R -> S : endSession
+S -> DB : UPDATE StudySession
+C --> U : Tổng kết phiên
+@enduml

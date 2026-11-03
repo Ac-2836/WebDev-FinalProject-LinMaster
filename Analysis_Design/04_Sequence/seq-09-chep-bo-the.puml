@@ -1,0 +1,32 @@
+@startuml seq-09-chep-bo-the
+!include ../_style.iuml
+title Sequence — Chép bộ thẻ từ kho cộng đồng (UC43)
+autonumber
+actor "Người học" as U
+participant "Trang xem trước\n(Client)" as C
+participant "Library route" as R
+participant "LibraryService" as L
+participant "flashcard public API" as F
+database "PostgreSQL" as DB
+U -> C : Bấm "Lưu về thư viện"
+C -> R : POST /api/v1/library/sets/:id/copy
+R -> L : copySet(userId, setId)
+L -> F : getPublicSet(setId)
+F -> DB : SELECT FlashcardSet + Card WHERE visibility = public
+alt Không public hoặc là của chính người học
+  F --> L : NotFound / Conflict
+  L --> R : lỗi
+  R --> C : 404 / 409
+else Hợp lệ
+  F --> L : set + cards
+  L -> F : cloneSet(userId, set)
+  F -> DB : BEGIN
+  F -> DB : INSERT FlashcardSet (private, copiedFromId)
+  F -> DB : INSERT Card x n
+  F -> DB : UPDATE bản gốc copyCount + 1
+  F -> DB : COMMIT
+  F --> L : newSetId
+  R --> C : 201 { setId }
+  C --> U : Mở bộ thẻ mới của mình
+end
+@enduml
