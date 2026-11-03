@@ -15,6 +15,24 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 
 ---
 
+## UC01 — Đăng ký
+| | |
+|---|---|
+| Actor | Khách |
+| Tiền điều kiện | Chưa đăng nhập |
+| Luồng chính | 1. Khách mở `/register`, nhập tên hiển thị, email, mật khẩu, nhập lại mật khẩu. 2. Hệ thống kiểm tra dữ liệu (email hợp lệ, mật khẩu ≥ 8 ký tự, hai mật khẩu khớp). 3. Hệ thống tạo tài khoản với ngôn ngữ giao diện đang chọn. 4. Hệ thống đăng nhập luôn và chuyển tới `/home` |
+| Luồng thay thế / lỗi | 2a. Dữ liệu sai: báo lỗi ngay dưới ô nhập. 3a. Email đã tồn tại: báo "Email đã được dùng" |
+| Hậu điều kiện | Có bản ghi `User`; người dùng ở trạng thái đã đăng nhập |
+
+## UC02 — Đăng nhập
+| | |
+|---|---|
+| Actor | Khách |
+| Tiền điều kiện | Có tài khoản |
+| Luồng chính | 1. Khách nhập email, mật khẩu. 2. Hệ thống kiểm tra, cấp JWT. 3. Chuyển tới trang `next` (nếu có) hoặc `/home`. Ngôn ngữ giao diện lấy theo hồ sơ |
+| Luồng thay thế / lỗi | 2a. Sai email hoặc mật khẩu: báo "Email hoặc mật khẩu không đúng" (không cho biết sai phần nào). 2b. Thử sai quá nhiều lần: 429, yêu cầu thử lại sau |
+| Hậu điều kiện | Client giữ JWT; mọi request sau gắn token |
+
 ## UC12 — Tra từ theo ngữ cảnh
 | | |
 |---|---|
@@ -104,3 +122,39 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng chính | 1. Trang kết quả hiện điểm, band từng kỹ năng, danh sách câu (đáp án của mình / đáp án đúng), lọc câu sai. 2. Người học bấm "Mở bài đọc trong Trình đọc" ở một passage. 3. Server lấy nội dung passage qua public API của exam (chỉ cho bài đã nộp), tạo `Document` nguồn `exam`. 4. Chuyển tới `/read/[id]` để tra và lưu từ (UC12, UC13) |
 | Luồng thay thế / lỗi | 3a. Passage đã từng được mở: dùng lại tài liệu cũ. 1a. Người khác truy cập: 403 |
 | Hậu điều kiện | Có tài liệu đọc từ bài thi |
+
+## UC40 — Đăng lên / gỡ khỏi kho
+| | |
+|---|---|
+| Actor | Người học (chủ sở hữu) |
+| Tiền điều kiện | Là chủ sở hữu bộ thẻ hoặc đề |
+| Luồng chính | 1. Người học bấm "Đăng lên kho". 2. Hệ thống nhắc quy định (nội dung phải có quyền chia sẻ; đề phải ghi nguồn). 3. Người học xác nhận. 4. `visibility` = `public`, ghi `publishedAt` |
+| Luồng thay thế / lỗi | 2a. Đề chưa có nguồn: yêu cầu nhập nguồn trước. 1a. Nội dung đang bị ẩn do báo cáo (`hidden`): chỉ được gỡ hẳn, không được đăng lại cho tới khi sửa. 1b. Gỡ khỏi kho: `visibility` = `private`; các bản người khác đã chép vẫn giữ nguyên |
+| Hậu điều kiện | Nội dung xuất hiện (hoặc biến mất) trong kho |
+
+## UC43 — Chép bộ thẻ về thư viện
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Bộ thẻ đang `public`, không phải của mình |
+| Luồng chính | 1. Từ trang xem trước (UC42), người học bấm "Lưu về thư viện". 2. Server chép sâu bộ thẻ và các thẻ, ghi `copiedFromId`, tăng `copyCount` của bản gốc. 3. Chuyển tới bộ thẻ mới của người học |
+| Luồng thay thế / lỗi | 1a. Đã chép trước đó: hỏi "Mở bản đã chép" hay "Chép thêm bản mới" |
+| Hậu điều kiện | Người học có bản riêng, sửa thoải mái mà không ảnh hưởng bản gốc |
+
+## UC45 — Báo cáo vi phạm
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Nội dung đang công khai, không phải của mình |
+| Luồng chính | 1. Người học bấm "Báo cáo", chọn lý do (sai nội dung, bản quyền, không phù hợp, khác), thêm mô tả. 2. Server ghi `Report`. 3. Nếu nội dung có từ 3 báo cáo đang mở: chuyển `visibility` = `hidden`, ẩn khỏi kho |
+| Luồng thay thế / lỗi | 2a. Đã báo cáo nội dung này rồi: báo "Bạn đã báo cáo nội dung này" |
+| Hậu điều kiện | Có `Report`; nội dung có thể bị ẩn |
+
+## UC50 — Xem dashboard cá nhân
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở `/dashboard`. 2. Client gọi các API thống kê song song. 3. Hiện các widget: lịch hoạt động 52 tuần và chuỗi ngày học, thẻ số liệu, xu hướng band (kèm vạch mục tiêu), vốn từ theo tuần, điểm yếu theo dạng câu kèm gợi ý, chủ đề học nhiều, đóng góp cộng đồng |
+| Luồng thay thế / lỗi | 3a. Chưa có dữ liệu cho một widget: trạng thái trống kèm lối tắt bắt đầu (ví dụ "Làm bài thi đầu tiên"). 2a. Một API lỗi: chỉ widget đó báo lỗi, các widget khác vẫn hiện |
+| Hậu điều kiện | — |

@@ -1,0 +1,32 @@
+@startuml uc-06-stats-home
+!include ../_style.iuml
+title Use case phân rã — Dashboard và trang chủ
+left to right direction
+actor "Người học" as Learner
+rectangle "stats & home" {
+  usecase "UC50 Xem dashboard cá nhân" as UC50
+  usecase "Lịch hoạt động, chuỗi ngày học" as W1
+  usecase "Thẻ số liệu tổng hợp" as W2
+  usecase "Xu hướng band" as W3
+  usecase "Vốn từ theo tuần" as W4
+  usecase "Điểm yếu theo dạng câu" as W5
+  usecase "Chủ đề học nhiều" as W6
+  usecase "Đóng góp cộng đồng" as W7
+  usecase "UC51 Xem trang chủ" as UC51
+  usecase "Tiếp tục bài thi dở" as H1
+  usecase "Thẻ đến hạn hôm nay" as H2
+  usecase "Tài liệu đọc gần đây" as H3
+}
+Learner --> UC50
+Learner --> UC51
+UC50 ..> W1 : <<include>>
+UC50 ..> W2 : <<include>>
+UC50 ..> W3 : <<include>>
+UC50 ..> W4 : <<include>>
+UC50 ..> W5 : <<include>>
+UC50 ..> W6 : <<include>>
+UC50 ..> W7 : <<include>>
+UC51 ..> H1 : <<include>>
+UC51 ..> H2 : <<include>>
+UC51 ..> H3 : <<include>>
+@enduml
