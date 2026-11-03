@@ -1,0 +1,32 @@
+@startuml act-07-dang-len-kho
+!include ../_style.iuml
+title Activity — Đăng lên / gỡ khỏi kho cộng đồng (UC40)
+|Chủ sở hữu|
+start
+:Mở bộ thẻ hoặc đề của mình;
+if (Hành động?) then (Đăng lên)
+  |Hệ thống|
+  if (Nội dung đang bị ẩn do báo cáo?) then (có)
+    :Không cho đăng lại,
+    yêu cầu sửa nội dung trước;
+    stop
+  endif
+  if (Là đề và chưa ghi nguồn?) then (có)
+    |Chủ sở hữu|
+    :Nhập nguồn đề;
+  endif
+  |Hệ thống|
+  :Hiện quy định chia sẻ
+  (quyền sử dụng, bản quyền);
+  |Chủ sở hữu|
+  :Xác nhận;
+  |Hệ thống|
+  :visibility = public, ghi publishedAt;
+  :Nội dung xuất hiện trong kho;
+else (Gỡ xuống)
+  |Hệ thống|
+  :visibility = private;
+  :Ẩn khỏi kho; các bản đã chép vẫn giữ;
+endif
+stop
+@enduml

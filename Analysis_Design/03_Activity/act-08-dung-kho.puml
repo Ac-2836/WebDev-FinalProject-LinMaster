@@ -1,0 +1,46 @@
+@startuml act-08-dung-kho
+!include ../_style.iuml
+title Activity — Dùng kho cộng đồng: tìm, xem trước, chép, làm đề, báo cáo (UC41–UC45)
+|Người học|
+start
+:Mở /library, chọn tab Bộ thẻ hoặc Đề thi;
+:Tìm kiếm, lọc, sắp xếp;
+|Hệ thống|
+:Trả danh sách nội dung public
+(không gồm hidden / private);
+|Người học|
+:Mở trang xem trước;
+|Hệ thống|
+if (Loại nội dung?) then (bộ thẻ)
+  :Hiện toàn bộ thẻ;
+else (đề thi)
+  :Hiện kỹ năng, số câu, thời gian,
+  dạng câu, người đăng, lượt làm
+  (không lộ câu hỏi và đáp án);
+endif
+|Người học|
+switch (Hành động?)
+case (Lưu bộ thẻ về thư viện)
+  |Hệ thống|
+  :Chép sâu bộ thẻ + thẻ,
+  ghi copiedFromId, tăng copyCount;
+  :Mở bộ thẻ mới của người học;
+case (Làm đề)
+  |Hệ thống|
+  :Tăng attemptCount;
+  :Chuyển sang luồng Làm bài thi (UC32);
+case (Báo cáo)
+  |Người học|
+  :Chọn lý do, nhập mô tả;
+  |Hệ thống|
+  if (Đã báo cáo nội dung này?) then (có)
+    :Báo đã báo cáo trước đó;
+  else (chưa)
+    :Ghi Report;
+    if (Đủ 3 báo cáo đang mở?) then (có)
+      :visibility = hidden, ẩn khỏi kho;
+    endif
+  endif
+endswitch
+stop
+@enduml

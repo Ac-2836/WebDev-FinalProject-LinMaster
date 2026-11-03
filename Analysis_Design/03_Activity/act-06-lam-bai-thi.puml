@@ -1,0 +1,56 @@
+@startuml act-06-lam-bai-thi
+!include ../_style.iuml
+title Activity — Làm bài thi CBT (UC32, UC33)
+|Người học|
+start
+:Mở trang đề;
+|Hệ thống|
+if (Có bài dở của đề này?) then (có)
+  :Hiện nút "Tiếp tục";
+else (không)
+  :Hiện nút "Bắt đầu";
+endif
+|Người học|
+:Bấm nút;
+:Qua màn xác nhận thông tin, hướng dẫn,
+kiểm tra âm thanh (Listening);
+|Hệ thống|
+:Tạo hoặc mở lại Attempt,
+trả serverNow, deadlineAt, state đã lưu;
+if (Đã quá hạn?) then (có)
+  :Tự nộp với đáp án đã lưu (nộp lười);
+else (không)
+  |Người học|
+  repeat
+    :Trả lời, highlight, ghi chú,
+    gạch bỏ phương án, đánh dấu câu;
+    |Hệ thống|
+    :Tự lưu (gom vài giây một lần);
+    if (Lưu được?) then (mất mạng)
+      :Hiện "Mất kết nối",
+      giữ thay đổi ở trình duyệt,
+      thử lại khi có mạng;
+    else (đã lưu)
+    endif
+    if (Còn 10 / 5 phút?) then (đúng)
+      :Hiện cảnh báo thời gian;
+    endif
+    |Người học|
+  repeat while (Chưa nộp và còn giờ?) is (đúng)
+  ->nộp bài hoặc hết giờ;
+  if (Hết giờ?) then (có)
+    |Hệ thống|
+    :Tự nộp, autoSubmitted = true;
+  else (bấm Nộp bài)
+    |Người học|
+    :Xem số câu chưa làm, xác nhận;
+  endif
+endif
+|Hệ thống|
+:Chấm từng câu theo registry dạng câu;
+:Ghi AttemptAnswer (chụp đáp án đúng);
+:Tính số câu đúng, quy ra band;
+:Attempt = submitted;
+:Chuyển tới trang kết quả;
+stop
+@enduml
