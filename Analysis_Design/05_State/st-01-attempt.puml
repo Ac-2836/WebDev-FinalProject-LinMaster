@@ -1,0 +1,31 @@
+@startuml st-01-attempt
+!include ../_style.iuml
+title State — Lượt làm bài (Attempt)
+[*] --> InProgress : POST /attempts\n[chưa có bài dở]\n/ startedAt = now, deadlineAt = now + tổng thời gian
+
+state "in_progress" as InProgress {
+  state "Listening" as L {
+    state "Đang phát audio" as Play
+    state "Kiểm tra lại (2 phút)" as Review
+    [*] --> Play
+    Play --> Review : audio kết thúc\n(theo giờ server)
+  }
+  state "Reading" as R
+  state c <<choice>>
+  [*] --> c
+  c --> L : [đề Listening hoặc Full]
+  c --> R : [đề Reading]
+  L --> R : [đề Full] hết 2 phút kiểm tra lại
+  InProgress : do / tự lưu state sau mỗi thay đổi
+  InProgress : entry (mở lại) / khôi phục state, đồng bộ đồng hồ
+}
+
+InProgress --> InProgress : PUT /state [now ≤ deadlineAt]\n/ ghi state
+InProgress --> Submitted : Người học bấm Nộp bài\n/ chấm, autoSubmitted = false
+InProgress --> Submitted : Hết giờ (client gọi nộp)\n/ chấm, autoSubmitted = true
+InProgress --> Submitted : Mở lại khi đã quá hạn (nộp lười)\n/ chấm với state đã lưu, autoSubmitted = true
+
+state "submitted" as Submitted
+Submitted : chỉ đọc; nộp lại trả kết quả cũ
+Submitted --> [*]
+@enduml

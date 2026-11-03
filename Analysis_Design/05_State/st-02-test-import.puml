@@ -1,0 +1,21 @@
+@startuml st-02-test-import
+!include ../_style.iuml
+title State — Lượt tải đề (TestImport)
+[*] --> Queued : POST /tests/imports\n[bộ file hợp lệ] / lưu file
+state "queued" as Queued
+state "parsing" as Parsing
+state "validating" as Validating
+state "done" as Done
+state "failed" as Failed
+Queued --> Parsing : job nền bắt đầu
+Parsing --> Validating : AI trả cấu trúc đề\nvà đáp án đúng schema
+Parsing --> Failed : AI lỗi sau khi thử lại\nhoặc hết quota
+Validating --> Done : đạt mọi kiểm tra\n/ ghi Test (private), gắn testId
+Validating --> Failed : thiếu / sai đáp án, sai số câu,\naudio không đọc được\n/ ghi errors theo từng câu
+Done --> [*]
+Failed --> [*] : người học sửa file\nvà tải lại (lượt mới)
+note right of Validating
+  Kiểm tra không dùng AI:
+  certification registry + question kind registry
+end note
+@enduml
