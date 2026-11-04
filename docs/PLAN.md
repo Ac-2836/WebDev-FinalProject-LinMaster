@@ -91,6 +91,7 @@ Ngày hôm nay là T3 03/11/2026. Hạn nộp là CN 22/11/2026.
 - Cột **Phụ trách** trong Phần D là người kéo thẻ đó. Người đó mở PR, hiểu code và trả lời khi vấn đáp.
 - **Schema đi trước API:** mỗi module có một issue DB do KH làm trước, để TH viết endpoint trên bảng đã có trên `main`.
 - **Schema `shared/` của một endpoint do người viết endpoint đó soạn.** Ví dụ: TH soạn schema cho CRUD, KH soạn schema cho output của task AI.
+- **Giai đoạn 0 do KH làm toàn bộ** (chốt 04/11), kể cả các thẻ ban đầu giao TH (khung repo, CI, template). Từ Giai đoạn 1 áp dụng lại phân công trên.
 - KH ôm nhiều việc hơn. Vì vậy CI, deploy, e2e và các buổi rà soát server được chuyển cho TH, để số PR của hai người không lệch quá xa.
 
 ## A4. Tiêu chí chấm → cách đáp ứng
@@ -453,23 +454,23 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P0-01 | Board GitHub Projects: 5 cột, các trường (Priority, Module, Cỡ, Mã), 4 view, workflow tự động; tạo labels | quản lý | KH | S | — | Board đúng Working_rules mục 6.1; mọi issue đã có trên board |
 | P0-02 | Thêm TH làm collaborator; cấu hình bảo vệ `main` (nếu repo private thì ghi rõ là tuân thủ thủ công) | quản lý | KH | S | — | TH push được branch; luật merge được ghi trong README |
 | P0-03 | Sơ đồ use case tổng (actor, toàn bộ use case theo module) + use case chi tiết và đặc tả cho vocab, flashcard, exam | thiết kế | KH | M | — | Sơ đồ và đặc tả đúng mẫu B6; cả nhóm duyệt trong PR |
-| P0-04 | Use case chi tiết và đặc tả cho auth, library, stats | thiết kế | TH | S | P0-03 | Như trên |
+| P0-04 | Use case chi tiết và đặc tả cho auth, library, stats | thiết kế | KH | S | P0-03 | Như trên |
 | P0-05 | **Thiết kế CSDL:** ERD toàn hệ thống + từ điển dữ liệu (bảng, cột, kiểu, khóa, ràng buộc duy nhất, bảng thuộc module nào) | thiết kế | KH | M | P0-03, P0-04 | Mọi bảng ở B1 có mặt; TH duyệt; các issue DB sau chỉ hiện thực ERD này |
 | P0-06 | Activity: Đọc → tra → lưu từ; Tạo / sửa bộ thẻ và học | thiết kế | KH | S | P0-03 | Có luồng lỗi (hết quota AI, file sai) |
-| P0-07 | Activity: Tải đề; Làm bài thi (tự lưu, hết giờ, nộp); Đăng lên và chép từ kho | thiết kế | TH | S | P0-04 | Có luồng lỗi (đề sai quy định, mất mạng, quá hạn) |
+| P0-07 | Activity: Tải đề; Làm bài thi (tự lưu, hết giờ, nộp); Đăng lên và chép từ kho | thiết kế | KH | S | P0-04 | Có luồng lỗi (đề sai quy định, mất mạng, quá hạn) |
 | P0-08 | Sequence: Tra từ và Lọc nhanh qua AI gateway (cache, quota, retry) | thiết kế | KH | S | P0-05 | Khớp tên endpoint ở Phần C |
-| P0-09 | Sequence: Đăng nhập; Tải đề (job nền → AI → kiểm tra → lưu); Làm bài, tự lưu, nộp; Chép bộ thẻ | thiết kế | TH | M | P0-05 | Khớp tên endpoint ở Phần C |
-| P0-10 | State: `Attempt`, `TestImport`, trạng thái công khai của nội dung, tiến độ thẻ (Mới → Đang học → Đã thuộc) | thiết kế | TH | S | P0-05 | Mọi trạng thái và điều kiện chuyển đều có |
-| P0-11 | Component + deployment (local và online) + class diagram kiến trúc module và các registry (B3, B4) | thiết kế | TH | S | — | Khớp Phần B và Phần E |
+| P0-09 | Sequence: Đăng nhập; Tải đề (job nền → AI → kiểm tra → lưu); Làm bài, tự lưu, nộp; Chép bộ thẻ | thiết kế | KH | M | P0-05 | Khớp tên endpoint ở Phần C |
+| P0-10 | State: `Attempt`, `TestImport`, trạng thái công khai của nội dung, tiến độ thẻ (Mới → Đang học → Đã thuộc) | thiết kế | KH | S | P0-05 | Mọi trạng thái và điều kiện chuyển đều có |
+| P0-11 | Component + deployment (local và online) + class diagram kiến trúc module và các registry (B3, B4) | thiết kế | KH | S | — | Khớp Phần B và Phần E |
 | P0-12 | Wireframe các màn chính: trình đọc, trình soạn thẻ, chế độ học, phòng thi Reading / Listening, kết quả, dashboard | thiết kế | KH | M | P0-03 | Có bản 375px và 1440px; phòng thi đối chiếu với thi máy thật |
-| P0-13 | Khung monorepo: npm workspaces (`client`, `server`, `shared`), TypeScript, gts (dòng tối đa 120 ký tự), `.editorconfig`, `.nvmrc`, `.gitignore`, script gốc `dev`, `lint`, `fix`, `test`, `build` | core | TH | M | — | `npm install` và `npm run lint` chạy được ở gốc |
-| P0-14 | `docker-compose.yml`: Postgres cho `dev` và `test`; `.env.example` | core | TH | S | P0-13 | `docker compose up` xong là kết nối được DB |
+| P0-13 | Khung monorepo: npm workspaces (`client`, `server`, `shared`), TypeScript, gts (dòng tối đa 120 ký tự), `.editorconfig`, `.nvmrc`, `.gitignore`, script gốc `dev`, `lint`, `fix`, `test`, `build` | core | KH | M | — | `npm install` và `npm run lint` chạy được ở gốc |
+| P0-14 | `docker-compose.yml`: Postgres cho `dev` và `test`; `.env.example` | core | KH | S | P0-13 | `docker compose up` xong là kết nối được DB |
 | P0-15 | Khung client: Next.js App Router, Tailwind, shadcn, theme tokens, font Be Vietnam Pro, `next-intl` (vi/en), 3 nhóm layout trống | core/client | KH | M | P0-13 | `npm run dev` hiện trang tạm, đổi được ngôn ngữ |
-| P0-16 | Khung server: Express, validate biến môi trường bằng Zod, `GET /api/v1/health` | core/server | TH | S | P0-13 | Gọi health trả về `ok` |
-| P0-17 | CI GitHub Actions: cài đặt, lint, kiểm tra kiểu, test, build cho 3 workspace; có Postgres service; cache npm | core | TH | M | P0-15, P0-16 | PR mẫu chạy CI xanh |
-| P0-18 | Template PR và Issue (Task / Bug / Idea); bật Discussions mục *Meetings* | quản lý | TH | S | — | Mở PR hay Issue mới hiện đúng template |
+| P0-16 | Khung server: Express, validate biến môi trường bằng Zod, `GET /api/v1/health` | core/server | KH | S | P0-13 | Gọi health trả về `ok` |
+| P0-17 | CI GitHub Actions: cài đặt, lint, kiểm tra kiểu, test, build cho 3 workspace; có Postgres service; cache npm | core | KH | M | P0-15, P0-16 | PR mẫu chạy CI xanh |
+| P0-18 | Template PR và Issue (Task / Bug / Idea); bật Discussions mục *Meetings* | quản lý | KH | S | — | Mở PR hay Issue mới hiện đúng template |
 | P0-19 | Lấy Gemini API key; chuẩn bị bộ file đề thật mà nhóm có quyền dùng: 1 Reading, 1 Listening (+ audio), 1 Full (Phần F) | content | KH | S | — | Có đủ file, lưu ngoài repo. **Đường găng của P3-05** |
-| P0-20 | Cập nhật `Project_Structure.md`, `Working_rules.md` theo PLAN này (Phần H mục 4) | docs | TH | S | — | Không còn chỗ mâu thuẫn với PLAN |
+| P0-20 | Cập nhật `Project_Structure.md`, `Working_rules.md` theo PLAN này (Phần H mục 4) | docs | KH | S | — | Không còn chỗ mâu thuẫn với PLAN |
 
 ## Giai đoạn 1 — Nền móng (T5 05/11 – T7 07/11)
 
@@ -576,13 +577,13 @@ Report dùng lại bộ sơ đồ của Giai đoạn 0 (đã được cập nh�
 
 | Giai đoạn | Tổng | KH | TH |
 |---|---|---|---|
-| 0 | 20 | 9 | 11 |
+| 0 | 20 | 20 | 0 |
 | 1 | 12 | 7 | 5 |
 | 2 | 13 | 8 | 5 |
 | 3 | 17 | 9 | 8 |
 | 4 (gồm Nên có) | 12 | 8 | 4 |
 | 5–6 | 13 | 4 (+2 chung) | 7 (+2 chung) |
-| **Tổng** | **87** | **45 (+2)** | **40 (+2)** |
+| **Tổng** | **87** | **56 (+2)** | **29 (+2)** |
 
 Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía client ở Giai đoạn 3. KH nên tách mỗi thẻ L thành 2–3 PR để giữ nhịp tối thiểu 1 PR mỗi ngày.
 
@@ -660,7 +661,7 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 1. **Tên miền:** tên cụ thể và đuôi (`.id.vn` hay `.me`), ngày mua.
 2. **File đề kèm đáp án ở cuối** (Phần F): làm trong MVP hay để Nên có.
 3. **Report có mẫu bắt buộc của khoa không?**
-4. **Cập nhật các tài liệu khác theo PLAN này** (issue P0-20):
+4. **Cập nhật các tài liệu khác theo PLAN này** (issue P0-20, **đã xong**):
    - `Project_Structure.md`:
      - Danh sách module: thêm `library`, `home`.
      - `content/` không còn chứa đề JSON, vì đề giờ do người dùng tải lên.
@@ -671,5 +672,5 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
      - Mục 14 (nội dung đề) theo Phần F.
      - Các chỗ ghi "Thành viên 2" đổi theo phân công ở A3.
      - Tag Swagger thêm `Documents`, `Library`.
-     - Mục 15 (tài liệu): cho phép thư mục `docs/diagrams/` (B6).
+     - Mục 15 (tài liệu): cho phép thư mục `Analysis_Design/` (B6).
 5. **Đổi tên PrepMaster → LinMaster** trong file proposal (nếu giảng viên cho sửa).

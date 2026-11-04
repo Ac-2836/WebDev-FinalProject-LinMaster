@@ -47,8 +47,8 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 
 | Vai trò | Phụ trách | Review PR của |
 |---|---|---|
-| **Thành viên 1** — Front-end & UX Lead | Giao diện, trải nghiệm, responsive, a11y, quản lý board GitHub Projects | Back-end |
-| **Thành viên 2** — Back-end & AI Lead | API, database, tích hợp Gemini, nội dung đề thi, deploy, tên miền | Front-end |
+| **Khai Hung** — Front-end, Database & AI | Toàn bộ client (giao diện, responsive, a11y), schema database, AI gateway và mọi task AI, mock data và seed, board GitHub Projects | Tien Hung |
+| **Tien Hung** — Back-end & DevOps | Hạ tầng server, auth, CRUD, SM-2, chấm điểm, phần không phải AI của luồng tải đề, library, API dashboard, CI, deploy, test e2e, tên miền | Khai Hung |
 | **AI Agent** | Viết code, test, API doc theo issue được giao; đề xuất giải pháp | Không review thay người |
 
 | Hành động | Thành viên | AI Agent |
@@ -228,6 +228,7 @@ Backlog ──▶ Ready ──▶ In progress ──▶ In review ──▶ Done
 | Kanban | Board | Làm việc hằng ngày |
 | Backlog | Table | Sắp ưu tiên, làm rõ việc trong buổi xem lại tuần |
 | Của tôi | Board, lọc `assignee:@me` | Xem việc của mình |
+| Theo giai đoạn | Board, nhóm theo trường Giai đoạn | Xem tiến độ từng giai đoạn của PLAN |
 | Roadmap | Roadmap | Nhìn tổng thể theo thời gian, đưa vào report |
 
 **Tự động hóa (Workflows của Project):**
@@ -273,7 +274,7 @@ Backlog ──▶ Ready ──▶ In progress ──▶ In review ──▶ Done
 | **Trong ngày** | Mỗi người ít nhất **1 PR** được mở hoặc merge (mục tiêu 1–3). Thẻ luôn nằm đúng cột. Vướng mắc thì comment vào Issue và gắn `blocked` | Mỗi người |
 | **Daily (online, không bắt buộc)** | 2–3 dòng trong bài Discussions của tuần: hôm qua xong gì, hôm nay làm gì, vướng gì | Mỗi người |
 | **Xem lại tuần (~30 phút)** | Biên bản đăng ở **GitHub Discussions** (mục *Meetings*), theo mục 6.6 | Cả nhóm |
-| **Release** | Tại các mốc trong PLAN: tag `vX.Y` kèm release notes trên GitHub Releases, kiểm tra production | Thành viên 2 |
+| **Release** | Tại các mốc trong PLAN: tag `vX.Y` kèm release notes trên GitHub Releases, kiểm tra production | Người nhận issue release trong PLAN (`v0.1`, `v0.2`: Tien Hung; `v1.0`: Khai Hung) |
 
 ### 6.6. Buổi xem lại hằng tuần
 1. **Đã xong gì:** số thẻ Done trong tuần, link release (nếu có).
@@ -417,7 +418,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - **Sinh doc từ code:** đặc tả OpenAPI 3 được **sinh tự động từ các Zod schema** đang dùng để validate request/response, bằng thư viện `@asteasolutions/zod-to-openapi`. **Không** viết tay file YAML/JSON, để doc luôn khớp với code.
 - **Đăng ký endpoint:** mỗi endpoint phải được đăng ký vào registry của OpenAPI ngay cạnh route của nó, gồm:
   - Tóm tắt và mô tả.
-  - Tag theo module (`Auth`, `Tests`, `Attempts`, `Vocab`, `Flashcards`, `Stats`).
+  - Tag theo module (`Auth`, `Documents`, `Vocab`, `Flashcards`, `Tests`, `Attempts`, `Library`, `Stats`).
   - Schema của request và response.
   - Ví dụ.
   - Các mã lỗi có thể trả về.
@@ -459,7 +460,9 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - API **không** trả đáp án và transcript khi bài thi chưa nộp.
 - Thời gian làm bài tính theo giờ server (`startedAt`), không tin đồng hồ của client.
 - Không render HTML do người dùng nhập (chống XSS). Không dùng `dangerouslySetInnerHTML` với dữ liệu người dùng.
-- Upload file: giới hạn dung lượng và loại file (PDF/DOCX/TXT), chỉ xử lý trong bộ nhớ, không lưu file gốc.
+- Upload file: kiểm tra loại file (MIME) và dung lượng ngay khi nhận.
+  - Tài liệu đọc (PDF/DOCX/TXT, tối đa 5 MB): chỉ trích chữ, **không** lưu file gốc.
+  - File đề (PDF tối đa 20 MB, audio MP3/M4A tối đa 60 MB, PLAN Phần F): lưu qua driver lưu file của `core`, kiểm tra quyền sở hữu mỗi khi đọc.
 - Bật CORS chỉ cho tên miền của front-end. Bật các header bảo mật bằng `helmet`.
 
 ---
@@ -470,7 +473,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 |---|---|---|
 | Unit | Vitest | Chấm điểm, quy đổi band, SM-2, chuẩn hóa đáp án, phân tích file, validate file đề |
 | API (integration) | Vitest + Supertest | Auth, nộp bài, ôn thẻ: các luồng có quyền truy cập và tiền điều kiện |
-| End-to-end | Playwright | Luồng chính: đăng nhập → làm đề → xem kết quả → trích từ → ôn flashcard |
+| End-to-end | Playwright | Luồng chính: đăng nhập → làm đề → xem kết quả → mở bài đọc, tra và lưu từ → ôn flashcard |
 
 - Bug được sửa thì nên có test tái hiện bug đó.
 - Test không gọi dịch vụ ngoài thật (Gemini, R2). Phải mock.
@@ -486,10 +489,10 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 | Preview | Mỗi PR (Vercel tự tạo) | Link trong PR |
 | Production | Mỗi lần merge vào `main` | `https://<tên-miền>` (web), `https://api.<tên-miền>` (API) |
 
-- **Tên miền, DNS, HTTPS:** do Thành viên 2 quản lý qua Cloudflare.
+- **Tên miền, DNS, HTTPS:** do Tien Hung quản lý qua Cloudflare (PLAN P5-06).
 - **Secret của production** chỉ nằm trong phần cài đặt biến môi trường của Vercel/Render, chỉ thành viên có quyền truy cập.
 - **Theo dõi:** UptimeRobot kiểm tra cả web lẫn API, có trang status công khai để đưa vào report.
-- **Sau mỗi lần deploy production:** mở web chạy nhanh các luồng chính (đăng nhập, trích từ, làm đề, flashcard).
+- **Sau mỗi lần deploy production:** mở web chạy nhanh các luồng chính (đăng nhập, tra và lưu từ, tải và làm đề, flashcard).
 - **Rollback:** production lỗi thì redeploy bản ổn định gần nhất trên Vercel/Render, rồi mở Issue `bug` để sửa qua PR.
 - **Ghi nhận:** mỗi release ghi trên GitHub Releases gồm tính năng mới, lỗi đã sửa, thay đổi về deploy hay biến môi trường.
 - **Trước buổi demo:** mở web và API trước ít nhất 2 phút, vì back-end gói free có thể đang "ngủ".
@@ -497,11 +500,13 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 ---
 
 ## 14. Nội dung đề thi
-- Mỗi đề là một file JSON trong `content/tests/`, đúng định dạng mô tả trong `PLAN.md` Phần F. CI và seed đều kiểm tra file bằng schema trong `shared/`.
-- File audio để trong `content/audio/` (không commit), upload lên Cloudflare R2.
+- Đề do người dùng **tải lên trên web**, đúng bộ file quy định ở `PLAN.md` Phần F (Reading: đề + đáp án PDF; Listening: thêm audio; Full: gộp cả hai). Repo không chứa đề.
+- Đề sau khi nhận diện phải qua lớp kiểm tra bằng schema trong `shared/exam` trước khi lưu. Không đạt thì báo lỗi theo từng câu, không lưu.
+- Đề mới tải lên luôn **riêng tư**. Chủ sở hữu tự quyết định có đăng lên kho chung hay không.
 - Trường `source` **phải** ghi rõ nguồn. Không dùng đề có bản quyền trên web công khai nếu chưa được phép.
-- Mỗi đề phải được **người thứ hai** kiểm tra đáp án trước khi merge.
-- `answers` liệt kê đủ mọi cách viết đúng. `evidence` là câu trích **nguyên văn** từ bài.
+- Đề mẫu cho demo (nạp bằng seed) do nhóm tự chuẩn bị (P0-19) và phải được **người thứ hai** kiểm tra đáp án trước khi merge.
+- Đáp án liệt kê đủ mọi cách viết đúng (Phần F: phân tách bằng `/` hoặc `OR`, phần tùy chọn trong ngoặc).
+- **AI Agent không soạn nội dung đề** (đề, đáp án, transcript).
 
 ---
 
@@ -512,6 +517,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - `docs/PLAN.md`
 - `docs/Working_rules.md`
 - `docs/Project_Structure.md`
+- `Analysis_Design/`: sơ đồ phân tích và thiết kế, theo PLAN mục B6
 
 Không tạo thêm file tài liệu khác khi chưa được cả nhóm đồng ý. Biên bản họp đăng ở GitHub Discussions. Ảnh chụp cho report lưu ở thư mục Drive chung của nhóm.
 

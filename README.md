@@ -15,14 +15,17 @@ Các nền tảng hiện có thường chỉ giải quyết một trong hai vấ
 
 **LinMaster** nối việc luyện thi và học từ thành một vòng học khép kín:
 
-**Thi thử → Trích từ vựng từ chính bài vừa thi → Ôn flashcard → Theo dõi tiến bộ → Thi lại**
+**Đọc tài liệu → Tra từ theo ngữ cảnh → Kho từ → Flashcard → Thi thử → Mở bài đọc từ kết quả → …**, có dashboard theo dõi toàn bộ vòng học.
 
 | Module | Chức năng |
 |---|---|
-| **Trích xuất từ vựng** | Dán văn bản hoặc tải file PDF/DOCX/TXT. AI chọn ra các từ đúng trình độ mục tiêu, kèm IPA, nghĩa Anh–Việt, câu ví dụ lấy từ chính bài gốc và collocations |
-| **Phòng thi CBT** | Reading và Listening trên giao diện mô phỏng thi máy: chia đôi màn hình, highlight, gạch bỏ phương án, đánh dấu câu, đồng hồ đếm ngược, tự lưu bài. Nộp bài là có điểm, band ước tính và giải thích kèm bằng chứng trong bài |
-| **Flashcard** | Ôn từ đã lưu theo thuật toán lặp lại ngắt quãng SM-2 |
-| **Dashboard** | Xu hướng điểm, số từ đã học, các dạng câu hỏi hay sai |
+| **Trình đọc & kho từ** | Dán văn bản hoặc tải PDF/DOCX/TXT để đọc. Bôi chọn từ → AI giải thích theo đúng câu đó (nghĩa Anh–Việt, IPA, cách dùng, collocations) → lưu vào kho từ kèm câu gốc. Lọc nhanh từ theo CEFR / chủ đề |
+| **Flashcard** | Tạo và sửa bộ thẻ kiểu Quizlet, tạo bộ thẻ từ kho từ. Học bằng thẻ lật và lặp lại ngắt quãng SM-2 |
+| **Phòng thi CBT** | Tải đề lên (PDF đề + PDF đáp án, thêm audio với Listening), AI tự nhận diện đề và đáp án. Làm bài trên giao diện bám sát thi máy IELTS, chấm điểm, quy ra band |
+| **Kho cộng đồng** | Đăng bộ thẻ và đề lên kho chung, tìm kiếm, xem trước, chép bộ thẻ, làm đề, báo cáo vi phạm |
+| **Dashboard** | Trang cá nhân kiểu hồ sơ GitHub: lịch hoạt động, chuỗi ngày học, số liệu, điểm yếu theo dạng câu |
+
+Giao diện song ngữ Việt / Anh. Chi tiết phạm vi xem [docs/PLAN.md](docs/PLAN.md) Phần A.
 
 ## Tài liệu dự án
 
@@ -30,7 +33,8 @@ Các nền tảng hiện có thường chỉ giải quyết một trong hai vấ
 |---|---|
 | [docs/Working_rules.md](docs/Working_rules.md) | Luật và quy trình làm việc cho thành viên và AI Agent: Git, PR, review, quy chuẩn code, API, bảo mật, deploy, checklist |
 | [docs/Project_Structure.md](docs/Project_Structure.md) | Tech stack, kiến trúc, cấu trúc thư mục và giải thích chi tiết |
-| [docs/PLAN.md](docs/PLAN.md) | Kế hoạch, phạm vi và lộ trình (đang tinh chỉnh) |
+| [docs/PLAN.md](docs/PLAN.md) | Kế hoạch, phạm vi, lộ trình và backlog |
+| [Analysis_Design/](Analysis_Design/README.md) | Sơ đồ phân tích và thiết kế: ERD, use case, activity, sequence, state, kiến trúc |
 
 ## Luật merge vào `main`
 
