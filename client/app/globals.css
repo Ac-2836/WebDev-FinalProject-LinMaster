@@ -2,35 +2,37 @@
 
 /*
  * Theme tokens. shadcn/ui components read the semantic variables below (--primary, --muted…).
- * Colours come from the approved prototype; the wireframes (P0-12) may adjust them here only.
+ * Colours follow the wireframes (P0-12, Analysis_Design/07_Wireframe): navy text, one blue, blue→violet glows.
  */
 :root {
-  --radius: 0.625rem;
-  --background: #f5f6f8;
-  --foreground: #111827;
+  --radius: 0.75rem;
+  --background: #f8f9fc;
+  --foreground: #0b2545;
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #0b2545;
   --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #1d4ed8;
+  --popover-foreground: #0b2545;
+  --primary: #1a5cff;
   --primary-foreground: #ffffff;
-  --secondary: #eef2ff;
-  --secondary-foreground: #1e3a8a;
-  --muted: #eef0f3;
-  --muted-foreground: #4b5563;
-  --accent: #eef2ff;
-  --accent-foreground: #1e3a8a;
-  --destructive: #b91c1c;
-  --border: #e3e6eb;
-  --input: #e3e6eb;
-  --ring: #93c5fd;
+  --secondary: #edf3ff;
+  --secondary-foreground: #1a5cff;
+  --muted: #f1f4f9;
+  --muted-foreground: #476788;
+  --accent: #edf3ff;
+  --accent-foreground: #0b2545;
+  --destructive: #c2261d;
+  --border: #e3e8f1;
+  --input: #cfd8e6;
+  --ring: #8fb2ff;
   /* LinMaster-specific */
-  --success: #15803d;
-  --success-soft: #dcfce7;
-  --warning: #92400e;
-  --warning-soft: #fef3c7;
-  --danger-soft: #fee2e2;
-  --mark: #fde68a;
+  --success: #0f7b4a;
+  --success-soft: #e3f6ec;
+  --warning: #8a4b00;
+  --warning-soft: #fff3d6;
+  --danger-soft: #fdeceb;
+  --mark: #ffe7a0;
+  --violet: #6e4bff;
+  --brand-yellow: #ffd25a;
 }
 
 @theme inline {
@@ -63,6 +65,8 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger-soft: var(--danger-soft);
   --color-mark: var(--mark);
+  --color-violet: var(--violet);
+  --color-brand-yellow: var(--brand-yellow);
 }
 
 @layer base {

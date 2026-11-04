@@ -11,17 +11,19 @@
 <div data-app-nav="home"></div>
 <!-- /home: widgets from the home widget registry (PLAN C7). Each widget loads and fails on its own. -->
 <main id="main" class="page flex flex-col gap-6">
-  <header class="flex flex-col gap-1">
-    <h1 class="h1">Chào buổi tối, Khải Hưng</h1>
-    <p class="text-muted-foreground" data-state="default loading">Hôm nay bạn có <strong class="text-foreground">18 thẻ</strong> cần ôn và một bài thi đang làm dở.</p>
-    <p class="text-muted-foreground" data-state="empty">Bắt đầu bằng một trong ba việc dưới đây.</p>
+  <header class="glow relative overflow-hidden rounded-[28px] px-6 py-8 sm:px-10 sm:py-10">
+    <p class="eyebrow">Thứ Tư, 04/11</p>
+    <h1 class="h1 mt-2">Chào buổi tối, Khải Hưng</h1>
+    <p class="mt-2 text-foreground/75" data-state="default loading">Hôm nay bạn có <strong class="text-foreground">18 thẻ</strong> cần ôn và một bài thi đang làm dở.</p>
+    <p class="mt-2 text-foreground/75" data-state="empty">Bắt đầu bằng một trong ba việc dưới đây.</p>
+    <div data-state="default" class="mt-5 flex flex-wrap gap-2"><a href="../04-flashcard/study-learn.html" class="btn btn-primary"><i data-lucide="brain" class="size-4"></i>Ôn 18 thẻ</a><a href="../03-vocab/documents.html" class="btn btn-secondary bg-white/80">Đọc tài liệu mới</a></div>
   </header>
 
   <!-- Empty (new account): onboarding instead of widgets -->
   <section data-state="empty" class="grid gap-4 md:grid-cols-3" aria-label="Bắt đầu">
-    <a href="../03-vocab/documents.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="book-open-text" class="size-5"></i></span><span class="font-bold">1. Đọc một bài tiếng Anh</span><span class="text-sm text-muted-foreground">Dán bài báo, bôi chọn từ lạ để AI giải thích theo câu.</span></a>
-    <a href="../05-exam/upload.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="upload" class="size-5"></i></span><span class="font-bold">2. Tải đề thi lên</span><span class="text-sm text-muted-foreground">PDF đề + PDF đáp án, hệ thống tạo phòng thi cho bạn.</span></a>
-    <a href="../06-library/library.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="library" class="size-5"></i></span><span class="font-bold">3. Lấy bộ thẻ có sẵn</span><span class="text-sm text-muted-foreground">Chép bộ thẻ cộng đồng về và học ngay.</span></a>
+    <a href="../03-vocab/documents.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="tile"><i data-lucide="book-open-text" class="size-5"></i></span><span class="font-bold">1. Đọc một bài tiếng Anh</span><span class="text-sm text-muted-foreground">Dán bài báo, bôi chọn từ lạ để AI giải thích theo câu.</span></a>
+    <a href="../05-exam/upload.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="tile"><i data-lucide="upload" class="size-5"></i></span><span class="font-bold">2. Tải đề thi lên</span><span class="text-sm text-muted-foreground">PDF đề + PDF đáp án, hệ thống tạo phòng thi cho bạn.</span></a>
+    <a href="../06-library/library.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="tile"><i data-lucide="library" class="size-5"></i></span><span class="font-bold">3. Lấy bộ thẻ có sẵn</span><span class="text-sm text-muted-foreground">Chép bộ thẻ cộng đồng về và học ngay.</span></a>
   </section>
 
   <div data-state="loading" class="grid gap-4 lg:grid-cols-3" aria-busy="true" aria-label="Đang tải">
@@ -35,7 +37,7 @@
     <!-- Continue attempt -->
     <section class="card flex flex-col gap-4 border-primary/40 p-5 lg:col-span-2" aria-labelledby="w1">
       <div class="flex items-start gap-3">
-        <span class="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white"><i data-lucide="timer" class="size-5"></i></span>
+        <span class="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet text-white"><i data-lucide="timer" class="size-5"></i></span>
         <div class="min-w-0 flex-1">
           <p class="text-xs font-semibold uppercase tracking-wide text-primary">Đang làm dở</p>
           <h2 id="w1" class="h2 truncate">Cambridge-style Practice Test 3 · Reading</h2>
@@ -61,7 +63,7 @@
       <div class="flex items-center justify-between"><h2 id="w3" class="h2">Thẻ đến hạn hôm nay</h2><a href="../04-flashcard/sets.html" class="text-sm font-semibold text-primary hover:underline">Tất cả bộ thẻ</a></div>
       <ul class="divide-y">
         <script>
-          document.write([['IELTS Environment','12 thẻ đến hạn · 4 thẻ mới'],['Từ trong bài "Coastal cities"','6 thẻ đến hạn'],['Academic Word List 1','0 thẻ đến hạn · ôn xong hôm nay']].map(([t,s],i)=>`<li class="flex items-center gap-3 py-3"><span class="inline-flex size-9 items-center justify-center rounded-lg bg-secondary text-primary"><i data-lucide="layers" class="size-4"></i></span><div class="min-w-0 flex-1"><p class="truncate font-semibold">${t}</p><p class="hint">${s}</p></div>${i<2?'<a href="../04-flashcard/study-learn.html" class="btn btn-secondary btn-sm">Ôn</a>':'<span class="badge badge-success">Xong</span>'}</li>`).join(''))
+          document.write([['IELTS Environment','12 thẻ đến hạn · 4 thẻ mới'],['Từ trong bài "Coastal cities"','6 thẻ đến hạn'],['Academic Word List 1','0 thẻ đến hạn · ôn xong hôm nay']].map(([t,s],i)=>`<li class="flex items-center gap-3 py-3"><span class="tile size-9 rounded-xl"><i data-lucide="layers" class="size-4"></i></span><div class="min-w-0 flex-1"><p class="truncate font-semibold">${t}</p><p class="hint">${s}</p></div>${i<2?'<a href="../04-flashcard/study-learn.html" class="btn btn-secondary btn-sm">Ôn</a>':'<span class="badge badge-success">Xong</span>'}</li>`).join(''))
         </script>
       </ul>
     </section>

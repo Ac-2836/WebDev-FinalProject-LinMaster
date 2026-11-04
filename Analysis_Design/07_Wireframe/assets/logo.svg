@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 228 48" role="img" aria-label="LinMaster">
+  <!-- Horizontal lockup: mark + wordmark (Be Vietnam Pro Bold, tracking -2%). Clear space = height of the spark (9 units). -->
+  <defs>
+    <linearGradient id="lm-tile-h" x1="6" y1="2" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3D7BFF"/>
+      <stop offset=".55" stop-color="#1A5CFF"/>
+      <stop offset="1" stop-color="#6E4BFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="13" fill="url(#lm-tile-h)"/>
+  <path d="M17.5 29h21.5l-2.6 8.5H15.2a1.8 1.8 0 0 1-1.7-2.3l1.2-4.4A2.6 2.6 0 0 1 17.5 29z" fill="#FFD25A"/>
+  <rect x="15" y="10" width="5.5" height="25.5" rx="2.75" fill="#fff"/>
+  <path d="M33.5 9.5l1.25 3.25L38 14l-3.25 1.25L33.5 18.5l-1.25-3.25L29 14l3.25-1.25z" fill="#fff"/>
+  <text x="60" y="34" font-family="'Be Vietnam Pro', system-ui, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.6" fill="#0B2545">Lin<tspan fill="#1A5CFF">Master</tspan></text>
+</svg>

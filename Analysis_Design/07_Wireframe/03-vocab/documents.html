@@ -12,7 +12,7 @@
 <!-- /read: GET /vocab/documents, POST /vocab/documents (text or multipart file ≤ 5 MB), DELETE /vocab/documents/:id -->
 <main id="main" class="page flex flex-col gap-6">
   <header class="flex flex-wrap items-end gap-3">
-    <div class="flex-1"><h1 class="h1">Tài liệu đọc</h1><p class="mt-1 text-muted-foreground">Mở một bài, bôi chọn từ lạ để tra theo ngữ cảnh.</p></div>
+    <div class="flex-1"><p class="eyebrow">Đọc &amp; tra từ</p><h1 class="h1 mt-1">Tài liệu đọc</h1><p class="mt-1 text-muted-foreground">Mở một bài, bôi chọn từ lạ để tra theo ngữ cảnh.</p></div>
     <button class="btn btn-primary"><i data-lucide="plus" class="size-4"></i>Tài liệu mới</button>
   </header>
 
@@ -30,7 +30,7 @@
         ['Sleep and memory consolidation','clipboard','Dán văn bản','720 từ',0,'01/11'],
         ['Lecture notes week 4.docx','file-text','File DOCX','2.010 từ',7,'30/10'],
       ].map(([t,i,s,w,n,d]) => `<li class="card flex flex-col gap-3 p-5">
-        <div class="flex items-start gap-3"><span class="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary"><i data-lucide="${i}" class="size-5"></i></span>
+        <div class="flex items-start gap-3"><span class="tile size-10 rounded-xl"><i data-lucide="${i}" class="size-5"></i></span>
           <a href="reader.html" class="min-w-0 flex-1 font-semibold leading-snug hover:text-primary">${t}</a>
           <details class="relative"><summary class="btn btn-ghost btn-icon btn-sm list-none" aria-label="Tùy chọn cho ${t}"><i data-lucide="ellipsis-vertical" class="size-4"></i></summary><div class="absolute right-0 z-10 mt-1 w-40 rounded-lg border bg-card p-1 shadow-lg"><button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-danger-soft"><i data-lucide="trash-2" class="size-4"></i>Xóa</button></div></details></div>
         <div class="flex flex-wrap gap-2"><span class="badge">${s}</span><span class="badge">${w}</span>${n ? `<span class="badge badge-primary">${n} từ đã lưu</span>` : ''}</div>
@@ -43,7 +43,7 @@
   </div>
 
   <div data-state="empty" class="card flex flex-col items-center gap-4 px-6 py-14 text-center">
-    <span class="inline-flex size-14 items-center justify-center rounded-full bg-secondary text-primary"><i data-lucide="book-open-text" class="size-7"></i></span>
+    <span class="tile size-14 rounded-3xl"><i data-lucide="book-open-text" class="size-7"></i></span>
     <div><p class="text-lg font-bold">Chưa có tài liệu nào</p><p class="mx-auto mt-1 max-w-sm text-muted-foreground">Dán một bài báo tiếng Anh hoặc tải file PDF, DOCX, TXT để bắt đầu học từ theo ngữ cảnh.</p></div>
     <button class="btn btn-primary"><i data-lucide="plus" class="size-4"></i>Tài liệu mới</button>
   </div>

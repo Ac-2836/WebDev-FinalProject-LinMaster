@@ -12,7 +12,7 @@
 <!-- /vocab: GET /vocab/entries?q&cefr&topic&documentId&page, PATCH/DELETE /vocab/entries/:id, POST /flashcards/sets/from-vocab -->
 <main id="main" class="page flex flex-col gap-5">
   <header class="flex flex-wrap items-end gap-3">
-    <div class="flex-1"><h1 class="h1">Kho từ</h1><p class="mt-1 text-muted-foreground">248 từ · lưu kèm câu gốc nơi bạn gặp chúng.</p></div>
+    <div class="flex-1"><p class="eyebrow">Từ vựng</p><h1 class="h1 mt-1">Kho từ</h1><p class="mt-1 text-muted-foreground">248 từ · lưu kèm câu gốc nơi bạn gặp chúng.</p></div>
   </header>
 
   <div data-state="default detail" class="flex flex-col gap-3 lg:flex-row">
@@ -60,7 +60,7 @@
   <div data-state="loading" class="card flex flex-col divide-y" aria-busy="true" aria-label="Đang tải"><script>document.write('<div class="flex gap-4 p-4"><div class="skeleton size-4"></div><div class="skeleton h-4 w-1/4"></div><div class="skeleton h-4 w-1/3"></div></div>'.repeat(6))</script></div>
 
   <div data-state="empty" class="card flex flex-col items-center gap-4 px-6 py-14 text-center">
-    <span class="inline-flex size-14 items-center justify-center rounded-full bg-secondary text-primary"><i data-lucide="notebook-pen" class="size-7"></i></span>
+    <span class="tile size-14 rounded-3xl"><i data-lucide="notebook-pen" class="size-7"></i></span>
     <div><p class="text-lg font-bold">Kho từ đang trống</p><p class="mx-auto mt-1 max-w-sm text-muted-foreground">Mở một tài liệu, bôi chọn từ lạ rồi bấm Lưu. Từ sẽ xuất hiện ở đây kèm câu gốc.</p></div>
     <a href="documents.html" class="btn btn-primary">Mở tài liệu đọc</a>
   </div>
