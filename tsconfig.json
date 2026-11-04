@@ -3,5 +3,10 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["shared/src/**/*.ts", "server/src/**/*.ts", "client/src/**/*.ts"]
+  "include": [
+    "shared/src/**/*.ts",
+    "server/src/**/*.ts",
+    "server/tests/**/*.ts",
+    "client/src/**/*.ts"
+  ]
 }
