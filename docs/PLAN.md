@@ -488,6 +488,7 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P1-10 | Khung giao diện: navbar từ nav registry, nút đổi ngôn ngữ, toast, 404/lỗi, skeleton, trạng thái trống | core/client | KH | M | P0-15, P0-12 | Hiển thị đúng ở 375px và 1440px |
 | P1-11 | Auth client: `/login`, `/register`, `/profile`, đăng xuất | auth | KH | M | P1-06, P1-09 | Đạt "Hoàn thành khi" của C1 ở local |
 | P1-12 | Trang landing `/` (song ngữ) | core/client | KH | S | P1-10 | Responsive; nút dẫn tới đăng nhập và đăng ký |
+| P1-13 | DB core theo ERD: `AiCache`, `AiUsage`, `StoredFile` (phát sinh 04/11: bảng exam cần `StoredFile` trước P1-07) | core/server | KH | S | P1-05 | Migration đã merge |
 
 ## Giai đoạn 2 — `vocab` + `flashcard` lõi (CN 08/11 – T3 10/11) → `v0.1`
 
@@ -578,12 +579,12 @@ Report dùng lại bộ sơ đồ của Giai đoạn 0 (đã được cập nh�
 | Giai đoạn | Tổng | KH | TH |
 |---|---|---|---|
 | 0 | 20 | 20 | 0 |
-| 1 | 12 | 7 | 5 |
+| 1 | 13 | 8 | 5 |
 | 2 | 13 | 8 | 5 |
 | 3 | 17 | 9 | 8 |
 | 4 (gồm Nên có) | 12 | 8 | 4 |
 | 5–6 | 13 | 4 (+2 chung) | 7 (+2 chung) |
-| **Tổng** | **87** | **56 (+2)** | **29 (+2)** |
+| **Tổng** | **88** | **57 (+2)** | **29 (+2)** |
 
 Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía client ở Giai đoạn 3. KH nên tách mỗi thẻ L thành 2–3 PR để giữ nhịp tối thiểu 1 PR mỗi ngày.
 
