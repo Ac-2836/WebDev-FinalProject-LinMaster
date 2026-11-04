@@ -1,0 +1,16 @@
+{
+  "core": {
+    "meta": {
+      "description": "Học ngoại ngữ bằng trình đọc có AI, flashcard và phòng thi mô phỏng thi máy."
+    },
+    "localeSwitcher": {
+      "label": "Ngôn ngữ giao diện",
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "placeholder": {
+      "title": "LinMaster đang được xây dựng",
+      "body": "Đây là trang tạm của khung client. Đổi ngôn ngữ bằng các nút bên dưới, lựa chọn được giữ lại sau khi tải lại trang."
+    }
+  }
+}

@@ -28,3 +28,6 @@ test-results/
 # Local-only (Working_rules, CLAUDE.md)
 CLAUDE.md
 graphify-out/
+
+# Next.js generated
+next-env.d.ts

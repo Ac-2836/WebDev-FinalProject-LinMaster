@@ -1,0 +1,16 @@
+{
+  "core": {
+    "meta": {
+      "description": "Learn languages with an AI reader, flashcards and a computer-based exam room."
+    },
+    "localeSwitcher": {
+      "label": "Interface language",
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "placeholder": {
+      "title": "LinMaster is under construction",
+      "body": "This is the placeholder page of the client skeleton. Switch the language with the buttons below; the choice is kept after reloading the page."
+    }
+  }
+}
