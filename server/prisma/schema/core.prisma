@@ -1,0 +1,48 @@
+// Module core (Analysis_Design/01_Database/data-dictionary.md § core).
+
+/// Cached AI output shared by every user with the same input. Not tied to a user.
+model AiCache {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  /// Task name with version, e.g. explain-word.v1.
+  task      String    @db.VarChar(60)
+  /// SHA-256 of the normalised input (of the file content for PDF tasks).
+  inputHash String    @db.Char(64)
+  /// Already validated by the task's Zod schema.
+  output    Json
+  model     String    @db.VarChar(60)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  /// null = never expires.
+  expiresAt DateTime? @db.Timestamptz(6)
+
+  @@unique([task, inputHash])
+}
+
+/// One row per AI call, used for the daily quota (cached calls do not count).
+model AiUsage {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  userId       String   @db.Uuid
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task         String   @db.VarChar(60)
+  cached       Boolean
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId, createdAt])
+}
+
+/// Files of the test upload flow (PDF test, PDF answers, audio, diagram images). Reading documents are not stored.
+model StoredFile {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  ownerId      String   @db.Uuid
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  /// Path under uploads/ (local driver) or the R2 object key.
+  storageKey   String   @unique @db.VarChar(255)
+  /// Detected from the file content, never from the extension.
+  mimeType     String   @db.VarChar(100)
+  sizeBytes    Int
+  originalName String   @db.VarChar(255)
+  /// Audio only.
+  durationSec  Int?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+}
