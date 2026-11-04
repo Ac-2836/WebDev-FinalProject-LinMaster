@@ -21,4 +21,15 @@ model User {
   // core
   aiUsages    AiUsage[]
   storedFiles StoredFile[]
+
+  // vocab
+  documents    Document[]
+  vocabEntries VocabEntry[]
+  vocabLookups VocabLookup[]
+
+  // flashcard
+  flashcardSets FlashcardSet[]
+  cardProgress  CardProgress[]
+  studySessions StudySession[]
+  reviewLogs    ReviewLog[]
 }

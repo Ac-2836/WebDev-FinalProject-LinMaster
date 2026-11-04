@@ -1,0 +1,103 @@
+// Module flashcard (Analysis_Design/01_Database/data-dictionary.md § flashcard).
+// Library columns of FlashcardSet (visibility, publishedAt, copiedFromId, copyCount) come with P4-01.
+
+enum StudyMode {
+  flip
+  learn
+  test
+  match
+  exercise
+}
+
+enum Rating {
+  again
+  hard
+  good
+  easy
+}
+
+model FlashcardSet {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  ownerId        String   @db.Uuid
+  owner          User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title          String   @db.VarChar(200)
+  description    String?
+  termLang       String   @default("en") @db.VarChar(10)
+  definitionLang String   @default("vi") @db.VarChar(10)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+
+  cards    Card[]
+  sessions StudySession[]
+}
+
+/// Saving the editor updates cards with an id, inserts new ones and deletes removed ones, so progress is kept.
+model Card {
+  id           String       @id @default(uuid(7)) @db.Uuid
+  setId        String       @db.Uuid
+  set          FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  /// Order inside the set.
+  position     Int
+  term         String
+  definition   String
+  example      String?
+  vocabEntryId String?      @db.Uuid
+  vocabEntry   VocabEntry?  @relation(fields: [vocabEntryId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime     @updatedAt @db.Timestamptz(6)
+
+  progress CardProgress[]
+  reviews  ReviewLog[]
+}
+
+/// SM-2 state of one learner on one card. New / Learning / Mastered is derived from these columns (st-04).
+model CardProgress {
+  id             String    @id @default(uuid(7)) @db.Uuid
+  userId         String    @db.Uuid
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId         String    @db.Uuid
+  card           Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  /// SM-2 easiness factor, minimum 1.3 (enforced by the scheduler).
+  easiness       Float     @default(2.5) @db.Real
+  intervalDays   Int       @default(0)
+  /// Consecutive correct recalls.
+  repetitions    Int       @default(0)
+  lapses         Int       @default(0)
+  dueAt          DateTime  @db.Timestamptz(6)
+  lastReviewedAt DateTime? @db.Timestamptz(6)
+
+  @@unique([userId, cardId])
+  @@index([userId, dueAt])
+}
+
+model StudySession {
+  id           String       @id @default(uuid(7)) @db.Uuid
+  userId       String       @db.Uuid
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setId        String       @db.Uuid
+  set          FlashcardSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  mode         StudyMode
+  startedAt    DateTime     @default(now()) @db.Timestamptz(6)
+  /// null = session still open.
+  endedAt      DateTime?    @db.Timestamptz(6)
+  cardsStudied Int          @default(0)
+  correctCount Int          @default(0)
+
+  reviews ReviewLog[]
+}
+
+model ReviewLog {
+  id             String        @id @default(uuid(7)) @db.Uuid
+  userId         String        @db.Uuid
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId         String        @db.Uuid
+  card           Card          @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  sessionId      String?       @db.Uuid
+  session        StudySession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  rating         Rating
+  intervalBefore Int
+  intervalAfter  Int
+  reviewedAt     DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([userId, reviewedAt])
+}
