@@ -1,0 +1,26 @@
+# Local development only. Production uses Neon (PLAN part E).
+# Start: docker compose up -d   ·   Stop: docker compose down   ·   Reset data: docker compose down -v
+services:
+  db:
+    image: postgres:16
+    container_name: linmaster-db
+    restart: unless-stopped
+    environment:
+      # Local-only credentials, not a secret. Must match DATABASE_URL in server/.env.
+      POSTGRES_USER: linmaster
+      POSTGRES_PASSWORD: linmaster
+      POSTGRES_DB: linmaster_dev
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Creates linmaster_test next to linmaster_dev on first start.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U linmaster -d linmaster_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:
