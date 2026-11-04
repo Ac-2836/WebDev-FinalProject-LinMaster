@@ -274,7 +274,8 @@
   // Floating "Mục lục" button + drawer on every screen, so screens without a nav link stay reachable.
   function renderToc() {
     const here = location.pathname.replace(/^.*?\/(\d\d-[^/]+\/[^/]+\.html)$/, '$1');
-    if (window.top !== window.self || !/\d\d-/.test(here)) return; // not inside the viewer, not on index
+    // Not inside the viewer, not on index, not in screenshots (?shot).
+    if (window.top !== window.self || !/\d\d-/.test(here) || location.search.includes('shot')) return;
     const items = SCREENS.map(([g, list]) => `<p class="eyebrow mt-5 mb-1.5 px-3">${g}</p>` + list.map(([f, n]) => {
       const cur = f.split('?')[0] === here && !f.includes('?');
       return `<a href="${root}${f}" class="flex min-h-10 items-center rounded-xl px-3 text-sm font-medium ${cur ? 'bg-secondary text-primary' : 'hover:bg-muted'}"${cur ? ' aria-current="page"' : ''}>${n}</a>`;
