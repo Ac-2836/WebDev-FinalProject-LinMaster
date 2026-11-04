@@ -1,0 +1,81 @@
+@import 'tailwindcss';
+
+/*
+ * Theme tokens. shadcn/ui components read the semantic variables below (--primary, --muted…).
+ * Colours come from the approved prototype; the wireframes (P0-12) may adjust them here only.
+ */
+:root {
+  --radius: 0.625rem;
+  --background: #f5f6f8;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2ff;
+  --secondary-foreground: #1e3a8a;
+  --muted: #eef0f3;
+  --muted-foreground: #4b5563;
+  --accent: #eef2ff;
+  --accent-foreground: #1e3a8a;
+  --destructive: #b91c1c;
+  --border: #e3e6eb;
+  --input: #e3e6eb;
+  --ring: #93c5fd;
+  /* LinMaster-specific */
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #92400e;
+  --warning-soft: #fef3c7;
+  --danger-soft: #fee2e2;
+  --mark: #fde68a;
+}
+
+@theme inline {
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-mark: var(--mark);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+  mark {
+    background: var(--mark);
+    color: inherit;
+    border-radius: 2px;
+  }
+}
