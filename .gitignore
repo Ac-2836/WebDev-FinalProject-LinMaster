@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment (only .env.example is committed)
+.env
+.env.*
+!.env.example
+
+# Logs, OS, editor
+*.log
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Local-only (Working_rules, CLAUDE.md)
+CLAUDE.md
+graphify-out/
