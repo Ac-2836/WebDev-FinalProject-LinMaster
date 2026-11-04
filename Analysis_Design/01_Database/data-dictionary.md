@@ -64,6 +64,8 @@ Không gắn với người dùng: cùng một input dùng chung kết quả. Ri
 
 Chỉ lưu file của luồng tải đề (PDF đề, PDF đáp án, audio, ảnh sơ đồ). File tài liệu đọc của `vocab` **không** lưu, chỉ lấy chữ.
 
+Các khóa ngoại từ `exam` tới `StoredFile` (`TestSection.audioFileId`, `QuestionGroup.imageFileId`, `TestImport.*FileId`) dùng `ON DELETE RESTRICT`: file đang được đề hoặc lượt tải đề dùng thì không xóa được.
+
 ## Module `vocab`
 
 ### Document — tài liệu đọc

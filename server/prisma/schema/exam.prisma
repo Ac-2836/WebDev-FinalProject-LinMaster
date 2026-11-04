@@ -1,0 +1,199 @@
+// Module exam (Analysis_Design/01_Database/data-dictionary.md § exam).
+// Structure: Test → TestSection → Passage → QuestionGroup → Question.
+// Library columns of Test (visibility, publishedAt, attemptCount) come with P4-01.
+
+enum TestKind {
+  reading
+  listening
+  full
+}
+
+enum Skill {
+  listening
+  reading
+}
+
+/// State diagram st-02.
+enum ImportStatus {
+  queued
+  parsing
+  validating
+  done
+  failed
+}
+
+/// State diagram st-01.
+enum AttemptStatus {
+  in_progress
+  submitted
+}
+
+/// Keys of the question kind registry (shared/exam).
+enum QuestionKind {
+  single_choice
+  multi_choice
+  tfng
+  ynng
+  matching
+  completion
+  short_answer
+  diagram_label
+}
+
+model Test {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  ownerId       String   @db.Uuid
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  /// Key in the certification registry, e.g. IELTS_ACADEMIC.
+  certification String   @db.VarChar(40)
+  kind          TestKind
+  title         String   @db.VarChar(200)
+  /// Required before publishing to the library.
+  source        String?  @db.VarChar(300)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  sections TestSection[]
+  imports  TestImport[]
+  attempts Attempt[]
+}
+
+model TestSection {
+  id          String      @id @default(uuid(7)) @db.Uuid
+  testId      String      @db.Uuid
+  test        Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+  skill       Skill
+  /// Full test: Listening = 1, Reading = 2.
+  position    Int
+  /// From the certification registry.
+  durationSec Int
+  /// Required for Listening (checked by the import validator).
+  audioFileId String?     @db.Uuid
+  audioFile   StoredFile? @relation("SectionAudio", fields: [audioFileId], references: [id])
+
+  passages Passage[]
+}
+
+/// A Reading passage or a Listening part.
+model Passage {
+  id            String      @id @default(uuid(7)) @db.Uuid
+  sectionId     String      @db.Uuid
+  section       TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  position      Int
+  title         String      @db.VarChar(200)
+  /// Reading: [{ label: 'A', text }]. Listening: null.
+  paragraphs    Json?
+  /// Listening: where the part starts in the audio.
+  audioStartSec Int?
+
+  groups QuestionGroup[]
+}
+
+/// Questions sharing one kind and instructions, e.g. questions 1–5.
+model QuestionGroup {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  passageId     String       @db.Uuid
+  passage       Passage      @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  position      Int
+  kind          QuestionKind
+  fromNo        Int
+  toNo          Int
+  instructions  String
+  /// Options shared by the group (heading list, A–G…).
+  sharedOptions Json?
+  /// Completion: "NO MORE THAN TWO WORDS" → 2.
+  wordLimit     Int?
+  /// Diagram labelling (nice to have).
+  imageFileId   String?      @db.Uuid
+  imageFile     StoredFile?  @relation("GroupImage", fields: [imageFileId], references: [id])
+
+  questions Question[]
+}
+
+model Question {
+  id      String        @id @default(uuid(7)) @db.Uuid
+  groupId String        @db.Uuid
+  group   QuestionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  /// Number inside the skill (1–40).
+  number  Int
+  /// Completion questions mark the gap with {{blank}}.
+  prompt  String
+  /// Options of this question only (multiple choice).
+  options Json?
+  /// Correct answer, shape depends on the kind, e.g. { accepted: ['library', 'the library'] }.
+  /// Never sent to a candidate before the attempt is submitted.
+  answer  Json
+
+  attemptAnswers AttemptAnswer[]
+}
+
+/// One upload of a test (state diagram st-02).
+model TestImport {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  ownerId        String       @db.Uuid
+  owner          User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  kind           TestKind
+  status         ImportStatus @default(queued)
+  questionFileId String       @db.Uuid
+  questionFile   StoredFile   @relation("ImportQuestionFile", fields: [questionFileId], references: [id])
+  answerFileId   String       @db.Uuid
+  answerFile     StoredFile   @relation("ImportAnswerFile", fields: [answerFileId], references: [id])
+  /// Required for listening / full.
+  audioFileId    String?      @db.Uuid
+  audioFile      StoredFile?  @relation("ImportAudioFile", fields: [audioFileId], references: [id])
+  /// [{ section?, questionNo?, code, message }]
+  errors         Json?
+  /// Set when status = done.
+  testId         String?      @db.Uuid
+  test           Test?        @relation(fields: [testId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now()) @db.Timestamptz(6)
+  finishedAt     DateTime?    @db.Timestamptz(6)
+}
+
+/// One attempt of a learner at a test (state diagram st-01).
+/// At most one in_progress attempt per (userId, testId): partial unique index added by hand in the migration.
+model Attempt {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  userId           String        @db.Uuid
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId           String        @db.Uuid
+  test             Test          @relation(fields: [testId], references: [id], onDelete: Cascade)
+  status           AttemptStatus @default(in_progress)
+  /// Server time.
+  startedAt        DateTime      @default(now()) @db.Timestamptz(6)
+  /// startedAt + total duration of the sections.
+  deadlineAt       DateTime      @db.Timestamptz(6)
+  submittedAt      DateTime?     @db.Timestamptz(6)
+  /// true when submitted because time ran out.
+  autoSubmitted    Boolean       @default(false)
+  /// { answers, highlights, notes, flags, position }, overwritten by every autosave.
+  state            Json
+  listeningCorrect Int?
+  readingCorrect   Int?
+  listeningBand    Decimal?      @db.Decimal(2, 1)
+  readingBand      Decimal?      @db.Decimal(2, 1)
+  /// Last autosave.
+  updatedAt        DateTime      @updatedAt @db.Timestamptz(6)
+
+  answers AttemptAnswer[]
+
+  @@index([userId, testId])
+}
+
+/// Grading result of one question, written on submit.
+model AttemptAnswer {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  attemptId      String       @db.Uuid
+  attempt        Attempt      @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId     String?      @db.Uuid
+  question       Question?    @relation(fields: [questionId], references: [id], onDelete: SetNull)
+  questionNumber Int
+  skill          Skill
+  /// For the weak-points widget (by question kind).
+  kind           QuestionKind
+  /// null = left blank.
+  given          Json?
+  /// Snapshot taken when grading.
+  correctAnswer  Json
+  isCorrect      Boolean
+}
