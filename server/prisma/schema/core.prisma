@@ -45,4 +45,11 @@ model StoredFile {
   /// Audio only.
   durationSec  Int?
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  // exam: a file in use by a test or an import cannot be deleted (default Restrict).
+  sectionAudios       TestSection[]   @relation("SectionAudio")
+  groupImages         QuestionGroup[] @relation("GroupImage")
+  importQuestionFiles TestImport[]    @relation("ImportQuestionFile")
+  importAnswerFiles   TestImport[]    @relation("ImportAnswerFile")
+  importAudioFiles    TestImport[]    @relation("ImportAudioFile")
 }
