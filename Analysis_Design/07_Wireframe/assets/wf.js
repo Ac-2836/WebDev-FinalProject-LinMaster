@@ -218,8 +218,82 @@
     show(states.includes(params.get('state')) ? params.get('state') : first);
   }
 
+  // Every screen of the wireframe: [file, name, note]. index.html and the "Mục lục" drawer read this list.
+  const SCREENS = [
+    ['Nền tảng', [
+      ['00-foundation/design-system.html', 'Design system', 'Logo, màu, chữ, nút, ô nhập, badge, card, hộp thoại, toast, trạng thái trống / lỗi'],
+    ]],
+    ['Công khai', [
+      ['01-public/landing.html', 'Landing /', 'Giới thiệu vòng học, đăng ký'],
+      ['01-public/login.html', 'Đăng nhập /login', 'Lỗi sai mật khẩu, quá số lần, quay lại ?next='],
+      ['01-public/register.html', 'Đăng ký /register', 'Tên, email, mật khẩu, band mục tiêu'],
+      ['01-public/not-found.html', 'Trang 404', ''],
+      ['01-public/error.html', 'Trang lỗi', 'Lỗi không lường trước, nút thử lại'],
+    ]],
+    ['Khung app', [
+      ['02-app/home.html', 'Trang chủ /home', 'Bài thi dở, thẻ đến hạn, tài liệu gần đây, chuỗi ngày, lối tắt'],
+      ['02-app/profile.html', 'Hồ sơ /profile', 'Tên, ngôn ngữ, band mục tiêu'],
+    ]],
+    ['vocab: đọc và học từ', [
+      ['03-vocab/documents.html', 'Tài liệu /read', 'Danh sách + hộp Tài liệu mới (dán / tải file)'],
+      ['03-vocab/reader.html', 'Trình đọc /read/[id]', 'Popover tra từ, Lọc nhanh, từ đã lưu, bottom sheet trên mobile'],
+      ['03-vocab/word-bank.html', 'Kho từ /vocab', 'Tìm, lọc, chọn nhiều → tạo bộ thẻ, chi tiết từ'],
+    ]],
+    ['flashcard', [
+      ['04-flashcard/sets.html', 'Bộ thẻ /flashcards', ''],
+      ['04-flashcard/editor.html', 'Trình soạn /flashcards/new, /[id]/edit', 'Thêm, xóa, kéo thả, dán nhanh'],
+      ['04-flashcard/set.html', 'Bộ thẻ /flashcards/[id]', 'Tiến độ, chế độ học, đăng lên thư viện'],
+      ['04-flashcard/study-flip.html', 'Thẻ lật', 'Lật 3D, phím cách, mũi tên'],
+      ['04-flashcard/study-learn.html', 'Học (SM-2)', '4 nút chấm, phím 1–4, tổng kết phiên'],
+      ['04-flashcard/study-test.html', 'Kiểm tra', 'Nên có · trắc nghiệm, tự gõ, đúng/sai, kết quả'],
+      ['04-flashcard/study-match.html', 'Ghép thẻ', 'Nên có · tính giờ'],
+      ['04-flashcard/exercise.html', 'Bài luyện AI', 'Nên có · dạng câu như đề thi, hết quota'],
+    ]],
+    ['exam: thi thử', [
+      ['05-exam/tests.html', 'Đề của tôi /tests', ''],
+      ['05-exam/upload.html', 'Tải đề lên', 'Chọn loại đề, PDF đề, PDF đáp án, audio'],
+      ['05-exam/import-status.html', 'Trạng thái nạp đề', 'Đang xử lý, thành công, lỗi theo từng câu'],
+      ['05-exam/test-intro.html', 'Giới thiệu đề', 'Thông tin, hướng dẫn, bắt đầu hoặc làm tiếp'],
+      ['05-exam/room-reading.html', 'Phòng thi Reading', 'Hai cột, highlight, ghi chú, gạch phương án'],
+      ['05-exam/room-reading.html?state=submit', 'Hộp thoại phòng thi', 'Settings, Help, Hide, nộp bài, cảnh báo giờ, mất kết nối (đổi bằng bảng WF)'],
+      ['05-exam/room-listening.html', 'Phòng thi Listening', 'Thử âm thanh, audio không tua, 2 phút xem lại'],
+      ['05-exam/result.html', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc, AI giải thích'],
+      ['05-exam/history.html', 'Lịch sử làm bài', ''],
+    ]],
+    ['library', [
+      ['06-library/library.html', 'Thư viện /library', 'Tab Bộ thẻ / Đề thi, tìm, lọc'],
+      ['06-library/set-preview.html', 'Xem trước bộ thẻ', 'Chép về, hộp báo cáo'],
+      ['06-library/test-preview.html', 'Xem trước đề', 'Chỉ thông tin, không lộ câu hỏi; làm đề'],
+    ]],
+    ['stats', [
+      ['07-stats/dashboard.html', 'Dashboard /dashboard', '7 widget'],
+    ]],
+  ];
+  window.WF_SCREENS = SCREENS;
+
+  // Floating "Mục lục" button + drawer on every screen, so screens without a nav link stay reachable.
+  function renderToc() {
+    const here = location.pathname.replace(/^.*?\/(\d\d-[^/]+\/[^/]+\.html)$/, '$1');
+    if (window.top !== window.self || !/\d\d-/.test(here)) return; // not inside the viewer, not on index
+    const items = SCREENS.map(([g, list]) => `<p class="eyebrow mt-5 mb-1.5 px-3">${g}</p>` + list.map(([f, n]) => {
+      const cur = f.split('?')[0] === here && !f.includes('?');
+      return `<a href="${root}${f}" class="flex min-h-10 items-center rounded-xl px-3 text-sm font-medium ${cur ? 'bg-secondary text-primary' : 'hover:bg-muted'}"${cur ? ' aria-current="page"' : ''}>${n}</a>`;
+    }).join('')).join('');
+    document.body.insertAdjacentHTML('beforeend', `
+<button type="button" class="btn btn-dark btn-sm fixed bottom-[84px] left-3 z-50 shadow-lift lg:bottom-4 lg:left-4" onclick="document.getElementById('wf-toc').showModal()"><i data-lucide="list" class="size-4"></i>Mục lục</button>
+<dialog id="wf-toc" aria-label="Mục lục wireframe" class="m-0 h-dvh max-h-dvh w-[min(22rem,90vw)] max-w-none overflow-y-auto border-r bg-card p-3 shadow-lift backdrop:bg-foreground/40" onclick="if (event.target === this) this.close()">
+  <div class="sticky top-0 -mx-3 -mt-3 flex items-center gap-2 border-b bg-card px-4 py-3">
+    <span data-logo="mark" data-size="28" aria-hidden="true"></span><p class="flex-1 font-semibold">Mục lục wireframe</p>
+    <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng mục lục" onclick="this.closest('dialog').close()"><i data-lucide="x" class="size-4"></i></button>
+  </div>
+  <a href="${root}index.html" class="mt-3 flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-primary hover:bg-muted"><i data-lucide="layout-grid" class="size-4"></i>Trang mục lục đầy đủ</a>
+  ${items}
+</dialog>`);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-app-nav]').forEach(renderNav);
+    renderToc();
     renderLogos();
     setupStates();
     window.lucide?.createIcons({attrs: {'aria-hidden': 'true'}});

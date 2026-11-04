@@ -16,64 +16,15 @@
     <p class="max-w-3xl text-muted-foreground">
       Prototype HTML bấm được, dùng đúng token màu và font của <code>client/app/globals.css</code>.
       Bấm tên màn để mở; bấm <strong>375 / 1440</strong> để xem hai khổ cạnh nhau.
-      Màn có trạng thái tải / trống / lỗi thì đổi bằng bảng <span class="font-semibold text-primary">WF</span> ở góc dưới.
+      Màn có trạng thái tải / trống / lỗi / hộp thoại thì đổi bằng bảng <span class="font-semibold text-primary">WF</span> ở góc trên phải. Trong mọi màn có nút <strong>Mục lục</strong> ở góc dưới trái để nhảy sang màn khác.
       
     </p>
   </header>
   <div id="groups" class="flex flex-col gap-6"></div>
 </main>
 <script>
-  // [file, tên màn, ghi chú]. File rỗng = chưa vẽ.
-  const SCREENS = [
-    ['Nền tảng', [
-      ['00-foundation/design-system.html', 'Design system', 'Màu, chữ, nút, ô nhập, badge, card, hộp thoại, toast, skeleton, trạng thái trống / lỗi'],
-    ]],
-    ['Công khai', [
-      ['01-public/landing.html', 'Landing /', 'Giới thiệu vòng học, đăng ký'],
-      ['01-public/login.html', 'Đăng nhập /login', 'Có lỗi sai mật khẩu, quay lại ?next='],
-      ['01-public/register.html', 'Đăng ký /register', 'Tên, email, mật khẩu, band mục tiêu'],
-      ['01-public/not-found.html', 'Trang 404', ''],
-      ['01-public/error.html', 'Trang lỗi', 'Lỗi không lường trước, nút thử lại'],
-    ]],
-    ['Khung app', [
-      ['02-app/profile.html', 'Hồ sơ /profile', 'Khung app (navbar desktop, thanh dưới mobile), tên, ngôn ngữ, band mục tiêu'],
-      ['02-app/home.html', 'Trang chủ /home', 'Bài thi dở, thẻ đến hạn, tài liệu gần đây, chuỗi ngày, lối tắt'],
-    ]],
-    ['vocab: đọc và học từ', [
-      ['03-vocab/documents.html', 'Tài liệu /read', 'Danh sách + hộp Tài liệu mới (dán / tải file)'],
-      ['03-vocab/reader.html', 'Trình đọc /read/[id]', 'Popover tra từ, Lọc nhanh, từ đã lưu, bottom sheet trên mobile'],
-      ['03-vocab/word-bank.html', 'Kho từ /vocab', 'Tìm, lọc, chọn nhiều → tạo bộ thẻ'],
-    ]],
-    ['flashcard', [
-      ['04-flashcard/sets.html', 'Bộ thẻ /flashcards', ''],
-      ['04-flashcard/editor.html', 'Trình soạn /flashcards/new, /[id]/edit', 'Thêm, xóa, kéo thả, dán nhanh'],
-      ['04-flashcard/set.html', 'Xem trước /flashcards/[id]', 'Danh sách thẻ, chế độ học, đăng lên thư viện'],
-      ['04-flashcard/study-flip.html', 'Thẻ lật', 'Lật 3D, phím cách, mũi tên'],
-      ['04-flashcard/study-learn.html', 'Học (SM-2)', '4 nút chấm, phím 1–4, tổng kết phiên'],
-      ['04-flashcard/study-test.html', 'Kiểm tra', 'Nên có · trắc nghiệm, tự gõ, đúng/sai, kết quả'],
-      ['04-flashcard/study-match.html', 'Ghép thẻ', 'Nên có · tính giờ'],
-      ['04-flashcard/exercise.html', 'Bài luyện AI', 'Nên có · dạng câu như đề thi, hết quota'],
-    ]],
-    ['exam: thi thử', [
-      ['05-exam/tests.html', 'Đề của tôi /tests', ''],
-      ['05-exam/upload.html', 'Tải đề lên', 'Chọn loại đề, PDF đề, PDF đáp án, audio'],
-      ['05-exam/import-status.html', 'Trạng thái nạp đề', 'Tiến trình, lỗi theo từng câu'],
-      ['05-exam/test-intro.html', 'Giới thiệu đề', 'Thông tin, hướng dẫn, kiểm tra âm thanh, bắt đầu'],
-      ['05-exam/room-reading.html', 'Phòng thi Reading', 'Hai cột, highlight, ghi chú, gạch phương án'],
-      ['05-exam/room-listening.html', 'Phòng thi Listening', 'Audio không tua, 2 phút xem lại'],
-      ['05-exam/room-reading.html?state=submit', 'Hộp thoại phòng thi', 'Trong phòng Reading, đổi bằng bảng WF: Settings, Help, Hide, nộp bài, cảnh báo giờ, mất kết nối, menu chuột phải, ghi chú'],
-      ['05-exam/result.html', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc'],
-      ['05-exam/history.html', 'Lịch sử làm bài', ''],
-    ]],
-    ['library', [
-      ['06-library/library.html', 'Thư viện /library', 'Tab Bộ thẻ / Đề thi, tìm, lọc'],
-      ['06-library/set-preview.html', 'Xem trước bộ thẻ', 'Chép về, hộp báo cáo'],
-      ['06-library/test-preview.html', 'Xem trước đề', 'Chỉ thông tin, không lộ câu hỏi; làm đề'],
-    ]],
-    ['stats', [
-      ['07-stats/dashboard.html', 'Dashboard /dashboard', '7 widget'],
-    ]],
-  ];
+  // The screen list lives in assets/wf.js (window.WF_SCREENS), shared with the "Mục lục" drawer.
+  const SCREENS = window.WF_SCREENS;
   document.getElementById('groups').innerHTML = SCREENS.map(([group, items]) => `
     <section class="card overflow-hidden">
       <h2 class="h2 border-b bg-muted/50 px-5 py-3">${group}</h2>
