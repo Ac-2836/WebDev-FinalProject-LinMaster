@@ -30,7 +30,7 @@ jobs:
           --health-retries 10
 
     env:
-      # CI-only throwaway database; the server starts using it from P1-03 (Prisma).
+      # CI-only throwaway database for migrations and tests.
       DATABASE_URL: postgresql://linmaster:linmaster@localhost:5432/linmaster_test
       NEXT_TELEMETRY_DISABLED: 1
 
@@ -50,6 +50,9 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Migrate test database
+        run: npm run db:deploy -w server
 
       - name: Test
         run: npm test

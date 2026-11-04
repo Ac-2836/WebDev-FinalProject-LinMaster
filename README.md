@@ -44,6 +44,8 @@ Cần Node 22 (xem `.nvmrc`) và Docker Desktop.
 npm install
 docker compose up -d                 # PostgreSQL 16: linmaster_dev và linmaster_test ở cổng 5432
 cp server/.env.example server/.env
+npm run db:migrate -w server         # áp các migration của Prisma vào linmaster_dev
+npm run db:seed -w server            # nạp dữ liệu mẫu (chạy lại nhiều lần vẫn an toàn)
 npm run dev                          # client http://localhost:3000 · API http://localhost:4000/api/v1
 ```
 

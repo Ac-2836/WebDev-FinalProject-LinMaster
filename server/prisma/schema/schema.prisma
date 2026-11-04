@@ -1,0 +1,13 @@
+// Shared settings only. Each module keeps its models in its own file next to this one
+// (auth.prisma, vocab.prisma, flashcard.prisma, exam.prisma, library.prisma, core.prisma),
+// following Analysis_Design/01_Database. Migrations: "add only, never break" (PLAN B5).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}

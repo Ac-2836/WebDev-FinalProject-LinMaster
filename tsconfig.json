@@ -6,6 +6,9 @@
   "include": [
     "shared/src/**/*.ts",
     "server/src/**/*.ts",
-    "server/tests/**/*.ts"
+    "server/tests/**/*.ts",
+    "server/prisma/**/*.ts",
+    "server/prisma.config.ts",
+    "server/vitest.config.mts"
   ]
 }
