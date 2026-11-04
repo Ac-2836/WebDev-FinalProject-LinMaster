@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bài luyện AI</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="flex min-h-screen flex-col">
+<!-- (Nên có) /flashcards/[id]/study/exercise: POST /flashcards/sets/:id/exercises (AI task generate-exercise.v1). Question kinds reuse the exam question components. -->
+<header class="border-b bg-card">
+  <div class="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát"><i data-lucide="x" class="size-5"></i></a>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Bài luyện AI · 10 câu</p></div>
+    <span class="w-10"></span>
+  </div>
+</header>
+
+<main id="main" class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8">
+  <!-- Setup -->
+  <section data-state="setup" class="card flex flex-col gap-5 p-6">
+    <div><h1 class="h1">Tạo bài luyện từ bộ thẻ</h1><p class="mt-1 text-muted-foreground">AI viết câu hỏi theo dạng đề thi, dùng các từ trong bộ thẻ này.</p></div>
+    <fieldset><legend class="label mb-2">Dạng câu</legend><div class="flex flex-wrap gap-2">
+      <label class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"><input type="checkbox" checked class="size-4 accent-primary">Trắc nghiệm</label>
+      <label class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"><input type="checkbox" checked class="size-4 accent-primary">Điền chỗ trống</label>
+      <label class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"><input type="checkbox" class="size-4 accent-primary">Nối</label>
+    </div></fieldset>
+    <label class="flex flex-col gap-1.5 sm:max-w-40"><span class="label">Số câu</span><select class="input"><option>10</option><option>20</option></select></label>
+    <button class="btn btn-primary btn-lg sm:w-fit"><i data-lucide="sparkles" class="size-4"></i>Tạo bài luyện</button>
+  </section>
+
+  <section data-state="generating" class="card flex flex-col items-center gap-4 p-10 text-center" aria-busy="true">
+    <i data-lucide="sparkles" class="size-10 animate-pulse text-primary"></i>
+    <p class="font-semibold">AI đang soạn 10 câu hỏi…</p>
+    <p class="hint">Thường mất 5–15 giây.</p>
+  </section>
+
+  <section data-state="quota" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center">
+    <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-alert" class="size-6"></i></span>
+    <p class="font-bold">Hết lượt AI hôm nay</p><p class="text-muted-foreground">Lượt mới có lúc 0:00. Trong lúc chờ, thử chế độ Kiểm tra (không dùng AI).</p>
+    <a href="study-test.html" class="btn btn-secondary btn-sm">Sang Kiểm tra</a>
+  </section>
+
+  <!-- Exercise -->
+  <form data-state="default checked" class="flex flex-col gap-6">
+    <section class="card flex flex-col gap-4 p-6">
+      <h2 class="font-bold">Câu 1–3 · Chọn đáp án đúng A, B, C hoặc D</h2>
+      <div class="flex flex-col gap-2">
+        <p><strong>1.</strong> Local councils introduced new zoning rules to ______ the risk of flooding in low-lying districts.</p>
+        <script>document.write(['A. exacerbate','B. mitigate','C. relocate','D. retreat'].map((o,i)=>`<label class="flex items-center gap-3 rounded-lg border p-3 text-sm ${i===1?'border-primary bg-secondary':''}"><input type="radio" name="q1" ${i===1?'checked':''} class="size-4 accent-primary">${o}</label>`).join(''))</script>
+        <p data-state="checked" class="flex items-center gap-2 text-sm font-semibold text-success"><i data-lucide="circle-check" class="size-4"></i>Đúng. "mitigate the risk" = giảm thiểu rủi ro.</p>
+      </div>
+    </section>
+    <section class="card flex flex-col gap-4 p-6">
+      <h2 class="font-bold">Câu 4–6 · Hoàn thành tóm tắt. Dùng KHÔNG QUÁ MỘT TỪ cho mỗi chỗ trống</h2>
+      <p class="font-serif text-[17px] leading-9">Coastal towns face a choice between building sea walls and <strong>(4)</strong> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans" value="relocation" aria-label="Chỗ trống 4"> of residents. Critics argue that walls may <strong>(5)</strong> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans data-[bad]:border-destructive" value="increase" data-bad aria-label="Chỗ trống 5"> erosion elsewhere.</p>
+      <p data-state="checked" class="flex items-center gap-2 text-sm font-semibold text-destructive"><i data-lucide="circle-x" class="size-4"></i>Câu 5: đáp án là "exacerbate".</p>
+    </section>
+    <div class="flex items-center gap-3">
+      <p data-state="checked" class="flex-1 font-semibold">Đúng 8/10</p>
+      <button data-state="default" class="btn btn-primary btn-lg ml-auto">Kiểm tra đáp án</button>
+      <button data-state="checked" class="btn btn-secondary">Tạo bài khác</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>

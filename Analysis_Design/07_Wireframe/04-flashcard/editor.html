@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trình soạn bộ thẻ</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-36 lg:pb-24">
+<div data-app-nav="flashcards"></div>
+<!--
+  /flashcards/new and /flashcards/[id]/edit. Save = POST/PATCH set + PUT /flashcards/sets/:id/cards (whole list:
+  rows with id are updated, new rows inserted, removed rows deleted, so progress of kept cards survives).
+  Reorder: drag handle, or focus the handle and press Alt+↑ / Alt+↓.
+-->
+<main id="main" class="page flex max-w-4xl flex-col gap-6">
+  <header class="flex flex-wrap items-center gap-3">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Quay lại"><i data-lucide="arrow-left" class="size-4"></i></a>
+    <h1 class="h1 flex-1">Sửa bộ thẻ</h1>
+    <p data-state="default" class="hint flex items-center gap-1"><i data-lucide="circle-dot" class="size-3 text-warning"></i>Có thay đổi chưa lưu</p>
+  </header>
+
+  <section class="card flex flex-col gap-4 p-5">
+    <label class="flex flex-col gap-1.5"><span class="label">Tiêu đề</span><input class="input text-base font-semibold" value="IELTS Environment" maxlength="200"></label>
+    <label class="flex flex-col gap-1.5"><span class="label">Mô tả <span class="font-normal text-muted-foreground">(không bắt buộc)</span></span><textarea class="input min-h-16 py-2">Từ vựng chủ đề môi trường gom từ các bài đọc.</textarea></label>
+    <div class="grid grid-cols-2 gap-3 sm:max-w-sm">
+      <label class="flex flex-col gap-1.5"><span class="label">Ngôn ngữ thuật ngữ</span><select class="input"><option>English</option></select></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Ngôn ngữ định nghĩa</span><select class="input"><option>Tiếng Việt</option><option>English</option></select></label>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <h2 class="h2 flex-1">42 thẻ</h2>
+    <button class="btn btn-secondary btn-sm"><i data-lucide="clipboard-paste" class="size-4"></i>Dán nhanh</button>
+    <a href="../03-vocab/word-bank.html" class="btn btn-secondary btn-sm"><i data-lucide="notebook-pen" class="size-4"></i>Thêm từ kho từ</a>
+  </div>
+
+  <ol class="flex flex-col gap-3">
+    <script>
+      document.write([
+        ['mitigate','giảm nhẹ, làm dịu (tác động xấu)','Governments are under pressure to mitigate the effects…',true,''],
+        ['managed retreat','di dời có kế hoạch khỏi vùng nguy hiểm','',true,''],
+        ['exacerbate','làm trầm trọng thêm','Hard defences can exacerbate erosion.',false,'drag'],
+        ['','','',false,'error'],
+      ].map(([t,d,e,linked,flag],i) => `<li class="card ${flag==='drag'?'rotate-1 border-primary shadow-xl ring-2 ring-primary/30':''} ${flag==='error'?'border-destructive/50':''}">
+        <div class="flex items-center gap-2 border-b px-3 py-2 text-sm">
+          <button class="inline-flex size-8 cursor-grab items-center justify-center rounded-md text-muted-foreground hover:bg-muted" aria-label="Kéo để đổi thứ tự thẻ ${i+1}. Alt+mũi tên để di chuyển"><i data-lucide="grip-vertical" class="size-4"></i></button>
+          <span class="font-semibold text-muted-foreground">${i+1}</span>
+          ${linked?'<span class="badge badge-primary"><i data-lucide="link" class="size-3"></i>Từ kho từ</span>':''}
+          <button class="btn btn-ghost btn-icon btn-sm ml-auto" aria-label="Xóa thẻ ${i+1}"><i data-lucide="trash-2" class="size-4"></i></button>
+        </div>
+        <div class="grid gap-4 p-4 sm:grid-cols-2">
+          <label class="flex flex-col gap-1"><input class="input border-0 border-b rounded-none px-0 focus:ring-0 ${flag==='error'?'border-destructive':''}" value="${t}" placeholder="Thuật ngữ"><span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Thuật ngữ</span></label>
+          <label class="flex flex-col gap-1"><input class="input border-0 border-b rounded-none px-0 focus:ring-0" value="${d}" placeholder="Định nghĩa"><span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Định nghĩa</span></label>
+          <label class="flex flex-col gap-1 sm:col-span-2"><input class="input border-0 border-b rounded-none px-0 text-muted-foreground focus:ring-0" value="${e}" placeholder="Ví dụ (không bắt buộc)"><span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ví dụ</span></label>
+          ${flag==='error'?'<p class="flex items-center gap-1 text-[13px] text-destructive sm:col-span-2"><i data-lucide="circle-alert" class="size-3.5"></i>Thẻ cần có thuật ngữ và định nghĩa</p>':''}
+        </div></li>`).join(''));
+    </script>
+  </ol>
+  <button class="flex min-h-16 items-center justify-center gap-2 rounded-xl border-2 border-dashed font-semibold text-muted-foreground hover:border-primary hover:text-primary"><i data-lucide="plus" class="size-5"></i>Thêm thẻ</button>
+  <p class="hint">Mẹo: nhấn <kbd class="rounded border bg-card px-1 font-mono">Tab</kbd> ở ô ví dụ của thẻ cuối để thêm thẻ mới.</p>
+</main>
+
+<!-- Sticky save bar -->
+<div class="fixed inset-x-0 bottom-[60px] z-20 border-t bg-card/95 backdrop-blur lg:bottom-0">
+  <div class="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
+    <p data-state="default" class="hint hidden sm:block">2 thẻ đã sửa · 1 thẻ mới · 1 thẻ bị xóa sẽ mất tiến độ</p>
+    <p data-state="saving" class="hint flex items-center gap-1"><i data-lucide="loader-circle" class="size-3.5 animate-spin"></i>Đang lưu…</p>
+    <p data-state="save-error" role="alert" class="flex items-center gap-1 text-sm text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Chưa lưu được. Nội dung vẫn còn ở đây.</p>
+    <div class="ml-auto flex gap-2"><a href="set.html" class="btn btn-secondary">Hủy</a><button class="btn btn-primary">Lưu bộ thẻ</button></div>
+  </div>
+</div>
+
+<!-- Bulk paste dialog -->
+<div data-state="paste" class="fixed inset-0 z-40 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4">
+  <div role="dialog" aria-modal="true" aria-labelledby="bp" class="flex w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl">
+    <div class="flex items-center border-b px-5 py-4"><h2 id="bp" class="h2 flex-1">Dán nhanh nhiều thẻ</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
+    <div class="grid gap-4 p-5 md:grid-cols-2">
+      <label class="flex flex-col gap-1.5"><span class="label">Mỗi dòng: thuật ngữ <kbd class="rounded border px-1 font-mono text-xs">Tab</kbd> định nghĩa</span><textarea class="input min-h-48 py-2 font-mono text-[13px]">resilient	kiên cường, phục hồi nhanh
+drought	hạn hán
+biodiversity	đa dạng sinh học
+emission</textarea></label>
+      <div class="flex flex-col gap-1.5"><span class="label">Xem trước: 3 thẻ</span>
+        <ul class="flex flex-col divide-y rounded-lg border text-sm"><li class="flex gap-2 p-2"><strong class="w-28 truncate">resilient</strong>kiên cường, phục hồi nhanh</li><li class="flex gap-2 p-2"><strong class="w-28 truncate">drought</strong>hạn hán</li><li class="flex gap-2 p-2"><strong class="w-28 truncate">biodiversity</strong>đa dạng sinh học</li><li class="flex gap-2 bg-danger-soft p-2 text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Dòng 4 thiếu định nghĩa, sẽ bỏ qua</li></ul>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 border-t px-5 py-4"><button class="btn btn-secondary">Hủy</button><button class="btn btn-primary">Thêm 3 thẻ</button></div>
+  </div>
+</div>
+</body>
+</html>

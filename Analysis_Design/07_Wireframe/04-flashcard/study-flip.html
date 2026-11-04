@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thẻ lật</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="flex min-h-screen flex-col">
+<!-- /flashcards/[id]/study/flip: focus layout without the main nav. Space = flip, ←/→ = previous/next. Does not change SM-2 progress. -->
+<header class="border-b bg-card">
+  <div class="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát chế độ học"><i data-lucide="x" class="size-5"></i></a>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Thẻ lật</p></div>
+    <button class="btn btn-ghost btn-icon" aria-label="Trộn thẻ" aria-pressed="false"><i data-lucide="shuffle" class="size-5"></i></button>
+  </div>
+  <div class="h-1 bg-muted"><div class="h-full w-[19%] bg-primary"></div></div>
+</header>
+
+<main id="main" class="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 px-4 py-8">
+  <p class="text-sm font-semibold text-muted-foreground" aria-live="polite">8 / 42</p>
+
+  <button class="group w-full [perspective:1200px]" aria-label="Lật thẻ. Đang hiện mặt trước">
+    <div data-state="front" class="card flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 p-8 shadow-lg sm:aspect-[16/9]">
+      <span class="badge absolute-none">Thuật ngữ</span>
+      <p class="text-4xl font-bold sm:text-5xl">mitigate</p>
+      <p class="text-muted-foreground">/ˈmɪt.ɪ.ɡeɪt/ · verb</p>
+    </div>
+    <div data-state="back" class="card flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 border-primary/40 bg-secondary/40 p-8 shadow-lg sm:aspect-[16/9]">
+      <span class="badge badge-primary">Định nghĩa</span>
+      <p class="text-2xl font-bold sm:text-3xl">giảm nhẹ, làm dịu (tác động xấu)</p>
+      <p class="max-w-lg font-serif italic text-muted-foreground">"Governments are under pressure to <mark>mitigate</mark> the effects of rising sea levels."</p>
+    </div>
+  </button>
+  <p class="hint">Bấm vào thẻ hoặc nhấn <kbd class="rounded border bg-card px-1.5 font-mono">Space</kbd> để lật (hiệu ứng lật 3D; tắt khi người dùng chọn giảm chuyển động)</p>
+
+  <div class="flex items-center gap-4">
+    <button class="btn btn-secondary btn-lg btn-icon size-12 rounded-full" aria-label="Thẻ trước"><i data-lucide="arrow-left" class="size-5"></i></button>
+    <span class="hint w-28 text-center"><kbd class="rounded border bg-card px-1.5 font-mono">←</kbd> <kbd class="rounded border bg-card px-1.5 font-mono">→</kbd></span>
+    <button class="btn btn-secondary btn-lg btn-icon size-12 rounded-full" aria-label="Thẻ sau"><i data-lucide="arrow-right" class="size-5"></i></button>
+  </div>
+</main>
+
+<!-- End of deck -->
+<div data-state="end" class="fixed inset-0 z-40 flex items-center justify-center bg-background p-4">
+  <div class="flex max-w-sm flex-col items-center gap-4 text-center">
+    <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="party-popper" class="size-8"></i></span>
+    <h1 class="h1">Đã xem hết 42 thẻ</h1>
+    <p class="text-muted-foreground">Thẻ lật không tính vào lịch ôn. Muốn nhớ lâu, hãy chuyển sang chế độ Học.</p>
+    <div class="flex w-full flex-col gap-2"><a href="study-learn.html" class="btn btn-primary btn-lg">Học với lịch ôn SM-2</a><button class="btn btn-secondary">Lật lại từ đầu</button><a href="set.html" class="btn btn-ghost">Về bộ thẻ</a></div>
+  </div>
+</div>
+</body>
+</html>

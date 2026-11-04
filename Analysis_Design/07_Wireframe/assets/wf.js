@@ -72,7 +72,7 @@
 
   const icons = document.createElement('script');
   icons.src = 'https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js';
-  icons.onload = () => window.lucide.createIcons();
+  icons.onload = () => window.lucide.createIcons({attrs: {'aria-hidden': 'true'}});
   document.head.append(icons);
 
   // Nav registry of the real app (PLAN B4), in order.
@@ -139,7 +139,21 @@
     // data-state may list several states: data-state="default error".
     const states = [...new Set(nodes.flatMap(n => n.dataset.state.split(' ')))];
     if (!states.length) return;
-    const LABEL = {default: 'Bình thường', loading: 'Đang tải', empty: 'Trống', error: 'Lỗi', 'rate-limit': 'Quá số lần', saved: 'Đã lưu'};
+    const LABEL = {
+      default: 'Bình thường', loading: 'Đang tải', empty: 'Trống', error: 'Lỗi', 'rate-limit': 'Quá số lần',
+      saved: 'Đã lưu', saving: 'Đang lưu', 'save-error': 'Lưu lỗi', new: 'Hộp tạo mới', 'upload-error': 'File lỗi',
+      'lookup-loading': 'AI đang tra', quota: 'Hết quota AI', 'scan-loading': 'Đang quét', scan: 'Kết quả lọc',
+      detail: 'Chi tiết', 'no-result': 'Không khớp', paste: 'Dán nhanh', publish: 'Hỏi đăng lên',
+      published: 'Công khai', hidden: 'Bị ẩn', front: 'Mặt trước', back: 'Mặt sau', end: 'Hết bộ',
+      question: 'Câu hỏi', answer: 'Đáp án', summary: 'Tổng kết', 'review-error': 'Lỗi gửi',
+      choice: 'Trắc nghiệm', correct: 'Đúng', typed: 'Tự gõ', wrong: 'Sai', truefalse: 'Đúng/Sai', result: 'Kết quả',
+      playing: 'Đang chơi', finished: 'Xong', setup: 'Thiết lập', generating: 'AI đang soạn', checked: 'Đã chấm',
+      menu: 'Menu chuột phải', note: 'Ghi chú', settings: 'Settings', help: 'Help', submit: 'Nộp bài', hide: 'Hide',
+      warn: 'Cảnh báo giờ', offline: 'Mất mạng', 'sound-check': 'Thử âm thanh', resume: 'Vào lại', review: '2 phút cuối',
+      transition: 'Chuyển Reading', invalid: 'File sai', uploading: 'Đang tải lên', parsing: 'Đang xử lý',
+      done: 'Thành công', failed: 'Thất bại', 'in-progress': 'Đang làm dở', explain: 'AI giải thích',
+      tests: 'Tab Đề thi', copied: 'Đã chép', report: 'Báo cáo',
+    };
     const params = new URLSearchParams(location.search);
     const show = s => {
       nodes.forEach(n => n.classList.toggle('wf-on', n.dataset.state.split(' ').includes(s)));
@@ -148,14 +162,15 @@
     if (!params.has('shot')) {
       const panel = document.createElement('div');
       panel.className =
-        'fixed bottom-20 left-3 z-50 flex flex-wrap items-center gap-1 rounded-xl border border-dashed border-primary/50 bg-card/95 p-1.5 text-xs shadow-lg lg:bottom-3';
+        'group fixed right-3 top-16 z-50 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center justify-end gap-1 rounded-xl border border-dashed border-primary/50 bg-card/95 p-1.5 text-xs shadow-lg';
       panel.setAttribute('aria-label', 'Wireframe: đổi trạng thái màn hình');
+      // "WF" collapses the panel so it never hides the screen underneath.
       panel.innerHTML =
-        '<span class="px-1.5 font-semibold text-primary">WF</span>' +
+        '<button class="rounded-md px-1.5 py-1 font-semibold text-primary" aria-label="Thu gọn hoặc mở bảng trạng thái" onclick="this.parentElement.classList.toggle(\'wf-min\')">WF</button>' +
         states
           .map(
             s =>
-              `<button class="wf-state-btn rounded-md px-2 py-1 font-medium aria-pressed:bg-primary aria-pressed:text-white hover:bg-muted" data-s="${s}">${LABEL[s] ?? s}</button>`,
+              `<button class="wf-state-btn rounded-md px-2 py-1 group-[.wf-min]:hidden font-medium aria-pressed:bg-primary aria-pressed:text-white hover:bg-muted" data-s="${s}">${LABEL[s] ?? s}</button>`,
           )
           .join('');
       panel.addEventListener('click', e => e.target.dataset.s && show(e.target.dataset.s));
@@ -168,6 +183,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-app-nav]').forEach(renderNav);
     setupStates();
-    window.lucide?.createIcons();
+    window.lucide?.createIcons({attrs: {'aria-hidden': 'true'}});
   });
 })();

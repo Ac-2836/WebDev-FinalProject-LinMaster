@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xem trước đề</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="library"></div>
+<!-- /library/tests/[id]: metadata only, never questions or answers (PLAN C5). Take the test directly with POST /attempts, no copy. -->
+<main id="main" class="page flex max-w-3xl flex-col gap-6">
+  <a href="library.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thư viện</a>
+  <header class="flex flex-col gap-2">
+    <div class="flex gap-2"><span class="badge">IELTS Academic</span><span class="badge">Listening</span></div>
+    <h1 class="h1">Mock Listening A</h1>
+    <p class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><span class="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold text-foreground">QB</span>Quốc Bảo · đăng 20/10/2026 · 1,2k lượt làm · Nguồn: tự soạn</p>
+  </header>
+
+  <section class="card grid grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0">
+    <div class="p-4"><p class="hint">Kỹ năng</p><p class="font-bold">Listening</p></div>
+    <div class="p-4"><p class="hint">Số câu</p><p class="font-bold">40 · 4 part</p></div>
+    <div class="p-4"><p class="hint">Thời gian</p><p class="font-bold">32 phút</p></div>
+    <div class="p-4"><p class="hint">Lượt làm</p><p class="font-bold">1,2k</p></div>
+  </section>
+
+  <section class="card flex flex-col gap-3 p-5">
+    <h2 class="h2">Các dạng câu trong đề</h2>
+    <div class="flex flex-wrap gap-2"><span class="badge">Hoàn thành form (10)</span><span class="badge">Trắc nghiệm (12)</span><span class="badge">Nối (8)</span><span class="badge">Hoàn thành ghi chú (10)</span></div>
+    <p class="hint">Câu hỏi và đáp án chỉ hiện khi bạn vào phòng thi và sau khi nộp bài.</p>
+  </section>
+
+  <div class="flex flex-col gap-2 sm:flex-row">
+    <a href="../05-exam/test-intro.html" class="btn btn-primary btn-lg"><i data-lucide="play" class="size-4"></i>Làm đề này</a>
+    <button class="btn btn-ghost"><i data-lucide="flag" class="size-4"></i>Báo cáo</button>
+  </div>
+</main>
+</body>
+</html>

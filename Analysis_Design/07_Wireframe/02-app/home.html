@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trang chủ</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="home"></div>
+<!-- /home: widgets from the home widget registry (PLAN C7). Each widget loads and fails on its own. -->
+<main id="main" class="page flex flex-col gap-6">
+  <header class="flex flex-col gap-1">
+    <h1 class="h1">Chào buổi tối, Khải Hưng</h1>
+    <p class="text-muted-foreground" data-state="default loading">Hôm nay bạn có <strong class="text-foreground">18 thẻ</strong> cần ôn và một bài thi đang làm dở.</p>
+    <p class="text-muted-foreground" data-state="empty">Bắt đầu bằng một trong ba việc dưới đây.</p>
+  </header>
+
+  <!-- Empty (new account): onboarding instead of widgets -->
+  <section data-state="empty" class="grid gap-4 md:grid-cols-3" aria-label="Bắt đầu">
+    <a href="../03-vocab/documents.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="book-open-text" class="size-5"></i></span><span class="font-bold">1. Đọc một bài tiếng Anh</span><span class="text-sm text-muted-foreground">Dán bài báo, bôi chọn từ lạ để AI giải thích theo câu.</span></a>
+    <a href="../05-exam/upload.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="upload" class="size-5"></i></span><span class="font-bold">2. Tải đề thi lên</span><span class="text-sm text-muted-foreground">PDF đề + PDF đáp án, hệ thống tạo phòng thi cho bạn.</span></a>
+    <a href="../06-library/library.html" class="card flex flex-col gap-3 p-6 hover:border-primary"><span class="inline-flex size-11 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="library" class="size-5"></i></span><span class="font-bold">3. Lấy bộ thẻ có sẵn</span><span class="text-sm text-muted-foreground">Chép bộ thẻ cộng đồng về và học ngay.</span></a>
+  </section>
+
+  <div data-state="loading" class="grid gap-4 lg:grid-cols-3" aria-busy="true" aria-label="Đang tải">
+    <div class="card h-40 p-5 lg:col-span-2"><div class="skeleton h-5 w-40"></div><div class="skeleton mt-4 h-4 w-3/4"></div><div class="skeleton mt-6 h-10 w-36"></div></div>
+    <div class="card h-40 p-5"><div class="skeleton h-5 w-24"></div><div class="skeleton mt-4 h-10 w-20"></div></div>
+    <div class="card h-48 p-5 lg:col-span-2"><div class="skeleton h-5 w-40"></div><div class="skeleton mt-4 h-12 w-full"></div><div class="skeleton mt-2 h-12 w-full"></div></div>
+    <div class="card h-48 p-5"><div class="skeleton h-5 w-24"></div></div>
+  </div>
+
+  <div data-state="default" class="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+    <!-- Continue attempt -->
+    <section class="card flex flex-col gap-4 border-primary/40 p-5 lg:col-span-2" aria-labelledby="w1">
+      <div class="flex items-start gap-3">
+        <span class="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white"><i data-lucide="timer" class="size-5"></i></span>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary">Đang làm dở</p>
+          <h2 id="w1" class="h2 truncate">Cambridge-style Practice Test 3 · Reading</h2>
+          <p class="hint">Đã làm 14/40 câu · còn 38:12 · đồng hồ vẫn chạy</p>
+        </div>
+      </div>
+      <div class="h-2 overflow-hidden rounded-full bg-muted"><div class="h-full w-[35%] bg-primary"></div></div>
+      <a href="../05-exam/room-reading.html" class="btn btn-primary w-full sm:w-fit">Tiếp tục làm bài<i data-lucide="arrow-right" class="size-4"></i></a>
+    </section>
+
+    <!-- Streak -->
+    <section class="card flex flex-col gap-3 p-5" aria-labelledby="w2">
+      <h2 id="w2" class="text-sm font-semibold text-muted-foreground">Chuỗi ngày học</h2>
+      <p class="flex items-center gap-2 text-4xl font-bold"><i data-lucide="flame" class="size-8 text-orange-500"></i>7 <span class="text-base font-medium text-muted-foreground">ngày</span></p>
+      <div class="flex gap-1.5" aria-label="7 ngày gần nhất: đều có học">
+        <script>document.write(['T5','T6','T7','CN','T2','T3','T4'].map((d,i)=>`<div class="flex flex-1 flex-col items-center gap-1"><span class="size-6 rounded-md ${i<7?'bg-success':'bg-muted'}"></span><span class="text-[10px] text-muted-foreground">${d}</span></div>`).join(''))</script>
+      </div>
+      <p class="hint">Kỷ lục: 21 ngày</p>
+    </section>
+
+    <!-- Due cards -->
+    <section class="card flex flex-col gap-4 p-5 lg:col-span-2" aria-labelledby="w3">
+      <div class="flex items-center justify-between"><h2 id="w3" class="h2">Thẻ đến hạn hôm nay</h2><a href="../04-flashcard/sets.html" class="text-sm font-semibold text-primary hover:underline">Tất cả bộ thẻ</a></div>
+      <ul class="divide-y">
+        <script>
+          document.write([['IELTS Environment','12 thẻ đến hạn · 4 thẻ mới'],['Từ trong bài "Coastal cities"','6 thẻ đến hạn'],['Academic Word List 1','0 thẻ đến hạn · ôn xong hôm nay']].map(([t,s],i)=>`<li class="flex items-center gap-3 py-3"><span class="inline-flex size-9 items-center justify-center rounded-lg bg-secondary text-primary"><i data-lucide="layers" class="size-4"></i></span><div class="min-w-0 flex-1"><p class="truncate font-semibold">${t}</p><p class="hint">${s}</p></div>${i<2?'<a href="../04-flashcard/study-learn.html" class="btn btn-secondary btn-sm">Ôn</a>':'<span class="badge badge-success">Xong</span>'}</li>`).join(''))
+        </script>
+      </ul>
+    </section>
+
+    <!-- Shortcuts -->
+    <section class="card flex flex-col gap-2 p-5" aria-labelledby="w4">
+      <h2 id="w4" class="text-sm font-semibold text-muted-foreground">Lối tắt</h2>
+      <a href="../03-vocab/documents.html#new" class="btn btn-secondary justify-start"><i data-lucide="file-plus" class="size-4"></i>Đọc tài liệu mới</a>
+      <a href="../05-exam/upload.html" class="btn btn-secondary justify-start"><i data-lucide="upload" class="size-4"></i>Tải đề lên</a>
+      <a href="../06-library/library.html" class="btn btn-secondary justify-start"><i data-lucide="library" class="size-4"></i>Vào thư viện</a>
+    </section>
+
+    <!-- Recent documents -->
+    <section class="card flex flex-col gap-4 p-5 lg:col-span-3" aria-labelledby="w5">
+      <div class="flex items-center justify-between"><h2 id="w5" class="h2">Tài liệu đọc gần đây</h2><a href="../03-vocab/documents.html" class="text-sm font-semibold text-primary hover:underline">Xem tất cả</a></div>
+      <div class="grid gap-3 sm:grid-cols-3">
+        <script>
+          document.write([['Rising seas and coastal cities','Dán văn bản · 1.240 từ · 9 từ đã lưu','clipboard'],['Practice Test 3 · Passage 2','Từ bài thi · 860 từ · 4 từ đã lưu','clipboard-check'],['Urban farming report.pdf','File · 3.105 từ · 15 từ đã lưu','file-text']].map(([t,s,i])=>`<a href="../03-vocab/reader.html" class="flex gap-3 rounded-xl border p-4 hover:border-primary"><i data-lucide="${i}" class="mt-0.5 size-5 shrink-0 text-muted-foreground"></i><span class="min-w-0"><span class="block truncate font-semibold">${t}</span><span class="hint">${s}</span></span></a>`).join(''))
+        </script>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kết quả</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="tests"></div>
+<!--
+  /attempts/[id]/result: GET /attempts/:id/result (owner only, 403 for others).
+  "Mở bài đọc trong Trình đọc" creates a Document with source = exam and opens /read/[id].
+  (Nên có) "Giải thích" = POST /attempts/:id/questions/:no/explain.
+-->
+<main id="main" class="page flex flex-col gap-6">
+  <a href="tests.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thi thử</a>
+
+  <div data-state="loading" class="flex flex-col gap-4" aria-busy="true" aria-label="Đang chấm"><div class="skeleton h-8 w-1/3"></div><div class="grid gap-4 sm:grid-cols-3"><div class="skeleton h-32"></div><div class="skeleton h-32"></div><div class="skeleton h-32"></div></div></div>
+
+  <header data-state="default explain" class="flex flex-col gap-1">
+    <h1 class="h1">Kết quả · Practice Test 3</h1>
+    <p class="text-muted-foreground">Nộp lúc 22:41, 02/11/2026 · làm trong 1 giờ 48 phút</p>
+  </header>
+
+  <section data-state="default explain" class="grid gap-4 sm:grid-cols-3">
+    <div class="card flex flex-col items-center justify-center gap-1 bg-primary p-6 text-center text-white"><p class="text-sm font-semibold text-white/80">Band trung bình</p><p class="text-5xl font-bold">6.5</p><p class="text-sm text-white/80">Mục tiêu 7.0</p></div>
+    <div class="card flex flex-col gap-2 p-5"><p class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><i data-lucide="headphones" class="size-4"></i>Listening</p><p class="text-3xl font-bold">6.5</p><p class="text-sm">28/40 câu đúng</p><div class="h-2 overflow-hidden rounded-full bg-muted"><div class="h-full w-[70%] bg-success"></div></div></div>
+    <div class="card flex flex-col gap-2 p-5"><p class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><i data-lucide="book-open" class="size-4"></i>Reading</p><p class="text-3xl font-bold">7.0</p><p class="text-sm">31/40 câu đúng</p><div class="h-2 overflow-hidden rounded-full bg-muted"><div class="h-full w-[77%] bg-success"></div></div></div>
+  </section>
+
+  <section data-state="default explain" class="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+    <div class="flex-1"><p class="font-bold">Học từ ngay trong bài vừa thi</p><p class="text-sm text-muted-foreground">Mở passage trong Trình đọc để tra và lưu những từ bạn chưa hiểu.</p></div>
+    <div class="flex flex-wrap gap-2"><a href="../03-vocab/reader.html" class="btn btn-primary btn-sm"><i data-lucide="book-open-text" class="size-4"></i>Passage 1</a><a href="../03-vocab/reader.html" class="btn btn-secondary btn-sm">Passage 2</a><a href="../03-vocab/reader.html" class="btn btn-secondary btn-sm">Passage 3</a></div>
+  </section>
+
+  <section data-state="default explain" aria-labelledby="qs" class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-center gap-3">
+      <h2 id="qs" class="h2 flex-1">Từng câu</h2>
+      <div class="inline-flex rounded-lg border bg-muted p-0.5 text-sm" role="tablist"><button role="tab" class="rounded-md px-3 py-1.5 text-muted-foreground">Listening</button><button role="tab" aria-selected="true" class="rounded-md bg-card px-3 py-1.5 font-semibold shadow-sm">Reading</button></div>
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" checked class="size-4 accent-primary">Chỉ câu sai (9)</label>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="hidden grid-cols-[50px_1.3fr_1fr_1fr_110px] gap-3 border-b bg-muted/50 px-4 py-2.5 text-xs font-semibold uppercase text-muted-foreground md:grid"><span>Câu</span><span>Dạng</span><span>Bạn trả lời</span><span>Đáp án</span><span></span></div>
+      <ul class="divide-y text-sm">
+        <script>
+          document.write([['15','Thông tin ở đoạn nào','—','C',1],['17','Thông tin ở đoạn nào','B','D',0],['20','True / False / Not Given','TRUE','NOT GIVEN',0],['24','Hoàn thành tóm tắt','window','(coloured) windows',0]].map(([n,k,g,a,blank])=>`<li class="grid grid-cols-[40px_1fr_auto] gap-x-3 gap-y-1 px-4 py-3 md:grid-cols-[50px_1.3fr_1fr_1fr_110px] md:items-center"><span class="inline-flex size-8 items-center justify-center rounded-md bg-danger-soft font-bold text-destructive">${n}</span><span class="text-muted-foreground md:order-none">${k}</span><button class="btn btn-ghost btn-sm row-span-2 self-center text-primary md:row-span-1 md:order-last"><i data-lucide="sparkles" class="size-4"></i>Giải thích</button><span class="col-start-2 md:col-start-auto"><span class="md:hidden">Bạn: </span>${blank?'<span class="italic text-muted-foreground">bỏ trống</span>':`<span class="text-destructive line-through">${g}</span>`}</span><span class="col-start-2 font-semibold text-success md:col-start-auto"><span class="font-normal text-muted-foreground md:hidden">Đáp án: </span>${a}</span></li>`).join(''))
+        </script>
+      </ul>
+    </div>
+  </section>
+
+  <section data-state="default explain" class="card flex flex-col gap-3 p-5">
+    <h2 class="h2">Theo dạng câu</h2>
+    <ul class="flex flex-col gap-3 text-sm">
+      <script>document.write([['Hoàn thành tóm tắt / ghi chú',90],['Trắc nghiệm',80],['Thông tin ở đoạn nào',60],['True / False / Not Given',55]].map(([k,p])=>`<li class="grid grid-cols-[1fr_auto] gap-1 sm:grid-cols-[220px_1fr_48px] sm:items-center sm:gap-3"><span>${k}</span><span class="font-semibold sm:order-last">${p}%</span><span class="col-span-2 h-2 overflow-hidden rounded-full bg-muted sm:col-span-1"><span class="block h-full ${p<60?'bg-destructive':p<75?'bg-warning':'bg-success'}" style="width:${p}%"></span></span></li>`).join(''))</script>
+    </ul>
+  </section>
+</main>
+
+<!-- (Nên có) AI explanation drawer -->
+<div data-state="explain" class="fixed inset-0 z-40 flex justify-end bg-foreground/30">
+  <aside role="dialog" aria-modal="true" aria-labelledby="ex" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
+    <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="ex" class="h2 flex-1">Câu 20 · Giải thích</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
+    <div class="flex flex-col gap-4 overflow-y-auto p-5 text-sm">
+      <p class="rounded-lg bg-muted p-3"><strong>20.</strong> Glass vessels were first traded outside the region in the first century BC.</p>
+      <p>Bạn chọn <strong class="text-destructive">TRUE</strong> · đáp án <strong class="text-success">NOT GIVEN</strong></p>
+      <div><p class="label mb-1">Bằng chứng trong bài (đoạn B)</p><blockquote class="border-l-4 border-primary pl-3 font-serif italic">"…glass vessels became objects of trade across the region."</blockquote></div>
+      <p>Bài chỉ nói glass được buôn bán <em>trong</em> khu vực, không nhắc tới bên ngoài khu vực hay mốc thế kỷ I TCN cho việc buôn bán. Mốc thời gian đó thuộc về ống thổi thủy tinh (đoạn C), nên không đủ thông tin để kết luận TRUE hay FALSE.</p>
+      <p class="hint flex items-center gap-1"><i data-lucide="sparkles" class="size-3.5"></i>Do AI tạo, có thể chưa chính xác.</p>
+    </div>
+  </aside>
+</div>
+</body>
+</html>
