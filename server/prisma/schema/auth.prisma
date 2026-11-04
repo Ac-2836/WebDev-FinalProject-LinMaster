@@ -37,4 +37,7 @@ model User {
   tests       Test[]
   testImports TestImport[]
   attempts    Attempt[]
+
+  // library
+  reports Report[]
 }

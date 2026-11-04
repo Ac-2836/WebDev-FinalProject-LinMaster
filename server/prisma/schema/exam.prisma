@@ -1,6 +1,5 @@
 // Module exam (Analysis_Design/01_Database/data-dictionary.md § exam).
 // Structure: Test → TestSection → Passage → QuestionGroup → Question.
-// Library columns of Test (visibility, publishedAt, attemptCount) come with P4-01.
 
 enum TestKind {
   reading
@@ -52,6 +51,12 @@ model Test {
   source        String?  @db.VarChar(300)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  // library (P4-01): changed only through the exam public API.
+  visibility   Visibility @default(private)
+  publishedAt  DateTime?  @db.Timestamptz(6)
+  /// Attempts by other learners.
+  attemptCount Int        @default(0)
 
   sections TestSection[]
   imports  TestImport[]

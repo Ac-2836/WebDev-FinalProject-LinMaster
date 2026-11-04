@@ -1,0 +1,45 @@
+// Module library (Analysis_Design/01_Database/data-dictionary.md § library).
+// The public columns (visibility, publishedAt, copyCount, attemptCount) live on FlashcardSet and Test;
+// library changes them only through the public API of flashcard and exam.
+
+/// State diagram st-03.
+enum Visibility {
+  private
+  public
+  /// Hidden after enough open reports.
+  hidden
+}
+
+enum ContentType {
+  flashcard_set
+  test
+}
+
+enum ReportReason {
+  wrong_content
+  copyright
+  inappropriate
+  other
+}
+
+enum ReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+model Report {
+  id         String       @id @default(uuid(7)) @db.Uuid
+  reporterId String       @db.Uuid
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType ContentType
+  /// Id of a FlashcardSet or a Test. No foreign key because the target is polymorphic.
+  targetId   String       @db.Uuid
+  reason     ReportReason
+  detail     String?
+  status     ReportStatus @default(open)
+  createdAt  DateTime     @default(now()) @db.Timestamptz(6)
+
+  /// One report per person per content.
+  @@unique([reporterId, targetType, targetId])
+}
