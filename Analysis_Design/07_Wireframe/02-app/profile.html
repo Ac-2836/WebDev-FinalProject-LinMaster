@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hồ sơ</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav=""></div>
+<main id="main" class="page max-w-2xl">
+  <h1 class="h1">Hồ sơ</h1>
+  <p class="mt-1 text-muted-foreground">Thông tin tài khoản và tùy chọn học. Dữ liệu: <code>GET/PATCH /auth/me</code>.</p>
+
+  <!-- loading -->
+  <div data-state="loading" class="card mt-6 flex flex-col gap-5 p-6" aria-busy="true" aria-label="Đang tải hồ sơ">
+    <div class="flex items-center gap-4"><div class="skeleton size-16 rounded-full"></div><div class="flex flex-1 flex-col gap-2"><div class="skeleton h-5 w-40"></div><div class="skeleton h-4 w-56"></div></div></div>
+    <div class="skeleton h-10 w-full"></div><div class="skeleton h-10 w-full"></div><div class="skeleton h-10 w-1/2"></div>
+  </div>
+
+  <!-- error -->
+  <div data-state="error" role="alert" class="card mt-6 flex flex-col items-center gap-3 p-8 text-center">
+    <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="cloud-off" class="size-6" aria-hidden="true"></i></span>
+    <p class="font-bold">Không tải được hồ sơ</p>
+    <button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4" aria-hidden="true"></i>Thử lại</button>
+  </div>
+
+  <form data-state="default saved" class="mt-6 flex flex-col gap-6">
+    <section class="card flex flex-col gap-5 p-6">
+      <div class="flex items-center gap-4">
+        <span class="inline-flex size-16 items-center justify-center rounded-full bg-secondary text-xl font-bold text-primary-strong" aria-hidden="true">KH</span>
+        <div><p class="text-lg font-bold">Khải Hưng</p><p class="hint">Thành viên từ 03/11/2026</p></div>
+      </div>
+      <label class="flex flex-col gap-1.5"><span class="label">Tên hiển thị</span><input class="input" value="Khải Hưng" maxlength="80"></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Email</span><input class="input bg-muted" value="khaihung@example.com" readonly aria-describedby="eh"><span id="eh" class="hint">Email không đổi được.</span></label>
+    </section>
+
+    <section class="card flex flex-col gap-5 p-6" aria-labelledby="pref">
+      <h2 id="pref" class="h2">Tùy chọn học</h2>
+      <fieldset class="flex flex-col gap-2">
+        <legend class="label mb-1.5">Ngôn ngữ giao diện</legend>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-primary bg-secondary p-3"><input type="radio" name="lc" checked class="size-4 accent-primary"><span class="text-sm font-semibold">Tiếng Việt</span></label>
+          <label class="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-muted"><input type="radio" name="lc" class="size-4 accent-primary"><span class="text-sm font-semibold">English</span></label>
+        </div>
+      </fieldset>
+      <label class="flex flex-col gap-1.5 sm:max-w-48">
+        <span class="label">Band mục tiêu</span>
+        <select class="input"><option value="">Chưa đặt</option><option>6.0</option><option selected>6.5</option><option>7.0</option><option>7.5</option></select>
+        <span class="hint">Vạch mục tiêu trên biểu đồ band.</span>
+      </label>
+    </section>
+
+    <div class="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
+      <p data-state="saved" role="status" class="flex items-center gap-1.5 text-sm text-success sm:mr-auto"><i data-lucide="circle-check" class="size-4" aria-hidden="true"></i>Đã lưu thay đổi</p>
+      <a href="../01-public/landing.html" class="btn btn-ghost text-destructive sm:mr-auto"><i data-lucide="log-out" class="size-4" aria-hidden="true"></i>Đăng xuất</a>
+      <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>

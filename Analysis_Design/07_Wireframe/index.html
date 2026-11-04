@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LinMaster Wireframe</title>
+  <script src="assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body>
+<main class="page max-w-5xl">
+  <header class="mb-8 flex flex-col gap-2">
+    <p class="badge badge-primary w-fit">P0-12 · Wireframe</p>
+    <h1 class="h1">LinMaster: toàn bộ màn hình</h1>
+    <p class="max-w-3xl text-muted-foreground">
+      Prototype HTML bấm được, dùng đúng token màu và font của <code>client/app/globals.css</code>.
+      Bấm tên màn để mở; bấm <strong>375 / 1440</strong> để xem hai khổ cạnh nhau.
+      Màn có trạng thái tải / trống / lỗi thì đổi bằng bảng <span class="font-semibold text-primary">WF</span> ở góc dưới.
+      Màn xám là màn chưa vẽ.
+    </p>
+  </header>
+  <div id="groups" class="flex flex-col gap-6"></div>
+</main>
+<script>
+  // [file, tên màn, ghi chú]. File rỗng = chưa vẽ.
+  const SCREENS = [
+    ['Nền tảng', [
+      ['00-foundation/design-system.html', 'Design system', 'Màu, chữ, nút, ô nhập, badge, card, hộp thoại, toast, skeleton, trạng thái trống / lỗi'],
+    ]],
+    ['Công khai', [
+      ['01-public/landing.html', 'Landing /', 'Giới thiệu vòng học, đăng ký'],
+      ['01-public/login.html', 'Đăng nhập /login', 'Có lỗi sai mật khẩu, quay lại ?next='],
+      ['01-public/register.html', 'Đăng ký /register', 'Tên, email, mật khẩu, band mục tiêu'],
+      ['01-public/not-found.html', 'Trang 404', ''],
+      ['01-public/error.html', 'Trang lỗi', 'Lỗi không lường trước, nút thử lại'],
+    ]],
+    ['Khung app', [
+      ['02-app/profile.html', 'Hồ sơ /profile', 'Khung app (navbar desktop, thanh dưới mobile), tên, ngôn ngữ, band mục tiêu'],
+      ['', 'Trang chủ /home', 'Bài thi dở, thẻ đến hạn, tài liệu gần đây, chuỗi ngày, lối tắt'],
+    ]],
+    ['vocab: đọc và học từ', [
+      ['', 'Tài liệu /read', 'Danh sách + hộp Tài liệu mới (dán / tải file)'],
+      ['', 'Trình đọc /read/[id]', 'Popover tra từ, Lọc nhanh, từ đã lưu, bottom sheet trên mobile'],
+      ['', 'Kho từ /vocab', 'Tìm, lọc, chọn nhiều → tạo bộ thẻ'],
+    ]],
+    ['flashcard', [
+      ['', 'Bộ thẻ /flashcards', ''],
+      ['', 'Trình soạn /flashcards/new, /[id]/edit', 'Thêm, xóa, kéo thả, dán nhanh'],
+      ['', 'Xem trước /flashcards/[id]', 'Danh sách thẻ, chế độ học, đăng lên thư viện'],
+      ['', 'Thẻ lật', 'Lật 3D, phím cách, mũi tên'],
+      ['', 'Học (SM-2)', '4 nút chấm, phím 1–4, tổng kết phiên'],
+      ['', 'Kiểm tra · Ghép thẻ · Bài luyện AI', 'Nên có'],
+    ]],
+    ['exam: thi thử', [
+      ['', 'Đề của tôi /tests', ''],
+      ['', 'Tải đề lên', 'Chọn loại đề, PDF đề, PDF đáp án, audio'],
+      ['', 'Trạng thái nạp đề', 'Tiến trình, lỗi theo từng câu'],
+      ['', 'Giới thiệu đề', 'Thông tin, hướng dẫn, kiểm tra âm thanh, bắt đầu'],
+      ['', 'Phòng thi Reading', 'Hai cột, highlight, ghi chú, gạch phương án'],
+      ['', 'Phòng thi Listening', 'Audio không tua, 2 phút xem lại'],
+      ['', 'Hộp thoại phòng thi', 'Settings, Help, nộp bài, cảnh báo giờ, mất kết nối'],
+      ['', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc'],
+      ['', 'Lịch sử làm bài', ''],
+    ]],
+    ['library', [
+      ['', 'Thư viện /library', 'Tab Bộ thẻ / Đề thi, tìm, lọc'],
+      ['', 'Xem trước bộ thẻ / đề', 'Chép về, làm đề, báo cáo'],
+    ]],
+    ['stats', [
+      ['', 'Dashboard /dashboard', '7 widget'],
+    ]],
+  ];
+  document.getElementById('groups').innerHTML = SCREENS.map(([group, items]) => `
+    <section class="card overflow-hidden">
+      <h2 class="h2 border-b bg-muted/50 px-5 py-3">${group}</h2>
+      <ul class="divide-y">${items.map(([file, name, note]) => `
+        <li class="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 ${file ? '' : 'opacity-50'}">
+          <div class="min-w-0 flex-1">
+            ${file ? `<a class="font-semibold text-primary hover:underline" href="${file}">${name}</a>` : `<span class="font-semibold">${name}</span>`}
+            ${note ? `<p class="hint">${note}</p>` : ''}
+          </div>
+          ${file ? `<a class="btn btn-secondary btn-sm" href="viewer.html?p=${file}"><i data-lucide="monitor-smartphone" class="size-4" aria-hidden="true"></i>375 / 1440</a>` : '<span class="badge">Chưa vẽ</span>'}
+        </li>`).join('')}
+      </ul>
+    </section>`).join('');
+</script>
+</body>
+</html>

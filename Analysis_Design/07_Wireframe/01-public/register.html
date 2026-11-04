@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng ký</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="min-h-screen">
+<div class="grid min-h-screen lg:grid-cols-2">
+  <aside class="hidden flex-col justify-between bg-primary p-12 text-white lg:flex">
+    <a href="landing.html" class="inline-flex items-center gap-2"><span class="inline-flex size-9 items-center justify-center rounded-lg bg-white/15"><i data-lucide="book-open" class="size-5" aria-hidden="true"></i></span><span class="text-lg font-bold">LinMaster</span></a>
+    <ul class="flex max-w-md flex-col gap-5">
+      <li class="flex gap-3"><i data-lucide="sparkles" class="mt-0.5 size-5 shrink-0" aria-hidden="true"></i><span>AI giải thích từ đúng nghĩa trong câu bạn đang đọc.</span></li>
+      <li class="flex gap-3"><i data-lucide="layers" class="mt-0.5 size-5 shrink-0" aria-hidden="true"></i><span>Flashcard ôn đúng lúc sắp quên với SM-2.</span></li>
+      <li class="flex gap-3"><i data-lucide="monitor" class="mt-0.5 size-5 shrink-0" aria-hidden="true"></i><span>Thi thử Reading, Listening trên giao diện như thi máy.</span></li>
+    </ul>
+    <p class="text-sm text-white/60">© 2026 LinMaster</p>
+  </aside>
+
+  <main id="main" class="flex flex-col px-4 py-6 sm:px-6">
+    <div class="flex items-center justify-between">
+      <a href="landing.html" class="inline-flex items-center gap-2 lg:invisible"><span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary text-white"><i data-lucide="book-open" class="size-[18px]" aria-hidden="true"></i></span><span class="font-bold">LinMaster</span></a>
+      <button class="btn btn-ghost btn-sm" aria-label="Đổi ngôn ngữ, đang là Tiếng Việt"><i data-lucide="languages" class="size-4" aria-hidden="true"></i>VI</button>
+    </div>
+
+    <div class="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 py-10">
+      <div>
+        <h1 class="h1">Tạo tài khoản</h1>
+        <p class="mt-1 text-muted-foreground">Miễn phí. Chỉ cần email.</p>
+      </div>
+
+      <form class="flex flex-col gap-4" novalidate>
+        <label class="flex flex-col gap-1.5"><span class="label">Tên hiển thị</span><input class="input" autocomplete="name" placeholder="Nguyễn Văn A" maxlength="80"></label>
+        <div class="flex flex-col gap-1.5">
+          <label for="em" class="label">Email</label>
+          <input id="em" class="input" type="email" autocomplete="email" placeholder="ban@example.com">
+          <p data-state="error" class="flex items-center gap-1 text-[13px] text-destructive"><i data-lucide="circle-alert" class="size-3.5" aria-hidden="true"></i>Email này đã được dùng. <a href="login.html" class="font-semibold underline">Đăng nhập?</a></p>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="pw" class="label">Mật khẩu</label>
+          <input id="pw" class="input" type="password" autocomplete="new-password" aria-describedby="pwh">
+          <div class="flex gap-1" aria-hidden="true"><span class="h-1 flex-1 rounded bg-success"></span><span class="h-1 flex-1 rounded bg-success"></span><span class="h-1 flex-1 rounded bg-muted"></span></div>
+          <p id="pwh" class="hint">Tối thiểu 8 ký tự.</p>
+        </div>
+        <label class="flex flex-col gap-1.5">
+          <span class="label">Band mục tiêu <span class="font-normal text-muted-foreground">(không bắt buộc)</span></span>
+          <select class="input"><option value="">Chưa đặt</option><option>5.5</option><option>6.0</option><option selected>6.5</option><option>7.0</option><option>7.5</option><option>8.0</option></select>
+          <span class="hint">Dashboard dùng để so với điểm thi thử. Đổi được trong Hồ sơ.</span>
+        </label>
+        <button data-state="default error" class="btn btn-primary btn-lg mt-2 w-full" type="submit">Tạo tài khoản</button>
+        <button data-state="loading" class="btn btn-primary btn-lg mt-2 w-full" disabled aria-busy="true"><i data-lucide="loader-circle" class="size-4 animate-spin" aria-hidden="true"></i>Đang tạo…</button>
+      </form>
+
+      <p class="text-center text-sm text-muted-foreground">Đã có tài khoản? <a href="login.html" class="font-semibold text-primary hover:underline">Đăng nhập</a></p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

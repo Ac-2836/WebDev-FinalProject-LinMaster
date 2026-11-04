@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="min-h-screen">
+<!-- Auth shell: brand panel (desktop only) + form. Shared by /login and /register. -->
+<div class="grid min-h-screen lg:grid-cols-2">
+  <aside class="hidden flex-col justify-between bg-primary p-12 text-white lg:flex">
+    <a href="landing.html" class="inline-flex items-center gap-2"><span class="inline-flex size-9 items-center justify-center rounded-lg bg-white/15"><i data-lucide="book-open" class="size-5" aria-hidden="true"></i></span><span class="text-lg font-bold">LinMaster</span></a>
+    <blockquote class="max-w-md">
+      <p class="text-2xl font-semibold leading-snug">"Từ nào gặp trong bài thi hôm nay, tối nay đã thành flashcard."</p>
+      <p class="mt-4 text-white/70">Đọc → Tra → Lưu → Ôn → Thi</p>
+    </blockquote>
+    <p class="text-sm text-white/60">© 2026 LinMaster</p>
+  </aside>
+
+  <main id="main" class="flex flex-col px-4 py-6 sm:px-6">
+    <div class="flex items-center justify-between">
+      <a href="landing.html" class="inline-flex items-center gap-2 lg:invisible"><span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary text-white"><i data-lucide="book-open" class="size-[18px]" aria-hidden="true"></i></span><span class="font-bold">LinMaster</span></a>
+      <button class="btn btn-ghost btn-sm" aria-label="Đổi ngôn ngữ, đang là Tiếng Việt"><i data-lucide="languages" class="size-4" aria-hidden="true"></i>VI</button>
+    </div>
+
+    <div class="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 py-10">
+      <div>
+        <h1 class="h1">Đăng nhập</h1>
+        <p class="mt-1 text-muted-foreground">Chào mừng bạn quay lại.</p>
+      </div>
+
+      <!-- ?next=/read/abc: shown when redirected from a protected page -->
+      <div data-state="default" class="flex gap-2 rounded-lg bg-secondary p-3 text-sm text-primary-strong"><i data-lucide="lock" class="size-4 shrink-0" aria-hidden="true"></i>Đăng nhập để tiếp tục tới trang bạn vừa mở.</div>
+      <div data-state="error" role="alert" class="flex gap-2 rounded-lg bg-danger-soft p-3 text-sm text-destructive"><i data-lucide="circle-alert" class="size-4 shrink-0" aria-hidden="true"></i>Email hoặc mật khẩu không đúng.</div>
+      <div data-state="rate-limit" role="alert" class="flex gap-2 rounded-lg bg-warning-soft p-3 text-sm text-warning"><i data-lucide="clock" class="size-4 shrink-0" aria-hidden="true"></i>Bạn thử quá nhiều lần. Đợi 1 phút rồi thử lại.</div>
+
+      <form class="flex flex-col gap-4" novalidate>
+        <label class="flex flex-col gap-1.5"><span class="label">Email</span><input class="input" type="email" autocomplete="email" placeholder="ban@example.com" required></label>
+        <label class="flex flex-col gap-1.5">
+          <span class="label">Mật khẩu</span>
+          <span class="relative"><input class="input pr-11" type="password" autocomplete="current-password" required><button type="button" class="absolute right-1 top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted" aria-label="Hiện mật khẩu"><i data-lucide="eye" class="size-4" aria-hidden="true"></i></button></span>
+        </label>
+        <button data-state="default error rate-limit" class="btn btn-primary btn-lg mt-2 w-full" type="submit">Đăng nhập</button>
+        <button data-state="loading" class="btn btn-primary btn-lg mt-2 w-full" disabled aria-busy="true"><i data-lucide="loader-circle" class="size-4 animate-spin" aria-hidden="true"></i>Đang đăng nhập…</button>
+      </form>
+
+      <p class="text-center text-sm text-muted-foreground">Chưa có tài khoản? <a href="register.html" class="font-semibold text-primary hover:underline">Đăng ký</a></p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wireframe Viewer</title>
+  <script src="assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="bg-slate-200">
+<header class="flex items-center gap-3 border-b bg-card px-4 py-2">
+  <a href="index.html" class="btn btn-ghost btn-sm"><i data-lucide="arrow-left" class="size-4" aria-hidden="true"></i>Mục lục</a>
+  <p id="name" class="truncate text-sm font-semibold"></p>
+  <a id="open" class="btn btn-secondary btn-sm ml-auto">Mở riêng</a>
+</header>
+<!-- 1440 frame scaled to fit beside a real-size 375 frame. -->
+<main class="flex items-start gap-6 overflow-x-auto p-6">
+  <figure class="shrink-0">
+    <figcaption class="mb-2 text-xs font-semibold text-muted-foreground">Mobile · 375 × 812</figcaption>
+    <iframe id="m" title="Bản 375px" class="h-[812px] w-[375px] rounded-xl border bg-white shadow"></iframe>
+  </figure>
+  <figure class="shrink-0">
+    <figcaption class="mb-2 text-xs font-semibold text-muted-foreground">Desktop · 1440 × 900 (thu nhỏ)</figcaption>
+    <div id="dbox" class="overflow-hidden rounded-xl border bg-white shadow">
+      <iframe id="d" title="Bản 1440px" class="h-[900px] w-[1440px] origin-top-left"></iframe>
+    </div>
+  </figure>
+</main>
+<script>
+  const p = new URLSearchParams(location.search).get('p') ?? '01-public/landing.html';
+  document.getElementById('name').textContent = p;
+  document.getElementById('open').href = p;
+  m.src = d.src = p;
+  const fit = () => {
+    const s = Math.min(1, (innerWidth - 375 - 96) / 1440, (innerHeight - 140) / 900);
+    d.style.transform = `scale(${Math.max(s, 0.3)})`;
+    dbox.style.width = 1440 * Math.max(s, 0.3) + 'px';
+    dbox.style.height = 900 * Math.max(s, 0.3) + 'px';
+  };
+  addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>
