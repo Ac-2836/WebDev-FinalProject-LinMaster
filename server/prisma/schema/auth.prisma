@@ -1,0 +1,20 @@
+// Module auth (Analysis_Design/01_Database/data-dictionary.md § auth).
+// Other modules add their back-relation fields to User below; Prisma needs both sides of a relation.
+
+enum Locale {
+  vi
+  en
+}
+
+model User {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  /// Stored lower-case; the service normalises before insert and lookup.
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @db.VarChar(255)
+  displayName  String   @db.VarChar(80)
+  locale       Locale   @default(vi)
+  /// 4.0–9.0 in steps of 0.5, checked by the Zod schema in shared/auth.
+  targetBand   Decimal? @db.Decimal(2, 1)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+}

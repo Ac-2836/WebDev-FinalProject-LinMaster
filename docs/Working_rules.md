@@ -434,7 +434,8 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 ## 9. Database
 - Mọi thay đổi schema đi qua Prisma migration: `npx prisma migrate dev --name <mô-tả-ngắn>`. **Phải** commit cả thư mục migration.
 - Model đặt tên `UpperCamelCase` số ít (`User`, `ReviewLog`), trường đặt tên `lowerCamelCase`.
-- Mọi bảng có `id` (cuid) và `createdAt`. Bảng có dữ liệu bị sửa thì thêm `updatedAt`.
+- Bảng, cột, kiểu và ràng buộc theo đúng từ điển dữ liệu `Analysis_Design/01_Database/data-dictionary.md` (ERD đã duyệt ở P0-05). Đổi thiết kế thì sửa từ điển và ERD trong cùng PR.
+- Khóa chính là `id` kiểu `uuid`, sinh ở server (`@default(uuid(7))`, có thứ tự theo thời gian nên index gọn hơn). Thời gian dùng `timestamptz`. Bảng có dữ liệu bị sửa thì có `updatedAt`.
 - Production chỉ chạy `prisma migrate deploy`. **Không được** sửa tay schema hay dữ liệu trên DB production.
 - Dữ liệu mẫu (đề thi, tài khoản demo) nạp bằng `prisma/seed.ts`. Seed phải chạy lại được nhiều lần mà không tạo bản ghi trùng.
 - Query luôn lọc theo `userId` của người đang đăng nhập với dữ liệu cá nhân. Không bao giờ tin `userId` gửi từ client.
