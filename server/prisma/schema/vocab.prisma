@@ -1,0 +1,100 @@
+// Module vocab (Analysis_Design/01_Database/data-dictionary.md § vocab).
+
+enum Cefr {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum DocumentSource {
+  paste
+  file
+  exam
+}
+
+/// A reading document. Only the extracted text is kept, never the uploaded file.
+model Document {
+  id         String         @id @default(uuid(7)) @db.Uuid
+  ownerId    String         @db.Uuid
+  owner      User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title      String         @db.VarChar(200)
+  source     DocumentSource
+  /// [{ label?: string, text: string }], whitespace normalised (Zod schema in shared/vocab).
+  paragraphs Json
+  /// For source = exam: { attemptId, passageId }.
+  sourceRef  Json?
+  /// At most 20,000 words per document.
+  wordCount  Int
+  createdAt  DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime       @updatedAt @db.Timestamptz(6)
+
+  contexts VocabContext[]
+  lookups  VocabLookup[]
+}
+
+/// One word or phrase in a learner's word bank.
+model VocabEntry {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  ownerId      String   @db.Uuid
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  /// Form the learner selected, e.g. "mitigated".
+  headword     String   @db.VarChar(120)
+  /// Base form, e.g. "mitigate".
+  lemma        String   @db.VarChar(120)
+  /// noun, verb, phrase…
+  partOfSpeech String   @db.VarChar(20)
+  ipa          String?  @db.VarChar(120)
+  /// Vietnamese meaning that fits the context at save time.
+  meaningVi    String
+  definitionEn String?
+  usageNote    String?
+  collocations String[]
+  cefr         Cefr?
+  topics       String[]
+  /// The learner's own note.
+  note         String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+
+  contexts VocabContext[]
+  cards    Card[]
+
+  @@unique([ownerId, lemma, partOfSpeech])
+  @@index([topics], type: Gin)
+}
+
+/// A sentence the word was saved from. One entry has many contexts.
+model VocabContext {
+  id          String     @id @default(uuid(7)) @db.Uuid
+  entryId     String     @db.Uuid
+  entry       VocabEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  /// Deleting the document keeps the sentence.
+  documentId  String?    @db.Uuid
+  document    Document?  @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  sentence    String
+  /// Position in the document, to highlight saved words again.
+  startOffset Int?
+  endOffset   Int?
+  /// Lookups from the browser extension (future).
+  sourceUrl   String?    @db.VarChar(2048)
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+}
+
+/// Every lookup, saved or not. Feeds the dashboard activity calendar.
+model VocabLookup {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  ownerId    String    @db.Uuid
+  owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  documentId String?   @db.Uuid
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  /// Selected word or phrase (at most 6 words).
+  text       String    @db.VarChar(120)
+  sentence   String
+  saved      Boolean
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([ownerId, createdAt])
+}
