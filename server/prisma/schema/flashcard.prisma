@@ -1,5 +1,4 @@
 // Module flashcard (Analysis_Design/01_Database/data-dictionary.md § flashcard).
-// Library columns of FlashcardSet (visibility, publishedAt, copiedFromId, copyCount) come with P4-01.
 
 enum StudyMode {
   flip
@@ -27,8 +26,21 @@ model FlashcardSet {
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime @updatedAt @db.Timestamptz(6)
 
+  // library (P4-01): changed only through the flashcard public API.
+  visibility   Visibility     @default(private)
+  /// Last time it was published to the library.
+  publishedAt  DateTime?      @db.Timestamptz(6)
+  /// Set when copied from the library; the copy survives deletion of the original.
+  copiedFromId String?        @db.Uuid
+  copiedFrom   FlashcardSet?  @relation("SetCopies", fields: [copiedFromId], references: [id], onDelete: SetNull)
+  copies       FlashcardSet[] @relation("SetCopies")
+  /// How many times other learners copied it.
+  copyCount    Int            @default(0)
+
   cards    Card[]
   sessions StudySession[]
+
+  @@index([visibility, publishedAt])
 }
 
 /// Saving the editor updates cards with an id, inserts new ones and deletes removed ones, so progress is kept.
