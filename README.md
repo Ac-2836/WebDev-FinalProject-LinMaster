@@ -36,6 +36,19 @@ Giao diện song ngữ Việt / Anh. Chi tiết phạm vi xem [docs/PLAN.md](doc
 | [docs/PLAN.md](docs/PLAN.md) | Kế hoạch, phạm vi, lộ trình và backlog |
 | [Analysis_Design/](Analysis_Design/README.md) | Sơ đồ phân tích và thiết kế: ERD, use case, activity, sequence, state, kiến trúc |
 
+## Chạy ở máy
+
+Cần Node 22 (xem `.nvmrc`) và Docker Desktop.
+
+```bash
+npm install
+docker compose up -d                 # PostgreSQL 16: linmaster_dev và linmaster_test ở cổng 5432
+cp server/.env.example server/.env
+npm run dev                          # client http://localhost:3000 · API http://localhost:4000/api/v1
+```
+
+Cổng 5432 đã bị chiếm thì đặt `POSTGRES_PORT=5433` trước `docker compose up` và sửa cổng trong `server/.env`. Xóa sạch dữ liệu local: `docker compose down -v`.
+
 ## Luật merge vào `main`
 
 Repo đang **private** trên gói GitHub Free nên GitHub không bật được branch protection. Các luật dưới đây vẫn **bắt buộc** và được cả nhóm **tuân thủ thủ công** (chi tiết ở [Working_rules mục 5.5](docs/Working_rules.md)):
