@@ -1,0 +1,54 @@
+@startuml act-09-luyen-tap-ai
+!include ../_style.iuml
+title Activity — Luyện tập do AI sinh từ bộ thẻ (UC27, Nên có)
+|Người học|
+start
+:Mở bộ thẻ, chọn "Luyện tập AI";
+if (Bộ thẻ có ít nhất 4 thẻ?) then (không)
+  :Chế độ bị khóa, gợi ý thêm thẻ;
+  stop
+endif
+:Chọn dạng câu (trắc nghiệm, điền chỗ trống, nối)
+và số câu (10 hoặc 20);
+|Hệ thống|
+if (Còn quota AI hôm nay?) then (không)
+  :Báo 429 kèm thời điểm được dùng lại;
+  stop
+endif
+if (Có trong AiCache
+(bộ thẻ + tham số)?) then (có)
+  :Lấy bài từ cache;
+else (không)
+  |Gemini AI|
+  :generate-exercise.v1: soạn câu hỏi
+  chỉ dùng thuật ngữ và định nghĩa của bộ thẻ;
+  |Hệ thống|
+  :Kiểm tra từng câu: đúng schema dạng câu,
+  đáp án nằm trong phương án,
+  chỉ dùng từ của bộ thẻ;
+  :Bỏ câu không đạt;
+  if (Còn ít nhất một nửa số câu?) then (không)
+    :Báo lỗi, cho thử lại;
+    stop
+  endif
+  :Lưu AiCache;
+endif
+:Mở StudySession (exercise);
+|Người học|
+repeat
+  :Trả lời câu hỏi
+  (component dạng câu của phòng thi);
+repeat while (Còn câu?) is (có)
+->không;
+:Bấm "Chấm";
+|Hệ thống|
+:Chấm ngay ở client, hiện đúng / sai và đáp án;
+:Đóng StudySession;
+|Người học|
+if (Tiếp tục?) then (làm lại)
+  :Làm lại cùng bài;
+else (tạo bài khác)
+  :Quay lại bước chọn dạng câu;
+endif
+stop
+@enduml

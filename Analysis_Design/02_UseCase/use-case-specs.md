@@ -1,6 +1,6 @@
 # Đặc tả use case — LinMaster
 
-Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, stats). Mẫu đặc tả theo PLAN B6. Chỉ đặc tả các use case chính của vòng học; các thao tác CRUD đơn giản (UC03, UC15, UC22, UC31…) không đặc tả riêng.
+Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, stats). Mẫu đặc tả theo PLAN B6. Đặc tả **mọi** use case có trong sơ đồ (UC01–UC51); use case Nên có ghi rõ "(Nên có)".
 
 **Actor**
 
@@ -33,6 +33,51 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 2a. Sai email hoặc mật khẩu: báo "Email hoặc mật khẩu không đúng" (không cho biết sai phần nào). 2b. Thử sai quá nhiều lần: 429, yêu cầu thử lại sau |
 | Hậu điều kiện | Client giữ JWT; mọi request sau gắn token |
 
+## UC03 — Đăng xuất
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở menu tài khoản trên navbar, bấm "Đăng xuất". 2. Client xóa phiên đăng nhập (token) đã lưu. 3. Chuyển về trang giới thiệu `/` |
+| Luồng thay thế / lỗi | 2a. Token đã hết hạn từ trước: vẫn xóa phiên và chuyển trang như bình thường |
+| Hậu điều kiện | Không còn phiên đăng nhập trên trình duyệt này |
+
+## UC04 — Cập nhật hồ sơ
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở `/profile`. 2. Sửa tên hiển thị, ngôn ngữ giao diện, mục tiêu band. 3. Bấm "Lưu", client gửi `PATCH /auth/me`. 4. Server validate bằng Zod, cập nhật `User`. 5. Hiện thông báo "Đã lưu" |
+| Luồng thay thế / lỗi | 4a. Dữ liệu không hợp lệ (tên rỗng, band ngoài 1.0–9.0 hoặc không chia hết cho 0.5): 400, hiện lỗi ngay dưới ô tương ứng. 4b. Mất mạng: giữ nguyên dữ liệu trên form, cho bấm lưu lại |
+| Hậu điều kiện | `User` được cập nhật. Mục tiêu band hiện thành vạch mục tiêu trên dashboard (UC50) |
+
+## UC05 — Đổi ngôn ngữ giao diện
+| | |
+|---|---|
+| Actor | Khách, Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người dùng bấm nút ngôn ngữ (VI / EN) trên navbar. 2. Toàn bộ giao diện đổi ngôn ngữ ngay, không tải lại trang. 3. Nếu đã đăng nhập: client gửi `PATCH /auth/me` để lưu `locale`, lần sau đăng nhập ở máy khác vẫn đúng ngôn ngữ |
+| Luồng thay thế / lỗi | 1a. Khách: ngôn ngữ chỉ lưu ở trình duyệt. 3a. Lưu lên server thất bại: giao diện vẫn đổi, lần đổi sau thử lưu lại |
+| Hậu điều kiện | Giao diện hiển thị theo ngôn ngữ đã chọn |
+
+## UC10 — Tạo tài liệu đọc
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Ở `/read`, người học bấm "Tài liệu mới". 2. Chọn dán văn bản, hoặc tải file PDF / DOCX / TXT (tối đa 5 MB). 3. Client gửi `POST /vocab/documents`. 4. Server kiểm tra định dạng bằng nội dung file, trích chữ, chuẩn hóa thành các đoạn, **không lưu file gốc**. 5. Tạo `Document` (nguồn `paste` hoặc `file`). 6. Mở trình đọc `/read/[id]` (UC11) |
+| Luồng thay thế / lỗi | 2a. File quá 5 MB hoặc sai định dạng: báo ngay trên form, không gửi lên. 4a. PDF chỉ có ảnh scan, không trích được chữ: báo "Không đọc được chữ trong file". 4b. Văn bản rỗng sau khi trích: báo lỗi, không tạo tài liệu |
+| Hậu điều kiện | Có `Document` mới của người học |
+
+## UC11 — Đọc tài liệu
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Tài liệu là của mình |
+| Luồng chính | 1. Người học mở `/read`, chọn một tài liệu. 2. Client gọi `GET /vocab/documents/:id`, nhận nội dung và danh sách từ đã lưu trong tài liệu. 3. Trình đọc hiện các đoạn văn, **tô màu những từ đã lưu**. 4. Bảng bên cạnh có Lọc nhanh (UC14) và danh sách từ đã lưu trong tài liệu. 5. Người học đọc, bôi chọn để tra (UC12) |
+| Luồng thay thế / lỗi | 2a. Tài liệu của người khác hoặc không tồn tại: 404. 1a. Xóa tài liệu (`DELETE /vocab/documents/:id`, có hộp xác nhận): các từ đã lưu vẫn còn trong kho, chỉ mất liên kết tới tài liệu |
+| Hậu điều kiện | — |
+
 ## UC12 — Tra từ theo ngữ cảnh
 | | |
 |---|---|
@@ -60,6 +105,15 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 1a. Không chọn tiêu chí nào: lọc theo trình độ từ B2 trở lên. 3a. Câu gốc AI bịa: loại khỏi danh sách. 3b. Không có ứng viên: hiện trạng thái trống kèm gợi ý đổi tiêu chí. 2a. Hết quota: như UC12 |
 | Hậu điều kiện | Không đổi dữ liệu cho tới khi người học lưu |
 
+## UC15 — Quản lý kho từ
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở `/vocab`. 2. Client gọi `GET /vocab/entries` có tìm kiếm, lọc theo chủ đề / CEFR / tài liệu, phân trang. 3. Người học mở một từ để xem giải thích và các câu gốc. 4. Sửa ghi chú riêng (`PATCH`) hoặc xóa từ (`DELETE`, có hộp xác nhận). 5. Chọn nhiều từ rồi bấm "Tạo bộ thẻ" (UC23) |
+| Luồng thay thế / lỗi | 2a. Kho trống: trạng thái trống kèm lối tắt "Mở trình đọc". 2b. Không có từ khớp bộ lọc: báo "Không có từ nào khớp", nút xóa bộ lọc. 4a. Xóa từ đang nằm trong một bộ thẻ: thẻ vẫn giữ nguyên, chỉ mất liên kết tới kho từ |
+| Hậu điều kiện | Kho từ đã cập nhật |
+
 ## UC20 / UC21 — Tạo và sửa bộ thẻ
 | | |
 |---|---|
@@ -68,6 +122,15 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng chính | 1. Người học mở trình soạn, nhập tiêu đề, mô tả. 2. Thêm, sửa, xóa, kéo đổi thứ tự các hàng thuật ngữ / định nghĩa / ví dụ. 3. Bấm "Lưu". 4. Server ghi lại toàn bộ danh sách thẻ trong một lần: thẻ cũ thì cập nhật, thẻ mới thì thêm, thẻ bị bỏ thì xóa |
 | Luồng thay thế / lỗi | 2a. (Nên có) Dán nhiều dòng `thuật ngữ<Tab>định nghĩa` để thêm nhanh. 3a. Bộ thẻ cần ít nhất 2 thẻ có đủ thuật ngữ và định nghĩa, nếu không thì báo lỗi theo hàng. 3b. Rời trang khi chưa lưu: hỏi xác nhận |
 | Hậu điều kiện | Bộ thẻ được lưu; tiến độ học của các thẻ còn giữ không đổi |
+
+## UC22 — Xóa bộ thẻ
+| | |
+|---|---|
+| Actor | Người học (chủ sở hữu) |
+| Tiền điều kiện | Bộ thẻ là của mình |
+| Luồng chính | 1. Ở trang bộ thẻ, người học mở menu ⋮, bấm "Xóa bộ thẻ". 2. Hộp xác nhận nêu số thẻ sẽ mất. 3. Người học xác nhận, client gửi `DELETE /flashcards/sets/:id`. 4. Server xóa bộ thẻ, các thẻ, tiến độ học và phiên học của bộ đó. 5. Quay về `/flashcards` |
+| Luồng thay thế / lỗi | 1a. Không phải chủ sở hữu: không có nút xóa; gọi API thì 403. 4a. Bộ thẻ đang công khai: biến khỏi kho; các bản người khác đã chép vẫn giữ nguyên |
+| Hậu điều kiện | Bộ thẻ không còn |
 
 ## UC23 — Tạo bộ thẻ từ kho từ
 | | |
@@ -78,6 +141,15 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 1a. Chọn vào bộ thẻ có sẵn thay vì bộ mới: thêm thẻ vào cuối bộ đó (chỉ bộ của mình) |
 | Hậu điều kiện | Thẻ liên kết `vocabEntryId` |
 
+## UC24 — Học bằng thẻ lật
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Bộ thẻ có ít nhất 1 thẻ |
+| Luồng chính | 1. Ở trang bộ thẻ, người học chọn "Thẻ lật". 2. Client mở phiên học (`POST /flashcards/sessions`, chế độ `flip`). 3. Hiện từng thẻ: phím cách hoặc bấm để lật, phím mũi tên để chuyển thẻ, có thể trộn thứ tự. 4. Hết bộ thẻ: màn "Hết bộ" với nút học lại hoặc chuyển sang Học (UC25). 5. Đóng phiên (`PATCH /flashcards/sessions/:id`) |
+| Luồng thay thế / lỗi | 1a. Bộ thẻ trống: nút học bị khóa, gợi ý thêm thẻ. 5a. Rời trang giữa chừng: phiên được đóng ở lần gọi kế tiếp, tính tới thẻ cuối đã xem |
+| Hậu điều kiện | Có `StudySession` chế độ `flip`. Thẻ lật **không** đổi tiến độ SM-2 |
+
 ## UC25 — Học theo lặp lại ngắt quãng
 | | |
 |---|---|
@@ -87,14 +159,41 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 2a. Không có thẻ nào: báo "Hôm nay đã ôn xong", gợi ý chế độ Thẻ lật. 3a. Thoát giữa chừng: các thẻ đã chấm vẫn được lưu; phiên đóng khi rời trang |
 | Hậu điều kiện | `CardProgress` cập nhật; có `StudySession`, `ReviewLog` |
 
+## UC26 — Kiểm tra / Ghép thẻ (Nên có)
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Bộ thẻ có ít nhất 4 thẻ (đủ làm phương án nhiễu) |
+| Luồng chính | **Kiểm tra:** 1. Người học chọn "Kiểm tra". 2. Client gọi `GET /flashcards/sets/:id/quiz`; server sinh câu hỏi từ chính bộ thẻ, **không dùng AI** (trắc nghiệm, tự gõ, đúng / sai). 3. Người học trả lời, client chấm ngay. 4. Màn kết quả: số câu đúng, danh sách câu sai. **Ghép thẻ:** 1. Người học chọn "Ghép thẻ". 2. Lưới thuật ngữ và định nghĩa xáo trộn, có đồng hồ. 3. Ghép đúng thì cặp biến mất, sai thì rung. 4. Hết lưới: hiện thời gian hoàn thành |
+| Luồng thay thế / lỗi | 2a. Bộ thẻ ít hơn 4 thẻ: chế độ bị khóa, có giải thích. 3a. Tự gõ: so sánh không phân biệt hoa thường và khoảng trắng thừa |
+| Hậu điều kiện | Có `StudySession` chế độ `test` hoặc `match`. Không đổi tiến độ SM-2 |
+
+## UC27 — Luyện tập do AI sinh (Nên có)
+| | |
+|---|---|
+| Actor | Người học, Gemini AI |
+| Tiền điều kiện | Bộ thẻ là của mình (kể cả bản đã chép), có ít nhất 4 thẻ |
+| Luồng chính | 1. Ở trang bộ thẻ, người học chọn "Luyện tập AI". 2. Chọn dạng câu (trắc nghiệm, điền chỗ trống, nối) và số câu (10 hoặc 20). 3. Client gửi `POST /flashcards/sets/:id/exercises`. 4. Server tra `AiCache` theo bộ thẻ + tham số; không có thì gọi task `generate-exercise.v1` qua AI gateway với danh sách thuật ngữ và định nghĩa. 5. Server kiểm tra từng câu: đúng schema dạng câu, đáp án nằm trong phương án, chỉ dùng từ của bộ thẻ; câu không đạt thì bỏ. 6. Trả về câu hỏi kèm đáp án. 7. Người học làm bài bằng đúng component dạng câu của phòng thi, bấm "Chấm" để xem đúng / sai và đáp án. 8. Có thể làm lại hoặc tạo bài khác |
+| Luồng thay thế / lỗi | 4a. Hết quota AI trong ngày: 429, báo thời điểm được dùng lại. 4b. Gemini lỗi sau 2 lần thử lại: 503 "AI đang bận, thử lại sau". 5a. Còn dưới một nửa số câu yêu cầu: báo lỗi, cho thử lại. 1a. Bộ thẻ ít hơn 4 thẻ: chế độ bị khóa |
+| Hậu điều kiện | Có `StudySession` chế độ `exercise`. Bài luyện tập không lưu DB, không đổi tiến độ SM-2 |
+
 ## UC30 — Tải đề lên
 | | |
 |---|---|
 | Actor | Người học, Gemini AI |
-| Tiền điều kiện | Có bộ file đúng quy định (PLAN Phần F) |
-| Luồng chính | 1. Người học chọn loại đề (Reading / Listening / Full), kéo thả các file. 2. Client kiểm tra sơ bộ (đủ file, đúng định dạng, dung lượng). 3. Server lưu file, tạo `TestImport` (`queued`), trả về ngay. 4. Job nền: AI nhận diện PDF đề thành cấu trúc; AI đọc PDF đáp án và gán đáp án vào đúng kỹ năng và số câu. 5. Server kiểm tra: số câu từng phần đúng theo chứng chỉ, câu nào cũng có đáp án, đáp án hợp lệ với dạng câu, audio đọc được. 6. Lưu thành đề **riêng tư**. 7. Client (hỏi trạng thái mỗi vài giây) báo hoàn tất, đề xuất hiện trong "Đề của tôi" |
-| Luồng thay thế / lỗi | 2a. Thiếu file hoặc sai định dạng: báo ngay, không gửi lên. 5a. Kiểm tra không đạt: `TestImport` = `failed`, hiện danh sách lỗi theo từng câu (ví dụ "Reading câu 27: thiếu đáp án"). 4a. AI lỗi hoặc hết quota: `failed` với lỗi tương ứng, cho thử lại |
-| Hậu điều kiện | Có `Test` riêng tư, hoặc `TestImport` thất bại kèm lỗi |
+| Tiền điều kiện | Có các file của một đề: PDF (đề, câu hỏi, đáp án; có thể kèm giải thích, transcript) và audio với Listening (PLAN Phần F) |
+| Luồng chính (tab AI nhận diện, mặc định) | 1. Người học thả các file vào một ô, thả thêm dần được. 2. Với mỗi file, server lưu file; AI gắn nhãn từng trang (đề, câu hỏi, đáp án, giải thích, transcript, không liên quan) kèm kỹ năng và khoảng số câu; audio được đọc độ dài. 3. Màn hình hiện nhãn của từng file và **bảng Độ đầy đủ** (câu hỏi, Part / bài đọc, đáp án, audio là bắt buộc; giải thích, transcript là tùy chọn). 4. Đủ thành phần bắt buộc thì người học kiểm tra loại đề hệ thống tự nhận ra, bấm "Tạo đề"; `TestImport` = `queued`. 5. Job nền: AI trích cấu trúc đề từ các trang đề và câu hỏi; trích đáp án và giải thích theo số câu từ các trang đáp án; lấy transcript theo Part. 6. Server kiểm tra: số câu từng phần đúng theo chứng chỉ, câu nào cũng có đáp án, đáp án hợp lệ với dạng câu, audio đọc được. 7. Lưu thành đề **riêng tư**, kèm cảnh báo nếu thiếu phần tùy chọn. 8. Client (hỏi trạng thái mỗi vài giây) báo hoàn tất, đề xuất hiện trong "Đề của tôi" |
+| Luồng thay thế / lỗi | 1a. **Tab Theo mẫu:** người học chọn loại đề, đặt mỗi file vào đúng ô (đề, đáp án, audio, có thể thêm transcript và giải thích); một file nằm ở nhiều ô thì hệ thống gắn nhãn trang để tách phần; thiếu ô bắt buộc hoặc sai định dạng thì báo ngay, không gửi lên; đủ thì sang bước 5. 2a. File không nhận ra là đề IELTS: đánh dấu "Không dùng", bỏ qua. 4a. Còn thiếu thành phần bắt buộc: nút "Tạo đề" bị khóa, bảng chỉ rõ phần thiếu (ví dụ "Đáp án: thiếu câu 26–40"). 6a. Có lỗi chặn: `TestImport` = `failed`, hiện danh sách lỗi theo từng câu (ví dụ "Reading câu 27: thiếu đáp án"). 7a. Thiếu giải thích hoặc transcript: vẫn tạo đề, hiện cảnh báo. 5a. AI lỗi hoặc hết quota: `failed` với lỗi tương ứng, cho thử lại |
+| Hậu điều kiện | Có `Test` riêng tư (có thể kèm cảnh báo), hoặc `TestImport` thất bại kèm lỗi |
+
+## UC31 — Quản lý đề của tôi
+| | |
+|---|---|
+| Actor | Người học (chủ sở hữu) |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở `/tests`, thấy các đề của mình kèm trạng thái (chưa làm, đang làm dở, đã làm, công khai). 2. Mở menu ⋮ của một đề. 3. "Đổi tên": nhập tiêu đề mới, gửi `PATCH /tests/:id`. 4. "Xóa đề": hộp xác nhận, gửi `DELETE /tests/:id`. 5. "Đăng lên / Gỡ khỏi thư viện": chuyển sang UC40 |
+| Luồng thay thế / lỗi | 1a. Chưa có đề: trạng thái trống với nút "Tải đề lên" (UC30). 3a. Tiêu đề rỗng hoặc quá 200 ký tự: lỗi dưới ô. 4a. Đề đã có người khác làm (`attemptCount > 0`, kể cả khi đã gỡ khỏi kho): nút "Xóa đề" bị khóa, kèm giải thích; chủ đề chỉ được gỡ khỏi kho (UC40). Gọi API thì 409 `TEST_HAS_ATTEMPTS`. Lịch sử làm bài của người khác được giữ. 4b. Không phải chủ sở hữu: 403 |
+| Hậu điều kiện | Đề được đổi tên, hoặc bị xóa cùng các bài làm của chính chủ đề |
 
 ## UC32 — Làm bài thi
 | | |
@@ -123,6 +222,15 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 3a. Passage đã từng được mở: dùng lại tài liệu cũ. 1a. Người khác truy cập: 403 |
 | Hậu điều kiện | Có tài liệu đọc từ bài thi |
 
+## UC36 — Xem giải thích đáp án
+| | |
+|---|---|
+| Actor | Người học, Gemini AI (Nên có) |
+| Tiền điều kiện | Bài đã nộp, là bài của mình |
+| Luồng chính | 1. Ở trang kết quả, người học bấm "Giải thích" ở một câu. 2. Câu đã có giải thích trích từ file đề (`Question.answer.explanation`): ngăn bên hiện giải thích đó, ghi "Từ file đề". 3. *(Nên có)* Câu chưa có giải thích: client gửi `POST /attempts/:id/questions/:no/explain`. 4. Server tra `AiCache` theo câu hỏi + đáp án của người làm; không có thì gọi task `explain-answer.v1` qua AI gateway với câu hỏi, đáp án đúng, đáp án của người làm và passage (Reading) hoặc transcript (Listening). 5. Server kiểm tra câu trích làm bằng chứng có thật trong bài. 6. Ngăn bên hiện giải thích, bằng chứng được tô sáng trong bài, ghi "Do AI tạo, có thể chưa chính xác" |
+| Luồng thay thế / lỗi | 1a. Bài chưa nộp hoặc của người khác: 403. 3a. Listening không có transcript: AI chỉ giải thích theo câu hỏi và đáp án, không có bằng chứng. 4a. Hết quota AI: 429. 4b. Gemini lỗi: 503, cho thử lại. 5a. Câu trích không có trong bài: bỏ phần bằng chứng, vẫn hiện giải thích |
+| Hậu điều kiện | Người học hiểu vì sao đáp án đúng. AI **không** đổi điểm hay đáp án |
+
 ## UC40 — Đăng lên / gỡ khỏi kho
 | | |
 |---|---|
@@ -132,6 +240,24 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng thay thế / lỗi | 2a. Đề chưa có nguồn: yêu cầu nhập nguồn trước. 1a. Nội dung đang bị ẩn do báo cáo (`hidden`): chỉ được gỡ hẳn, không được đăng lại cho tới khi sửa. 1b. Gỡ khỏi kho: `visibility` = `private`; các bản người khác đã chép vẫn giữ nguyên |
 | Hậu điều kiện | Nội dung xuất hiện (hoặc biến mất) trong kho |
 
+## UC41 — Duyệt và tìm kiếm kho
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Người học mở `/library`, chọn tab Bộ thẻ hoặc Đề thi. 2. Nhập từ khóa, lọc theo chủ đề / kỹ năng, sắp xếp mới nhất hoặc phổ biến nhất. 3. Client gọi `GET /library?type=&q=&topic=&skill=&sort=`, có phân trang. 4. Hiện danh sách card: tiêu đề, người đăng, số thẻ hoặc số câu, lượt chép / lượt làm. 5. Bấm một card để xem trước (UC42) |
+| Luồng thay thế / lỗi | 3a. Không có kết quả: báo "Không tìm thấy", gợi ý bỏ bớt bộ lọc. 3b. Nội dung riêng tư hoặc đang bị ẩn: không bao giờ xuất hiện |
+| Hậu điều kiện | — |
+
+## UC42 — Xem trước nội dung
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Nội dung đang công khai |
+| Luồng chính | 1. Người học mở trang xem trước từ kho. 2. Bộ thẻ: hiện tiêu đề, mô tả, người đăng, **toàn bộ thẻ**, nút "Chép về thư viện" (UC43). 3. Đề: hiện tiêu đề, kỹ năng, số câu, thời gian, các dạng câu, người đăng, số lượt làm, nút "Làm bài" (UC44); **không** lộ câu hỏi chi tiết hay đáp án. 4. Có nút "Báo cáo" (UC45) |
+| Luồng thay thế / lỗi | 1a. Nội dung đã bị gỡ, bị ẩn hoặc riêng tư: 404. 2a. Người xem là chủ sở hữu: thay nút chép bằng nút "Gỡ khỏi kho" |
+| Hậu điều kiện | — |
+
 ## UC43 — Chép bộ thẻ về thư viện
 | | |
 |---|---|
@@ -140,6 +266,15 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Luồng chính | 1. Từ trang xem trước (UC42), người học bấm "Lưu về thư viện". 2. Server chép sâu bộ thẻ và các thẻ, ghi `copiedFromId`, tăng `copyCount` của bản gốc. 3. Chuyển tới bộ thẻ mới của người học |
 | Luồng thay thế / lỗi | 1a. Đã chép trước đó: hỏi "Mở bản đã chép" hay "Chép thêm bản mới" |
 | Hậu điều kiện | Người học có bản riêng, sửa thoải mái mà không ảnh hưởng bản gốc |
+
+## UC44 — Làm đề từ kho
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | Đề đang công khai |
+| Luồng chính | 1. Ở trang xem trước đề, người học bấm "Làm bài". 2. Client gọi `POST /attempts` với đề công khai, **không cần chép đề**. 3. Đi tiếp như UC32 (các màn trước khi thi, phòng thi), UC33 (nộp bài), UC34 (kết quả). 4. `attemptCount` của đề tăng (chỉ tính lượt của người khác chủ đề) |
+| Luồng thay thế / lỗi | 2a. Đang có bài dở của đề này: nút thành "Tiếp tục". 2b. Đề vừa bị gỡ hoặc bị ẩn: 404, bài đã nộp trước đó vẫn xem được kết quả |
+| Hậu điều kiện | Có `Attempt` của người học trên đề công khai |
 
 ## UC45 — Báo cáo vi phạm
 | | |
@@ -157,4 +292,13 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Tiền điều kiện | — |
 | Luồng chính | 1. Người học mở `/dashboard`. 2. Client gọi các API thống kê song song. 3. Hiện các widget: lịch hoạt động 52 tuần và chuỗi ngày học, thẻ số liệu, xu hướng band (kèm vạch mục tiêu), vốn từ theo tuần, điểm yếu theo dạng câu kèm gợi ý, chủ đề học nhiều, đóng góp cộng đồng |
 | Luồng thay thế / lỗi | 3a. Chưa có dữ liệu cho một widget: trạng thái trống kèm lối tắt bắt đầu (ví dụ "Làm bài thi đầu tiên"). 2a. Một API lỗi: chỉ widget đó báo lỗi, các widget khác vẫn hiện |
+| Hậu điều kiện | — |
+
+## UC51 — Xem trang chủ
+| | |
+|---|---|
+| Actor | Người học |
+| Tiền điều kiện | — |
+| Luồng chính | 1. Sau khi đăng nhập, người học vào `/home`. 2. Trang ghép các widget từ home widget registry: tiếp tục bài thi đang làm, số thẻ đến hạn hôm nay, tài liệu đọc gần đây, chuỗi ngày học. 3. Lối tắt: Đọc tài liệu mới, Tải đề, Vào kho. 4. Bấm một widget để đi tới đúng chỗ (phòng thi, phiên học, trình đọc) |
+| Luồng thay thế / lỗi | 2a. Tài khoản mới: mỗi widget có trạng thái trống kèm lối tắt bắt đầu. 2b. Một widget lỗi: chỉ widget đó hiện lỗi và nút thử lại |
 | Hậu điều kiện | — |

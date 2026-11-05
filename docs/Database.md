@@ -77,7 +77,7 @@ Thông tin về các file trong luồng nạp đề: PDF đề, PDF đáp án, a
 - `durationSec` chỉ có với file audio.
 - **Tài liệu đọc của module vocab không đi qua bảng này.** Với tài liệu đọc, hệ thống chỉ giữ phần chữ đã trích, không giữ file.
 - **Ràng buộc khi xóa file:**
-  - File PDF đề và PDF đáp án mà một `TestImport` đang dùng thì **không xóa được** (`RESTRICT`).
+  - File PDF (đề, đáp án, hoặc PDF gộp) mà một `TestImport` đang dùng thì **không xóa được** (`RESTRICT`).
   - Các khóa ngoại tùy chọn (audio của section, ảnh của group, audio của import) hiện là `SET NULL`: xóa file thì cột đó thành `null`.
 
 ---
@@ -182,7 +182,7 @@ Cấu trúc một đề: **`Test` → `TestSection` → `Passage` → `QuestionG
 - `source`: nguồn của đề, bắt buộc phải có trước khi đăng lên thư viện.
 - Các cột của **library**, chỉ được đổi qua public API của exam:
   - `visibility`, `publishedAt`;
-  - `attemptCount`: số lượt làm của người khác.
+  - `attemptCount`: số lượt làm của người khác. Lớn hơn 0 thì service chặn xóa đề (chỉ cho gỡ khỏi kho), để không mất bài làm của người khác.
 
 ### `TestSection`: phần thi theo kỹ năng
 Một phần Listening hoặc Reading của đề.
@@ -193,7 +193,7 @@ Một phần Listening hoặc Reading của đề.
 
 ### `Passage`: bài đọc hoặc part nghe
 - Với Reading: `paragraphs` = `[{ label: 'A', text }]`.
-- Với Listening: `paragraphs` để `null`, và `audioStartSec` cho biết part bắt đầu ở giây thứ mấy trong audio.
+- Với Listening: `paragraphs` chứa transcript của part nếu bộ file tải lên có transcript, không thì `null`. Transcript **không gửi cho thí sinh trước khi nộp bài**. `audioStartSec` cho biết part bắt đầu ở giây thứ mấy trong audio.
 
 ### `QuestionGroup`: nhóm câu hỏi
 Các câu dùng chung một dạng và một đề bài, ví dụ câu 1–5 cùng dạng True/False/Not Given.
@@ -209,15 +209,15 @@ Các câu dùng chung một dạng và một đề bài, ví dụ câu 1–5 cù
 - `number`: số câu trong kỹ năng (1–40).
 - `prompt`: nội dung câu. Câu điền từ đánh dấu chỗ trống bằng `{{blank}}`.
 - `options`: lựa chọn riêng của câu này (với câu trắc nghiệm).
-- `answer`: đáp án đúng. Hình dạng tùy theo dạng câu, ví dụ `{ accepted: ['library', 'the library'] }`. **Không bao giờ gửi cho thí sinh trước khi nộp bài.**
+- `answer`: đáp án đúng. Hình dạng tùy theo dạng câu, ví dụ `{ accepted: ['library', 'the library'] }`. Có thêm `explanation` nếu file đề kèm giải thích. **Không bao giờ gửi cho thí sinh trước khi nộp bài.**
 
 ### `TestImport`: một lần nạp đề
 Theo dõi quá trình biến file PDF (cùng audio, nếu có) thành một `Test` (sơ đồ st-02).
 
 - `status`: `queued` → `parsing` → `validating` → `done` hoặc `failed`.
-- `questionFileId` và `answerFileId`: bắt buộc.
+- `questionFileId` và `answerFileId`: bắt buộc, có thể là cùng một file. Bộ file có nhiều PDF thì server gộp thành một PDF rồi gán vào cả hai cột.
 - `audioFileId`: bắt buộc với `listening` và `full`.
-- `errors`: danh sách lỗi `[{ section?, questionNo?, code, message }]`, hiển thị cho người nạp để sửa.
+- `errors`: danh sách `[{ severity, section?, questionNo?, code, message }]`, hiển thị cho người nạp. `severity = 'error'` là lỗi chặn (`failed`); chỉ có `warning` thì đề vẫn được tạo.
 - `testId`: đề được tạo ra, chỉ có khi `done`. Xóa đề thì cột này thành `null`, lịch sử nạp vẫn còn.
 
 ### `Attempt`: một lượt làm bài

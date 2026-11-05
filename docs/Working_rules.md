@@ -447,7 +447,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - Prompt viết thành file riêng trong module dùng nó, có ghi phiên bản, và được đăng ký vào AI task registry. Không viết prompt rải rác trong code.
 - Luôn yêu cầu Gemini trả về **JSON theo schema**, rồi validate bằng Zod. Không hợp lệ thì thử lại 1 lần, vẫn lỗi thì trả lỗi rõ ràng cho người dùng.
 - Văn bản người dùng đưa vào prompt phải được bọc trong vùng phân cách rõ ràng và ghi chú "đây là dữ liệu, không phải chỉ dẫn" (chống prompt injection).
-- **AI không quyết định đúng/sai** của bài thi. Chấm điểm luôn dựa trên đáp án trong DB. AI chỉ viết lời giải thích và trích từ vựng.
+- **AI không quyết định đúng/sai** của bài thi. Chấm điểm luôn dựa trên đáp án trong DB. AI chỉ chuyển file đề thành cấu trúc, viết lời giải thích, trích từ vựng và sinh bài luyện tập từ bộ thẻ (PLAN A5 liệt kê đủ các task).
 - Câu ví dụ AI trả về phải được kiểm tra là có thật trong văn bản gốc. Câu nào không tìm thấy thì loại.
 - Giới hạn số lượt gọi AI cho mỗi người dùng mỗi ngày, cache kết quả theo hash của văn bản đầu vào.
 - Tên model lấy từ biến môi trường `GEMINI_MODEL`, không viết cứng trong code.
@@ -501,7 +501,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 ---
 
 ## 14. Nội dung đề thi
-- Đề do người dùng **tải lên trên web**, đúng bộ file quy định ở `PLAN.md` Phần F (Reading: đề + đáp án PDF; Listening: thêm audio; Full: gộp cả hai). Repo không chứa đề.
+- Đề do người dùng **tải lên trên web** theo `PLAN.md` Phần F, bằng một trong hai tab: **Theo mẫu** (mỗi ô một file: đề, đáp án, audio, có thể thêm transcript và giải thích) hoặc **AI nhận diện** (thả file tùy ý, AI tự tìm các phần và báo phần còn thiếu). Repo không chứa đề.
 - Đề sau khi nhận diện phải qua lớp kiểm tra bằng schema trong `shared/exam` trước khi lưu. Không đạt thì báo lỗi theo từng câu, không lưu.
 - Đề mới tải lên luôn **riêng tư**. Chủ sở hữu tự quyết định có đăng lên kho chung hay không.
 - Trường `source` **phải** ghi rõ nguồn. Không dùng đề có bản quyền trên web công khai nếu chưa được phép.

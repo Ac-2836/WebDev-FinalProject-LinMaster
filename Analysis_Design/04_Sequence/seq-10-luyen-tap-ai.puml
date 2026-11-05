@@ -1,0 +1,47 @@
+@startuml seq-10-luyen-tap-ai
+!include ../_style.iuml
+title Sequence — Sinh bài luyện tập từ bộ thẻ qua AI gateway (UC27, Nên có)
+autonumber
+actor "Người học" as U
+participant "Màn Luyện tập AI\n(Client)" as C
+participant "Flashcard route\n(/flashcards/sets/:id/exercises)" as R
+participant "FlashcardService" as S
+participant "AI gateway\n(core)" as G
+database "PostgreSQL" as DB
+participant "Gemini API" as AI
+U -> C : Chọn dạng câu, số câu, bấm "Tạo bài luyện"
+C -> R : POST /api/v1/flashcards/sets/:id/exercises\n{ kinds[], count } + JWT
+R -> R : requireAuth + validate Zod
+R -> S : generateExercise(userId, setId, input)
+S -> DB : Bộ thẻ là của người học?\nLấy thuật ngữ + định nghĩa
+alt Không phải chủ / ít hơn 4 thẻ
+  S --> R : lỗi
+  R --> C : 403 / 422
+else Hợp lệ
+  S -> G : runJsonTask("generate-exercise.v1",\n{ cards[], kinds, count })
+  G -> DB : Kiểm tra quota (AiUsage), tra AiCache
+  alt Hết quota
+    R --> C : 429 AI_QUOTA_EXCEEDED { retryAt }
+  else Trúng cache
+    DB --> G : bài luyện tập
+  else Không có cache
+    G -> AI : generateContent(prompt v1, responseSchema)
+    AI --> G : JSON câu hỏi
+    G -> G : Validate bằng Zod (thử lại tối đa 2 lần)
+    G -> DB : INSERT AiCache, AiUsage
+  end
+  G --> S : questions[]
+  S -> S : Bỏ câu có đáp án ngoài phương án\nhoặc dùng từ ngoài bộ thẻ
+  alt Còn dưới một nửa số câu
+    R --> C : 502 EXERCISE_TOO_FEW
+  else Đủ
+    S -> DB : INSERT StudySession (mode = exercise)
+    R --> C : 200 { sessionId, questions[] (kèm đáp án) }
+    C --> U : Bài luyện tập
+    U -> C : Làm bài, bấm "Chấm"
+    C -> C : Chấm ngay ở client
+    C -> R : PATCH /api/v1/flashcards/sessions/:sessionId
+    C --> U : Đúng / sai, đáp án
+  end
+end
+@enduml

@@ -11,35 +11,56 @@ database "PostgreSQL" as DB
 participant "Import job\n(chạy nền)" as J
 participant "AI gateway" as G
 participant "Gemini API" as AI
-U -> C : Chọn loại đề, kéo thả file
-C -> C : Kiểm tra sơ bộ: đủ file, định dạng, dung lượng
-C -> R : POST /api/v1/tests/imports (multipart)
-R -> R : Kiểm tra MIME bằng nội dung file, giới hạn kích thước
+loop Mỗi file người dùng đưa lên (cả hai tab)
+  U -> C : Thả file (tab AI) hoặc chọn file cho một ô (tab Theo mẫu)
+  C -> R : POST /api/v1/tests/imports/files (multipart)
+  R -> R : Kiểm tra MIME bằng nội dung file, giới hạn kích thước
+  R -> S : addFile(userId, file)
+  S -> ST : put(file)
+  S -> DB : INSERT StoredFile (durationSec nếu là audio)
+  opt PDF
+    S -> G : runJsonTask("classify-pages.v1", PDF)
+    G -> AI : generateContent(PDF + responseSchema)\n(bỏ qua nếu đã có trong AiCache)
+    AI --> G : nhãn từng trang + kỹ năng + khoảng số câu
+  end
+  R --> C : 201 { fileId, pages[] | durationSec }
+  C -> C : buildChecklist(files) (shared/exam)
+  C --> U : Bảng Độ đầy đủ
+end
+U -> C : Bấm Tạo đề
+C -> R : POST /api/v1/tests/imports { kind, files[] }
 R -> S : createImport(userId, kind, files)
-S -> ST : put(PDF đề), put(PDF đáp án), put(audio?)
-S -> DB : INSERT StoredFile x n
-S -> DB : INSERT TestImport (queued)
-S -> J : enqueue(importId)
-S --> R : importId
-R --> C : 202 { importId }
+S -> S : buildChecklist(files)
+alt Còn thiếu thành phần bắt buộc
+  R --> C : 422 { checklist }
+else Đủ
+  S -> ST : put(PDF đã gộp)
+  S -> DB : INSERT StoredFile (PDF gộp), TestImport (queued)
+  S -> J : enqueue(importId)
+  R --> C : 202 { importId }
+end
 loop Mỗi 3 giây cho tới done / failed
   C -> R : GET /api/v1/tests/imports/:id
   R --> C : { status, errors? }
 end
 J -> DB : status = parsing
-J -> G : runJsonTask("parse-test.v1", PDF đề)
-G -> AI : generateContent(PDF + responseSchema)
-AI --> G : cấu trúc đề
-J -> G : runJsonTask("parse-answers.v1", PDF đáp án)
-G -> AI : generateContent
-AI --> G : đáp án theo kỹ năng + số câu
+J -> G : runJsonTask("classify-pages.v1", PDF đã gộp)\n(cache theo hash file)
+par Trích nội dung theo nhãn trang
+  J -> G : runJsonTask("parse-test.v1", trang đề + câu hỏi)
+  G -> AI : generateContent(PDF + responseSchema)
+  AI --> G : cấu trúc đề
+else
+  J -> G : runJsonTask("parse-answers.v1", trang đáp án + giải thích)
+  G -> AI : generateContent
+  AI --> G : đáp án và giải thích theo kỹ năng + số câu
+end
 J -> DB : status = validating
-J -> J : Ghép đáp án vào câu hỏi
+J -> J : Ghép đáp án + giải thích vào Question.answer,\ntranscript vào Passage.paragraphs
 J -> J : Kiểm tra theo certification registry\nvà question kind registry
 alt Đạt
   J -> DB : INSERT Test, TestSection, Passage,\nQuestionGroup, Question (transaction)
-  J -> DB : status = done, testId
-else Không đạt
+  J -> DB : status = done, testId,\nerrors[] chỉ có cảnh báo (nếu có)
+else Có lỗi chặn
   J -> DB : status = failed, errors[] theo câu
 end
 C --> U : Đề mới trong "Đề của tôi"\nhoặc danh sách lỗi theo câu

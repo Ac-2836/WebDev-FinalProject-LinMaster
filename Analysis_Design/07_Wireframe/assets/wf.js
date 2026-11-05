@@ -189,7 +189,7 @@
       menu: 'Menu chuột phải', note: 'Ghi chú', settings: 'Settings', help: 'Help', submit: 'Nộp bài', hide: 'Hide',
       warn: 'Cảnh báo giờ', offline: 'Mất mạng', 'sound-check': 'Thử âm thanh', resume: 'Vào lại', review: '2 phút cuối',
       transition: 'Chuyển Reading', invalid: 'File sai', uploading: 'Đang tải lên', parsing: 'Đang xử lý',
-      done: 'Thành công', failed: 'Thất bại', 'in-progress': 'Đang làm dở', explain: 'AI giải thích',
+      ready: 'Đủ file', template: 'Tab Theo mẫu', done: 'Thành công', failed: 'Thất bại', 'in-progress': 'Đang làm dở', explain: 'AI giải thích', 'explain-file': 'Giải thích từ file', transcript: 'Transcript',
       tests: 'Tab Đề thi', copied: 'Đã chép', report: 'Báo cáo',
     };
     const params = new URLSearchParams(location.search);
@@ -251,13 +251,13 @@
     ]],
     ['exam: thi thử', [
       ['05-exam/tests.html', 'Đề của tôi /tests', ''],
-      ['05-exam/upload.html', 'Tải đề lên', 'Chọn loại đề, PDF đề, PDF đáp án, audio'],
+      ['05-exam/upload.html', 'Tải đề lên', 'Hai tab: AI nhận diện (thả file tùy ý, bảng Độ đầy đủ) và Theo mẫu (mỗi ô một file)'],
       ['05-exam/import-status.html', 'Trạng thái nạp đề', 'Đang xử lý, thành công, lỗi theo từng câu'],
       ['05-exam/test-intro.html', 'Giới thiệu đề', 'Thông tin, hướng dẫn, bắt đầu hoặc làm tiếp'],
       ['05-exam/room-reading.html', 'Phòng thi Reading', 'Hai cột, highlight, ghi chú, gạch phương án'],
       ['05-exam/room-reading.html?state=submit', 'Hộp thoại phòng thi', 'Settings, Help, Hide, nộp bài, cảnh báo giờ, mất kết nối (đổi bằng bảng WF)'],
       ['05-exam/room-listening.html', 'Phòng thi Listening', 'Thử âm thanh, audio không tua, 2 phút xem lại'],
-      ['05-exam/result.html', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc, AI giải thích'],
+      ['05-exam/result.html', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc, giải thích (từ file đề hoặc AI), transcript Listening'],
       ['05-exam/history.html', 'Lịch sử làm bài', ''],
     ]],
     ['library', [
