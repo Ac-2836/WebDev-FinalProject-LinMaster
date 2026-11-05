@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="dashboard"></div>
+<!--
+  /dashboard (owner only): GET /stats/overview, /stats/activity, /stats/bands, /stats/vocab, /stats/weaknesses, /stats/community.
+  Every chart has aria-label and a data-table alternative ("Xem bảng số liệu"). Days use Vietnam time.
+  Each widget loads, fails and shows its empty state on its own.
+-->
+<main id="main" class="page flex flex-col gap-5">
+  <header class="glow flex flex-wrap items-center gap-5 rounded-[28px] px-6 py-8 sm:px-10">
+    <span class="inline-flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-sky to-violet text-2xl font-bold text-white ring-4 ring-white">KH</span>
+    <div class="flex-1"><p class="eyebrow">Dashboard</p><h1 class="h1 mt-1">Khải Hưng</h1><p class="text-foreground/75">Học từ 03/11/2026 · mục tiêu band 7.0</p></div>
+  </header>
+
+  <!-- Activity calendar -->
+  <section class="card flex flex-col gap-4 p-5" aria-labelledby="act">
+    <div class="flex flex-wrap items-baseline gap-x-6 gap-y-1"><h2 id="act" class="h2 flex-1">412 hoạt động trong năm qua</h2>
+      <p data-state="default" class="flex items-center gap-1.5 text-sm"><i data-lucide="flame" class="size-4 text-orange-500"></i>Chuỗi hiện tại <strong>7 ngày</strong> · dài nhất <strong>21 ngày</strong></p></div>
+    <div data-state="default empty" class="overflow-x-auto">
+      <div class="grid w-max grid-flow-col grid-rows-7 gap-[3px]" role="img" aria-label="Lịch hoạt động 52 tuần. Ngày nhiều nhất: 2/11 với 34 hoạt động">
+        <script>
+          const lv = ['bg-muted','bg-primary/25','bg-primary/50','bg-primary/75','bg-primary'];
+          let s = 7; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+          const empty = new URLSearchParams(location.search).get('state') === 'empty';
+          document.write(Array.from({length: 52 * 7}, (_, i) => `<span class="size-[11px] rounded-[2px] ${empty ? lv[0] : lv[i > 300 ? Math.floor(r() * 5) : r() > .7 ? Math.floor(r() * 3) : 0]}"></span>`).join(''));
+        </script>
+      </div>
+    </div>
+    <div class="flex items-center justify-between text-xs text-muted-foreground"><details><summary class="cursor-pointer font-semibold text-primary">Xem bảng số liệu</summary><p class="mt-1">Bảng ngày · số lần tra từ · lưu từ · ôn thẻ · làm bài.</p></details><span class="flex items-center gap-1">Ít <span class="size-[11px] rounded-[2px] bg-muted"></span><span class="size-[11px] rounded-[2px] bg-primary/25"></span><span class="size-[11px] rounded-[2px] bg-primary/50"></span><span class="size-[11px] rounded-[2px] bg-primary/75"></span><span class="size-[11px] rounded-[2px] bg-primary"></span> Nhiều</span></div>
+  </section>
+
+  <!-- Stat cards -->
+  <section data-state="default" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6" aria-label="Số liệu">
+    <script>
+      document.write([['Bài đã thi','6',''],['Band Reading','7.0','cao nhất 7.0'],['Band Listening','6.5','cao nhất 6.5'],['Từ đã lưu','248','112 đã thuộc'],['Thẻ đã ôn','1.032',''],['Thời gian học','31 giờ','']].map(([l,v,s])=>`<div class="card p-4"><p class="hint">${l}</p><p class="mt-1 text-2xl font-bold">${v}</p>${s?`<p class="hint">${s}</p>`:''}</div>`).join(''))
+    </script>
+  </section>
+  <section data-state="loading" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6" aria-busy="true" aria-label="Đang tải"><script>document.write('<div class="skeleton h-24"></div>'.repeat(6))</script></section>
+
+  <div class="grid gap-5 lg:grid-cols-2">
+    <!-- Band trend -->
+    <section class="card flex flex-col gap-3 p-5" aria-labelledby="bt">
+      <div class="flex items-center gap-4"><h2 id="bt" class="h2 flex-1">Xu hướng band</h2><span class="flex items-center gap-1 text-xs"><span class="h-0.5 w-4 bg-primary"></span>Reading</span><span class="flex items-center gap-1 text-xs"><span class="h-0.5 w-4 bg-success"></span>Listening</span><span class="flex items-center gap-1 text-xs"><span class="h-0 w-4 border-t-2 border-dashed border-warning"></span>Mục tiêu</span></div>
+      <svg data-state="default" viewBox="0 0 400 180" class="w-full" role="img" aria-label="Band Reading tăng từ 6.0 lên 7.0, Listening từ 5.5 lên 6.5 qua 6 bài; mục tiêu 7.0">
+        <g class="text-border" stroke="currentColor"><line x1="30" y1="20" x2="390" y2="20"/><line x1="30" y1="65" x2="390" y2="65"/><line x1="30" y1="110" x2="390" y2="110"/><line x1="30" y1="155" x2="390" y2="155"/></g>
+        <g class="fill-muted-foreground text-[10px]"><text x="0" y="24">7.5</text><text x="0" y="69">6.5</text><text x="0" y="114">5.5</text><text x="0" y="159">4.5</text></g>
+        <line x1="30" y1="42" x2="390" y2="42" class="stroke-warning" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <polyline points="40,87 110,87 180,65 250,65 320,42 380,42" fill="none" class="stroke-primary" stroke-width="2.5"/>
+        <polyline points="40,110 110,98 180,98 250,87 320,65 380,65" fill="none" class="stroke-success" stroke-width="2.5"/>
+        <g class="fill-primary"><circle cx="380" cy="42" r="4"/></g><g class="fill-success"><circle cx="380" cy="65" r="4"/></g>
+      </svg>
+      <div data-state="empty" class="flex h-44 flex-col items-center justify-center gap-2 rounded-lg bg-muted/50 text-center"><p class="font-semibold">Chưa có bài thi nào</p><a href="../05-exam/tests.html" class="text-sm font-semibold text-primary hover:underline">Làm bài thi đầu tiên</a></div>
+      <details class="text-xs"><summary class="cursor-pointer font-semibold text-primary">Xem bảng số liệu</summary><p class="mt-1 text-muted-foreground">Ngày · Reading · Listening cho từng bài.</p></details>
+    </section>
+
+    <!-- Vocabulary -->
+    <section class="card flex flex-col gap-3 p-5" aria-labelledby="vc">
+      <h2 id="vc" class="h2">Vốn từ</h2>
+      <div data-state="default" class="flex h-32 items-end gap-2" role="img" aria-label="Số từ mới theo tuần, 8 tuần gần nhất: 12, 20, 9, 31, 25, 40, 28, 36">
+        <script>document.write([12,20,9,31,25,40,28,36].map((v,i)=>`<div class="flex flex-1 flex-col items-center gap-1"><span class="text-[10px] text-muted-foreground">${v}</span><span class="w-full rounded-t ${i===7?'bg-primary':'bg-primary/40'}" style="height:${v*2.2}px"></span><span class="text-[10px] text-muted-foreground">T${i+1}</span></div>`).join(''))</script>
+      </div>
+      <div data-state="default" class="flex h-3 overflow-hidden rounded-full" role="img" aria-label="Tỉ lệ thẻ: 30% mới, 25% đang học, 45% đã thuộc"><span class="w-[30%] bg-muted-foreground/30"></span><span class="w-[25%] bg-warning/70"></span><span class="w-[45%] bg-success"></span></div>
+      <div data-state="default" class="flex gap-4 text-xs"><span>Mới 30%</span><span class="text-warning">Đang học 25%</span><span class="text-success">Đã thuộc 45%</span></div>
+      <div data-state="empty" class="flex h-44 flex-col items-center justify-center gap-2 rounded-lg bg-muted/50 text-center"><p class="font-semibold">Chưa lưu từ nào</p><a href="../03-vocab/documents.html" class="text-sm font-semibold text-primary hover:underline">Mở trình đọc</a></div>
+    </section>
+
+    <!-- Weak points -->
+    <section class="card flex flex-col gap-3 p-5" aria-labelledby="wk">
+      <h2 id="wk" class="h2">Điểm yếu theo dạng câu</h2>
+      <div data-state="default" class="flex gap-3 rounded-lg bg-danger-soft p-3 text-sm"><i data-lucide="target" class="mt-0.5 size-4 shrink-0 text-destructive"></i><p><strong>True / False / Not Given</strong> đúng 55%. Gợi ý: đọc lại các câu sai và chú ý phân biệt FALSE với NOT GIVEN.</p></div>
+      <ul data-state="default" class="flex flex-col gap-2.5 text-sm">
+        <script>document.write([['True / False / Not Given',55],['Thông tin ở đoạn nào',60],['Nối heading',68],['Trắc nghiệm',80],['Hoàn thành chỗ trống',88]].map(([k,p])=>`<li class="grid grid-cols-[1fr_40px] items-center gap-x-3 sm:grid-cols-[180px_1fr_40px]"><span>${k}</span><span class="order-last col-span-2 h-2 overflow-hidden rounded-full bg-muted sm:order-none sm:col-span-1"><span class="block h-full ${p<60?'bg-destructive':p<75?'bg-warning':'bg-success'}" style="width:${p}%"></span></span><span class="text-right font-semibold">${p}%</span></li>`).join(''))</script>
+      </ul>
+      <p data-state="empty" class="rounded-lg bg-muted/50 p-6 text-center text-sm text-muted-foreground">Cần ít nhất một bài thi để phân tích.</p>
+    </section>
+
+    <!-- Topics + community -->
+    <div class="flex flex-col gap-5">
+      <section class="card flex flex-col gap-3 p-5" aria-labelledby="tp">
+        <h2 id="tp" class="h2">Chủ đề học nhiều nhất</h2>
+        <div data-state="default" class="flex flex-wrap gap-2"><span class="badge badge-primary text-sm">Environment · 64</span><span class="badge badge-primary text-sm">Urban · 41</span><span class="badge text-sm">Science · 28</span><span class="badge text-sm">Health · 22</span><span class="badge text-sm">Education · 19</span></div>
+        <p data-state="empty" class="text-sm text-muted-foreground">Chưa có dữ liệu.</p>
+      </section>
+      <section class="card flex flex-col gap-3 p-5" aria-labelledby="cm">
+        <h2 id="cm" class="h2">Cộng đồng</h2>
+        <div data-state="default" class="grid grid-cols-2 gap-3 text-center"><div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">2</p><p class="hint">bộ thẻ đã đăng · 17 lượt chép</p></div><div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">1</p><p class="hint">đề đã đăng · 9 lượt làm</p></div></div>
+        <p data-state="empty" class="text-sm text-muted-foreground">Bạn chưa đăng gì. <a href="../04-flashcard/sets.html" class="font-semibold text-primary hover:underline">Chia sẻ một bộ thẻ</a></p>
+      </section>
+    </div>
+  </div>
+</main>
+</body>
+</html>

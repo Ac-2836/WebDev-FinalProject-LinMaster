@@ -82,3 +82,15 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [arc-03-deployment-online](06_Architecture/arc-03-deployment-online.png) | Vercel, Render, Neon, R2, Gemini |
 | [arc-04-class-module-registry](06_Architecture/arc-04-class-module-registry.png) | Hợp đồng module và các registry |
 | [arc-05-class-tang-module](06_Architecture/arc-05-class-tang-module.png) | Ba tầng trong một module server |
+
+### 07 — Wireframe (P0-12)
+Prototype HTML bấm được (Tailwind qua CDN, cùng token màu với `client/app/globals.css`), không phải PlantUML.
+
+| File | Nội dung |
+|---|---|
+| [index.html](07_Wireframe/index.html) | Mục lục 32 màn; nút **375 / 1440** xem hai khổ cạnh nhau. Trong mỗi màn: nút **Mục lục** (góc dưới trái) và bảng **WF** đổi trạng thái tải / trống / lỗi / hộp thoại (góc trên phải) |
+| [wireframes.pdf](07_Wireframe/wireframes.pdf) | Bản in cho report: mỗi màn một trang, desktop 1440px và mobile 375px cạnh nhau |
+| [design-system](07_Wireframe/00-foundation/design-system.html) | Logo, màu, chữ, nút, ô nhập, card, hộp thoại, trạng thái |
+| [assets/logo-mark.svg](07_Wireframe/assets/logo-mark.svg), [assets/logo.svg](07_Wireframe/assets/logo.svg) | Logo LinMaster (biểu tượng, lockup ngang) |
+
+Xem ở máy: `python -m http.server 8137 -d Analysis_Design/07_Wireframe` rồi mở `http://localhost:8137`. Thêm `?shot` vào URL để ẩn các nút của wireframe khi chụp ảnh.

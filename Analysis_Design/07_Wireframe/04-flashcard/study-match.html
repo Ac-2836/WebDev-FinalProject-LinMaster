@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ghép thẻ</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="glow flex min-h-screen flex-col">
+<!-- (Nên có) /flashcards/[id]/study/match: 6 random pairs, pick a term then its definition. Tiles are buttons, so it works with Tab + Enter. -->
+<header class="border-b border-white/60 bg-white/70 backdrop-blur-xl">
+  <div class="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát"><i data-lucide="x" class="size-5"></i></a>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Ghép thẻ</p></div>
+    <p class="w-16 text-right font-mono text-lg font-bold tabular-nums" aria-live="off" aria-label="Thời gian 23,4 giây">23.4s</p>
+  </div>
+</header>
+
+<main id="main" class="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
+  <p data-state="playing" class="mb-4 text-center text-sm text-muted-foreground">Đã ghép 2/6 cặp · sai 1 lần (+1 giây)</p>
+  <div data-state="playing" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <script>
+      document.write([
+        ['mitigate','sel'],['đa dạng sinh học',''],['làm trầm trọng thêm',''],['erosion',''],
+        ['','done'],['relocate',''],['giảm nhẹ, làm dịu','sel'],['sự xói mòn','wrong'],
+        ['biodiversity',''],['','done'],['exacerbate',''],['di dời',''],
+      ].map(([t,s]) => s==='done' ? '<div class="min-h-24 rounded-xl" aria-hidden="true"></div>' :
+        `<button class="flex min-h-24 items-center justify-center rounded-xl border-2 p-3 text-center font-semibold shadow-sm ${s==='sel'?'border-primary bg-secondary text-primary-strong':s==='wrong'?'animate-pulse border-destructive bg-danger-soft text-destructive':'bg-card hover:border-primary'}"${s==='sel'?' aria-pressed="true"':''}>${t}</button>`).join(''));
+    </script>
+  </div>
+
+  <section data-state="finished" class="mx-auto flex max-w-sm flex-col items-center gap-5 py-10 text-center">
+    <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="timer" class="size-8"></i></span>
+    <h1 class="h1">Ghép xong trong 31.2 giây</h1>
+    <p class="text-muted-foreground">Kỷ lục của bạn với bộ này: <strong class="text-foreground">27.8 giây</strong></p>
+    <div class="flex w-full flex-col gap-2"><button class="btn btn-primary btn-lg">Chơi lại</button><a href="set.html" class="btn btn-ghost">Về bộ thẻ</a></div>
+  </section>
+</main>
+</body>
+</html>

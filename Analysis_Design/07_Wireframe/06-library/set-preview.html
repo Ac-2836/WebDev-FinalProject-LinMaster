@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xem trước bộ thẻ</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="library"></div>
+<!-- /library/sets/[id]: public preview (all cards). POST /library/sets/:id/copy (deep copy, copiedFromId, copyCount+1). POST /library/reports. -->
+<main id="main" class="page flex max-w-4xl flex-col gap-6">
+  <a href="library.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thư viện</a>
+  <header class="flex flex-wrap items-start gap-4">
+    <div class="min-w-0 flex-1">
+      <div class="flex gap-2"><span class="badge">Environment</span><span class="badge">EN → VI</span></div>
+      <h1 class="h1 mt-2">IELTS Environment vocabulary</h1>
+      <p class="mt-1 text-muted-foreground">64 từ hay gặp trong bài đọc chủ đề môi trường, có câu ví dụ.</p>
+      <p class="mt-3 flex items-center gap-2 text-sm"><span class="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold">TT</span>Thu Trang · đăng 28/10/2026 · <span class="flex items-center gap-1"><i data-lucide="copy" class="size-3.5"></i>986 lượt chép</span></p>
+    </div>
+    <div class="flex w-full gap-2 sm:w-auto">
+      <button data-state="default report" class="btn btn-primary flex-1 sm:flex-none"><i data-lucide="copy-plus" class="size-4"></i>Chép về thư viện của tôi</button>
+      <a data-state="copied" href="../04-flashcard/set.html" class="btn btn-primary flex-1 sm:flex-none"><i data-lucide="check" class="size-4"></i>Đã chép · Mở bộ thẻ</a>
+      <button class="btn btn-ghost btn-icon" aria-label="Báo cáo bộ thẻ này"><i data-lucide="flag" class="size-4"></i></button>
+    </div>
+  </header>
+  <p data-state="copied" role="status" class="flex items-center gap-2 rounded-lg bg-success-soft p-3 text-sm text-success"><i data-lucide="circle-check" class="size-4"></i>Đã chép 64 thẻ vào "Bộ thẻ của tôi". Bản chép là của riêng bạn, sửa thoải mái.</p>
+
+  <section aria-labelledby="c" class="flex flex-col gap-3">
+    <h2 id="c" class="h2">64 thẻ</h2>
+    <ul class="card divide-y">
+      <script>document.write([['sustainable','bền vững','Sustainable farming reduces soil damage.'],['emission','khí thải','Carbon emissions rose by 3%.'],['deforestation','nạn phá rừng',''],['renewable','có thể tái tạo','Renewable energy is getting cheaper.'],['habitat','môi trường sống','']].map(([t,d,e])=>`<li class="grid gap-1 p-4 sm:grid-cols-[1fr_1.6fr] sm:gap-4"><p class="font-semibold">${t}</p><div><p class="text-sm">${d}</p>${e?`<p class="hint font-serif italic">${e}</p>`:''}</div></li>`).join(''))</script>
+      <li class="p-4 text-center"><button class="text-sm font-semibold text-primary hover:underline">Xem thêm 59 thẻ</button></li>
+    </ul>
+  </section>
+</main>
+
+<!-- Report dialog (shared by set and test previews) -->
+<div data-state="report" class="fixed inset-0 z-40 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4">
+  <form role="dialog" aria-modal="true" aria-labelledby="rp" class="w-full max-w-md rounded-t-2xl bg-card p-6 shadow-2xl sm:rounded-2xl">
+    <h2 id="rp" class="h2">Báo cáo bộ thẻ</h2>
+    <p class="mt-1 text-sm text-muted-foreground">Nội dung có từ 3 báo cáo sẽ tạm ẩn khỏi thư viện cho tới khi chủ sở hữu xử lý.</p>
+    <fieldset class="mt-4 flex flex-col gap-2"><legend class="label mb-1">Lý do</legend>
+      <label class="flex items-center gap-3 rounded-lg border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-secondary"><input type="radio" name="r" checked class="size-4 accent-primary">Sai nội dung</label>
+      <label class="flex items-center gap-3 rounded-lg border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-secondary"><input type="radio" name="r" class="size-4 accent-primary">Vi phạm bản quyền</label>
+      <label class="flex items-center gap-3 rounded-lg border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-secondary"><input type="radio" name="r" class="size-4 accent-primary">Không phù hợp</label>
+      <label class="flex items-center gap-3 rounded-lg border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-secondary"><input type="radio" name="r" class="size-4 accent-primary">Khác</label>
+    </fieldset>
+    <label class="mt-4 flex flex-col gap-1.5"><span class="label">Chi tiết <span class="font-normal text-muted-foreground">(không bắt buộc)</span></span><textarea class="input min-h-20 py-2" placeholder="Ví dụ: thẻ 12 dịch sai nghĩa"></textarea></label>
+    <div class="mt-6 flex justify-end gap-2"><button type="button" class="btn btn-secondary">Hủy</button><button class="btn btn-danger">Gửi báo cáo</button></div>
+  </form>
+</div>
+</body>
+</html>

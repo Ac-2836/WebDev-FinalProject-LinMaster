@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trạng thái nạp đề</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="tests"></div>
+<!-- /tests/imports/[id]: polls GET /tests/imports/:id every few seconds. queued → parsing → validating → done | failed (state diagram st-02). -->
+<main id="main" class="page flex max-w-3xl flex-col gap-6">
+  <a href="tests.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thi thử</a>
+  <header class="flex items-start gap-4">
+    <span data-state="parsing" class="tile size-12 rounded-2xl"><i data-lucide="loader-circle" class="size-6 animate-spin"></i></span>
+    <span data-state="done" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="circle-check" class="size-6"></i></span>
+    <span data-state="failed" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-x" class="size-6"></i></span>
+    <div>
+      <h1 class="h1"><span data-state="parsing">Đang nhận diện đề…</span><span data-state="done">Đề đã sẵn sàng</span><span data-state="failed">Chưa tạo được đề</span></h1>
+      <p class="mt-1 text-muted-foreground">practice-test-4.pdf + answers-test-4.pdf + audio · Full</p>
+    </div>
+  </header>
+
+  <ol class="card flex flex-col p-5" aria-label="Các bước">
+    <script>
+      const steps = [['Tải file lên','Đã lưu 3 file'],['AI đọc đề','Tách 2 phần, 7 đoạn, 18 nhóm câu'],['AI đọc đáp án','Ghép 80 đáp án vào đúng phần'],['Kiểm tra','Đủ câu, đáp án hợp lệ, đọc được audio']];
+      const at = {parsing: 1, done: 4, failed: 3};
+      document.write(Object.entries(at).map(([st, cur]) => `<div data-state="${st}" class="flex flex-col">${steps.map(([t, d], i) => {
+        const ok = i < cur, now = i === cur && st === 'parsing', bad = st === 'failed' && i === cur;
+        return `<li class="flex gap-3 pb-5 last:pb-0"><span class="flex flex-col items-center"><span class="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold ${ok ? 'bg-success text-white' : bad ? 'bg-destructive text-white' : now ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}">${ok ? '✓' : bad ? '!' : i + 1}</span>${i < 3 ? `<span class="mt-1 w-0.5 flex-1 ${ok ? 'bg-success' : 'bg-border'}"></span>` : ''}</span><div class="pb-1"><p class="font-semibold ${!ok && !now && !bad ? 'text-muted-foreground' : ''}">${t}${now ? ' <span class="text-sm font-normal text-primary">đang chạy…</span>' : ''}</p>${ok || bad ? `<p class="hint">${bad ? 'Phát hiện 4 lỗi' : d}</p>` : ''}</div></li>`;
+      }).join('')}</div>`).join(''));
+    </script>
+  </ol>
+
+  <p data-state="parsing" class="hint">Bạn có thể rời trang; đề sẽ hiện trong mục Thi thử khi xong.</p>
+
+  <section data-state="done" class="card flex flex-col gap-4 p-5">
+    <div class="grid grid-cols-3 gap-3 text-center"><div><p class="text-2xl font-bold">80</p><p class="hint">câu hỏi</p></div><div><p class="text-2xl font-bold">7</p><p class="hint">dạng câu</p></div><div><p class="text-2xl font-bold">2:32</p><p class="hint">giờ làm bài</p></div></div>
+    <label class="flex flex-col gap-1.5"><span class="label">Tiêu đề</span><input class="input" value="Practice Test 4"></label>
+    <div class="flex flex-col gap-2 sm:flex-row"><a href="test-intro.html" class="btn btn-primary">Làm bài ngay</a><a href="tests.html" class="btn btn-secondary">Về danh sách đề</a></div>
+  </section>
+
+  <section data-state="failed" class="flex flex-col gap-4">
+    <div role="alert" class="rounded-xl border border-destructive/30 bg-danger-soft p-4 text-sm text-destructive">Đề chưa đạt kiểm tra nên chưa được tạo. Sửa file theo các lỗi dưới đây rồi tải lên lại.</div>
+    <div class="card overflow-hidden">
+      <div class="grid grid-cols-[90px_80px_1fr] gap-3 border-b bg-muted/50 px-4 py-2 text-xs font-semibold uppercase text-muted-foreground"><span>Phần</span><span>Câu</span><span>Lỗi</span></div>
+      <ul class="divide-y text-sm">
+        <script>document.write([['Listening','31','Không tìm thấy đáp án'],['Listening','32','Không tìm thấy đáp án'],['Listening','33','Không tìm thấy đáp án'],['Reading','14','Đáp án "F" không hợp lệ: đoạn văn chỉ có A–E']].map(([s,q,m])=>`<li class="grid grid-cols-[90px_80px_1fr] gap-3 px-4 py-3"><span>${s}</span><span class="font-semibold">${q}</span><span>${m}</span></li>`).join(''))</script>
+      </ul>
+    </div>
+    <div class="flex flex-col gap-2 sm:flex-row"><a href="upload.html" class="btn btn-primary"><i data-lucide="upload" class="size-4"></i>Tải lên lại</a></div>
+  </section>
+</main>
+</body>
+</html>

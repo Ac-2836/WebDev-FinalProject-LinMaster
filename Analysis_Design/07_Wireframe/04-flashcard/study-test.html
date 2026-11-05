@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kiểm tra</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="glow flex min-h-screen flex-col">
+<!-- (Nên có) /flashcards/[id]/study/test: GET /flashcards/sets/:id/quiz. Question kinds: multiple choice, typed answer, true/false. 1–4 picks an option, Enter = check / next. -->
+<header class="border-b border-white/60 bg-white/70 backdrop-blur-xl">
+  <div class="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát"><i data-lucide="x" class="size-5"></i></a>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Kiểm tra · câu 4 / 20</p></div>
+    <span class="w-10"></span>
+  </div>
+  <div class="h-1 bg-muted"><div class="h-full w-1/5 bg-primary"></div></div>
+</header>
+
+<main id="main" class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8">
+  <!-- Multiple choice -->
+  <section data-state="choice correct" class="card flex flex-col gap-6 p-6 sm:p-8">
+    <div><p class="hint">Chọn nghĩa đúng</p><p class="mt-2 text-3xl font-bold">exacerbate</p></div>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <button class="flex min-h-14 items-center gap-3 rounded-xl border-2 p-3 text-left hover:border-primary"><kbd class="inline-flex size-7 shrink-0 items-center justify-center rounded-md border font-mono text-xs">1</kbd>giảm nhẹ, làm dịu</button>
+      <button data-state="choice" class="flex min-h-14 items-center gap-3 rounded-xl border-2 p-3 text-left hover:border-primary"><kbd class="inline-flex size-7 shrink-0 items-center justify-center rounded-md border font-mono text-xs">2</kbd>làm trầm trọng thêm</button>
+      <button data-state="correct" class="flex min-h-14 items-center gap-3 rounded-xl border-2 border-success bg-success-soft p-3 text-left font-semibold text-success"><i data-lucide="circle-check" class="size-7 shrink-0"></i>làm trầm trọng thêm</button>
+      <button class="flex min-h-14 items-center gap-3 rounded-xl border-2 p-3 text-left hover:border-primary"><kbd class="inline-flex size-7 shrink-0 items-center justify-center rounded-md border font-mono text-xs">3</kbd>sự xói mòn</button>
+      <button class="flex min-h-14 items-center gap-3 rounded-xl border-2 p-3 text-left hover:border-primary"><kbd class="inline-flex size-7 shrink-0 items-center justify-center rounded-md border font-mono text-xs">4</kbd>di dời có kế hoạch</button>
+    </div>
+    <div data-state="correct" class="flex items-center gap-3"><p class="flex-1 font-semibold text-success">Chính xác!</p><button class="btn btn-primary">Câu tiếp<i data-lucide="arrow-right" class="size-4"></i></button></div>
+  </section>
+
+  <!-- Typed answer -->
+  <section data-state="typed wrong" class="card flex flex-col gap-5 p-6 sm:p-8">
+    <div><p class="hint">Gõ thuật ngữ đúng với nghĩa</p><p class="mt-2 text-2xl font-bold">sự đa dạng sinh học</p></div>
+    <label class="flex flex-col gap-1.5"><span class="sr-only">Câu trả lời</span><input data-state="typed" class="input min-h-12 text-lg" placeholder="Gõ câu trả lời…" autofocus><input data-state="wrong" class="input min-h-12 border-destructive text-lg line-through" value="biodiversty" aria-invalid="true"></label>
+    <div data-state="wrong" class="flex flex-col gap-2 rounded-xl bg-danger-soft p-4 text-sm"><p class="font-semibold text-destructive">Chưa đúng</p><p>Đáp án: <strong>biodiversity</strong></p><button class="w-fit text-xs font-semibold text-primary hover:underline">Tôi gõ đúng, chỉ sai chính tả</button></div>
+    <div class="flex justify-between gap-2"><button data-state="typed" class="btn btn-ghost">Không biết</button><button data-state="typed" class="btn btn-primary">Kiểm tra</button><button data-state="wrong" class="btn btn-primary ml-auto">Câu tiếp<i data-lucide="arrow-right" class="size-4"></i></button></div>
+  </section>
+
+  <!-- True / false -->
+  <section data-state="truefalse" class="card flex flex-col gap-6 p-6 sm:p-8">
+    <p class="hint">Cặp này đúng hay sai?</p>
+    <div class="grid gap-4 sm:grid-cols-2"><p class="text-2xl font-bold">relentless</p><p class="text-xl">tạm thời, ngắn hạn</p></div>
+    <div class="grid grid-cols-2 gap-3"><button class="btn btn-secondary btn-lg"><i data-lucide="check" class="size-4"></i>Đúng</button><button class="btn btn-secondary btn-lg"><i data-lucide="x" class="size-4"></i>Sai</button></div>
+  </section>
+
+  <!-- Result -->
+  <section data-state="result" class="flex flex-col items-center gap-6 py-6 text-center">
+    <div class="relative inline-flex size-36 items-center justify-center rounded-full" style="background:conic-gradient(var(--color-success) 0 80%, var(--color-muted) 0)"><div class="flex size-28 flex-col items-center justify-center rounded-full bg-background"><span class="text-3xl font-bold">16/20</span><span class="hint">80%</span></div></div>
+    <h1 class="h1">Khá lắm!</h1>
+    <div class="w-full text-left"><p class="label mb-2">4 câu sai</p><ul class="card divide-y text-sm"><li class="flex justify-between gap-3 p-3"><strong>biodiversity</strong><span class="text-muted-foreground">đa dạng sinh học</span></li><li class="flex justify-between gap-3 p-3"><strong>relentless</strong><span class="text-muted-foreground">dai dẳng, không ngừng</span></li></ul></div>
+    <div class="flex w-full flex-col gap-2 sm:flex-row sm:justify-center"><button class="btn btn-primary">Làm lại câu sai</button><button class="btn btn-secondary">Bài kiểm tra mới</button><a href="set.html" class="btn btn-ghost">Về bộ thẻ</a></div>
+  </section>
+</main>
+</body>
+</html>

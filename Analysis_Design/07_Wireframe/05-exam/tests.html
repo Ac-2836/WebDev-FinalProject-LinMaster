@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đề của tôi</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="tests"></div>
+<!-- /tests: GET /tests (my tests) + imports still running or failed. -->
+<main id="main" class="page flex flex-col gap-6">
+  <header class="flex flex-wrap items-end gap-3">
+    <div class="flex-1"><p class="eyebrow">IELTS Academic</p><h1 class="h1 mt-1">Thi thử</h1><p class="mt-1 text-muted-foreground">Đề bạn đã tải lên. Đề công khai của người khác nằm trong Thư viện.</p></div>
+    <a href="history.html" class="btn btn-secondary"><i data-lucide="history" class="size-4"></i>Lịch sử làm bài</a>
+    <a href="upload.html" class="btn btn-primary"><i data-lucide="upload" class="size-4"></i>Tải đề lên</a>
+  </header>
+
+  <!-- Running / failed imports -->
+  <section data-state="default" aria-label="Đề đang nạp" class="flex flex-col gap-2">
+    <a href="import-status.html" class="card flex items-center gap-3 border-primary/40 p-4"><i data-lucide="loader-circle" class="size-5 animate-spin text-primary"></i><div class="min-w-0 flex-1"><p class="truncate font-semibold">practice-test-4.pdf</p><p class="hint">Đang nhận diện đề bằng AI · bước 2/4</p></div><span class="badge badge-primary">Đang xử lý</span></a>
+    <a href="import-status.html?state=failed" class="card flex items-center gap-3 border-destructive/40 p-4"><i data-lucide="circle-alert" class="size-5 text-destructive"></i><div class="min-w-0 flex-1"><p class="truncate font-semibold">mock-listening.pdf</p><p class="hint">Thiếu đáp án câu 31–33</p></div><span class="badge badge-danger">Lỗi</span></a>
+  </section>
+
+  <ul data-state="default" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <script>
+      document.write([
+        ['Practice Test 3','Full','headphones','Listening + Reading · 80 câu · 2 giờ 32 phút','Đang làm dở','primary','Công khai'],
+        ['Practice Test 2','Reading','book-open','Reading · 40 câu · 60 phút','Band 7.0','success',''],
+        ['Mock Listening A','Listening','headphones','Listening · 40 câu · 32 phút','Chưa làm','',''],
+      ].map(([t,k,i,d,s,c,pub]) => `<li class="card flex flex-col gap-4 p-5">
+        <div class="flex items-start justify-between gap-2"><span class="tile size-10 rounded-xl"><i data-lucide="${i}" class="size-5"></i></span><div class="flex gap-1">${pub?'<span class="badge badge-primary"><i data-lucide="globe" class="size-3"></i>Công khai</span>':''}<span class="badge">${k}</span></div></div>
+        <div><a href="test-intro.html" class="font-bold hover:text-primary">${t}</a><p class="hint">${d}</p></div>
+        <span class="badge ${c?'badge-'+c:''} w-fit">${s}</span>
+        <div class="mt-auto flex gap-2"><a href="test-intro.html" class="btn ${s==='Đang làm dở'?'btn-primary':'btn-secondary'} btn-sm flex-1">${s==='Đang làm dở'?'Tiếp tục':'Làm bài'}</a><details class="relative"><summary class="btn btn-ghost btn-icon btn-sm list-none" aria-label="Tùy chọn cho ${t}"><i data-lucide="ellipsis-vertical" class="size-4"></i></summary><div class="absolute right-0 z-10 mt-1 w-48 rounded-lg border bg-card p-1 shadow-lg"><button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted"><i data-lucide="pencil" class="size-4"></i>Đổi tên</button><button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted"><i data-lucide="globe" class="size-4"></i>${pub?'Gỡ khỏi thư viện':'Đăng lên thư viện'}</button><button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-danger-soft"><i data-lucide="trash-2" class="size-4"></i>Xóa đề</button></div></details></div></li>`).join(''));
+    </script>
+  </ul>
+
+  <div data-state="loading" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Đang tải"><script>document.write('<div class="card flex h-52 flex-col gap-3 p-5"><div class="skeleton size-10"></div><div class="skeleton h-5 w-2/3"></div><div class="skeleton h-4 w-1/2"></div></div>'.repeat(3))</script></div>
+  <div data-state="empty" class="card flex flex-col items-center gap-4 px-6 py-14 text-center">
+    <span class="tile size-14 rounded-3xl"><i data-lucide="clipboard-check" class="size-7"></i></span>
+    <div><p class="text-lg font-bold">Bạn chưa có đề nào</p><p class="mx-auto mt-1 max-w-md text-muted-foreground">Tải lên PDF đề và PDF đáp án (thêm file audio với Listening) để tạo phòng thi riêng, hoặc làm đề công khai trong thư viện.</p></div>
+    <div class="flex flex-col gap-2 sm:flex-row"><a href="upload.html" class="btn btn-primary">Tải đề lên</a><a href="../06-library/library.html?tab=tests" class="btn btn-secondary">Đề trong thư viện</a></div>
+  </div>
+  <div data-state="error" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center"><span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="cloud-off" class="size-6"></i></span><p class="font-bold">Không tải được danh sách đề</p><button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4"></i>Thử lại</button></div>
+</main>
+</body>
+</html>

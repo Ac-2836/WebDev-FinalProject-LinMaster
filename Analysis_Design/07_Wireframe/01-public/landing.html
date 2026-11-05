@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Landing</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="bg-white">
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2">Bỏ qua tới nội dung</a>
+
+<!-- Announcement -->
+<p class="bg-foreground px-4 py-2 text-center text-[13px] text-white/90"><span class="mr-1">✦</span>Mới: <strong class="text-white">Lọc nhanh</strong> từ vựng theo CEFR và chủ đề bằng AI. <a href="register.html" class="font-semibold text-[#b9cdff] underline-offset-2 hover:underline">Dùng thử →</a></p>
+
+<header class="sticky top-0 z-30 border-b border-transparent bg-white/85 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
+    <a href="landing.html" aria-label="LinMaster, trang chủ"><span data-logo="full" data-size="30"></span></a>
+    <nav aria-label="Giới thiệu" class="hidden items-center gap-1 text-sm font-semibold text-foreground/80 lg:flex">
+      <a href="#loop" class="rounded-full px-3 py-2 hover:bg-muted">Cách học</a>
+      <a href="#reader" class="rounded-full px-3 py-2 hover:bg-muted">Trình đọc</a>
+      <a href="#flashcard" class="rounded-full px-3 py-2 hover:bg-muted">Flashcard</a>
+      <a href="#exam" class="rounded-full px-3 py-2 hover:bg-muted">Thi thử</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-1.5">
+      <button class="btn btn-ghost btn-sm hidden sm:inline-flex" aria-label="Đổi ngôn ngữ, đang là Tiếng Việt"><i data-lucide="globe" class="size-4"></i>VI</button>
+      <a href="login.html" class="btn btn-secondary btn-sm">Đăng nhập</a>
+      <a href="register.html" class="btn btn-primary btn-sm hidden sm:inline-flex">Bắt đầu miễn phí</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -->
+  <section class="mx-auto flex max-w-6xl flex-col items-center px-4 pt-14 text-center sm:px-6 sm:pt-20">
+    <span class="eyebrow">IELTS Reading · Listening · Từ vựng</span>
+    <h1 class="display mt-4 max-w-4xl">Gặp từ nào lạ, <span class="bg-gradient-to-r from-primary to-violet bg-clip-text text-transparent">nhớ luôn</span> từ đó.</h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">Đọc bài, bôi chọn từ để AI giải thích đúng nghĩa trong câu, lưu thành flashcard và ôn đúng lúc sắp quên. Thi thử trên giao diện giống thi máy thật.</p>
+    <div class="mt-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+      <a href="register.html" class="btn btn-dark btn-lg"><i data-lucide="mail" class="size-4"></i>Đăng ký bằng email</a>
+      <a href="login.html" class="btn btn-secondary btn-lg">Tôi đã có tài khoản</a>
+    </div>
+    <p class="hint mt-3">Miễn phí cho người học. Không cần thẻ thanh toán.</p>
+
+    <!-- Product visual on a soft glow -->
+    <div class="glow-strong relative mt-12 w-full overflow-hidden rounded-[28px] p-4 sm:mt-16 sm:p-10" aria-hidden="true">
+      <div class="mx-auto grid max-w-4xl gap-4 text-left md:grid-cols-[1.4fr_1fr]">
+        <div class="rounded-[20px] bg-white/90 p-5 shadow-lift backdrop-blur sm:p-6">
+          <div class="mb-3 flex items-center gap-2"><span class="tile size-8 rounded-xl"><i data-lucide="book-open-text" class="size-4"></i></span><p class="text-sm font-semibold">Rising seas and coastal cities</p></div>
+          <p class="font-serif text-[16px] leading-8 sm:text-[17px]">Governments are under pressure to <span class="rounded bg-primary/10 px-0.5 ring-2 ring-primary">mitigate</span> the effects of rising sea levels, yet funding for coastal <mark>infrastructure</mark> remains limited.</p>
+          <div class="mt-4 rounded-2xl border bg-white p-4 shadow-soft">
+            <div class="flex items-baseline gap-2"><p class="font-bold">mitigate</p><p class="hint">/ˈmɪt.ɪ.ɡeɪt/ · verb</p><span class="badge badge-primary ml-auto">C1</span></div>
+            <p class="mt-1 text-sm font-semibold">giảm nhẹ, làm dịu (tác động xấu)</p>
+            <div class="mt-2 flex flex-wrap gap-1.5"><span class="badge">mitigate the effects</span><span class="badge">mitigate risks</span></div>
+            <span class="btn btn-primary btn-sm mt-3 w-full"><i data-lucide="bookmark-plus" class="size-4"></i>Lưu vào kho từ</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="rounded-[20px] bg-white/90 p-5 shadow-lift">
+            <p class="eyebrow">Ôn hôm nay</p>
+            <p class="mt-3 text-center text-2xl font-semibold tracking-tight">managed retreat</p>
+            <div class="mt-4 grid grid-cols-4 gap-1.5 text-center text-[11px] font-semibold"><span class="rounded-xl bg-danger-soft py-2 text-destructive">Quên</span><span class="rounded-xl bg-warning-soft py-2 text-warning">Khó</span><span class="rounded-xl bg-success-soft py-2 text-success">Tốt</span><span class="rounded-xl bg-secondary py-2 text-primary">Dễ</span></div>
+          </div>
+          <div class="flex items-center gap-4 rounded-[20px] bg-white/90 p-5 shadow-lift">
+            <div class="flex size-14 flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet text-white"><span class="text-xl font-bold leading-none">7.0</span><span class="text-[10px]">band</span></div>
+            <div><p class="text-sm font-semibold">Reading · Practice Test 3</p><p class="hint">31/40 câu đúng</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Learning loop -->
+  <section id="loop" class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 sm:py-28">
+    <span class="eyebrow">Vòng học khép kín</span>
+    <h2 class="h1 mx-auto mt-3 max-w-2xl sm:text-[44px] sm:leading-[1.1]">Mỗi từ bạn gặp đều có đường về trí nhớ</h2>
+    <p class="mx-auto mt-4 max-w-xl text-muted-foreground">Không còn chép từ ra sổ rồi quên. LinMaster nối việc đọc, tra, ôn và thi thành một vòng.</p>
+    <a href="register.html" class="btn btn-primary mt-7">Bắt đầu</a>
+    <ol class="mt-12 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+      <li class="card flex min-h-60 flex-col gap-2 p-6"><span class="eyebrow text-primary">01 · Đọc</span><p class="text-lg font-semibold">Mở bài bạn muốn đọc</p><p class="text-sm text-muted-foreground">Dán văn bản hoặc tải PDF, DOCX, TXT.</p></li>
+      <li class="card flex min-h-60 flex-col gap-2 p-6"><span class="eyebrow text-primary">02 · Tra</span><p class="text-lg font-semibold">AI giải thích theo câu</p><p class="text-sm text-muted-foreground">Nghĩa đúng ngữ cảnh, IPA, collocations, CEFR.</p></li>
+      <li class="glow-strong flex min-h-60 flex-col gap-2 rounded-[20px] p-6 shadow-lift"><span class="eyebrow text-primary">03 · Ôn</span><p class="text-lg font-semibold">Flashcard tự lên lịch</p><p class="text-sm text-foreground/75">SM-2 nhắc đúng lúc sắp quên, không dồn thẻ.</p><div class="mt-auto rounded-2xl bg-white/90 p-3 text-center text-sm font-semibold shadow-soft">18 thẻ đến hạn hôm nay</div></li>
+      <li class="card flex min-h-60 flex-col gap-2 p-6"><span class="eyebrow text-primary">04 · Thi</span><p class="text-lg font-semibold">Thi thử như thi máy</p><p class="text-sm text-muted-foreground">Chấm band, mở lại bài đọc để học tiếp từ mới.</p></li>
+    </ol>
+  </section>
+
+  <!-- Feature: reader -->
+  <section id="reader" class="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 sm:px-6 sm:pb-28 lg:grid-cols-2 lg:gap-16">
+    <div>
+      <span class="badge badge-primary"><i data-lucide="sparkles" class="size-3"></i>Trình đọc + AI</span>
+      <h2 class="h1 mt-4 sm:text-[40px] sm:leading-[1.1]">Tra từ đúng nghĩa trong câu bạn đang đọc</h2>
+      <ul class="mt-8 divide-y border-y">
+        <li class="py-5"><p class="flex items-center gap-3 font-semibold"><i data-lucide="mouse-pointer-click" class="size-5 text-primary"></i>Bôi chọn là hiểu</p><p class="mt-2 pl-8 text-sm text-muted-foreground">Chọn một từ hoặc cụm tối đa 6 từ. Cùng một từ ở hai câu khác nhau sẽ ra hai nghĩa khác nhau.</p></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="filter" class="size-5 text-muted-foreground"></i>Lọc nhanh theo CEFR và chủ đề<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="notebook-pen" class="size-5 text-muted-foreground"></i>Kho từ lưu kèm câu gốc<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+      </ul>
+    </div>
+    <div class="glow rounded-[28px] p-6 sm:p-10" aria-hidden="true">
+      <div class="rounded-[20px] bg-white p-5 shadow-lift">
+        <p class="eyebrow">Lọc nhanh · B2–C2 · Environment</p>
+        <ul class="mt-3 flex flex-col gap-2 text-sm">
+          <li class="flex items-center gap-3 rounded-xl border p-3"><span class="size-4 rounded-md bg-primary"></span><strong>relentless</strong><span class="text-muted-foreground">dai dẳng</span><span class="badge badge-primary ml-auto">C1</span></li>
+          <li class="flex items-center gap-3 rounded-xl border p-3"><span class="size-4 rounded-md bg-primary"></span><strong>vulnerable</strong><span class="text-muted-foreground">dễ tổn thương</span><span class="badge badge-primary ml-auto">B2</span></li>
+          <li class="flex items-center gap-3 rounded-xl border p-3"><span class="size-4 rounded-md border-2"></span><strong>erosion</strong><span class="text-muted-foreground">sự xói mòn</span><span class="badge badge-primary ml-auto">C1</span></li>
+        </ul>
+        <span class="btn btn-primary btn-sm mt-4 w-full">Lưu 2 từ đã chọn</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: flashcard (mirrored) -->
+  <section id="flashcard" class="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 sm:px-6 sm:pb-28 lg:grid-cols-2 lg:gap-16">
+    <div class="glow rounded-[28px] p-6 sm:p-10 lg:order-first" aria-hidden="true">
+      <div class="relative mx-auto max-w-sm">
+        <div class="absolute inset-x-6 -top-3 h-full rotate-[-4deg] rounded-[20px] bg-white/70 shadow-soft"></div>
+        <div class="relative flex min-h-56 flex-col items-center justify-center gap-2 rounded-[20px] bg-white p-6 text-center shadow-lift">
+          <span class="badge badge-warning">Đang học</span><p class="text-3xl font-semibold tracking-tight">exacerbate</p><p class="hint">Nhấn phím cách để lật</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="badge badge-primary"><i data-lucide="layers" class="size-3"></i>Flashcard</span>
+      <h2 class="h1 mt-4 sm:text-[40px] sm:leading-[1.1]">Ôn đúng lúc sắp quên, không phải ôn cho nhiều</h2>
+      <ul class="mt-8 divide-y border-y">
+        <li class="py-5"><p class="flex items-center gap-3 font-semibold"><i data-lucide="brain" class="size-5 text-primary"></i>Lịch ôn SM-2</p><p class="mt-2 pl-8 text-sm text-muted-foreground">Chấm Quên / Khó / Tốt / Dễ, hệ thống tự tính lần ôn tiếp. Giới hạn thẻ mỗi ngày để không bị dồn.</p></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="pencil-ruler" class="size-5 text-muted-foreground"></i>Soạn bộ thẻ kiểu Quizlet<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="puzzle" class="size-5 text-muted-foreground"></i>Kiểm tra, ghép thẻ, bài luyện AI<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Feature: exam -->
+  <section id="exam" class="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 sm:px-6 sm:pb-28 lg:grid-cols-2 lg:gap-16">
+    <div>
+      <span class="badge badge-primary"><i data-lucide="monitor" class="size-3"></i>Thi thử</span>
+      <h2 class="h1 mt-4 sm:text-[40px] sm:leading-[1.1]">Phòng thi giống thi máy, đề là của bạn</h2>
+      <ul class="mt-8 divide-y border-y">
+        <li class="py-5"><p class="flex items-center gap-3 font-semibold"><i data-lucide="upload" class="size-5 text-primary"></i>Tải PDF đề và đáp án</p><p class="mt-2 pl-8 text-sm text-muted-foreground">AI nhận diện cấu trúc đề, hệ thống kiểm tra đủ câu rồi tạo phòng thi riêng cho bạn.</p></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="highlighter" class="size-5 text-muted-foreground"></i>Highlight, ghi chú, gạch phương án<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+        <li class="flex items-center gap-3 py-5 font-semibold"><i data-lucide="chart-line" class="size-5 text-muted-foreground"></i>Chấm band và xem điểm yếu<i data-lucide="chevron-down" class="ml-auto size-4 text-muted-foreground"></i></li>
+      </ul>
+    </div>
+    <div class="glow rounded-[28px] p-6 sm:p-10" aria-hidden="true">
+      <div class="overflow-hidden rounded-[20px] bg-white shadow-lift">
+        <div class="flex items-center justify-between border-b px-4 py-2.5 text-xs font-semibold"><span>Part 2</span><span class="flex items-center gap-1"><i data-lucide="clock" class="size-3.5"></i>38 minutes left</span></div>
+        <div class="grid grid-cols-2 divide-x text-[12px]"><p class="p-4 font-serif leading-6">The invention of the <mark>blowpipe</mark> transformed the industry…</p><div class="flex flex-col gap-1.5 p-4"><span class="font-semibold">19</span><span>◉ TRUE</span><span>○ FALSE</span><span class="text-muted-foreground line-through">○ NOT GIVEN</span></div></div>
+        <div class="flex gap-1 border-t px-3 py-2"><script>document.write(Array.from({length:9},(_,i)=>`<span class="inline-flex size-6 items-center justify-center rounded text-[10px] font-semibold ${i===3?'bg-primary text-white':i<3?'bg-muted underline':'bg-muted text-muted-foreground'}">${i+14}</span>`).join(''))</script></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard teaser -->
+  <section class="glow-dark text-white">
+    <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.2fr]">
+      <div><span class="eyebrow text-white/60">Dashboard</span><h2 class="h1 mt-3 text-white sm:text-[40px] sm:leading-[1.1]">Nhìn một lần là thấy mình tiến bộ</h2><p class="mt-4 text-white/75">Lịch hoạt động, chuỗi ngày học, xu hướng band và dạng câu bạn còn yếu.</p></div>
+      <div class="rounded-[20px] bg-white/10 p-5 ring-1 ring-white/15 backdrop-blur" aria-hidden="true">
+        <div class="grid grid-flow-col grid-rows-7 gap-[3px]"><script>let s=3;const r=()=>(s=(s*9301+49297)%233280)/233280;document.write(Array.from({length:7*26},(_,i)=>`<span class="aspect-square rounded-[2px]" style="background:rgba(185,205,255,${i>110?(r()*.9+.1).toFixed(2):(r()>.6?(r()*.5).toFixed(2):.08)})"></span>`).join(''))</script></div>
+        <p class="mt-4 flex items-center gap-2 text-sm"><i data-lucide="flame" class="size-4 text-brand-yellow"></i>Chuỗi 7 ngày · 412 hoạt động trong năm</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6">
+    <span class="eyebrow">Bắt đầu ngay</span>
+    <h2 class="h1 mx-auto mt-3 max-w-2xl sm:text-[44px] sm:leading-[1.1]">Từ bài đọc đầu tiên tới band mục tiêu</h2>
+    <a href="register.html" class="btn btn-primary btn-lg mt-8">Tạo tài khoản miễn phí</a>
+  </section>
+</main>
+
+<footer class="border-t bg-background">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
+    <div class="flex flex-col gap-3"><span data-logo="full" data-size="28"></span><p class="max-w-xs text-sm text-muted-foreground">Học từ vựng tiếng Anh theo ngữ cảnh và luyện thi IELTS trên máy.</p></div>
+    <div class="flex flex-col gap-2 text-sm"><p class="eyebrow mb-1">Sản phẩm</p><a href="#reader" class="hover:text-primary">Trình đọc</a><a href="#flashcard" class="hover:text-primary">Flashcard</a><a href="#exam" class="hover:text-primary">Thi thử</a></div>
+    <div class="flex flex-col gap-2 text-sm"><p class="eyebrow mb-1">Tài khoản</p><a href="login.html" class="hover:text-primary">Đăng nhập</a><a href="register.html" class="hover:text-primary">Đăng ký</a></div>
+  </div>
+  <div class="mx-auto flex max-w-6xl flex-col gap-1 border-t px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:px-6"><p>© 2026 LinMaster · Đồ án môn Phát triển ứng dụng Web</p><p class="sm:ml-auto">Không liên kết với IDP, British Council hay Cambridge.</p></div>
+</footer>
+</body>
+</html>

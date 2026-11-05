@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phòng thi Listening</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="flex h-dvh flex-col overflow-hidden bg-white">
+<!--
+  Listening: audio plays by itself, no pause, no seek; only volume. After a refresh it resumes at the position computed
+  from server time (GET /attempts/:id). 2 minutes to check answers at the end. Full test: Listening first, then Reading.
+  Same header, bottom navigation and dialogs (Settings, Help, Hide, Submit, warnings, offline) as the Reading room.
+-->
+<header class="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-4">
+  <div class="flex min-w-0 items-center gap-2"><span class="inline-flex size-8 items-center justify-center rounded-full bg-muted text-xs font-bold">KH</span><div class="hidden sm:block"><p class="text-sm font-semibold">Khải Hưng</p><p class="text-xs text-muted-foreground">Practice Test 3 · Listening</p></div></div>
+  <div class="mx-auto flex items-center gap-2" role="timer">
+    <i data-lucide="clock" class="size-4 text-muted-foreground"></i>
+    <span data-state="default resume" class="text-base font-bold tabular-nums">24 minutes left</span>
+    <span data-state="review" class="rounded-md bg-warning-soft px-2 text-base font-bold tabular-nums text-warning">1:42 to check answers</span>
+    <span data-state="sound-check transition" class="text-base font-bold text-muted-foreground">Not started</span>
+  </div>
+  <div class="flex items-center gap-0.5">
+    <button class="btn btn-ghost btn-sm" aria-label="Settings"><i data-lucide="settings" class="size-4"></i><span class="hidden lg:inline">Settings</span></button>
+    <button class="btn btn-ghost btn-sm" aria-label="Help"><i data-lucide="circle-help" class="size-4"></i><span class="hidden lg:inline">Help</span></button>
+    <button class="btn btn-ghost btn-sm" aria-label="Hide screen"><i data-lucide="eye-off" class="size-4"></i><span class="hidden lg:inline">Hide</span></button>
+  </div>
+</header>
+
+<!-- Audio bar: status + volume only -->
+<div data-state="default resume review" class="flex shrink-0 flex-wrap items-center gap-3 border-b bg-muted/60 px-4 py-2.5 text-sm">
+  <span data-state="default resume" class="flex items-center gap-2 font-semibold"><span class="relative flex size-2.5"><span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75"></span><span class="relative inline-flex size-2.5 rounded-full bg-success"></span></span>Audio is playing · Part 1</span>
+  <span data-state="review" class="flex items-center gap-2 font-semibold"><i data-lucide="volume-x" class="size-4"></i>The recording has ended. Check your answers.</span>
+  <label class="ml-auto flex items-center gap-2"><i data-lucide="volume-2" class="size-4 text-muted-foreground"></i><span class="sr-only">Volume</span><input type="range" value="70" class="w-28 accent-primary"></label>
+</div>
+<div data-state="resume" role="status" class="shrink-0 bg-secondary px-4 py-2 text-sm text-primary-strong">Welcome back. The recording continues from 06:12, where it would be now.</div>
+
+<div data-state="default resume review" class="shrink-0 border-b px-4 py-2.5"><p class="text-sm"><strong>Part 1</strong> &nbsp;Listen and answer questions 1–10.</p></div>
+
+<main id="main" class="relative min-h-0 flex-1 overflow-y-auto">
+  <!-- Sound check before start -->
+  <section data-state="sound-check" class="mx-auto flex max-w-lg flex-col items-center gap-5 px-4 py-12 text-center">
+    <span class="tile size-16 rounded-3xl"><i data-lucide="headphones" class="size-8"></i></span>
+    <h1 class="h1">Check your sound</h1>
+    <p class="text-muted-foreground">Put on your headphones and click Play sound. Adjust the volume until you can hear clearly. Once the test starts, the recording cannot be paused or replayed.</p>
+    <button class="btn btn-secondary"><i data-lucide="play" class="size-4"></i>Play sound</button>
+    <label class="flex w-full max-w-xs items-center gap-3"><i data-lucide="volume-1" class="size-4"></i><input type="range" value="70" class="flex-1 accent-primary" aria-label="Volume"><i data-lucide="volume-2" class="size-4"></i></label>
+    <button class="btn btn-primary btn-lg">Start Listening test</button>
+    <p class="hint">Time: about 30 minutes + 2 minutes to check answers · 4 parts · 40 questions</p>
+  </section>
+
+  <!-- Questions -->
+  <section data-state="default resume review" class="mx-auto flex max-w-3xl flex-col gap-6 p-5 text-[15px] sm:p-8">
+    <div class="flex flex-col gap-3">
+      <h2 class="font-bold">Questions 1–6</h2>
+      <p>Complete the form below. Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.</p>
+      <div class="rounded-lg border">
+        <p class="border-b bg-muted/50 px-4 py-2 text-center font-bold">Sports Centre Membership Form</p>
+        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 p-4">
+          <dt class="text-muted-foreground">Name:</dt><dd>Sarah <span class="font-bold">1</span> <input class="input inline-block h-8 min-h-0 w-36" value="Collins" aria-label="Answer 1"></dd>
+          <dt class="text-muted-foreground">Postcode:</dt><dd><span class="font-bold">2</span> <input class="input inline-block h-8 min-h-0 w-36 ring-2 ring-primary" aria-label="Answer 2"></dd>
+          <dt class="text-muted-foreground">Membership:</dt><dd><span class="font-bold">3</span> <input class="input inline-block h-8 min-h-0 w-36" aria-label="Answer 3"> plan</dd>
+          <dt class="text-muted-foreground">Monthly fee:</dt><dd>£ <span class="font-bold">4</span> <input class="input inline-block h-8 min-h-0 w-24" aria-label="Answer 4"></dd>
+        </dl>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3">
+      <h2 class="font-bold">Questions 7–8</h2>
+      <p>Choose <strong>TWO</strong> letters, <strong>A–E</strong>. Which TWO facilities does Sarah want to use?</p>
+      <script>document.write(['A swimming pool','B climbing wall','C sauna','D yoga studio','E tennis courts'].map((o,i)=>`<label class="flex items-center gap-3 rounded-lg border p-2.5 ${[1,3].includes(i)?'border-primary bg-secondary':''}"><input type="checkbox" ${[1,3].includes(i)?'checked':''} class="size-4 accent-primary">${o}</label>`).join(''))</script>
+    </div>
+  </section>
+
+  <!-- Full test: Listening → Reading -->
+  <section data-state="transition" class="mx-auto flex max-w-lg flex-col items-center gap-5 px-4 py-12 text-center">
+    <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="circle-check" class="size-8"></i></span>
+    <h1 class="h1">Listening finished</h1>
+    <p class="text-muted-foreground">Your Listening answers have been saved and can no longer be changed. The Reading test lasts 60 minutes and starts when you click the button.</p>
+    <a href="room-reading.html" class="btn btn-primary btn-lg">Start Reading test</a>
+  </section>
+</main>
+
+<footer data-state="default resume review" class="shrink-0 border-t">
+  <div class="flex items-stretch">
+    <label class="hidden items-center gap-2 border-r px-4 text-sm sm:flex"><input type="checkbox" class="size-4 accent-primary">Review</label>
+    <nav aria-label="Question navigation" class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 py-2">
+      <div class="flex shrink-0 items-center gap-1 rounded-md bg-muted/70 px-2 py-1"><span class="mr-1 text-sm font-bold">Part 1</span>
+        <script>document.write(Array.from({length:10},(_,i)=>i+1).map(n=>`<button class="inline-flex size-8 items-center justify-center rounded text-sm font-semibold ${n===2?'bg-primary text-white':[1,7,8].includes(n)?'bg-white underline decoration-2 underline-offset-4':'bg-white text-muted-foreground'}" aria-label="Question ${n}">${n}</button>`).join(''))</script>
+      </div>
+      <button class="shrink-0 rounded-md px-3 py-2 text-sm"><strong>Part 2</strong> <span class="text-muted-foreground">0 of 10</span></button>
+      <button class="shrink-0 rounded-md px-3 py-2 text-sm"><strong>Part 3</strong> <span class="text-muted-foreground">0 of 10</span></button>
+      <button class="shrink-0 rounded-md px-3 py-2 text-sm"><strong>Part 4</strong> <span class="text-muted-foreground">0 of 10</span></button>
+    </nav>
+    <div class="flex items-center gap-1 border-l px-2">
+      <button class="btn btn-secondary btn-icon" aria-label="Previous question"><i data-lucide="arrow-left" class="size-4"></i></button>
+      <button class="btn btn-secondary btn-icon" aria-label="Next question"><i data-lucide="arrow-right" class="size-4"></i></button>
+      <button class="btn btn-primary btn-icon" aria-label="Submit test"><i data-lucide="check" class="size-5"></i></button>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

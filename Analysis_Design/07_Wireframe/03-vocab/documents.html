@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tài liệu đọc</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="pb-20 lg:pb-0">
+<div data-app-nav="read"></div>
+<!-- /read: GET /vocab/documents, POST /vocab/documents (text or multipart file ≤ 5 MB), DELETE /vocab/documents/:id -->
+<main id="main" class="page flex flex-col gap-6">
+  <header class="flex flex-wrap items-end gap-3">
+    <div class="flex-1"><p class="eyebrow">Đọc &amp; tra từ</p><h1 class="h1 mt-1">Tài liệu đọc</h1><p class="mt-1 text-muted-foreground">Mở một bài, bôi chọn từ lạ để tra theo ngữ cảnh.</p></div>
+    <button class="btn btn-primary"><i data-lucide="plus" class="size-4"></i>Tài liệu mới</button>
+  </header>
+
+  <div data-state="default new" class="flex flex-col gap-3 sm:flex-row">
+    <label class="relative flex-1"><span class="sr-only">Tìm tài liệu</span><i data-lucide="search" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"></i><input class="input pl-9" placeholder="Tìm theo tiêu đề"></label>
+    <select class="input sm:w-48" aria-label="Lọc nguồn"><option>Mọi nguồn</option><option>Dán văn bản</option><option>File</option><option>Từ bài thi</option></select>
+  </div>
+
+  <ul data-state="default new" class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+    <script>
+      document.write([
+        ['Rising seas and coastal cities','clipboard','Dán văn bản','1.240 từ',9,'Hôm nay'],
+        ['Practice Test 3 · Passage 2: The history of glass','clipboard-check','Từ bài thi','860 từ',4,'Hôm qua'],
+        ['Urban farming report.pdf','file-text','File PDF','3.105 từ',15,'02/11'],
+        ['Sleep and memory consolidation','clipboard','Dán văn bản','720 từ',0,'01/11'],
+        ['Lecture notes week 4.docx','file-text','File DOCX','2.010 từ',7,'30/10'],
+      ].map(([t,i,s,w,n,d]) => `<li class="card flex flex-col gap-3 p-5">
+        <div class="flex items-start gap-3"><span class="tile size-10 rounded-xl"><i data-lucide="${i}" class="size-5"></i></span>
+          <a href="reader.html" class="min-w-0 flex-1 font-semibold leading-snug hover:text-primary">${t}</a>
+          <details class="relative"><summary class="btn btn-ghost btn-icon btn-sm list-none" aria-label="Tùy chọn cho ${t}"><i data-lucide="ellipsis-vertical" class="size-4"></i></summary><div class="absolute right-0 z-10 mt-1 w-40 rounded-lg border bg-card p-1 shadow-lg"><button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-danger-soft"><i data-lucide="trash-2" class="size-4"></i>Xóa</button></div></details></div>
+        <div class="flex flex-wrap gap-2"><span class="badge">${s}</span><span class="badge">${w}</span>${n ? `<span class="badge badge-primary">${n} từ đã lưu</span>` : ''}</div>
+        <p class="hint">Mở lần cuối: ${d}</p></li>`).join(''));
+    </script>
+  </ul>
+
+  <div data-state="loading" class="grid gap-3 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Đang tải">
+    <script>document.write('<div class="card flex flex-col gap-3 p-5"><div class="skeleton h-10 w-10"></div><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-4 w-1/2"></div></div>'.repeat(6))</script>
+  </div>
+
+  <div data-state="empty" class="card flex flex-col items-center gap-4 px-6 py-14 text-center">
+    <span class="tile size-14 rounded-3xl"><i data-lucide="book-open-text" class="size-7"></i></span>
+    <div><p class="text-lg font-bold">Chưa có tài liệu nào</p><p class="mx-auto mt-1 max-w-sm text-muted-foreground">Dán một bài báo tiếng Anh hoặc tải file PDF, DOCX, TXT để bắt đầu học từ theo ngữ cảnh.</p></div>
+    <button class="btn btn-primary"><i data-lucide="plus" class="size-4"></i>Tài liệu mới</button>
+  </div>
+
+  <div data-state="error" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center">
+    <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="cloud-off" class="size-6"></i></span>
+    <p class="font-bold">Không tải được danh sách tài liệu</p>
+    <button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4"></i>Thử lại</button>
+  </div>
+</main>
+
+<!-- New document dialog (bottom sheet on mobile) -->
+<div data-state="new upload-error" class="fixed inset-0 z-40 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4">
+  <div role="dialog" aria-modal="true" aria-labelledby="nd" class="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl">
+    <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="nd" class="h2 flex-1">Tài liệu mới</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
+    <div class="flex flex-col gap-4 overflow-y-auto p-5">
+      <div class="inline-flex w-full rounded-lg border bg-muted p-0.5 text-sm sm:w-fit" role="tablist">
+        <button role="tab" aria-selected="true" class="flex-1 rounded-md bg-card px-4 py-1.5 font-semibold shadow-sm">Dán văn bản</button>
+        <button role="tab" class="flex-1 rounded-md px-4 py-1.5 text-muted-foreground">Tải file</button>
+      </div>
+      <label class="flex flex-col gap-1.5"><span class="label">Tiêu đề</span><input class="input" placeholder="Tự lấy từ dòng đầu nếu bỏ trống"></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Nội dung</span><textarea class="input min-h-48 py-2 font-serif" placeholder="Dán đoạn văn tiếng Anh vào đây…">Governments are under pressure to mitigate the effects of rising sea levels…</textarea><span class="hint flex justify-between"><span>Đoạn mới khi xuống dòng hai lần.</span><span>1.240 / 20.000 từ</span></span></label>
+      <!-- File tab content (shown here under the text tab for the wireframe) -->
+      <div class="flex flex-col gap-2">
+        <p class="label">Hoặc tải file</p>
+        <div class="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 text-center">
+          <i data-lucide="file-up" class="size-8 text-muted-foreground"></i>
+          <p class="text-sm"><button class="font-semibold text-primary hover:underline">Chọn file</button> hoặc kéo thả vào đây</p>
+          <p class="hint">PDF, DOCX, TXT · tối đa 5 MB · chỉ giữ phần chữ, không lưu file</p>
+        </div>
+        <p data-state="upload-error" role="alert" class="flex items-start gap-2 rounded-lg bg-danger-soft p-3 text-sm text-destructive"><i data-lucide="circle-alert" class="mt-0.5 size-4 shrink-0"></i>"scan.pdf" không có chữ để đọc (có thể là ảnh chụp). Hãy dùng file PDF có chữ chọn được.</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 border-t px-5 py-4"><button class="btn btn-secondary">Hủy</button><button class="btn btn-primary">Tạo và mở</button></div>
+  </div>
+</div>
+</body>
+</html>

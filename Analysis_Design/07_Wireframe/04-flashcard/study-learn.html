@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Học (SM-2)</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="glow flex min-h-screen flex-col">
+<!--
+  /flashcards/[id]/study/learn: GET /flashcards/sets/:id/study (due + new cards, daily limit, Vietnam time),
+  POST /flashcards/sessions, POST /flashcards/reviews per card, PATCH /flashcards/sessions/:id at the end.
+  Space = show answer, 1–4 = rate. Whole session usable by keyboard only (PLAN C3).
+-->
+<header class="border-b border-white/60 bg-white/70 backdrop-blur-xl">
+  <div class="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
+    <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát. Tiến độ đã chấm vẫn được lưu"><i data-lucide="x" class="size-5"></i></a>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Học · lặp lại ngắt quãng</p></div>
+    <span class="w-10"></span>
+  </div>
+  <div class="mx-auto flex max-w-4xl items-center gap-3 px-4 pb-3 text-xs font-semibold">
+    <span class="text-primary">4 mới</span><span class="text-warning">5 đang học</span><span class="text-success">3 ôn lại</span>
+    <div class="h-2 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow="7" aria-valuemin="0" aria-valuemax="16" aria-label="Đã làm 7 trên 16 thẻ"><div class="h-full w-[44%] bg-primary"></div></div>
+    <span class="text-muted-foreground">7/16</span>
+  </div>
+</header>
+
+<main id="main" class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8">
+  <div data-state="question answer" class="card flex min-h-72 flex-1 flex-col items-center justify-center gap-4 p-8 text-center shadow-lg sm:min-h-80">
+    <span class="badge badge-warning">Đang học</span>
+    <p class="text-4xl font-bold sm:text-5xl">managed retreat</p>
+    <div data-state="answer" class="flex w-full flex-col items-center gap-3 border-t pt-5">
+      <p class="text-2xl font-bold">di dời có kế hoạch khỏi vùng nguy hiểm</p>
+      <p class="max-w-lg font-serif italic text-muted-foreground">"Planners must weigh the cost of sea walls against <mark>managed retreat</mark>."</p>
+    </div>
+  </div>
+
+  <div data-state="question" class="flex flex-col items-center gap-2">
+    <button class="btn btn-primary btn-lg w-full sm:w-72">Hiện đáp án</button>
+    <p class="hint">hoặc nhấn <kbd class="rounded border bg-card px-1.5 font-mono">Space</kbd></p>
+  </div>
+
+  <div data-state="answer" class="flex flex-col gap-2">
+    <p class="text-center text-sm font-semibold">Bạn nhớ từ này thế nào?</p>
+    <div class="grid grid-cols-4 gap-2">
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-destructive/40 bg-danger-soft text-destructive hover:border-destructive"><span class="font-bold">Quên</span><span class="text-xs">&lt; 10 phút</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">1</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-warning/40 bg-warning-soft text-warning hover:border-warning"><span class="font-bold">Khó</span><span class="text-xs">1 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">2</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-success/40 bg-success-soft text-success hover:border-success"><span class="font-bold">Tốt</span><span class="text-xs">3 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">3</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-primary/40 bg-secondary text-primary-strong hover:border-primary"><span class="font-bold">Dễ</span><span class="text-xs">7 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">4</kbd></button>
+    </div>
+    <p class="hint text-center">Khoảng cách tới lần ôn sau, tính theo SM-2.</p>
+  </div>
+
+  <!-- Session summary -->
+  <section data-state="summary" class="flex flex-1 flex-col items-center justify-center gap-6 text-center">
+    <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="trophy" class="size-8"></i></span>
+    <div><h1 class="h1">Xong phiên học!</h1><p class="mt-1 text-muted-foreground">16 thẻ trong 9 phút</p></div>
+    <div class="grid w-full max-w-md grid-cols-4 gap-2 text-center">
+      <div class="card p-3"><p class="text-xl font-bold text-destructive">2</p><p class="hint">Quên</p></div>
+      <div class="card p-3"><p class="text-xl font-bold text-warning">3</p><p class="hint">Khó</p></div>
+      <div class="card p-3"><p class="text-xl font-bold text-success">8</p><p class="hint">Tốt</p></div>
+      <div class="card p-3"><p class="text-xl font-bold text-primary">3</p><p class="hint">Dễ</p></div>
+    </div>
+    <p class="text-sm"><i data-lucide="flame" class="inline size-4 text-orange-500"></i> Chuỗi ngày học: <strong>8 ngày</strong> · Lần ôn tới: <strong>ngày mai, 9 thẻ</strong></p>
+    <div class="flex w-full max-w-sm flex-col gap-2"><a href="set.html" class="btn btn-primary btn-lg">Về bộ thẻ</a><a href="study-test.html" class="btn btn-secondary">Tự kiểm tra thêm</a></div>
+  </section>
+
+  <!-- Nothing due (empty) -->
+  <section data-state="empty" class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+    <span class="tile size-16 rounded-3xl"><i data-lucide="calendar-check" class="size-8"></i></span>
+    <h1 class="h1">Hôm nay không còn thẻ nào</h1>
+    <p class="max-w-sm text-muted-foreground">Bạn đã ôn hết thẻ đến hạn và đủ số thẻ mới trong ngày. Lần ôn tới: ngày mai, 9 thẻ.</p>
+    <div class="flex flex-col gap-2 sm:flex-row"><a href="study-flip.html" class="btn btn-secondary">Lật thẻ để xem lại</a><a href="set.html" class="btn btn-ghost">Về bộ thẻ</a></div>
+  </section>
+
+  <p data-state="review-error" role="alert" class="flex items-center justify-center gap-2 rounded-lg bg-warning-soft p-3 text-sm text-warning"><i data-lucide="wifi-off" class="size-4"></i>Chưa gửi được kết quả thẻ vừa chấm. Đang thử lại…</p>
+</main>
+</body>
+</html>

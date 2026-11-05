@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phòng thi Reading</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="flex h-dvh flex-col overflow-hidden bg-white">
+<!--
+  Exam layout (full screen, no app nav). Layout and controls follow computer-delivered IELTS at test centres; no logos,
+  names or artwork of IDP / British Council / Cambridge (PLAN C4).
+  GET /attempts/:id (serverNow, remaining time), PUT /attempts/:id/state (autosave), POST /attempts/:id/submit.
+  Exam UI text stays in English like the real test; app chrome around it follows the user's locale.
+-->
+<header class="flex h-14 shrink-0 items-center gap-3 border-b bg-white px-3 sm:px-4">
+  <div class="flex min-w-0 items-center gap-2">
+    <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">KH</span>
+    <div class="hidden min-w-0 sm:block"><p class="truncate text-sm font-semibold">Khải Hưng</p><p class="text-xs text-muted-foreground">Practice Test 3 · Reading</p></div>
+  </div>
+  <div class="mx-auto flex items-center gap-2 rounded-lg px-3 py-1" role="timer" aria-live="off">
+    <i data-lucide="clock" class="size-4 text-muted-foreground"></i>
+    <span data-state="default menu note settings help submit hide offline" class="text-base font-bold tabular-nums">38 minutes left</span>
+    <span data-state="warn" class="rounded-md bg-warning-soft px-2 text-base font-bold tabular-nums text-warning">9 minutes left</span>
+  </div>
+  <div class="flex items-center gap-0.5">
+    <span data-state="default menu note settings help submit hide warn" class="hidden items-center gap-1 px-2 text-xs text-muted-foreground md:flex"><i data-lucide="circle-check" class="size-4 text-success"></i>Saved</span>
+    <span data-state="offline" class="flex items-center gap-1 rounded-md bg-warning-soft px-2 py-1 text-xs font-semibold text-warning"><i data-lucide="wifi-off" class="size-4"></i><span class="hidden sm:inline">Offline</span></span>
+    <button class="btn btn-ghost btn-sm" aria-label="Settings"><i data-lucide="settings" class="size-4"></i><span class="hidden lg:inline">Settings</span></button>
+    <button class="btn btn-ghost btn-sm" aria-label="Help"><i data-lucide="circle-help" class="size-4"></i><span class="hidden lg:inline">Help</span></button>
+    <button class="btn btn-ghost btn-sm" aria-label="Hide screen"><i data-lucide="eye-off" class="size-4"></i><span class="hidden lg:inline">Hide</span></button>
+  </div>
+</header>
+
+<!-- Offline banner -->
+<div data-state="offline" role="alert" class="flex shrink-0 items-center gap-2 bg-warning-soft px-4 py-2 text-sm text-warning"><i data-lucide="wifi-off" class="size-4 shrink-0"></i>Connection lost. Your answers are kept on this device and will be saved when you are back online. The timer keeps running.</div>
+
+<div class="shrink-0 border-b bg-muted/60 px-4 py-2.5">
+  <p class="text-sm"><strong>Part 2</strong> &nbsp;Read the text and answer questions 14–26.</p>
+</div>
+
+<!-- Mobile: switch between passage and questions -->
+<div class="flex shrink-0 border-b text-sm font-semibold lg:hidden" role="tablist">
+  <button role="tab" aria-selected="true" class="flex-1 border-b-2 border-primary py-2.5 text-primary">Passage</button>
+  <button role="tab" class="flex-1 py-2.5 text-muted-foreground">Questions 14–26</button>
+</div>
+
+<main id="main" class="relative flex min-h-0 flex-1">
+  <!-- Passage -->
+  <section aria-label="Reading passage" class="min-w-0 flex-1 overflow-y-auto p-5 sm:p-8 lg:basis-1/2">
+    <h1 class="text-xl font-bold">The history of glass</h1>
+    <div class="mt-4 flex max-w-[70ch] flex-col gap-4 font-serif text-[17px] leading-8">
+      <p><strong class="font-sans">A</strong>&nbsp; From our earliest origins, people have used glass. Natural glass, formed when lightning strikes sand or volcanic rock cools rapidly, was <mark>shaped into tools</mark> long before anyone learned to make it.</p>
+      <p class="relative"><strong class="font-sans">B</strong>&nbsp; The first manufactured glass probably appeared as a glaze on pottery. Over centuries, craftsmen discovered that adding <span class="border-b-2 border-dashed border-primary bg-mark/60">lime and soda</span><button class="ml-0.5 inline-flex size-5 -translate-y-1 items-center justify-center rounded bg-primary text-white" aria-label="Note: check Q17"><i data-lucide="sticky-note" class="size-3"></i></button> made the material more durable, and glass vessels became objects of trade across the region.
+        <!-- Context menu on a selection (right click / long press) -->
+        <span data-state="menu" role="menu" class="absolute left-40 top-14 z-20 flex w-44 flex-col rounded-lg border bg-white p-1 font-sans text-sm leading-normal shadow-xl">
+          <button role="menuitem" class="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-muted"><span class="size-3 rounded-sm bg-mark"></span>Highlight</button>
+          <button role="menuitem" class="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-muted"><i data-lucide="sticky-note" class="size-4"></i>Notes</button>
+          <button role="menuitem" class="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-muted"><i data-lucide="eraser" class="size-4"></i>Clear</button>
+          <button role="menuitem" class="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted"><i data-lucide="eraser" class="size-4"></i>Clear all</button>
+        </span>
+        <span data-state="note" class="absolute left-24 top-12 z-20 flex w-72 flex-col gap-2 rounded-lg border bg-white p-3 font-sans text-sm leading-normal shadow-xl">
+          <span class="flex items-center justify-between font-semibold">Note<button class="btn btn-ghost btn-icon btn-sm size-7" aria-label="Close note"><i data-lucide="x" class="size-4"></i></button></span>
+          <textarea class="input min-h-20 py-2">check Q17: "durable" = paraphrase?</textarea>
+        </span>
+      </p>
+      <p><strong class="font-sans">C</strong>&nbsp; It was the invention of the blowpipe, around the first century BC, that transformed the industry. Glassblowers could now produce thin, transparent containers quickly and cheaply, and for the first time glass was within reach of ordinary households.</p>
+      <p><strong class="font-sans">D</strong>&nbsp; In medieval Europe, the most celebrated use of glass was in religious buildings, where coloured windows told stories to congregations who could not read. Production remained a closely guarded skill, passed from master to apprentice.</p>
+      <p><strong class="font-sans">E</strong>&nbsp; Today, glass is engineered for purposes its early makers could never have imagined, from fibre-optic cables that carry data across oceans to screens that respond to the lightest touch.</p>
+    </div>
+  </section>
+
+  <!-- Resizable divider -->
+  <div class="group hidden w-3 shrink-0 cursor-col-resize items-center justify-center border-x bg-muted/60 lg:flex" role="separator" aria-orientation="vertical" aria-label="Resize panels. Use left and right arrow keys" tabindex="0" aria-valuenow="50">
+    <span class="flex h-10 w-1.5 flex-col justify-center gap-1 rounded-full"><i data-lucide="grip-vertical" class="size-3 text-muted-foreground"></i></span>
+  </div>
+
+  <!-- Questions -->
+  <section aria-label="Questions 14 to 26" class="hidden min-w-0 flex-1 overflow-y-auto p-5 sm:p-8 lg:block lg:basis-1/2">
+    <div class="flex flex-col gap-8 text-[15px]">
+      <div class="flex flex-col gap-3">
+        <h2 class="font-bold">Questions 14–18</h2>
+        <p>The reading passage has five paragraphs, <strong>A–E</strong>. Which paragraph contains the following information?<br><em>Write the correct letter, A–E, in boxes 14–18.</em></p>
+        <script>
+          document.write([['14','a reference to glass being used to communicate with people who could not read','D'],['15','the reason glass became affordable for most people',''],['16','an example of glass made without human involvement','A']].map(([n,t,v])=>`<div class="flex items-start gap-3 ${n==='15'?'rounded-lg bg-secondary/60 p-2 -m-2 ring-2 ring-primary':''}"><span class="inline-flex h-8 min-w-8 items-center justify-center rounded border-2 font-bold ${n==='15'?'border-primary':''}">${n}</span><p class="flex-1 pt-1">${t}</p><select class="input h-8 min-h-0 w-16" aria-label="Answer ${n}"><option></option>${'ABCDE'.split('').map(l=>`<option ${l===v?'selected':''}>${l}</option>`).join('')}</select></div>`).join(''))
+        </script>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h2 class="font-bold">Questions 19–22</h2>
+        <p>Do the following statements agree with the information given in the passage?<br><em>Choose <strong>TRUE</strong>, <strong>FALSE</strong> or <strong>NOT GIVEN</strong>.</em></p>
+        <div class="flex flex-col gap-2"><p><span class="mr-2 inline-flex h-7 min-w-7 items-center justify-center rounded border-2 font-bold">19</span>Early manufactured glass was first used as a surface coating on pottery.</p>
+          <div class="ml-9 flex flex-col gap-1">
+            <label class="flex items-center gap-2"><input type="radio" name="q19" checked class="size-4 accent-primary">TRUE</label>
+            <label class="flex items-center gap-2"><input type="radio" name="q19" class="size-4 accent-primary">FALSE</label>
+            <label class="flex items-center gap-2 text-muted-foreground line-through decoration-2"><input type="radio" name="q19" class="size-4 accent-primary">NOT GIVEN</label>
+          </div>
+          <p class="ml-9 text-xs italic text-primary">[WF] NOT GIVEN đang bị gạch bỏ (chuột phải vào phương án).</p></div>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h2 class="font-bold">Questions 23–26</h2>
+        <p>Complete the summary below. Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
+        <div class="rounded-lg border p-4 font-serif text-[16px] leading-9">Glassmaking changed after the <span class="font-sans font-bold">23</span> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans" value="blowpipe" aria-label="Answer 23"> was invented. Glass in medieval churches was used in <span class="font-sans font-bold">24</span> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans" aria-label="Answer 24"> that told stories.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hide screen -->
+  <div data-state="hide" class="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-muted text-center">
+    <i data-lucide="eye-off" class="size-10 text-muted-foreground"></i>
+    <p class="font-semibold">Your screen is hidden. The timer is still running.</p>
+    <button class="btn btn-primary">Show screen</button>
+  </div>
+</main>
+
+<!-- Bottom navigation -->
+<footer class="shrink-0 border-t bg-white">
+  <div class="flex items-stretch">
+    <label class="hidden items-center gap-2 border-r px-4 text-sm sm:flex"><input type="checkbox" class="size-4 accent-primary">Review</label>
+    <nav aria-label="Question navigation" class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 py-2">
+      <button class="shrink-0 rounded-md px-3 py-2 text-sm hover:bg-muted"><strong>Part 1</strong> <span class="text-muted-foreground">13 of 13</span></button>
+      <div class="flex shrink-0 items-center gap-1 rounded-md bg-muted/70 px-2 py-1">
+        <span class="mr-1 text-sm font-bold">Part 2</span>
+        <script>
+          document.write(Array.from({length:13},(_,i)=>i+14).map(n=>{const done=[14,16,19,23].includes(n),cur=n===15,flag=n===17;return `<button class="relative inline-flex size-8 items-center justify-center rounded text-sm font-semibold ${cur?'bg-primary text-white':done?'bg-white text-foreground underline decoration-2 underline-offset-4':'bg-white text-muted-foreground'} ${flag?'ring-2 ring-warning':''}" aria-label="Question ${n}${done?', answered':''}${flag?', marked for review':''}"${cur?' aria-current="step"':''}>${n}${flag?'<span class="absolute -top-1 -right-1 size-2.5 rounded-full bg-warning"></span>':''}</button>`}).join(''))
+        </script>
+      </div>
+      <button class="shrink-0 rounded-md px-3 py-2 text-sm hover:bg-muted"><strong>Part 3</strong> <span class="text-muted-foreground">0 of 14</span></button>
+    </nav>
+    <div class="flex items-center gap-1 border-l px-2">
+      <button class="btn btn-secondary btn-icon" aria-label="Previous question"><i data-lucide="arrow-left" class="size-4"></i></button>
+      <button class="btn btn-secondary btn-icon" aria-label="Next question"><i data-lucide="arrow-right" class="size-4"></i></button>
+      <button class="btn btn-primary btn-icon" aria-label="Submit test"><i data-lucide="check" class="size-5"></i></button>
+    </div>
+  </div>
+</footer>
+
+<!-- Time warning toast (10 and 5 minutes) -->
+<div data-state="warn" role="alert" class="fixed left-1/2 top-16 z-40 flex -translate-x-1/2 items-center gap-2 rounded-lg border border-warning/40 bg-warning-soft px-4 py-2.5 text-sm font-semibold text-warning shadow-lg"><i data-lucide="alarm-clock" class="size-4"></i>10 minutes remaining</div>
+
+<!-- Settings -->
+<div data-state="settings" class="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4">
+  <div role="dialog" aria-modal="true" aria-labelledby="st" class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <div class="flex items-center"><h2 id="st" class="h2 flex-1">Settings</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Close"><i data-lucide="x" class="size-4"></i></button></div>
+    <fieldset class="mt-5"><legend class="label mb-2">Text size</legend><div class="grid grid-cols-3 gap-2"><button class="btn btn-secondary">Standard</button><button class="btn btn-secondary border-primary bg-secondary">Large</button><button class="btn btn-secondary">Extra large</button></div></fieldset>
+    <fieldset class="mt-5"><legend class="label mb-2">Colours</legend><div class="grid grid-cols-3 gap-2">
+      <button class="flex h-14 items-center justify-center rounded-lg border-2 border-primary bg-white text-sm font-semibold">Black on white</button>
+      <button class="flex h-14 items-center justify-center rounded-lg border bg-black text-sm font-semibold text-white">White on black</button>
+      <button class="flex h-14 items-center justify-center rounded-lg border bg-[#fef9c3] text-sm font-semibold">Black on cream</button>
+    </div></fieldset>
+  </div>
+</div>
+
+<!-- Help -->
+<div data-state="help" class="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4">
+  <div role="dialog" aria-modal="true" aria-labelledby="hp" class="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-2xl">
+    <div class="flex items-center"><h2 id="hp" class="h2 flex-1">Help</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Close"><i data-lucide="x" class="size-4"></i></button></div>
+    <ul class="mt-4 flex flex-col gap-3 text-sm">
+      <li><strong>Highlight / Notes:</strong> select text in the passage, right-click and choose an option.</li>
+      <li><strong>Cross out an option:</strong> right-click the option.</li>
+      <li><strong>Move between questions:</strong> click a number at the bottom, or use the arrows.</li>
+      <li><strong>Review:</strong> tick Review to flag the current question; flagged numbers have a dot.</li>
+      <li><strong>Panels:</strong> drag the bar between the passage and questions.</li>
+      <li><strong>Saving:</strong> answers save automatically. If you close the page, open it again to continue; the timer keeps running.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Submit confirmation -->
+<div data-state="submit" class="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4">
+  <div role="alertdialog" aria-modal="true" aria-labelledby="sb" class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <h2 id="sb" class="h2">Submit your answers?</h2>
+    <p class="mt-2 text-sm text-muted-foreground">You have answered <strong class="text-foreground">31 of 40</strong> questions. 9 are unanswered and 2 are marked for review. You cannot change your answers after submitting.</p>
+    <div class="mt-4 flex flex-wrap gap-1"><span class="badge">Unanswered: 15, 17, 18, 20, 21, 22, 24, 25, 26</span></div>
+    <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Go back</button><button class="btn btn-primary">Submit</button></div>
+  </div>
+</div>
+</body>
+</html>

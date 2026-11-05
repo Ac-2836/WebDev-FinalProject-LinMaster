@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design System</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body>
+<main class="page flex flex-col gap-10">
+  <header class="flex flex-col gap-2">
+    <a href="../index.html" class="hint w-fit hover:underline">← Mục lục wireframe</a>
+    <h1 class="h1">Design system</h1>
+    <p class="max-w-2xl text-muted-foreground">Bộ thành phần dùng chung cho mọi màn. Khi code, mỗi mục ở đây là một component shadcn trong <code>client/components/ui/</code>; màu lấy từ token trong <code>globals.css</code>, không viết mã màu trực tiếp.</p>
+  </header>
+
+  <!-- Logo -->
+  <section class="flex flex-col gap-4" aria-labelledby="lg">
+    <h2 id="lg" class="h2">Logo</h2>
+    <p class="max-w-3xl text-sm text-muted-foreground">Chữ <strong>L</strong> với chân là một <strong>nét bút dạ quang</strong> (bôi chọn một từ để học nó) và một <strong>tia sáng</strong> (AI giải thích). Nền gradient xanh → tím. File gốc: <code>assets/logo-mark.svg</code>, <code>assets/logo.svg</code>; favicon của app: <code>client/app/icon.svg</code>.</p>
+    <div class="grid gap-4 lg:grid-cols-3">
+      <div class="card flex min-h-48 flex-col items-center justify-center gap-3 p-6"><span data-logo="full" data-size="48"></span><p class="hint">Lockup ngang: navbar desktop, auth, footer</p></div>
+      <div class="glow-dark flex min-h-48 flex-col items-center justify-center gap-3 rounded-[20px] p-6"><span data-logo="full-light" data-size="48"></span><p class="text-[13px] text-white/70">Trên nền tối</p></div>
+      <div class="card flex min-h-48 items-end justify-center gap-6 p-6"><div class="flex flex-col items-center gap-2"><span data-logo="mark" data-size="72"></span><p class="hint">App icon</p></div><div class="flex flex-col items-center gap-2"><span data-logo="mark" data-size="32"></span><p class="hint">Mobile nav</p></div><div class="flex flex-col items-center gap-2"><span data-logo="mark" data-size="16"></span><p class="hint">Favicon</p></div></div>
+    </div>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="card p-5 text-sm"><p class="font-semibold">Dùng logo ở đâu</p><ul class="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground"><li>Mỗi màn chỉ <strong>một</strong> logo: góc trên trái. Không lặp chữ "LinMaster" trong nội dung.</li><li>Trong app, dưới 640px chỉ dùng biểu tượng (mark). Trang công khai giữ lockup để người mới nhận ra thương hiệu.</li><li>Phòng thi và chế độ học: không có logo, để người học tập trung.</li><li>Khoảng trống quanh logo tối thiểu bằng chiều cao tia sáng; cỡ nhỏ nhất 16px (mark), 24px (lockup).</li></ul></div>
+      <div class="card p-5 text-sm"><p class="font-semibold">Không được</p><ul class="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground"><li>Đổi màu gradient, đổi màu nét vàng, xoay hay kéo méo logo.</li><li>Đặt lockup màu navy lên nền tối (dùng bản sáng).</li><li>Thay chữ bằng font khác Be Vietnam Pro Bold.</li><li>Thêm bóng đổ hoặc viền quanh biểu tượng.</li></ul></div>
+    </div>
+  </section>
+
+  <!-- Màu -->
+  <section class="flex flex-col gap-4" aria-labelledby="c">
+    <h2 id="c" class="h2">Màu</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+      <script>
+        document.write([
+          ['primary', '#1a5cff', 'Nút chính, link, mục đang chọn'],
+          ['primary-strong', '#0b44d6', 'Hover của primary'],
+          ['foreground', '#0b2545', 'Chữ chính (navy), nút dark'],
+          ['muted-foreground', '#476788', 'Chữ phụ (đạt 4.5:1)'],
+          ['secondary', '#edf3ff', 'Nền mục đang chọn, tile icon'],
+          ['violet', '#6e4bff', 'Điểm nhấn gradient'],
+          ['brand-yellow', '#ffd25a', 'Màu bút dạ quang trong logo'],
+          ['background', '#f8f9fc', 'Nền trang trong app'],
+          ['card', '#ffffff', 'Card, hộp thoại, nền landing'],
+          ['muted', '#f1f4f9', 'Nền phụ, skeleton'],
+          ['border', '#e3e8f1', 'Viền'],
+          ['success', '#0f7b4a', 'Đúng, đã thuộc'],
+          ['warning', '#8a4b00', 'Cảnh báo, sắp hết giờ'],
+          ['destructive', '#c2261d', 'Sai, xóa, lỗi'],
+          ['mark', '#ffe7a0', 'Highlight, từ đã lưu'],
+        ].map(([n, h, u]) => `<div class="card overflow-hidden"><div class="h-14 border-b" style="background:${h}"></div><div class="p-2.5"><p class="text-sm font-semibold">${n}</p><p class="hint font-mono">${h}</p><p class="hint mt-1">${u}</p></div></div>`).join(''));
+      </script>
+    </div>
+  </section>
+
+  <!-- Chữ -->
+  <section class="flex flex-col gap-4" aria-labelledby="t">
+    <h2 id="t" class="h2">Chữ: Be Vietnam Pro</h2>
+    <div class="card flex flex-col gap-3 p-5">
+      <p class="eyebrow">Eyebrow 11 · Bold · chữ hoa giãn 16%</p>
+      <p class="display">Display 60/40 · SemiBold</p>
+      <p class="h1">Tiêu đề trang 34/28 · SemiBold · -3%</p>
+      <p class="h2">Tiêu đề mục 18 · SemiBold</p>
+      <p class="text-base">Nội dung 16 · Regular. Tiếng Việt có dấu hiển thị rõ: Học từ vựng ở đúng ngữ cảnh.</p>
+      <p class="text-sm">Chữ nhỏ 14, dùng trong bảng và nút.</p>
+      <p class="hint">Chú thích 13 · muted-foreground</p>
+      <p class="font-serif text-[17px] leading-8">Trình đọc và phòng thi dùng chữ serif 17/32 cho bài đọc dài: <mark>mitigate</mark> the effects of climate change.</p>
+    </div>
+  </section>
+
+  <!-- Nút -->
+  <section class="flex flex-col gap-4" aria-labelledby="b">
+    <h2 id="b" class="h2">Nút</h2>
+    <div class="card flex flex-col gap-4 p-5">
+      <div class="flex flex-wrap items-center gap-3">
+        <button class="btn btn-primary">Chính</button>
+        <button class="btn btn-dark">Dark</button>
+        <button class="btn btn-secondary">Phụ</button>
+        <button class="btn btn-ghost">Ẩn</button>
+        <button class="btn btn-danger">Xóa</button>
+        <button class="btn btn-primary" disabled>Vô hiệu</button>
+        <button class="btn btn-primary" aria-busy="true"><i data-lucide="loader-circle" class="size-4 animate-spin" aria-hidden="true"></i>Đang lưu…</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button class="btn btn-primary btn-lg">Lớn 48</button>
+        <button class="btn btn-primary">Vừa 40</button>
+        <button class="btn btn-secondary btn-sm">Nhỏ 32</button>
+        <button class="btn btn-secondary btn-icon" aria-label="Thêm"><i data-lucide="plus" class="size-4" aria-hidden="true"></i></button>
+        <button class="btn btn-secondary"><i data-lucide="upload" class="size-4" aria-hidden="true"></i>Có icon</button>
+      </div>
+      <p class="hint">Vùng bấm tối thiểu 40px (44px với thanh điều hướng mobile). Mọi nút chỉ có icon phải có <code>aria-label</code>.</p>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <section class="flex flex-col gap-4" aria-labelledby="f">
+    <h2 id="f" class="h2">Ô nhập</h2>
+    <div class="card grid gap-5 p-5 sm:grid-cols-2">
+      <label class="flex flex-col gap-1.5"><span class="label">Email</span><input class="input" placeholder="ban@example.com"></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Mật khẩu</span><input class="input border-destructive" type="password" value="123" aria-invalid="true" aria-describedby="pe"><span id="pe" class="flex items-center gap-1 text-[13px] text-destructive"><i data-lucide="circle-alert" class="size-3.5" aria-hidden="true"></i>Mật khẩu tối thiểu 8 ký tự</span></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Band mục tiêu</span><select class="input"><option>6.5</option><option>7.0</option></select><span class="hint">Không bắt buộc</span></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Tìm kiếm</span><span class="relative"><i data-lucide="search" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true"></i><input class="input pl-9" placeholder="Tìm từ, nghĩa…"></span></label>
+      <label class="flex flex-col gap-1.5 sm:col-span-2"><span class="label">Văn bản</span><textarea class="input min-h-24 py-2" placeholder="Dán đoạn văn tiếng Anh…"></textarea></label>
+      <div class="flex flex-wrap gap-4 sm:col-span-2">
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" checked class="size-4 accent-primary">Checkbox</label>
+        <label class="flex items-center gap-2 text-sm"><input type="radio" name="r" checked class="size-4 accent-primary">Radio</label>
+        <div class="inline-flex rounded-lg border bg-muted p-0.5 text-sm" role="tablist"><button role="tab" aria-selected="true" class="rounded-md bg-card px-3 py-1.5 font-semibold shadow-sm">Tab đang chọn</button><button role="tab" class="rounded-md px-3 py-1.5 text-muted-foreground">Tab khác</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Badge + card -->
+  <section class="flex flex-col gap-4" aria-labelledby="bd">
+    <h2 id="bd" class="h2">Badge và card</h2>
+    <div class="flex flex-wrap gap-2">
+      <span class="badge">Riêng tư</span><span class="badge badge-primary">B2</span><span class="badge badge-success">Đã thuộc</span><span class="badge badge-warning">Đang học</span><span class="badge badge-danger">Sai</span><span class="badge badge-primary"><i data-lucide="globe" class="size-3" aria-hidden="true"></i>Công khai</span>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <article class="card flex flex-col gap-3 p-5">
+        <div class="flex items-start justify-between"><span class="tile size-10 rounded-xl"><i data-lucide="layers" class="size-5" aria-hidden="true"></i></span><span class="badge">Riêng tư</span></div>
+        <div><h3 class="font-bold">IELTS Environment</h3><p class="hint">42 thẻ · 12 đến hạn</p></div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-muted"><div class="h-full w-3/5 bg-success"></div></div>
+      </article>
+      <article class="card flex flex-col gap-1 p-5"><p class="hint">Từ đã lưu</p><p class="text-3xl font-bold">248</p><p class="text-[13px] font-medium text-success">+18 tuần này</p></article>
+      <article class="card flex items-center gap-3 p-4"><div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning"><i data-lucide="flame" class="size-5" aria-hidden="true"></i></div><div><p class="font-bold">7 ngày liên tiếp</p><p class="hint">Kỷ lục 21 ngày</p></div></article>
+    </div>
+  </section>
+
+  <!-- Feedback -->
+  <section class="flex flex-col gap-4" aria-labelledby="fb">
+    <h2 id="fb" class="h2">Phản hồi: toast, thông báo, hộp thoại</h2>
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="flex flex-col gap-3">
+        <div role="status" class="card flex items-center gap-3 p-3 shadow-lg"><i data-lucide="circle-check" class="size-5 text-success" aria-hidden="true"></i><p class="flex-1 text-sm">Đã lưu "mitigate" vào kho từ</p><button class="btn btn-ghost btn-sm">Hoàn tác</button></div>
+        <div role="alert" class="card flex items-center gap-3 border-destructive/30 p-3 shadow-lg"><i data-lucide="circle-x" class="size-5 text-destructive" aria-hidden="true"></i><p class="flex-1 text-sm">Bạn đã dùng hết lượt AI hôm nay. Quay lại sau 0:00.</p></div>
+        <div class="flex gap-3 rounded-xl border border-warning/30 bg-warning-soft p-4 text-sm text-warning"><i data-lucide="triangle-alert" class="size-5 shrink-0" aria-hidden="true"></i><p><strong>Mất kết nối.</strong> Bài làm vẫn ở máy bạn và sẽ tự lưu khi có mạng lại.</p></div>
+        <p class="hint">Toast hiện góc dưới phải (desktop) hoặc trên thanh điều hướng (mobile), tự ẩn sau 5 giây, lỗi thì không tự ẩn.</p>
+      </div>
+      <div class="relative flex min-h-64 items-center justify-center rounded-xl bg-foreground/40 p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="dt" class="w-full max-w-sm rounded-2xl bg-card p-6 shadow-2xl">
+          <h3 id="dt" class="h2">Xóa bộ thẻ?</h3>
+          <p class="mt-2 text-sm text-muted-foreground">"IELTS Environment" và tiến độ học của 42 thẻ sẽ bị xóa. Không thể hoàn tác.</p>
+          <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Hủy</button><button class="btn btn-danger">Xóa bộ thẻ</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- States -->
+  <section class="flex flex-col gap-4" aria-labelledby="st">
+    <h2 id="st" class="h2">Trạng thái tải, trống, lỗi</h2>
+    <p class="hint -mt-2">Mọi trang dữ liệu phải có đủ ba trạng thái này (Working_rules, CLAUDE.md mục 5).</p>
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="card flex flex-col gap-3 p-5" aria-busy="true" aria-label="Đang tải">
+        <div class="skeleton h-5 w-2/3"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-5/6"></div><div class="skeleton mt-2 h-9 w-28"></div>
+      </div>
+      <div class="card flex flex-col items-center gap-3 p-6 text-center">
+        <span class="tile size-12 rounded-2xl"><i data-lucide="book-open-text" class="size-6" aria-hidden="true"></i></span>
+        <div><p class="font-bold">Chưa có tài liệu nào</p><p class="hint mt-1">Dán một bài báo tiếng Anh để bắt đầu học từ.</p></div>
+        <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="size-4" aria-hidden="true"></i>Tài liệu mới</button>
+      </div>
+      <div role="alert" class="card flex flex-col items-center gap-3 p-6 text-center">
+        <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="cloud-off" class="size-6" aria-hidden="true"></i></span>
+        <div><p class="font-bold">Không tải được dữ liệu</p><p class="hint mt-1">Kiểm tra mạng rồi thử lại.</p></div>
+        <button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4" aria-hidden="true"></i>Thử lại</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-2 pb-10" aria-labelledby="rule">
+    <h2 id="rule" class="h2">Quy tắc bố cục</h2>
+    <ul class="list-disc pl-5 text-sm leading-7 text-muted-foreground">
+      <li>Ngôn ngữ thiết kế: nền trắng thoáng, chữ navy, một màu xanh chủ đạo; khối minh họa đặt trên nền <span class="glow rounded px-1.5">glow</span> (xanh → tím → hồng dịu); card bo 20px, bóng mềm; nút dạng viên thuốc (pill); tiêu đề SemiBold, chữ khít; nhãn eyebrow nhỏ viết hoa phía trên tiêu đề.</li>
+      <li>Nội dung rộng tối đa 1152px (<code>max-w-6xl</code>), lề 16px ở mobile, 24px từ 640px.</li>
+      <li>Navbar ngang từ 1024px; dưới 1024px dùng thanh điều hướng dưới 5 mục (Trang chủ, Đọc, Flashcard, Thi thử, Thêm).</li>
+      <li>Phòng thi dùng layout riêng toàn màn hình, không có navbar (PLAN C0).</li>
+      <li>Bàn phím: mọi thao tác dùng được bằng Tab; vòng focus xanh 3px; có link "Bỏ qua tới nội dung".</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
