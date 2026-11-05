@@ -12,30 +12,37 @@
 <!--
   /attempts/[id]/result: GET /attempts/:id/result (owner only, 403 for others).
   "Mở bài đọc trong Trình đọc" creates a Document with source = exam and opens /read/[id].
-  (Nên có) "Giải thích" = POST /attempts/:id/questions/:no/explain.
+  "Giải thích": explanation from the test file comes with the result (state explain-file);
+  (Nên có) otherwise POST /attempts/:id/questions/:no/explain → explain-answer.v1 (state explain).
+  Listening transcript (Passage.paragraphs) comes with the result, never before submit (state transcript).
 -->
 <main id="main" class="page flex flex-col gap-6">
   <a href="tests.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thi thử</a>
 
   <div data-state="loading" class="flex flex-col gap-4" aria-busy="true" aria-label="Đang chấm"><div class="skeleton h-8 w-1/3"></div><div class="grid gap-4 sm:grid-cols-3"><div class="skeleton h-32"></div><div class="skeleton h-32"></div><div class="skeleton h-32"></div></div></div>
 
-  <header data-state="default explain" class="flex flex-col gap-1">
+  <header data-state="default explain explain-file transcript" class="flex flex-col gap-1">
     <h1 class="h1">Kết quả · Practice Test 3</h1>
     <p class="text-muted-foreground">Nộp lúc 22:41, 02/11/2026 · làm trong 1 giờ 48 phút</p>
   </header>
 
-  <section data-state="default explain" class="grid gap-4 sm:grid-cols-3">
+  <section data-state="default explain explain-file transcript" class="grid gap-4 sm:grid-cols-3">
     <div class="card flex flex-col items-center justify-center gap-1 bg-primary p-6 text-center text-white"><p class="text-sm font-semibold text-white/80">Band trung bình</p><p class="text-5xl font-bold">6.5</p><p class="text-sm text-white/80">Mục tiêu 7.0</p></div>
     <div class="card flex flex-col gap-2 p-5"><p class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><i data-lucide="headphones" class="size-4"></i>Listening</p><p class="text-3xl font-bold">6.5</p><p class="text-sm">28/40 câu đúng</p><div class="h-2 overflow-hidden rounded-full bg-muted"><div class="h-full w-[70%] bg-success"></div></div></div>
     <div class="card flex flex-col gap-2 p-5"><p class="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><i data-lucide="book-open" class="size-4"></i>Reading</p><p class="text-3xl font-bold">7.0</p><p class="text-sm">31/40 câu đúng</p><div class="h-2 overflow-hidden rounded-full bg-muted"><div class="h-full w-[77%] bg-success"></div></div></div>
   </section>
 
-  <section data-state="default explain" class="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+  <section data-state="default explain explain-file transcript" class="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
     <div class="flex-1"><p class="font-bold">Học từ ngay trong bài vừa thi</p><p class="text-sm text-muted-foreground">Mở passage trong Trình đọc để tra và lưu những từ bạn chưa hiểu.</p></div>
     <div class="flex flex-wrap gap-2"><a href="../03-vocab/reader.html" class="btn btn-primary btn-sm"><i data-lucide="book-open-text" class="size-4"></i>Passage 1</a><a href="../03-vocab/reader.html" class="btn btn-secondary btn-sm">Passage 2</a><a href="../03-vocab/reader.html" class="btn btn-secondary btn-sm">Passage 3</a></div>
   </section>
 
-  <section data-state="default explain" aria-labelledby="qs" class="flex flex-col gap-3">
+  <section data-state="default explain explain-file transcript" class="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+    <div class="flex-1"><p class="font-bold">Transcript Listening</p><p class="text-sm text-muted-foreground">Lời thoại của từng Part, có trong bộ file đề bạn tải lên.</p></div>
+    <div class="flex flex-wrap gap-2"><a href="?state=transcript" class="btn btn-secondary btn-sm"><i data-lucide="file-audio" class="size-4"></i>Part 1</a><a href="?state=transcript" class="btn btn-secondary btn-sm">Part 2</a><a href="?state=transcript" class="btn btn-secondary btn-sm">Part 3</a><a href="?state=transcript" class="btn btn-secondary btn-sm">Part 4</a></div>
+  </section>
+
+  <section data-state="default explain explain-file transcript" aria-labelledby="qs" class="flex flex-col gap-3">
     <div class="flex flex-wrap items-center gap-3">
       <h2 id="qs" class="h2 flex-1">Từng câu</h2>
       <div class="inline-flex rounded-lg border bg-muted p-0.5 text-sm" role="tablist"><button role="tab" class="rounded-md px-3 py-1.5 text-muted-foreground">Listening</button><button role="tab" aria-selected="true" class="rounded-md bg-card px-3 py-1.5 font-semibold shadow-sm">Reading</button></div>
@@ -51,7 +58,7 @@
     </div>
   </section>
 
-  <section data-state="default explain" class="card flex flex-col gap-3 p-5">
+  <section data-state="default explain explain-file transcript" class="card flex flex-col gap-3 p-5">
     <h2 class="h2">Theo dạng câu</h2>
     <ul class="flex flex-col gap-3 text-sm">
       <script>document.write([['Hoàn thành tóm tắt / ghi chú',90],['Trắc nghiệm',80],['Thông tin ở đoạn nào',60],['True / False / Not Given',55]].map(([k,p])=>`<li class="grid grid-cols-[1fr_auto] gap-1 sm:grid-cols-[220px_1fr_48px] sm:items-center sm:gap-3"><span>${k}</span><span class="font-semibold sm:order-last">${p}%</span><span class="col-span-2 h-2 overflow-hidden rounded-full bg-muted sm:col-span-1"><span class="block h-full ${p<60?'bg-destructive':p<75?'bg-warning':'bg-success'}" style="width:${p}%"></span></span></li>`).join(''))</script>
@@ -59,7 +66,34 @@
   </section>
 </main>
 
-<!-- (Nên có) AI explanation drawer -->
+<!-- Explanation from the test file (MVP) -->
+<div data-state="explain-file" class="fixed inset-0 z-40 flex justify-end bg-foreground/30">
+  <aside role="dialog" aria-modal="true" aria-labelledby="exf" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
+    <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="exf" class="h2 flex-1">Câu 17 · Giải thích</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
+    <div class="flex flex-col gap-4 overflow-y-auto p-5 text-sm">
+      <p class="rounded-lg bg-muted p-3"><strong>17.</strong> Which paragraph mentions an early method of shaping glass?</p>
+      <p>Bạn chọn <strong class="text-destructive">B</strong> · đáp án <strong class="text-success">D</strong></p>
+      <p>Đoạn D mô tả cách thợ thủ công quấn thủy tinh nóng chảy quanh lõi đất sét. Đoạn B chỉ nói về việc buôn bán sản phẩm thủy tinh.</p>
+      <p class="hint flex items-center gap-1"><i data-lucide="file-check" class="size-3.5"></i>Từ file đề bạn tải lên.</p>
+    </div>
+  </aside>
+</div>
+
+<!-- Listening transcript -->
+<div data-state="transcript" class="fixed inset-0 z-40 flex justify-end bg-foreground/30">
+  <aside role="dialog" aria-modal="true" aria-labelledby="tr" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
+    <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="tr" class="h2 flex-1">Transcript · Part 1</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
+    <div class="flex flex-col gap-3 overflow-y-auto p-5 text-sm leading-relaxed">
+      <p class="hint">Câu 1–10 · bắt đầu ở 00:00 trong audio</p>
+      <p><strong>RECEPTIONIST:</strong> Good morning, Riverside Sports Centre. How can I help you?</p>
+      <p><strong>CALLER:</strong> Hi, I'd like to ask about the swimming classes for adults.</p>
+      <p><strong>RECEPTIONIST:</strong> Of course. We run them on <mark class="rounded bg-brand-yellow/60 px-0.5">Tuesday</mark> and Thursday evenings…</p>
+      <p class="hint">Chỗ tô vàng là nơi có đáp án của câu bạn làm sai.</p>
+    </div>
+  </aside>
+</div>
+
+<!-- (Nên có) AI explanation drawer: explain-answer.v1, only when the test file has no explanation -->
 <div data-state="explain" class="fixed inset-0 z-40 flex justify-end bg-foreground/30">
   <aside role="dialog" aria-modal="true" aria-labelledby="ex" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
     <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="ex" class="h2 flex-1">Câu 20 · Giải thích</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>

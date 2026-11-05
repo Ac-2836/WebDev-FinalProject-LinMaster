@@ -39,7 +39,7 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [uc-04-exam](02_UseCase/uc-04-exam.png) | Phân rã: thi thử |
 | [uc-05-library](02_UseCase/uc-05-library.png) | Phân rã: kho cộng đồng |
 | [uc-06-stats-home](02_UseCase/uc-06-stats-home.png) | Phân rã: dashboard và trang chủ |
-| [use-case-specs.md](02_UseCase/use-case-specs.md) | Đặc tả các use case chính |
+| [use-case-specs.md](02_UseCase/use-case-specs.md) | Đặc tả mọi use case (UC01–UC51) |
 
 ### 03 — Activity (P0-06, P0-07)
 | Sơ đồ | Nội dung |
@@ -52,6 +52,7 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [act-06-lam-bai-thi](03_Activity/act-06-lam-bai-thi.png) | Làm bài thi CBT, tự lưu, nộp bài |
 | [act-07-dang-len-kho](03_Activity/act-07-dang-len-kho.png) | Đăng lên / gỡ khỏi kho |
 | [act-08-dung-kho](03_Activity/act-08-dung-kho.png) | Tìm, xem trước, chép, làm đề, báo cáo |
+| [act-09-luyen-tap-ai](03_Activity/act-09-luyen-tap-ai.png) | (Nên có) Luyện tập do AI sinh từ bộ thẻ |
 
 ### 04 — Sequence (P0-08, P0-09)
 | Sơ đồ | Nội dung |
@@ -65,6 +66,8 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | [seq-07-mo-bai-doc-tu-ket-qua](04_Sequence/seq-07-mo-bai-doc-tu-ket-qua.png) | Mở passage của bài thi trong Trình đọc |
 | [seq-08-hoc-the](04_Sequence/seq-08-hoc-the.png) | Học thẻ SM-2 |
 | [seq-09-chep-bo-the](04_Sequence/seq-09-chep-bo-the.png) | Chép bộ thẻ từ kho |
+| [seq-10-luyen-tap-ai](04_Sequence/seq-10-luyen-tap-ai.png) | (Nên có) Sinh bài luyện tập qua AI gateway |
+| [seq-11-giai-thich-dap-an](04_Sequence/seq-11-giai-thich-dap-an.png) | Giải thích đáp án: từ file đề, hoặc do AI tạo (Nên có) |
 
 ### 05 — State (P0-10)
 | Sơ đồ | Nội dung |

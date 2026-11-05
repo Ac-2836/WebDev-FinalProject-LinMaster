@@ -73,6 +73,14 @@ package "client/flashcard" {
 ModuleRegistry o-- "*" ModuleDefinition
 ModuleDefinition o-- "*" AiTask
 AiGateway ..> AiTask : chạy
+note right of AiTask
+  Các task đăng ký (PLAN A5):
+  vocab: explain-word.v1, scan-document.v1
+  exam: classify-pages.v1, parse-test.v1,
+  parse-answers.v1, parse-audio.v1 (Nên có),
+  explain-answer.v1 (Nên có)
+  flashcard: generate-exercise.v1 (Nên có)
+end note
 StorageDriver <|.. LocalStorageDriver
 StorageDriver <|.. R2StorageDriver
 Certification *-- "1..*" SectionSpec

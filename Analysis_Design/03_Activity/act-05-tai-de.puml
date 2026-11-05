@@ -3,17 +3,42 @@
 title Activity — Tải đề lên (UC30)
 |Người học|
 start
-:Chọn loại đề: Reading / Listening / Full;
-:Kéo thả PDF đề, PDF đáp án
-(+ audio với Listening / Full);
-|Hệ thống|
-if (Đủ file, đúng định dạng,
-đúng dung lượng?) then (không)
-  :Báo lỗi ngay trên form;
-  stop
+if (Chọn tab?) then (AI nhận diện)
+  repeat
+    :Thả thêm file (PDF, audio)
+    hoặc bỏ một file;
+    |Hệ thống|
+    :Lưu file (StoredFile);
+    |Gemini AI|
+    :classify-pages.v1: gắn nhãn từng trang
+    (đề, câu hỏi, đáp án, giải thích,
+    transcript, không liên quan)
+    + kỹ năng + khoảng số câu;
+    |Hệ thống|
+    :Audio: đọc độ dài.
+    File không nhận ra: đánh dấu Không dùng;
+    :Tính lại bảng Độ đầy đủ
+    (buildChecklist, không lưu DB);
+    |Người học|
+    :Xem bảng Độ đầy đủ;
+  repeat while (Còn thiếu thành phần bắt buộc?) is (có)
+  ->không;
+  :Kiểm tra loại đề tự nhận ra, bấm Tạo đề;
+else (Theo mẫu)
+  :Chọn loại đề: Reading / Listening / Full;
+  :Đặt file vào từng ô: đề, đáp án, audio
+  (+ transcript, giải thích nếu có);
+  |Hệ thống|
+  if (Đủ ô bắt buộc, đúng định dạng,
+  đúng dung lượng?) then (không)
+    :Báo lỗi ngay trên form;
+    stop
+  endif
+  :Lưu file, gắn nhãn trang;
 endif
-:Lưu file (StoredFile);
-:Tạo TestImport = queued, trả importId;
+|Hệ thống|
+:Gộp các PDF thành một PDF;
+:TestImport = queued, trả importId;
 fork
   |Người học|
   :Xem tiến độ xử lý
@@ -22,27 +47,33 @@ fork again
   |Hệ thống|
   :TestImport = parsing;
   |Gemini AI|
-  :Nhận diện PDF đề → section, passage,
-  nhóm câu, dạng câu, phương án;
-  :Đọc PDF đáp án → đáp án theo số câu,
+  :parse-test.v1 (trang đề, câu hỏi) → section,
+  passage, nhóm câu, dạng câu, phương án;
+  :parse-answers.v1 (trang đáp án, giải thích)
+  → đáp án và giải thích theo số câu,
   tự nhận ra phần Listening / Reading;
   |Hệ thống|
+  :Lấy transcript theo Part (nếu có)
+vào Passage.paragraphs;
   :TestImport = validating;
-  :Ghép đáp án vào câu hỏi;
+  :Ghép đáp án và giải thích
+vào Question.answer;
   :Kiểm tra: số câu từng phần theo chứng chỉ,
   đánh số liên tục, đủ đáp án,
   đáp án hợp lệ với dạng câu, audio đọc được;
-  if (Đạt?) then (có)
+  if (Có lỗi chặn?) then (không)
     :Ghi Test (riêng tư) và các bảng con;
-    :TestImport = done;
-  else (không)
+    :TestImport = done, ghi cảnh báo
+    vào errors (severity = warning);
+  else (có)
     :TestImport = failed,
     lưu danh sách lỗi theo từng câu;
   endif
 end fork
 |Người học|
 if (Kết quả?) then (done)
-  :Đề xuất hiện trong "Đề của tôi";
+  :Đề xuất hiện trong "Đề của tôi"
+  (kèm cảnh báo nếu có);
 else (failed)
   :Xem lỗi theo câu, sửa file, tải lại;
 endif

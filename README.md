@@ -21,7 +21,7 @@ Các nền tảng hiện có thường chỉ giải quyết một trong hai vấ
 |---|---|
 | **Trình đọc & kho từ** | Dán văn bản hoặc tải PDF/DOCX/TXT để đọc. Bôi chọn từ → AI giải thích theo đúng câu đó (nghĩa Anh–Việt, IPA, cách dùng, collocations) → lưu vào kho từ kèm câu gốc. Lọc nhanh từ theo CEFR / chủ đề |
 | **Flashcard** | Tạo và sửa bộ thẻ kiểu Quizlet, tạo bộ thẻ từ kho từ. Học bằng thẻ lật và lặp lại ngắt quãng SM-2 |
-| **Phòng thi CBT** | Tải đề lên (PDF đề + PDF đáp án, thêm audio với Listening), AI tự nhận diện đề và đáp án. Làm bài trên giao diện bám sát thi máy IELTS, chấm điểm, quy ra band |
+| **Phòng thi CBT** | Tải đề lên theo hai cách: **Theo mẫu** (mỗi ô một file) hoặc **AI nhận diện** (thả file tùy ý, AI tự tìm đề, câu hỏi, đáp án, giải thích, transcript và báo phần còn thiếu). Làm bài trên giao diện bám sát thi máy IELTS, chấm điểm, quy ra band |
 | **Kho cộng đồng** | Đăng bộ thẻ và đề lên kho chung, tìm kiếm, xem trước, chép bộ thẻ, làm đề, báo cáo vi phạm |
 | **Dashboard** | Trang cá nhân kiểu hồ sơ GitHub: lịch hoạt động, chuỗi ngày học, số liệu, điểm yếu theo dạng câu |
 

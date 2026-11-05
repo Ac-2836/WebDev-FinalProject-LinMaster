@@ -199,7 +199,7 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | source | varchar(300) |  | Nguồn đề (bắt buộc trước khi đăng lên kho) |
 | visibility | Visibility | ✓ | |
 | publishedAt | timestamptz |  | |
-| attemptCount | int | ✓ | Số lượt làm bởi người khác |
+| attemptCount | int | ✓ | Số lượt làm bởi người khác. Lớn hơn 0 thì đề **không xóa được**, chỉ gỡ khỏi kho, vì `Attempt` xóa theo `Test` (`CASCADE`) |
 | createdAt, updatedAt | timestamptz | ✓ | |
 
 ### TestSection — kỹ năng trong đề
@@ -219,7 +219,7 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | sectionId | uuid | ✓ | FK → TestSection, `ON DELETE CASCADE` |
 | position | int | ✓ | |
 | title | varchar(200) | ✓ | |
-| paragraphs | jsonb |  | Reading: `[{ label: 'A', text }]`. Listening: null |
+| paragraphs | jsonb |  | Reading: `[{ label: 'A', text }]`. Listening: transcript của Part dạng `[{ text }]` nếu bộ file có, không thì null. **Transcript Listening không gửi cho thí sinh trước khi nộp bài** |
 | audioStartSec | int |  | Listening: mốc bắt đầu part trong audio |
 
 ### QuestionGroup — nhóm câu
@@ -243,7 +243,7 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | number | int | ✓ | Số câu trong kỹ năng (1–40) |
 | prompt | text | ✓ | Có chỗ trống ký hiệu `{{blank}}` với completion |
 | options | jsonb |  | Phương án riêng của câu (trắc nghiệm) |
-| answer | jsonb | ✓ | Đáp án đúng; schema theo dạng câu, ví dụ `{ accepted: ['library', 'the library'] }`. **Không bao giờ gửi cho thí sinh trước khi nộp bài** |
+| answer | jsonb | ✓ | Đáp án đúng; schema theo dạng câu, ví dụ `{ accepted: ['library', 'the library'], explanation?: '…' }`. `explanation` là giải thích trích từ file đề (nếu có). **Không bao giờ gửi cho thí sinh trước khi nộp bài** |
 
 ### TestImport — lượt tải đề
 | Cột | Kiểu | Bắt buộc | Ghi chú |
@@ -252,9 +252,9 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | ownerId | uuid | ✓ | FK → User |
 | kind | TestKind | ✓ | |
 | status | ImportStatus | ✓ | Xem sơ đồ state `st-02` |
-| questionFileId, answerFileId | uuid | ✓ | FK → StoredFile |
+| questionFileId, answerFileId | uuid | ✓ | FK → StoredFile. Có thể là cùng một file. Khi bộ file có nhiều PDF, server gộp chúng thành một PDF và gán vào cả hai cột (PLAN C4) |
 | audioFileId | uuid |  | FK → StoredFile, bắt buộc với `listening` / `full` |
-| errors | jsonb |  | `[{ section?, questionNo?, code, message }]` |
+| errors | jsonb |  | `[{ severity: 'error' \| 'warning', section?, questionNo?, code, message }]`. Chỉ có `warning` (ví dụ thiếu giải thích, thiếu transcript) thì vẫn `done` |
 | testId | uuid |  | FK → Test, có khi `status = done` |
 | createdAt | timestamptz | ✓ | |
 | finishedAt | timestamptz |  | |

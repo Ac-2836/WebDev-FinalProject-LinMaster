@@ -18,13 +18,13 @@
     <span data-state="failed" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-x" class="size-6"></i></span>
     <div>
       <h1 class="h1"><span data-state="parsing">Đang nhận diện đề…</span><span data-state="done">Đề đã sẵn sàng</span><span data-state="failed">Chưa tạo được đề</span></h1>
-      <p class="mt-1 text-muted-foreground">practice-test-4.pdf + answers-test-4.pdf + audio · Full</p>
+      <p class="mt-1 text-muted-foreground">3 file (practice-test-4.pdf, answers-test-4.pdf, audio) · Full · tab AI nhận diện</p>
     </div>
   </header>
 
   <ol class="card flex flex-col p-5" aria-label="Các bước">
     <script>
-      const steps = [['Tải file lên','Đã lưu 3 file'],['AI đọc đề','Tách 2 phần, 7 đoạn, 18 nhóm câu'],['AI đọc đáp án','Ghép 80 đáp án vào đúng phần'],['Kiểm tra','Đủ câu, đáp án hợp lệ, đọc được audio']];
+      const steps = [['Gắn nhãn trang','3 file, 38 trang: đề, đáp án, giải thích, transcript'],['AI đọc đề','Tách 2 phần, 7 đoạn, 18 nhóm câu'],['AI đọc đáp án và giải thích','Ghép 80 đáp án và 80 giải thích vào đúng phần'],['Kiểm tra','Đủ câu, đáp án hợp lệ, đọc được audio']];
       const at = {parsing: 1, done: 4, failed: 3};
       document.write(Object.entries(at).map(([st, cur]) => `<div data-state="${st}" class="flex flex-col">${steps.map(([t, d], i) => {
         const ok = i < cur, now = i === cur && st === 'parsing', bad = st === 'failed' && i === cur;
@@ -37,6 +37,7 @@
 
   <section data-state="done" class="card flex flex-col gap-4 p-5">
     <div class="grid grid-cols-3 gap-3 text-center"><div><p class="text-2xl font-bold">80</p><p class="hint">câu hỏi</p></div><div><p class="text-2xl font-bold">7</p><p class="hint">dạng câu</p></div><div><p class="text-2xl font-bold">2:32</p><p class="hint">giờ làm bài</p></div></div>
+    <div class="flex items-start gap-2 rounded-lg bg-warning-soft p-3 text-sm"><i data-lucide="triangle-alert" class="mt-0.5 size-4 shrink-0 text-warning"></i><p><b>1 cảnh báo, đề vẫn dùng được:</b> không có transcript cho Listening Part 3–4.</p></div>
     <label class="flex flex-col gap-1.5"><span class="label">Tiêu đề</span><input class="input" value="Practice Test 4"></label>
     <div class="flex flex-col gap-2 sm:flex-row"><a href="test-intro.html" class="btn btn-primary">Làm bài ngay</a><a href="tests.html" class="btn btn-secondary">Về danh sách đề</a></div>
   </section>

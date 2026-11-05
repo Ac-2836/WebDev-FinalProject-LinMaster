@@ -1,0 +1,42 @@
+@startuml seq-11-giai-thich-dap-an
+!include ../_style.iuml
+title Sequence — Xem giải thích đáp án trên trang kết quả (UC36)
+autonumber
+actor "Người học" as U
+participant "Trang kết quả\n(Client)" as C
+participant "Exam route\n(/attempts)" as R
+participant "AttemptService" as S
+participant "AI gateway\n(core)" as G
+database "PostgreSQL" as DB
+participant "Gemini API" as AI
+U -> C : Bấm "Giải thích" ở câu n
+alt Câu có giải thích từ file đề\n(có trong GET /attempts/:id/result)
+  C --> U : Ngăn bên: giải thích, nhãn "Từ file đề"
+else Chưa có giải thích (Nên có)
+  C -> R : POST /api/v1/attempts/:id/questions/:no/explain + JWT
+  R -> S : explain(userId, attemptId, no)
+  S -> DB : Attempt của người học và đã nộp?
+  alt Chưa nộp / của người khác
+    R --> C : 403
+  else Hợp lệ
+    S -> DB : Lấy câu hỏi, đáp án đúng, đáp án đã chọn,\npassage (Reading) hoặc transcript (Listening)
+    S -> G : runJsonTask("explain-answer.v1", input)
+    G -> DB : Kiểm tra quota, tra AiCache\n(câu hỏi + đáp án đã chọn)
+    alt Hết quota
+      R --> C : 429 AI_QUOTA_EXCEEDED { retryAt }
+    else Không có cache
+      G -> AI : generateContent(prompt v1, responseSchema)
+      AI --> G : { explanation, evidence[] }
+      G -> DB : INSERT AiCache, AiUsage
+    end
+    G --> S : explanation + evidence[]
+    S -> S : Giữ bằng chứng có thật trong bài,\nbỏ câu trích không tìm thấy
+    R --> C : 200 { explanation, evidence[], source: "ai" }
+    C --> U : Ngăn bên: giải thích, bằng chứng tô sáng,\nnhãn "Do AI tạo, có thể chưa chính xác"
+  end
+end
+note over S, DB
+  AI không đổi điểm hay đáp án.
+  Điểm chỉ dựa trên đáp án trong DB.
+end note
+@enduml

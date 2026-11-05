@@ -46,7 +46,7 @@ Chỗ ghi **[CẦN CHỐT]** là quyết định nhóm còn phải đưa ra.
 | **core** | Giao diện **song ngữ Việt / Anh**, AI gateway, lưu file, Swagger, xử lý lỗi chuẩn |
 | **vocab** | **Trình đọc**: dán văn bản hoặc tải PDF/DOCX/TXT để đọc trên web. Bôi chọn một từ hoặc cụm từ → AI giải thích **theo đúng câu đó** (nghĩa Anh–Việt, IPA, cách dùng, collocations) → lưu vào kho từ, kèm câu gốc. **Lọc nhanh**: AI quét cả văn bản để lọc từ theo trình độ CEFR và/hoặc chủ đề. **Kho từ**: tìm kiếm, lọc, xóa, tạo bộ thẻ từ các từ đã chọn |
 | **flashcard** | Tạo và **sửa** bộ thẻ kiểu Quizlet (thêm, xóa, đổi thứ tự thẻ). Tạo bộ thẻ từ kho từ. Hai chế độ học: **Thẻ lật** và **Học** (lặp lại ngắt quãng SM-2) |
-| **exam** | **Tải đề lên** (Reading, Listening hoặc Full) dưới dạng PDF đề + PDF đáp án (+ audio). AI tự nhận diện đề và đáp án, hệ thống kiểm tra rồi tạo đề thi riêng tư. **Phòng thi CBT** bám sát giao diện thi máy IELTS tại điểm thi chính thức. Chấm điểm, quy ra band, trang kết quả |
+| **exam** | **Tải đề lên** (Reading, Listening hoặc Full) theo hai cách: **Theo mẫu** (mỗi ô một file) hoặc **AI nhận diện** (thả file tùy ý, AI tự tìm đề, câu hỏi, đáp án, giải thích, transcript và báo thành phần còn thiếu). Hệ thống kiểm tra rồi tạo đề thi riêng tư. **Phòng thi CBT** bám sát giao diện thi máy IELTS tại điểm thi chính thức. Chấm điểm, quy ra band, trang kết quả |
 | **library** | Kho cộng đồng cho **bộ thẻ** và **đề thi**. Chủ sở hữu tự đăng lên hoặc gỡ xuống. Người khác tìm kiếm, xem trước, chép bộ thẻ về thư viện của mình, làm đề, báo cáo vi phạm |
 | **stats** | **Dashboard cá nhân** kiểu trang hồ sơ GitHub: lịch hoạt động, chuỗi ngày học, thẻ số liệu, biểu đồ, điểm yếu theo dạng câu |
 | **home** | Trang chủ sau khi đăng nhập: tiếp tục bài dở, thẻ đến hạn, tài liệu gần đây |
@@ -56,6 +56,7 @@ Chỗ ghi **[CẦN CHỐT]** là quyết định nhóm còn phải đưa ra.
 - Flashcard: **AI sinh bài luyện tập** theo dạng câu thi thật (trắc nghiệm, điền chỗ trống, nối) từ các từ trong bộ thẻ.
 - Exam: **AI giải thích đáp án** và chỉ ra bằng chứng trong bài khi người dùng bấm xem.
 - Exam: dạng câu điền nhãn bản đồ / sơ đồ (cần cắt ảnh từ PDF).
+- Exam: khi tải đề không có transcript thì AI nghe audio để tự tạo transcript và mốc từng Part (P3-18).
 
 ### Mở rộng (chỉ làm khi vượt tiến độ; nếu không, ghi vào mục "Hướng phát triển" của report)
 - **Extension trình duyệt** để tra từ trên mọi trang web. API tra từ đã thiết kế sẵn cho việc này (C2).
@@ -107,9 +108,17 @@ Ngày hôm nay là T3 03/11/2026. Hạn nộp là CN 22/11/2026.
 
 ## A5. Việc dùng AI trong dự án
 
-- **Trong sản phẩm:** Gemini dùng để giải thích từ theo ngữ cảnh, lọc từ, tách đề và đáp án từ PDF, và sinh bài luyện tập. Mọi lệnh gọi đi qua AI gateway (C0), có cache và quota.
+- **Trong sản phẩm:** Gemini dùng cho 8 task, mỗi task một tên có phiên bản:
+  - `explain-word.v1`: giải thích từ theo ngữ cảnh (C2).
+  - `scan-document.v1`: lọc từ theo CEFR / chủ đề (C2).
+  - `classify-pages.v1`: gắn nhãn từng trang của file đề (C4).
+  - `parse-test.v1`, `parse-answers.v1`: tách cấu trúc đề, đáp án và giải thích có sẵn trong file (C4).
+  - *(Nên có)* `parse-audio.v1`: tạo transcript từ audio khi bộ file không có (C4, P3-18).
+  - *(Nên có)* `generate-exercise.v1`: sinh bài luyện tập từ bộ thẻ (C3, P4-11).
+  - *(Nên có)* `explain-answer.v1`: giải thích đáp án khi file đề không kèm giải thích (C4, P4-12).
+  - Mọi lệnh gọi đi qua AI gateway (C0), có cache và quota.
 - **Trong quá trình làm:** nhóm dùng AI Agent (Claude Code) để hỗ trợ viết code, test và tài liệu, theo luật [Working_rules.md](Working_rules.md) mục 3. Người phụ trách đọc hiểu và chịu trách nhiệm cho mọi PR. Report có mục riêng nói về việc này.
-- **Nội dung đề thi do người cung cấp.** AI chỉ chuyển PDF thành cấu trúc, **không** sinh nội dung đề hay đáp án.
+- **Nội dung đề thi do người cung cấp.** AI chỉ chuyển file (PDF, audio) thành cấu trúc, **không** sinh nội dung đề hay đáp án. Giải thích do AI tạo (`explain-answer.v1`) luôn ghi rõ "Do AI tạo".
 
 ---
 
@@ -174,7 +183,7 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 
 - Sơ đồ viết bằng **PlantUML** (file `.puml`) trong thư mục `Analysis_Design/` ở gốc repo, review trong PR như code. Mỗi sơ đồ xuất thành một ảnh PNG độ phân giải cao (`bash Analysis_Design/render.sh`) đặt cạnh file nguồn, dùng cho report; không vẽ hay sửa ảnh bằng tay.
 - Sơ đồ thể hiện **thiết kế đã duyệt**. PR nào làm code khác đi so với thiết kế thì phải cập nhật sơ đồ liên quan ngay trong PR đó. Ở P5-07, ERD được sinh lại từ Prisma để đối chiếu.
-- **Đặc tả use case** dùng mẫu: Tên · Actor · Tiền điều kiện · Luồng chính · Luồng thay thế / lỗi · Hậu điều kiện. Chỉ đặc tả các use case chính của vòng học, không đặc tả các thao tác CRUD đơn giản.
+- **Đặc tả use case** dùng mẫu: Tên · Actor · Tiền điều kiện · Luồng chính · Luồng thay thế / lỗi · Hậu điều kiện. Đặc tả đủ mọi use case có trong sơ đồ; use case Nên có ghi rõ.
 
 | Loại sơ đồ | Nội dung | Issue |
 |---|---|---|
@@ -184,8 +193,10 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 | ERD + từ điển dữ liệu | Mọi bảng, khóa, quan hệ, ràng buộc duy nhất; mỗi bảng thuộc module nào | P0-05 |
 | Activity | Đọc → tra → lưu từ; Tạo / sửa bộ thẻ và học | P0-06 |
 | | Tải đề; Làm bài thi (tự lưu, hết giờ, nộp); Đăng lên và chép từ kho | P0-07 |
+| | *(Nên có)* Luyện tập do AI sinh từ bộ thẻ (`act-09`) | P4-11 |
 | Sequence | Tra từ và Lọc nhanh qua AI gateway | P0-08 |
 | | Đăng nhập; Tải đề (job nền); Làm bài, tự lưu, nộp; Chép bộ thẻ | P0-09 |
+| | Giải thích đáp án (`seq-11`); *(Nên có)* sinh bài luyện tập (`seq-10`) | P4-11, P4-12 |
 | State | `Attempt`; `TestImport`; trạng thái công khai của nội dung; tiến độ thẻ | P0-10 |
 | Component, Deployment, Class | Kiến trúc module và các registry; triển khai ở local và online | P0-11 |
 | Wireframe | Trình đọc, trình soạn thẻ, chế độ học, phòng thi, kết quả, dashboard | P0-12 |
@@ -286,7 +297,7 @@ Bám theo mô hình Quizlet.
 | `POST /flashcards/reviews` | Chấm một thẻ (Again / Hard / Good / Easy), cập nhật SM-2 |
 | `POST /flashcards/sessions`, `PATCH /flashcards/sessions/:id` | Bắt đầu và kết thúc phiên học |
 | *(Nên có)* `GET /flashcards/sets/:id/quiz` | Sinh câu hỏi Kiểm tra từ chính bộ thẻ (trắc nghiệm, tự gõ, đúng/sai) |
-| *(Nên có)* `POST /flashcards/sets/:id/exercises` | Task AI `generate-exercise.v1`: bài luyện tập theo dạng câu thi |
+| *(Nên có)* `POST /flashcards/sets/:id/exercises` | Task AI `generate-exercise.v1`: bài luyện tập theo dạng câu thi. Đầu vào: `{ kinds: ('single_choice' \| 'completion' \| 'matching')[], count: 10 \| 20 }`. Trả về câu hỏi kèm đáp án để chấm ngay ở client. Không lưu DB, chỉ cache theo bộ thẻ + tham số |
 
 **Giao diện:**
 - `/flashcards`: các bộ thẻ của tôi.
@@ -295,7 +306,9 @@ Bám theo mô hình Quizlet.
 - `/flashcards/[id]/study/[mode]`:
   - **Thẻ lật**: lật 3D, phím cách để lật, phím mũi tên để chuyển thẻ.
   - **Học**: 4 nút chấm, phím 1–4, thanh tiến độ, tổng kết cuối phiên.
-  - *(Nên có)* **Kiểm tra** và **Ghép thẻ**.
+  - *(Nên có)* **Kiểm tra** và **Ghép thẻ** (bộ thẻ cần ít nhất 4 thẻ để có phương án nhiễu).
+  - *(Nên có)* **Luyện tập AI** (`/flashcards/[id]/study/exercise`, bộ thẻ cần ít nhất 4 thẻ): chọn dạng câu và số câu → AI soạn câu hỏi chỉ dùng các từ trong bộ thẻ → làm bài, chấm ngay, xem đáp án.
+    - Server kiểm tra từng câu: đúng schema dạng câu, đáp án nằm trong phương án, chỉ dùng từ của bộ thẻ. Câu không đạt thì bỏ; còn dưới một nửa số câu yêu cầu thì báo lỗi.
 
 **Hoàn thành khi:**
 - Đạt đủ các unit test SM-2.
@@ -325,27 +338,51 @@ Bám theo mô hình Quizlet.
 - Trả lời ngắn.
 - *(Nên có)* Điền nhãn bản đồ / sơ đồ.
 
-**Luồng tải đề** (quy định file ở Phần F):
+**Luồng tải đề.** Có hai chế độ, là hai tab của màn tải đề. Quy định file của từng chế độ nằm ở Phần F.
 
 ```
-Tải file ─▶ Lưu file ─▶ Job nhận diện (AI) ─▶ Ghép đề + đáp án ─▶ Kiểm tra ─▶ Đề riêng tư
-                                                                   └─ lỗi ─▶ Báo lỗi theo từng câu
+Tab "Theo mẫu":  chọn loại đề + mỗi ô một file ─────────────────────────┐
+Tab "AI nhận diện": thả file dần ─▶ gắn nhãn trang ─▶ bảng Độ đầy đủ ─▶ đủ ┤
+                                                                         ▼
+          Job: trích nội dung (AI, chạy song song) ─▶ Kiểm tra ─▶ Đề riêng tư (+ cảnh báo)
+                                                        └─ lỗi chặn ─▶ Báo lỗi theo từng câu
 ```
 
-1. `POST /tests/imports` (multipart): loại đề (`reading` | `listening` | `full`), các file. Trả về `importId` ngay.
-2. Job chạy nền trong server, trạng thái lưu ở `TestImport` (`queued` → `parsing` → `validating` → `done` | `failed`).
-   - Task `parse-test.v1`: PDF đề → cấu trúc (section, passage chia đoạn A, B, C…, nhóm câu, dạng câu, phương án, giới hạn số từ).
-   - Task `parse-answers.v1`: PDF đáp án → đáp án theo số câu, **tự nhận ra đáp án nào thuộc phần nào** (Listening / Reading) khi là đề Full.
-3. **Lớp kiểm tra (không dùng AI):**
-   - Số câu từng phần đúng theo registry chứng chỉ, đánh số liên tục.
-   - Câu nào cũng có đáp án, và đáp án hợp lệ với dạng câu.
-   - Listening thì đọc được độ dài audio.
-   - Sai bất kỳ điểm nào thì `failed`, kèm danh sách lỗi theo từng câu.
-4. `GET /tests/imports/:id`: client hỏi trạng thái mỗi vài giây.
+1. **Đưa file lên** (cả hai tab), mỗi lần một file:
+   - `POST /tests/imports/files` (multipart): lưu file vào `StoredFile`, trả về `fileId`.
+     - PDF chạy task `classify-pages.v1`, cache trong `AiCache` theo hash file. Task gắn nhãn cho từng trang: `instructions` | `passage` | `questions` | `answers` | `explanations` | `transcript` | `other`, kèm kỹ năng và khoảng số câu thấy trên trang.
+     - Audio chỉ đọc độ dài (`StoredFile.durationSec`), không dùng AI.
+     - Trả về nhãn của file. File không nhận ra là đề thì có cờ `unused`.
+   - `DELETE /tests/imports/files/:fileId`: bỏ một file chưa thuộc lượt tải nào (chỉ chủ file).
+   - **Bảng Độ đầy đủ** là hàm thuần `buildChecklist(files)` trong `shared/exam`. Client gọi sau mỗi file để hiện bảng, server gọi lại ở bước 2. Không lưu vào DB.
+   - Tab Theo mẫu gửi kèm ô người dùng chọn cho từng file. Tab AI nhận diện không cần.
+2. **Tạo lượt tải** `POST /tests/imports` `{ kind, files: [{ fileId, slot? }] }`:
+   - Tối đa 10 file. Server tính lại bảng Độ đầy đủ. Thiếu thành phần bắt buộc (hoặc tab Theo mẫu thiếu ô bắt buộc) thì 422, kèm bảng.
+   - Đủ thì gộp các PDF thành một PDF, gán vào `questionFileId` và `answerFileId`, audio vào `audioFileId`. Tạo `TestImport` (`queued`), trả về `importId`. **Không đổi schema DB.**
+   - Loại đề do client gửi: tab Theo mẫu là loại người dùng chọn, tab AI nhận diện là loại suy ra từ các kỹ năng tìm thấy (người dùng đổi được).
+   - *shortcut:* file đã đưa lên nhưng không thuộc lượt tải nào sau 24 giờ thì bị xóa bởi một tác vụ dọn dẹp chạy định kỳ.
+3. **Job nền** (`queued` → `parsing` → `validating` → `done` | `failed`). Mỗi task chỉ nhận đúng các trang đã gắn nhãn cho nó.
+   - Job đọc nhãn trang của PDF đã gộp (`classify-pages.v1`, cache theo hash), nên đề có đáp án ở cuối hay nhiều file đều xử lý như nhau.
+   - `parse-test.v1`: trang bài đọc và câu hỏi → cấu trúc (section, passage chia đoạn A, B, C…, nhóm câu, dạng câu, phương án, giới hạn số từ).
+   - `parse-answers.v1`: trang đáp án và giải thích → đáp án theo số câu, **giải thích gắn vào từng câu** (nếu có, lưu trong `Question.answer.explanation`). **Tự nhận ra đáp án nào thuộc phần nào** (Listening / Reading) khi là đề Full.
+   - Transcript lấy từ các trang `transcript` (nếu có), lưu vào `Passage.paragraphs` của đúng Part Listening.
+   - *(Nên có, P3-18)* `parse-audio.v1`: khi không có transcript thì nghe audio để tạo transcript và mốc bắt đầu từng Part. Cắt hình bản đồ / sơ đồ từ PDF theo tọa độ AI trả về.
+4. **Lớp kiểm tra (không dùng AI)**, chia làm hai mức:
+   - **Lỗi chặn** → `failed`, kèm danh sách lỗi theo từng câu:
+     - Số câu từng phần sai so với registry chứng chỉ, hoặc đánh số không liên tục.
+     - Câu thiếu đáp án, hoặc đáp án không hợp lệ với dạng câu.
+     - Listening không đọc được độ dài audio.
+   - **Cảnh báo** → vẫn `done`, lưu trong `errors` với `severity: 'warning'`: thiếu giải thích (bù bằng AI giải thích, P4-12), thiếu transcript, file không dùng đến.
+5. `GET /tests/imports/:id`: trả về trạng thái và `errors` (cả lỗi chặn lẫn cảnh báo). Client hỏi lại mỗi vài giây.
 
 **Dữ liệu:**
 - `Test`: chủ sở hữu, chứng chỉ, loại, tiêu đề, `visibility`, `publishedAt`, `attemptCount`.
-- `TestSection` → `Passage` (hoặc audio) → `QuestionGroup` (hướng dẫn, dạng câu, phương án dùng chung) → `Question` (số câu, nội dung, đáp án đúng).
+- `TestSection` (Listening có audio) → `Passage` (hoặc Part) → `QuestionGroup` (hướng dẫn, dạng câu, phương án dùng chung) → `Question` (số câu, nội dung, đáp án đúng).
+- Tải đề hai tab **không đổi schema**, chỉ thêm quy ước cho các cột jsonb có sẵn (schema Zod trong `shared/exam`):
+  - Giải thích: `Question.answer.explanation`.
+  - Transcript: `Passage.paragraphs` của Part Listening. **Không gửi cho thí sinh trước khi nộp bài**, giống đáp án.
+  - Cảnh báo: phần tử `TestImport.errors` có `severity: 'warning'`.
+  - Khi bộ file có nhiều PDF, `questionFileId` và `answerFileId` cùng trỏ tới PDF đã gộp.
 - `Attempt`: người làm, đề, `startedAt`, `deadlineAt`, trạng thái (`in_progress` | `submitted`), state đã lưu (đáp án, highlight, ghi chú, câu đánh dấu), điểm, band.
 - `AttemptAnswer`: ghi lại đáp án đúng **tại thời điểm chấm**, để chủ đề sửa đề sau này không làm đổi kết quả cũ.
 
@@ -354,14 +391,14 @@ Tải file ─▶ Lưu file ─▶ Job nhận diện (AI) ─▶ Ghép đề + �
 | Endpoint | Việc |
 |---|---|
 | `GET /tests` | Đề của tôi |
-| `GET /tests/:id` | Bản dành cho thí sinh, **không bao giờ có đáp án** |
-| `PATCH/DELETE /tests/:id` | Đổi tiêu đề, xóa (chỉ chủ đề) |
+| `GET /tests/:id` | Bản dành cho thí sinh, **không bao giờ có đáp án, giải thích hay transcript Listening** |
+| `PATCH/DELETE /tests/:id` | Đổi tiêu đề, xóa (chỉ chủ đề). **Đề đã có người khác làm (`attemptCount > 0`) thì không xóa được**, trả 409 `TEST_HAS_ATTEMPTS`; chủ đề chỉ gỡ khỏi kho (C5) để giữ lịch sử làm bài của người khác |
 | `POST /attempts` | Bắt đầu làm bài. Nếu đang có bài dở của đề này thì trả lại bài dở |
 | `GET /attempts/:id` | Trả về `serverNow`, thời gian còn lại, vị trí audio tính theo giờ server. Quá hạn thì tự nộp bài khi được gọi (nộp lười) |
 | `PUT /attempts/:id/state` | Tự lưu. Quá hạn thì từ chối |
 | `POST /attempts/:id/submit` | Chấm điểm và quy ra band. Gọi lại nhiều lần thì kết quả không đổi |
-| `GET /attempts/:id/result`, `GET /attempts` | Kết quả chi tiết, lịch sử làm bài |
-| *(Nên có)* `POST /attempts/:id/questions/:no/explain` | AI giải thích đáp án và chỉ ra bằng chứng trong bài |
+| `GET /attempts/:id/result`, `GET /attempts` | Kết quả chi tiết (kèm giải thích có sẵn trong file và transcript Listening), lịch sử làm bài |
+| *(Nên có)* `POST /attempts/:id/questions/:no/explain` | Task AI `explain-answer.v1`: giải thích đáp án và chỉ ra bằng chứng (đoạn, câu trích) trong passage hoặc transcript. Chỉ cho bài đã nộp, của chính mình. Câu đã có giải thích từ file thì trả lại giải thích đó, không gọi AI. Cache theo câu hỏi + đáp án của người làm |
 | **public API** | `getPassageText(attemptId, passageId)` (chỉ khi đã nộp bài), cùng các hàm thống kê cho `stats` |
 
 **Phòng thi (client):**
@@ -379,10 +416,13 @@ Tải file ─▶ Lưu file ─▶ Job nhận diện (AI) ─▶ Ghép đề + �
 - **Đồng hồ:** cảnh báo lúc còn 10 phút và 5 phút, hết giờ thì tự nộp. Có hộp xác nhận khi nộp bài.
 - **Tự lưu:** chỉ báo trạng thái lưu. Mất mạng thì hiện "Mất kết nối" và tự lưu lại khi có mạng. Hỏi xác nhận khi rời trang.
 - **Trang kết quả:** điểm, band, từng câu (đáp án của mình và đáp án đúng), lọc câu sai, nút **"Mở bài đọc trong Trình đọc"** (tạo `Document` nguồn `exam` → `/read/[id]`).
+  - Nút **Giải thích** ở mỗi câu mở ngăn bên: giải thích từ file đề (ghi "Từ file đề"), hoặc *(Nên có)* giải thích do AI tạo kèm bằng chứng tô sáng trong bài (ghi "Do AI tạo, có thể chưa chính xác").
+  - Listening có nút **Xem transcript** theo từng Part (nếu đề có transcript).
 
 **Hoàn thành khi:**
-- Tải lên một bộ file mẫu đúng quy định thì ra đề làm được. Bộ file thiếu đáp án thì bị từ chối, kèm thông báo câu nào thiếu.
-- Payload cho thí sinh không lộ đáp án (có test).
+- Tab Theo mẫu: tải bộ file mẫu đúng quy định thì ra đề làm được. Bộ file thiếu đáp án thì bị từ chối, kèm thông báo câu nào thiếu.
+- Tab AI nhận diện: thả lần lượt các file của một đề (kể cả một PDF duy nhất có đáp án ở cuối) thì bảng Độ đầy đủ báo đúng thành phần nào đã có, thành phần nào còn thiếu. Đủ thì ra đề làm được.
+- Payload cho thí sinh không lộ đáp án, giải thích hay transcript Listening (có test).
 - Refresh giữa giờ thì không mất bài, đồng hồ không bị reset.
 - Nộp bài hai lần thì kết quả không đổi. Người khác xem kết quả thì bị 403.
 
@@ -515,19 +555,20 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P3-01 | Shared: certification registry (IELTS) + question kind registry (schema đáp án, chuẩn hóa, chấm) + bảng band; unit test | exam | TH | M | P0-13 | Test chấm của mọi dạng câu đạt |
 | P3-02 | DB exam theo ERD: `Test`, `TestSection`, `Passage`, `QuestionGroup`, `Question`, `TestImport`, `Attempt`, `AttemptAnswer` | exam | KH | M | P1-05, P0-05 | Migration đã merge |
 | P3-03 | Seed đề mẫu dạng cấu trúc (từ file đề thật ở P0-19), để làm phòng thi mà không phải chờ luồng tải đề | exam | KH | S | P3-02, P3-01, P0-19 | `db:seed` có ít nhất 1 đề Reading và 1 đề Listening làm được |
-| P3-04 | Server import (phần không AI): `POST /tests/imports` theo quy định Phần F, lưu file, job nền, `GET /tests/imports/:id` | exam | TH | M | P3-02, P1-07 | Sai bộ file thì bị từ chối ngay với lỗi rõ ràng |
-| P3-05 | Task AI `parse-test.v1` + `parse-answers.v1` (tự nhận ra đáp án thuộc phần nào); test bằng các PDF thật ở P0-19 | exam | KH | L | P1-08, P3-01, P0-19 | Cả 3 bộ file mẫu ra đúng cấu trúc và đúng đáp án |
-| P3-06 | Server import: ghép kết quả của P3-05 vào job + lớp kiểm tra trước khi lưu (C4 bước 3) + ghi đề riêng tư | exam | TH | M | P3-04, P3-05 | Tải bộ file mẫu ra đề làm được; thiếu hoặc sai đáp án bị báo đúng số câu |
-| P3-07 | Server: `GET /tests`, `GET /tests/:id` (không lộ đáp án), `PATCH`, `DELETE`; Swagger; test | exam | TH | S | P3-03 | Có test payload không chứa đáp án |
+| P3-04 | Server import (phần không AI): `POST`/`DELETE /tests/imports/files`, `POST /tests/imports` (gộp PDF, không đổi schema), `GET /tests/imports/:id`; `buildChecklist` trong `shared/exam`; lưu file, job nền, dọn file mồ côi | exam | TH | M | P3-02, P1-07 | Thiếu thành phần bắt buộc thì `POST /tests/imports` trả 422 kèm bảng Độ đầy đủ; không có migration mới |
+| P3-05 | Task AI `classify-pages.v1` (nhãn từng trang + khoảng số câu) + `parse-test.v1` + `parse-answers.v1` (đáp án và giải thích theo câu, tự nhận ra đáp án thuộc phần nào) + lấy transcript; test bằng các PDF thật ở P0-19 | exam | KH | L | P1-08, P3-01, P0-19 | Cả 3 bộ file mẫu ra đúng cấu trúc, đúng đáp án; một PDF có đáp án ở cuối được tách đúng |
+| P3-06 | Server import: ghép kết quả của P3-05 vào job, tính bảng Độ đầy đủ, lớp kiểm tra trước khi lưu (C4 bước 4, chia lỗi chặn / cảnh báo) + ghi đề riêng tư | exam | TH | M | P3-04, P3-05 | Tải bộ file mẫu ra đề làm được; thiếu hoặc sai đáp án bị báo đúng số câu; thiếu giải thích chỉ ra cảnh báo |
+| P3-07 | Server: `GET /tests`, `GET /tests/:id` (không lộ đáp án, giải thích, transcript), `PATCH`, `DELETE` (chặn xóa khi đã có người khác làm); Swagger; test | exam | TH | S | P3-03 | Có test payload không chứa đáp án, giải thích và transcript; xóa đề có `attemptCount > 0` trả 409 |
 | P3-08 | Server attempts: tạo / tiếp tục, `GET` (có `serverNow`, nộp lười, vị trí audio), **phát audio theo luồng** (không cho tải, không cho tua), tự lưu (từ chối khi quá hạn), nộp và chấm, kết quả, lịch sử; Swagger; test | exam | TH | L | P3-07 | Nộp hai lần không đổi kết quả; người khác bị 403 |
 | P3-09 | **Deploy lên subdomain miễn phí (T4 11/11):** server lên Render (chạy `migrate deploy` trước khi start), DB Neon, client lên Vercel, driver lưu file `r2`, biến môi trường, UptimeRobot | deploy | TH | M | P2-13 | Đăng nhập và vòng `v0.1` chạy được online |
-| P3-10 | Client "Thi thử": `/tests` (đề của tôi), form tải đề (chọn loại, kéo thả file, tiến độ xử lý, lỗi theo câu) | exam | KH | M | P3-04, P3-07 | Tải lên → chờ → ra đề trong danh sách |
+| P3-10 | Client "Thi thử": `/tests` (đề của tôi), màn tải đề hai tab theo wireframe (AI nhận diện: thả file, nhãn trang, bảng Độ đầy đủ; Theo mẫu: ô theo loại đề), tiến độ xử lý, lỗi theo câu, cảnh báo | exam | KH | M | P3-04, P3-07 | Cả hai tab: tải lên → chờ → ra đề trong danh sách |
 | P3-11 | Client: trang thông tin đề (Bắt đầu / Tiếp tục) + các màn trước khi thi như thi máy thật (xác nhận thông tin, hướng dẫn, kiểm tra âm thanh với Listening) | exam | KH | M | P3-08 | Bấm Bắt đầu → qua các màn → vào phòng thi |
 | P3-12 | Client phòng thi — khung: header, đồng hồ theo giờ server, cảnh báo, Settings (cỡ chữ, tương phản), thanh điều hướng dưới, đánh dấu Review, xác nhận nộp bài, tự lưu + chỉ báo, chặn rời trang | exam | KH | L | P3-08 | Refresh không mất gì; mất mạng thì hiện "Mất kết nối" và tự lưu lại khi có mạng |
 | P3-13 | Client phòng thi — Reading: chia cột kéo được, component các dạng câu, highlight + ghi chú, gạch bỏ phương án | exam | KH | L | P3-12 | Mọi dạng câu trong đề mẫu hiển thị và lưu được; highlight còn sau khi refresh |
 | P3-14 | Client phòng thi — Listening: trình phát không dừng, không tua, âm lượng, phát tiếp đúng vị trí, 2 phút kiểm tra lại, tự nộp; đề Full chạy Listening → Reading | exam | KH | M | P3-13 | Refresh khi đang nghe thì phát tiếp đúng vị trí |
 | P3-15 | Server vocab: nguồn `exam` (tạo tài liệu từ passage của bài đã nộp, qua public API của exam); test | vocab | TH | S | P3-08, P2-02 | Chưa nộp bài mà tạo tài liệu thì bị 403 |
-| P3-16 | Client: trang kết quả (điểm, band, từng câu, lọc câu sai, "Mở bài đọc trong Trình đọc") | exam | KH | M | P3-08, P3-15 | Từ kết quả mở được bài đọc trong trình đọc |
+| P3-16 | Client: trang kết quả (điểm, band, từng câu, lọc câu sai, giải thích từ file đề, transcript Listening, "Mở bài đọc trong Trình đọc") | exam | KH | M | P3-08, P3-15 | Từ kết quả mở được bài đọc trong trình đọc |
+| P3-18 | *(Nên có)* Task AI `parse-audio.v1` (transcript và mốc từng Part khi bộ file không có transcript) + cắt hình bản đồ / sơ đồ từ PDF theo tọa độ AI trả về | exam | KH | M | P3-05, P3-06 | Đề Listening không kèm transcript vẫn có transcript sau khi tải; nhóm câu `diagram_label` có ảnh |
 | P3-17 | Kiểm tra online; tag `v0.2`, release notes, ảnh chụp | quản lý | TH | S | P3-06, P3-09, P3-14, P3-16 | Release có trên GitHub |
 
 ## Giai đoạn 4 — `library`, `stats`, trang chủ (T7 14/11 – T2 16/11)
@@ -544,8 +585,8 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P4-08 | E2E Playwright: đăng nhập → đọc → tra → lưu → bộ thẻ → học; tải đề (AI mock) → làm bài → nộp → kết quả; chạy trong CI | core | TH | M | P3-16, P2-11 | Test xanh trong CI |
 | P4-09 | (Nên có) Server flashcard: `GET .../quiz` sinh câu hỏi Kiểm tra từ bộ thẻ; test | flashcard | TH | S | P2-09 | Đạt test |
 | P4-10 | (Nên có) Client flashcard: chế độ Kiểm tra, Ghép thẻ, dán nhanh nhiều thẻ | flashcard | KH | M | P4-09, P2-11 | Chạy được 2 chế độ mới |
-| P4-11 | (Nên có) Task AI `generate-exercise.v1` + luyện tập theo dạng câu thi | flashcard | KH | M | P2-09 | Câu hỏi sai định dạng bị loại |
-| P4-12 | (Nên có) Task AI giải thích đáp án + bằng chứng trong bài trên trang kết quả | exam | KH | M | P3-16 | Bằng chứng được tô sáng đúng chỗ trong bài |
+| P4-11 | (Nên có) Task AI `generate-exercise.v1` + `POST /flashcards/sets/:id/exercises` + màn Luyện tập AI | flashcard | KH | M | P2-09 | Câu hỏi sai định dạng hoặc dùng từ ngoài bộ thẻ bị loại (có test) |
+| P4-12 | (Nên có) Task AI `explain-answer.v1` + `POST /attempts/:id/questions/:no/explain` + ngăn giải thích trên trang kết quả | exam | KH | M | P3-16 | Bằng chứng được tô sáng đúng chỗ trong bài; câu có giải thích từ file thì không gọi AI |
 
 ## Giai đoạn 5 — Đóng băng & hoàn thiện (T3 17/11 – T4 18/11) → `v1.0`
 
@@ -581,10 +622,10 @@ Report dùng lại bộ sơ đồ của Giai đoạn 0 (đã được cập nh�
 | 0 | 20 | 20 | 0 |
 | 1 | 13 | 8 | 5 |
 | 2 | 13 | 8 | 5 |
-| 3 | 17 | 9 | 8 |
+| 3 | 18 | 10 | 8 |
 | 4 (gồm Nên có) | 12 | 8 | 4 |
 | 5–6 | 13 | 4 (+2 chung) | 7 (+2 chung) |
-| **Tổng** | **88** | **57 (+2)** | **29 (+2)** |
+| **Tổng** | **89** | **58 (+2)** | **29 (+2)** |
 
 Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía client ở Giai đoạn 3. KH nên tách mỗi thẻ L thành 2–3 PR để giữ nhịp tối thiểu 1 PR mỗi ngày.
 
@@ -607,25 +648,53 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 
 # Phần F — Quy định file đề tải lên
 
-Để AI nhận diện chính xác mà **không cần người dùng xem lại**, web bắt buộc bộ file đúng quy định. Trang tải đề hiển thị hướng dẫn này kèm file mẫu.
+Màn tải đề có **hai tab**. Cả hai đều ra cùng một cấu trúc đề và qua cùng lớp kiểm tra (C4 bước 4). Chỉ khác ở việc **ai xác định vai trò của từng file**. Tab **AI nhận diện** mở mặc định. Wireframe: `Analysis_Design/07_Wireframe/05-exam/upload.html`.
 
-| Loại đề | File bắt buộc | Ghi chú |
+### Tab Theo mẫu
+Dành cho người đã có sẵn bộ file đúng mẫu. Người dùng chọn loại đề, rồi đặt mỗi file vào đúng ô của nó. Trang hiển thị hướng dẫn kèm file mẫu.
+
+| Loại đề | Ô bắt buộc | Ô tùy chọn | Ghi chú |
+|---|---|---|---|
+| **Reading** | Đề (PDF) + Đáp án (PDF) | Giải thích (PDF) | 3 passage, 40 câu |
+| **Listening** | Đề (PDF) + Audio + Đáp án (PDF) | Transcript (PDF), Giải thích (PDF) | 4 part, 40 câu; một file audio cho cả bài |
+| **Full** | Đề (PDF, gồm Listening và Reading) + Audio + Đáp án (PDF) | Transcript (PDF), Giải thích (PDF) | Hệ thống tự nhận ra đáp án nào thuộc Listening, đáp án nào thuộc Reading |
+
+- Một file chứa nhiều phần (ví dụ đề có đáp án và giải thích ở cuối) thì **chọn cùng file đó cho nhiều ô**. Hệ thống gắn nhãn trang để mỗi ô chỉ lấy đúng phần của mình.
+- Thiếu ô bắt buộc hoặc sai định dạng thì bị từ chối **ngay khi gửi**, chưa tốn lượt gọi AI.
+
+### Tab AI nhận diện
+Dành cho người chỉ có một đống file, không biết hoặc không muốn chia ô. Cách dùng giống như thả file vào một khung chat AI.
+
+- **Một ô kéo thả**, nhận nhiều file. Thả thêm dần hoặc bỏ từng file được. Không cần chọn loại đề, không cần đặt tên file theo mẫu.
+- Mỗi file vừa thả vào thì được nhận diện ngay: PDF được gắn nhãn từng trang (đề, câu hỏi, đáp án, giải thích, transcript, không liên quan), audio được đọc độ dài.
+- Bên cạnh ô thả file là **bảng Độ đầy đủ**, tính lại sau mỗi file:
+
+| Thành phần | Bắt buộc | Hiển thị, ví dụ |
 |---|---|---|
-| **Reading** | `de.pdf` + `dap-an.pdf` | 3 passage, 40 câu |
-| **Listening** | `de.pdf` + `audio` + `dap-an.pdf` | 4 part, 40 câu; một file audio cho cả bài |
-| **Full** | `de.pdf` (gồm Listening và Reading) + `audio` + `dap-an.pdf` | Hệ thống tự nhận ra đáp án nào thuộc Listening, đáp án nào thuộc Reading |
+| Bài đọc / Part | ✓ | "Reading: 3/3 passage" |
+| Câu hỏi | ✓ | "Listening: câu 1–40" |
+| Đáp án | ✓ | "Đủ 40/40" hoặc "Thiếu câu 12, 27" |
+| Audio | ✓ với Listening, Full | "31:20" |
+| Giải thích | | "Có cho 40/40 câu" hoặc "Không có, sau này dùng AI giải thích" |
+| Transcript | | "Có cho Part 1–4" |
 
-**Ràng buộc file:**
-- PDF có lớp chữ (không phải ảnh scan) được khuyến nghị. Tối đa 20 MB mỗi file.
+- **Loại đề do hệ thống suy ra** từ các kỹ năng tìm thấy (chỉ Reading, chỉ Listening, hay cả hai), người dùng đổi lại được.
+- File không nhận ra là đề IELTS thì đánh dấu **Không dùng** và bỏ qua, không làm hỏng cả lượt.
+- Nút **Tạo đề** chỉ bật khi đủ các thành phần bắt buộc.
+- Bảng này là **kiểm tra sơ bộ** dựa trên nhãn trang. Kiểm tra chính xác từng câu vẫn chạy sau khi trích nội dung, nên bảng báo đủ mà bước kiểm tra vẫn có thể báo lỗi theo câu.
+
+### Ràng buộc file (cả hai tab)
+- PDF có lớp chữ được khuyến nghị. PDF scan vẫn nhận, nhưng độ chính xác thấp hơn. Tối đa 20 MB mỗi file.
 - Audio dạng MP3 hoặc M4A, tối đa 60 MB.
-- File đáp án đánh số câu rõ ràng. Đáp án có nhiều cách viết thì phân tách bằng `/` hoặc `OR`. Phần chữ tùy chọn để trong ngoặc, ví dụ `(the) library`.
-- Nếu file đề đã kèm đáp án ở cuối, người dùng vẫn tải file đó vào **cả hai ô**. Hệ thống tự tách phần đáp án ra. **[CẦN CHỐT]** có hỗ trợ trường hợp này ngay trong MVP không, hay để Nên có.
+- Tối đa 10 file mỗi lượt tải.
+- Đáp án đánh số câu rõ ràng. Đáp án có nhiều cách viết thì phân tách bằng `/` hoặc `OR`. Phần chữ tùy chọn để trong ngoặc, ví dụ `(the) library`.
+- Giải thích và transcript không bắt buộc. Thiếu thì đề vẫn được tạo, kèm cảnh báo.
 
 **Cấu trúc sau khi nhận diện** (schema trong `shared/exam`, đây là nguồn sự thật):
 - `Test`: chứng chỉ, loại, tiêu đề, danh sách `sections[]`.
-- `Section`: kỹ năng, thời gian, `passages[]` (Reading: tiêu đề, các đoạn có nhãn A, B, C…) hoặc audio (Listening), `groups[]`.
+- `Section`: kỹ năng, thời gian, `passages[]` (Reading: tiêu đề, các đoạn có nhãn A, B, C…) hoặc audio và transcript nếu có (Listening, lưu trong `paragraphs`), `groups[]`.
 - `Group`: khoảng câu (ví dụ 1–5), hướng dẫn, dạng câu, phương án dùng chung, giới hạn số từ, `questions[]`.
-- `Question`: số câu, nội dung (có chỗ trống), phương án riêng (nếu có), đáp án đúng (một hoặc nhiều cách viết).
+- `Question`: số câu, nội dung (có chỗ trống), phương án riêng (nếu có), đáp án đúng (một hoặc nhiều cách viết) kèm giải thích nếu có.
 
 **Nội dung đề:** mỗi đề phải ghi rõ nguồn. **Không** đăng lên kho chung đề có bản quyền khi chưa được phép. Đề dùng để demo do nhóm tự chuẩn bị (P0-19). AI Agent không soạn nội dung đề.
 
@@ -635,7 +704,7 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 
 | Rủi ro | Phòng ngừa | Nếu xảy ra |
 |---|---|---|
-| **AI tách PDF đề sai** | Quy định file chặt (Phần F); lớp kiểm tra trước khi lưu; test bằng PDF thật từ sớm (P3-05) | Báo lỗi theo từng câu để người dùng sửa file. Demo bằng đề đã được kiểm tra trong seed |
+| **AI tách PDF đề sai** | Tab Theo mẫu cho bộ file chuẩn; tab AI có bảng Độ đầy đủ báo thiếu trước khi chạy; lớp kiểm tra trước khi lưu; test bằng PDF thật từ sớm (P3-05) | Báo lỗi theo từng câu để người dùng sửa file. Demo bằng đề đã được kiểm tra trong seed |
 | **KH quá tải** (toàn bộ FE + DB + AI) | CI, deploy, e2e, rà soát server chuyển cho TH; thẻ L tách nhỏ | Cắt theo thứ tự bên dưới; TH nhận thêm test e2e và seed phía server |
 | Trễ tiến độ | Kiểm tra trong buổi xem lại tuần; giới hạn WIP | Cắt theo thứ tự bên dưới |
 | Gemini lỗi, chậm, hết quota | Cache, retry, quota mỗi người dùng; mock trong test | Trả lỗi 503 rõ ràng; demo bằng kết quả đã cache; có video dự phòng |
@@ -647,20 +716,21 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 
 **Thứ tự cắt giảm khi trễ** (cắt từ trên xuống, không chạm vào vòng học lõi):
 1. Toàn bộ Mở rộng.
-2. AI sinh bài luyện tập (P4-11).
-3. AI giải thích đáp án (P4-12).
-4. Chế độ Kiểm tra, Ghép thẻ, dán nhanh nhiều thẻ (P4-09, P4-10).
-5. Widget Chủ đề và Cộng đồng trên dashboard.
-6. Báo cáo vi phạm trong kho (giữ đăng lên, duyệt, chép).
-7. Đề Full (giữ Reading và Listening riêng).
-8. Nhận file DOCX trong trình đọc (giữ PDF và TXT).
+2. Tạo transcript từ audio và cắt hình khi tải đề (P3-18).
+3. AI sinh bài luyện tập (P4-11).
+4. AI giải thích đáp án (P4-12).
+5. Chế độ Kiểm tra, Ghép thẻ, dán nhanh nhiều thẻ (P4-09, P4-10).
+6. Widget Chủ đề và Cộng đồng trên dashboard.
+7. Báo cáo vi phạm trong kho (giữ đăng lên, duyệt, chép).
+8. Đề Full (giữ Reading và Listening riêng).
+9. Nhận file DOCX trong trình đọc (giữ PDF và TXT).
 
 ---
 
 # Phần H — Việc cần chốt
 
 1. **Tên miền:** tên cụ thể và đuôi (`.id.vn` hay `.me`), ngày mua.
-2. **File đề kèm đáp án ở cuối** (Phần F): làm trong MVP hay để Nên có.
+2. ~~**File đề kèm đáp án ở cuối** (Phần F): làm trong MVP hay để Nên có.~~ **Đã chốt 05/11:** làm trong MVP. Cả hai tab tải đề đều gắn nhãn trang nên tự tách được đề, đáp án, giải thích và transcript trong cùng một file.
 3. **Report có mẫu bắt buộc của khoa không?**
 4. **Cập nhật các tài liệu khác theo PLAN này** (issue P0-20, **đã xong**):
    - `Project_Structure.md`:
