@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import {Be_Vietnam_Pro} from 'next/font/google';
 import {NextIntlClientProvider} from 'next-intl';
 import {getLocale, getTranslations} from 'next-intl/server';
+import {Toaster} from 'sonner';
 
 import './globals.css';
 
@@ -22,6 +23,8 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     <html lang={locale} className={font.variable}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/* Toasts: call toast() from 'sonner' anywhere. Top centre keeps them clear of the mobile tab bar. */}
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

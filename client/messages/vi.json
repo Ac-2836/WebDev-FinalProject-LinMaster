@@ -6,11 +6,44 @@
     "localeSwitcher": {
       "label": "Ngôn ngữ giao diện",
       "vi": "Tiếng Việt",
-      "en": "English"
+      "en": "English",
+      "toggle": "Đổi ngôn ngữ giao diện, đang là {current}. Bấm để chuyển sang {next}"
     },
     "placeholder": {
       "title": "LinMaster đang được xây dựng",
       "body": "Đây là trang tạm của khung client. Đổi ngôn ngữ bằng các nút bên dưới, lựa chọn được giữ lại sau khi tải lại trang."
+    },
+    "loading": "Đang tải",
+    "nav": {
+      "label": "Điều hướng chính",
+      "skip": "Bỏ qua tới nội dung",
+      "homeLink": "LinMaster, về trang chủ",
+      "more": "Thêm",
+      "home": "Trang chủ",
+      "read": "Đọc",
+      "vocab": "Kho từ",
+      "flashcards": "Flashcard",
+      "tests": "Thi thử",
+      "library": "Thư viện",
+      "dashboard": "Dashboard"
+    },
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "body": "Trang này không tồn tại, đã bị xóa, hoặc bạn không có quyền xem.",
+      "home": "Về trang chủ"
+    },
+    "error": {
+      "title": "Đã có lỗi xảy ra",
+      "body": "Trang chưa tải được. Hãy thử lại; nếu vẫn lỗi, gửi mã lỗi bên dưới cho nhóm phát triển.",
+      "code": "Mã lỗi: {code}",
+      "retry": "Thử lại",
+      "home": "Về trang chủ"
+    },
+    "home": {
+      "title": "Trang chủ",
+      "emptyTitle": "Chưa có gì ở đây",
+      "emptyBody": "Các widget của trang chủ (bài thi dở, thẻ đến hạn, tài liệu gần đây) sẽ hiện ở đây.",
+      "emptyAction": "Mở trình đọc"
     }
   }
 }
