@@ -504,7 +504,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - Đề do người dùng **tải lên trên web** theo `PLAN.md` Phần F, bằng một trong hai tab: **Theo mẫu** (mỗi ô một file: đề, đáp án, audio, có thể thêm transcript và giải thích) hoặc **AI nhận diện** (thả file tùy ý, AI tự tìm các phần và báo phần còn thiếu). Repo không chứa đề.
 - Đề sau khi nhận diện phải qua lớp kiểm tra bằng schema trong `shared/exam` trước khi lưu. Không đạt thì báo lỗi theo từng câu, không lưu.
 - Đề mới tải lên luôn **riêng tư**. Chủ sở hữu tự quyết định có đăng lên kho chung hay không.
-- Trường `source` **phải** ghi rõ nguồn. Không dùng đề có bản quyền trên web công khai nếu chưa được phép.
+- Trường `source` ghi nguồn đề khi biết. **Tạm hoãn quy định bản quyền** trong giai đoạn phát triển: nhóm dùng được bất kỳ file đề nào để test, miễn là để riêng tư và không đưa vào repo. Quy định cho việc đăng đề lên kho chung sẽ chốt lại trước `v1.0` (PLAN Phần H mục 6).
 - Đề mẫu cho demo (nạp bằng seed) do nhóm tự chuẩn bị (P0-19) và phải được **người thứ hai** kiểm tra đáp án trước khi merge.
 - Đáp án liệt kê đủ mọi cách viết đúng (Phần F: phân tách bằng `/` hoặc `OR`, phần tùy chọn trong ngoặc).
 - **AI Agent không soạn nội dung đề** (đề, đáp án, transcript).

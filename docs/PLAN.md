@@ -509,7 +509,7 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P0-16 | Khung server: Express, validate biến môi trường bằng Zod, `GET /api/v1/health` | core/server | KH | S | P0-13 | Gọi health trả về `ok` |
 | P0-17 | CI GitHub Actions: cài đặt, lint, kiểm tra kiểu, test, build cho 3 workspace; có Postgres service; cache npm | core | KH | M | P0-15, P0-16 | PR mẫu chạy CI xanh |
 | P0-18 | Template PR và Issue (Task / Bug / Idea); bật Discussions mục *Meetings* | quản lý | KH | S | — | Mở PR hay Issue mới hiện đúng template |
-| P0-19 | Lấy Gemini API key; chuẩn bị bộ file đề thật mà nhóm có quyền dùng: 1 Reading, 1 Listening (+ audio), 1 Full (Phần F) | content | KH | S | — | Có đủ file, lưu ngoài repo. **Đường găng của P3-05** |
+| P0-19 | Lấy Gemini API key; chuẩn bị bộ file đề thật (nguồn bất kỳ, chỉ dùng nội bộ để test): 1 Reading, 1 Listening (+ audio), 1 Full (Phần F) | content | KH | S | — | Có đủ file, lưu ngoài repo. **Đường găng của P3-05** |
 | P0-20 | Cập nhật `Project_Structure.md`, `Working_rules.md` theo PLAN này (Phần H mục 4) | docs | KH | S | — | Không còn chỗ mâu thuẫn với PLAN |
 
 ## Giai đoạn 1 — Nền móng (T5 05/11 – T7 07/11)
@@ -696,7 +696,7 @@ Dành cho người chỉ có một đống file, không biết hoặc không mu�
 - `Group`: khoảng câu (ví dụ 1–5), hướng dẫn, dạng câu, phương án dùng chung, giới hạn số từ, `questions[]`.
 - `Question`: số câu, nội dung (có chỗ trống), phương án riêng (nếu có), đáp án đúng (một hoặc nhiều cách viết) kèm giải thích nếu có.
 
-**Nội dung đề:** mỗi đề phải ghi rõ nguồn. **Không** đăng lên kho chung đề có bản quyền khi chưa được phép. Đề dùng để demo do nhóm tự chuẩn bị (P0-19). AI Agent không soạn nội dung đề.
+**Nội dung đề:** trong giai đoạn phát triển, nhóm được dùng **bất kỳ file đề nào** để test và demo (P0-19), miễn là để riêng tư và không đưa vào repo. Quy định bản quyền khi đăng đề lên kho chung **tạm hoãn** (Phần H mục 6). Trường nguồn đề vẫn có trên form để người dùng ghi khi biết. AI Agent không soạn nội dung đề.
 
 ---
 
@@ -745,3 +745,4 @@ Dành cho người chỉ có một đống file, không biết hoặc không mu�
      - Tag Swagger thêm `Documents`, `Library`.
      - Mục 15 (tài liệu): cho phép thư mục `Analysis_Design/` (B6).
 5. **Đổi tên PrepMaster → LinMaster** trong file proposal (nếu giảng viên cho sửa).
+6. **Quy định bản quyền đề thi** (Phần F, Working_rules mục 14): **tạm hoãn từ 07/11** theo quyết định của KH, để nhóm test bằng bất kỳ file đề nào. Chốt lại quy định cho việc đăng đề lên kho chung trước khi phát hành `v1.0` (cùng đợt rà bảo mật P5-02).
