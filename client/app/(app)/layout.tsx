@@ -1,4 +1,14 @@
-// Signed-in pages. The navbar from the nav registry (P1-10) and the login guard (P1-09) go here.
+import {AppNavbar} from '@/core/nav/app-navbar';
+
+// Signed-in pages: navbar from the nav registry. The login guard (P1-09) goes here too.
 export default function AppLayout({children}: {children: React.ReactNode}) {
-  return <div className="min-h-dvh">{children}</div>;
+  return (
+    <div className="min-h-dvh">
+      <AppNavbar />
+      {/* Bottom padding keeps content clear of the mobile tab bar. */}
+      <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 pt-6 pb-28 outline-none sm:px-6 lg:pb-12">
+        {children}
+      </main>
+    </div>
+  );
 }

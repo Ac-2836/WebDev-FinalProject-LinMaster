@@ -6,11 +6,44 @@
     "localeSwitcher": {
       "label": "Interface language",
       "vi": "Tiếng Việt",
-      "en": "English"
+      "en": "English",
+      "toggle": "Change interface language, currently {current}. Switch to {next}"
     },
     "placeholder": {
       "title": "LinMaster is under construction",
       "body": "This is the placeholder page of the client skeleton. Switch the language with the buttons below; the choice is kept after reloading the page."
+    },
+    "loading": "Loading",
+    "nav": {
+      "label": "Main navigation",
+      "skip": "Skip to content",
+      "homeLink": "LinMaster, go to home",
+      "more": "More",
+      "home": "Home",
+      "read": "Read",
+      "vocab": "Word bank",
+      "flashcards": "Flashcards",
+      "tests": "Practice tests",
+      "library": "Library",
+      "dashboard": "Dashboard"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "body": "This page does not exist, has been deleted, or you are not allowed to see it.",
+      "home": "Go to home"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "body": "The page could not load. Please try again; if it keeps failing, send the error code below to the team.",
+      "code": "Error code: {code}",
+      "retry": "Try again",
+      "home": "Go to home"
+    },
+    "home": {
+      "title": "Home",
+      "emptyTitle": "Nothing here yet",
+      "emptyBody": "Home widgets (unfinished test, cards due, recent documents) will appear here.",
+      "emptyAction": "Open the reader"
     }
   }
 }
