@@ -1,0 +1,24 @@
+import {OpenAPIRegistry, OpenApiGeneratorV31} from '@asteasolutions/zod-to-openapi';
+
+export const openApiRegistry = new OpenAPIRegistry();
+
+openApiRegistry.registerComponent('securitySchemes', 'bearerAuth', {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT',
+});
+
+export function generateOpenApiDocument() {
+  const generator = new OpenApiGeneratorV31(openApiRegistry.definitions);
+
+  return generator.generateDocument({
+    openapi: '3.1.0',
+    info: {
+      title: 'LinMaster API',
+      version: '1.0.0',
+      description: 'API documentation for LinMaster.',
+    },
+    servers: [{url: '/'}],
+    tags: [{name: 'Core', description: 'Health and core infrastructure.'}],
+  });
+}
