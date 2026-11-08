@@ -1,6 +1,6 @@
-import { RequestHandler } from 'express';
-import { ZodError, ZodType } from 'zod';
-import { AppError } from '../utils/AppError';
+import {RequestHandler} from 'express';
+import {ZodError, ZodType} from 'zod';
+import {AppError} from '../utils/AppError';
 
 type RequestParts = {
   body: unknown;
@@ -21,18 +21,12 @@ export const validate = (schema: ZodType): RequestHandler => {
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {
-        const details = error.issues.map((issue) => ({
+        const details = error.issues.map(issue => ({
           field: issue.path.join('.'),
           message: issue.message,
         }));
 
-        next(
-          new AppError(
-            'Dữ liệu đầu vào không hợp lệ.',
-            400,
-            details,
-          ),
-        );
+        next(new AppError('Dữ liệu đầu vào không hợp lệ.', 400, details));
         return;
       }
 

@@ -1,12 +1,7 @@
-import { ErrorRequestHandler } from 'express';
-import { AppError } from '../utils/AppError';
+import {ErrorRequestHandler} from 'express';
+import {AppError} from '../utils/AppError';
 
-export const errorMiddleware: ErrorRequestHandler = (
-  error: unknown,
-  _req,
-  res,
-  next,
-) => {
+export const errorMiddleware: ErrorRequestHandler = (error: unknown, _req, res, next) => {
   if (res.headersSent) {
     next(error);
     return;
@@ -18,9 +13,7 @@ export const errorMiddleware: ErrorRequestHandler = (
         code: error.statusCode,
         status: error.status,
         message: error.message,
-        ...(error.details === undefined
-          ? {}
-          : { details: error.details }),
+        ...(error.details === undefined ? {} : {details: error.details}),
       },
     });
     return;

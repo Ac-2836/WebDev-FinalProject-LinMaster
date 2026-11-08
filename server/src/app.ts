@@ -1,6 +1,6 @@
 import express from 'express';
-import { errorMiddleware } from './middlewares/error.middleware';
-import { healthRouter } from './core/health.route';
+import {errorMiddleware} from './middlewares/error.middleware';
+import {healthRouter} from './core/health.route';
 
 export function createApp() {
   const app = express();
