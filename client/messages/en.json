@@ -178,6 +178,21 @@
       "emptyTitle": "Nothing here yet",
       "emptyBody": "Home widgets (unfinished test, cards due, recent documents) will appear here.",
       "emptyAction": "Open the reader"
+    },
+    "errors": {
+      "INVALID_ARGUMENT": "Some details are not valid. Check them and try again.",
+      "UNAUTHENTICATED": "Your session has expired. Please log in again.",
+      "PERMISSION_DENIED": "You do not have permission to do this.",
+      "NOT_FOUND": "This could not be found. It may have been deleted.",
+      "ALREADY_EXISTS": "This already exists.",
+      "FAILED_PRECONDITION": "This cannot be done right now.",
+      "RESOURCE_EXHAUSTED": "Too many requests. Please wait a few minutes and try again.",
+      "INTERNAL": "The server ran into a problem. Please try again in a few minutes.",
+      "AI_QUOTA_EXCEEDED": "You have used up today’s AI requests. More will be available tomorrow.",
+      "AI_INVALID_OUTPUT": "The AI returned an invalid result. Please try again.",
+      "AI_UNAVAILABLE": "AI features are unavailable right now. Please try again later.",
+      "NETWORK": "Cannot reach the server. Check your connection and try again.",
+      "UNKNOWN": "Something went wrong. Please try again."
     }
   }
 }

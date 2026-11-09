@@ -1,6 +1,6 @@
 import {AppNavbar} from '@/core/nav/app-navbar';
 
-// Signed-in pages: navbar from the nav registry. The login guard (P1-09) goes here too.
+// Signed-in pages: navbar from the nav registry. Signed-out visitors never get here (client/proxy.ts).
 export default function AppLayout({children}: {children: React.ReactNode}) {
   return (
     <div className="min-h-dvh">
