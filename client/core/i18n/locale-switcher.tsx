@@ -4,17 +4,33 @@ import {Globe} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 import {useRouter} from 'next/navigation';
 import {useTransition} from 'react';
+import {toast} from 'sonner';
 
+import {AuthUserResponseSchema} from '@linmaster/shared';
 import {Button} from '@/components/ui/button';
+import {api} from '@/core/api/client';
+import {useErrorMessage} from '@/core/api/use-error-message';
+import {useSession} from '@/core/auth/session-provider';
 
 import {setLocale} from './actions';
 import {type Locale, locales} from './config';
 
 function useSwitchLocale() {
   const router = useRouter();
+  const {status, setUser} = useSession();
+  const errorMessage = useErrorMessage();
   const [pending, startTransition] = useTransition();
   const change = (locale: Locale) =>
     startTransition(async () => {
+      // Signed in: the choice is also saved to the profile (PLAN C0), so it follows the user to other devices.
+      if (status === 'ready') {
+        try {
+          setUser(AuthUserResponseSchema.parse(await api('/auth/me', {method: 'PATCH', body: {locale}})).user);
+        } catch (error) {
+          toast.error(errorMessage(error));
+          return;
+        }
+      }
       await setLocale(locale);
       router.refresh();
     });

@@ -10,6 +10,7 @@ import {cn} from 'cn';
 import {Logo, LogoMark} from '@/components/logo';
 import {LocaleToggle} from '@/core/i18n/locale-switcher';
 
+import {AccountMenu} from './account-menu';
 import {isActive, navItems} from './registry';
 
 /** App shell navigation: top bar from 1024px, bottom tab bar below (wireframe 02-app, PLAN C0). */
@@ -56,6 +57,7 @@ export function AppNavbar() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <LocaleToggle />
+            <AccountMenu />
           </div>
         </div>
       </header>

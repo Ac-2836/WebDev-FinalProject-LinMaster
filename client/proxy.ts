@@ -1,14 +1,17 @@
 import {type NextRequest, NextResponse} from 'next/server';
 
-import {isPublicPath, loginUrl, TOKEN_COOKIE} from '@/core/auth/redirect';
+import {HOME_PATH, isAuthPath, isPublicPath, loginUrl, TOKEN_COOKIE} from '@/core/auth/redirect';
 
 /**
- * Route guard (PLAN C0): pages that need a session send signed-out visitors to `/login?next=<page>`.
+ * Route guard (PLAN C0): pages that need a session send signed-out visitors to `/login?next=<page>`,
+ * and signed-in visitors skip the login and register pages.
  * Optimistic check on the cookie only; an expired token is caught by the API client on the first 401.
  */
 export function proxy(request: NextRequest) {
   const {pathname, search} = request.nextUrl;
-  if (isPublicPath(pathname) || request.cookies.get(TOKEN_COOKIE)?.value) return NextResponse.next();
+  const signedIn = Boolean(request.cookies.get(TOKEN_COOKIE)?.value);
+  if (signedIn && isAuthPath(pathname)) return NextResponse.redirect(new URL(HOME_PATH, request.url));
+  if (signedIn || isPublicPath(pathname)) return NextResponse.next();
   return NextResponse.redirect(new URL(loginUrl(pathname + search), request.url));
 }
 

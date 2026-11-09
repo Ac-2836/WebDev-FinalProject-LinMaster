@@ -193,6 +193,89 @@
       "AI_UNAVAILABLE": "Tính năng AI tạm thời không dùng được. Hãy thử lại sau.",
       "NETWORK": "Không kết nối được tới máy chủ. Hãy kiểm tra mạng rồi thử lại.",
       "UNKNOWN": "Đã có lỗi xảy ra. Hãy thử lại."
+    },
+    "account": {
+      "label": "Tài khoản của {name}",
+      "profile": "Hồ sơ",
+      "dashboard": "Dashboard",
+      "logout": "Đăng xuất"
+    }
+  },
+  "auth": {
+    "homeLink": "LinMaster, trang chủ",
+    "showPassword": "Hiện mật khẩu",
+    "optional": "(không bắt buộc)",
+    "noBand": "Chưa đặt",
+    "tooManyAttempts": "Bạn thử quá nhiều lần. Hãy đợi ít phút rồi thử lại.",
+    "fields": {
+      "email": "Email",
+      "password": "Mật khẩu",
+      "displayName": "Tên hiển thị",
+      "targetBand": "Band mục tiêu",
+      "locale": "Ngôn ngữ giao diện"
+    },
+    "errors": {
+      "email": "Nhập một địa chỉ email hợp lệ.",
+      "password": "Mật khẩu cần tối thiểu 8 ký tự.",
+      "displayName": "Nhập tên hiển thị, tối đa 80 ký tự."
+    },
+    "login": {
+      "title": "Chào mừng quay lại",
+      "subtitle": "Đăng nhập để học tiếp từ chỗ bạn dừng.",
+      "continue": "Đăng nhập để tiếp tục tới trang bạn vừa mở.",
+      "invalidCredentials": "Email hoặc mật khẩu không đúng.",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập…",
+      "noAccount": "Chưa có tài khoản?",
+      "toRegister": "Đăng ký miễn phí",
+      "aside": {
+        "today": "Hôm nay",
+        "due": "thẻ đến hạn",
+        "streak": "ngày liên tiếp",
+        "band": "band gần nhất",
+        "tagline": "Từ nào gặp trong bài hôm nay, tối nay đã thành flashcard."
+      }
+    },
+    "register": {
+      "title": "Tạo tài khoản miễn phí",
+      "subtitle": "Chỉ cần email. Bắt đầu học trong 1 phút.",
+      "passwordHint": "Tối thiểu 8 ký tự.",
+      "bandHint": "Dashboard dùng để so với điểm thi thử. Đổi được trong Hồ sơ.",
+      "emailTaken": "Email này đã được dùng.",
+      "toLogin": "Đăng nhập",
+      "submit": "Tạo tài khoản",
+      "submitting": "Đang tạo…",
+      "hasAccount": "Đã có tài khoản?",
+      "aside": {
+        "title": "Bạn sẽ có",
+        "ai": {
+          "title": "AI giải thích theo câu",
+          "body": "Nghĩa đúng ngữ cảnh, không phải nghĩa từ điển chung chung."
+        },
+        "flashcard": {
+          "title": "Flashcard tự lên lịch",
+          "body": "Ôn đúng lúc sắp quên với SM-2."
+        },
+        "exam": {
+          "title": "Phòng thi như thi máy",
+          "body": "Reading, Listening, chấm band ngay."
+        }
+      }
+    },
+    "profile": {
+      "eyebrow": "Tài khoản",
+      "title": "Hồ sơ",
+      "subtitle": "Thông tin tài khoản và tùy chọn học.",
+      "loading": "Đang tải hồ sơ",
+      "loadError": "Không tải được hồ sơ",
+      "retry": "Thử lại",
+      "memberSince": "Thành viên từ {date}",
+      "emailFixed": "Email không đổi được.",
+      "preferences": "Tùy chọn học",
+      "bandHint": "Vạch mục tiêu trên biểu đồ band.",
+      "saved": "Đã lưu thay đổi",
+      "save": "Lưu thay đổi",
+      "logout": "Đăng xuất"
     }
   }
 }
