@@ -67,6 +67,34 @@
   --color-mark: var(--mark);
   --color-violet: var(--violet);
   --color-brand-yellow: var(--brand-yellow);
+  --shadow-soft: 0 1px 2px rgb(11 37 69 / 0.04), 0 8px 24px rgb(11 37 69 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(11 37 69 / 0.04), 0 24px 48px -12px rgb(11 37 69 / 0.16);
+}
+
+/* Design-language helpers from the wireframes (assets/wf.js). */
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+/* Soft blue → violet → pink glow behind product visuals. */
+@utility glow {
+  background:
+    radial-gradient(60% 80% at 15% 20%, #cfe0ff 0%, transparent 60%),
+    radial-gradient(50% 70% at 85% 30%, #e4dcff 0%, transparent 60%),
+    radial-gradient(60% 70% at 60% 100%, #ffe1f1 0%, transparent 60%), #f6f8ff;
+}
+@utility glow-strong {
+  background:
+    radial-gradient(55% 75% at 20% 25%, #9ec0ff 0%, transparent 62%),
+    radial-gradient(50% 70% at 85% 25%, #c6b6ff 0%, transparent 60%),
+    radial-gradient(60% 70% at 55% 100%, #ffc4e4 0%, transparent 62%), #eaf0ff;
+}
+@utility glow-dark {
+  background:
+    radial-gradient(60% 80% at 20% 0%, #2b5cff 0%, transparent 60%),
+    radial-gradient(50% 70% at 90% 100%, #6e4bff 0%, transparent 60%), #0b2545;
 }
 
 @layer base {

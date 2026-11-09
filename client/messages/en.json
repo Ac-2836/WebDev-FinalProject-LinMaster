@@ -9,9 +9,143 @@
       "en": "English",
       "toggle": "Change interface language, currently {current}. Switch to {next}"
     },
-    "placeholder": {
-      "title": "LinMaster is under construction",
-      "body": "This is the placeholder page of the client skeleton. Switch the language with the buttons below; the choice is kept after reloading the page."
+    "landing": {
+      "skip": "Skip to content",
+      "homeLink": "LinMaster, home",
+      "announce": "New: <b>Quick filter</b> vocabulary by CEFR level and topic with AI.",
+      "announceCta": "Try it →",
+      "nav": {
+        "label": "About",
+        "loop": "How it works",
+        "reader": "Reader",
+        "flashcard": "Flashcards",
+        "exam": "Mock tests"
+      },
+      "login": "Log in",
+      "start": "Start for free",
+      "hero": {
+        "eyebrow": "IELTS Reading · Listening · Vocabulary",
+        "title": "Meet a new word, <hl>keep it</hl> for good.",
+        "body": "Read, select a word and let AI explain what it means in that very sentence, save it as a flashcard and review it right before you forget. Take mock tests in an interface just like the computer-based exam.",
+        "register": "Sign up with email",
+        "login": "I already have an account",
+        "note": "Free for learners. No credit card needed."
+      },
+      "demo": {
+        "save": "Save to word bank",
+        "today": "Review today",
+        "again": "Again",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy",
+        "correct": "{n}/{total} correct",
+        "scan": "Quick filter · B2–C2 · Environment",
+        "saveSelected": "Save {n} selected words",
+        "learning": "Learning",
+        "flipHint": "Press Space to flip"
+      },
+      "loop": {
+        "eyebrow": "A closed learning loop",
+        "title": "Every word you meet finds its way into memory",
+        "body": "No more copying words into a notebook and forgetting them. LinMaster links reading, looking up, reviewing and testing into one loop.",
+        "cta": "Get started",
+        "due": "{n} cards due today",
+        "steps": {
+          "read": {
+            "tag": "Read",
+            "title": "Open what you want to read",
+            "body": "Paste text or upload a PDF, DOCX or TXT file."
+          },
+          "lookup": {
+            "tag": "Look up",
+            "title": "AI explains it in context",
+            "body": "The meaning in that sentence, IPA, collocations, CEFR level."
+          },
+          "review": {
+            "tag": "Review",
+            "title": "Flashcards that schedule themselves",
+            "body": "SM-2 reminds you right before you forget, without piling up cards."
+          },
+          "exam": {
+            "tag": "Test",
+            "title": "Mock tests like the real CBT",
+            "body": "Get a band score, then reopen the passage to learn new words."
+          }
+        }
+      },
+      "reader": {
+        "badge": "Reader + AI",
+        "title": "Look up the meaning in the sentence you are reading",
+        "items": {
+          "0": {
+            "title": "Select it, get it",
+            "body": "Select a word or a phrase of up to 6 words. The same word in two different sentences gets two different meanings."
+          },
+          "1": {
+            "title": "Quick filter by CEFR and topic",
+            "body": "AI scans the whole text and suggests words at your level or on your chosen topic, with the original sentence."
+          },
+          "2": {
+            "title": "A word bank that keeps the sentence",
+            "body": "Each word is saved with the sentence you met it in. Search, filter and pick words to build a flashcard set."
+          }
+        }
+      },
+      "flashcard": {
+        "badge": "Flashcards",
+        "title": "Review right before you forget, not just more often",
+        "items": {
+          "0": {
+            "title": "SM-2 schedule",
+            "body": "Rate Again / Hard / Good / Easy and the next review is worked out for you. A daily card limit keeps reviews from piling up."
+          },
+          "1": {
+            "title": "Quizlet-style set editor",
+            "body": "Add, delete and reorder cards, or build a set straight from your word bank."
+          },
+          "2": {
+            "title": "Test, match and AI practice",
+            "body": "More ways to review beyond flipping cards, so words stick."
+          }
+        }
+      },
+      "exam": {
+        "badge": "Mock tests",
+        "title": "An exam room like the real CBT, with your own tests",
+        "items": {
+          "0": {
+            "title": "Drop in test files (PDF, audio)",
+            "body": "AI recognises the test structure, the system checks every question is there, then builds a private exam room for you."
+          },
+          "1": {
+            "title": "Highlight, notes, strike out options",
+            "body": "The same tools as the computer at the test centre: highlight, take notes, flag questions for review."
+          },
+          "2": {
+            "title": "Band score and weak spots",
+            "body": "Scored the moment you submit, converted to a band, with every wrong answer and the question types you struggle with."
+          }
+        }
+      },
+      "dashboard": {
+        "eyebrow": "Dashboard",
+        "title": "See your progress at a glance",
+        "body": "Activity calendar, study streak, band trend and the question types you are still weak at.",
+        "streak": "{days}-day streak · {count} activities this year"
+      },
+      "final": {
+        "eyebrow": "Start now",
+        "title": "From your first passage to your target band",
+        "cta": "Create a free account"
+      },
+      "footer": {
+        "tagline": "Learn English vocabulary in context and practise for the computer-based IELTS.",
+        "product": "Product",
+        "account": "Account",
+        "register": "Sign up",
+        "copyright": "© 2026 LinMaster · Web Application Development course project",
+        "disclaimer": "Not affiliated with IDP, British Council or Cambridge."
+      }
     },
     "loading": "Loading",
     "nav": {
