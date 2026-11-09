@@ -71,9 +71,10 @@ describe('AI gateway', () => {
   });
 
   it('answers 429 AI_QUOTA_EXCEEDED once the daily quota is used, even for cached input', async () => {
-    const now = () => new Date('2026-11-09T10:00:00Z');
+    const now = new Date();
+    const {end} = vietnamDayBounds(now);
     const model = createMockAiModel([{meaning: 'một'}, {meaning: 'hai'}]);
-    const {runJsonTask} = createAiGateway({db, model, dailyQuota: 2, now});
+    const {runJsonTask} = createAiGateway({db, model, dailyQuota: 2, now: () => now});
 
     await runJsonTask(echoTask, {word: 'one'}, {userId});
     await runJsonTask(echoTask, {word: 'one'}, {userId}); // cache hit, does not use quota
@@ -84,7 +85,7 @@ describe('AI gateway', () => {
     expect(error).toMatchObject({
       statusCode: 429,
       status: 'AI_QUOTA_EXCEEDED',
-      details: {retryAt: '2026-11-09T17:00:00.000Z'},
+      details: {retryAt: end.toISOString()},
     });
     expect(model.requests).toHaveLength(2);
   });
