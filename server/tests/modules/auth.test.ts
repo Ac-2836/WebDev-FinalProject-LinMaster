@@ -4,7 +4,8 @@ import {compare} from 'bcryptjs';
 import {beforeEach, describe, expect, it} from 'vitest';
 
 import {errorMiddleware} from '../../src/core/error.middleware';
-import type {AuthRepository, AuthUser} from '../../src/modules/auth';
+import type {AuthRepository, AuthUser} from '../../src/modules/auth/auth.repository';
+import {AuthEmailAlreadyExistsError} from '../../src/modules/auth/auth.errors';
 import {createAuthModule} from '../../src/modules/auth';
 
 const JWT_SECRET = 'auth-test-secret-with-at-least-32-characters';
@@ -25,7 +26,7 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
 function createTestServer(repository: AuthRepository) {
   const app = express();
   app.use(express.json());
-  app.use(createAuthModule(repository, JWT_SECRET).router);
+  app.use(createAuthModule(JWT_SECRET, repository).router);
   app.use(errorMiddleware);
   return app;
 }
@@ -42,7 +43,7 @@ function makeRepository(): AuthRepository & {users: Map<string, AuthUser>} {
     },
     async create(input) {
       if ([...users.values()].some(user => user.email === input.email)) {
-        throw {code: 'P2002'};
+        throw new AuthEmailAlreadyExistsError();
       }
       const user = makeUser({id: `user-${users.size + 1}`, ...input});
       users.set(user.id, user);
@@ -103,6 +104,7 @@ describe('auth API', () => {
     });
 
     expect(response.status).toBe(409);
+    expect(response.body.error.status).toBe('ALREADY_EXISTS');
   });
 
   it('rejects passwords longer than bcrypt can safely hash', async () => {
@@ -178,6 +180,16 @@ describe('auth API', () => {
       .set('Authorization', `Bearer ${registered.body.token as string}`)
       .send({displayName: ''});
     expect(invalid.status).toBe(400);
+    const forbiddenFields = await request(app)
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${registered.body.token as string}`)
+      .send({email: 'new@example.com'});
+    expect(forbiddenFields.status).toBe(400);
+    const invalidBand = await request(app)
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${registered.body.token as string}`)
+      .send({targetBand: 7.3});
+    expect(invalidBand.status).toBe(400);
 
     const limitedApp = createTestServer(makeRepository());
     let lastResponse;
@@ -188,5 +200,22 @@ describe('auth API', () => {
       });
     }
     expect(lastResponse?.status).toBe(429);
+  });
+
+  it('limits account registration to five attempts per hour', async () => {
+    const limitedApp = createTestServer(makeRepository());
+    let lastResponse;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      lastResponse = await request(limitedApp)
+        .post('/auth/register')
+        .send({
+          email: `tienhung-${attempt}@example.com`,
+          password: 'safe-password-123',
+          displayName: 'Tien Hung',
+        });
+    }
+
+    expect(lastResponse?.status).toBe(429);
+    expect(lastResponse?.body.error.status).toBe('RESOURCE_EXHAUSTED');
   });
 });

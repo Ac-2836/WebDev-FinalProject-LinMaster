@@ -6,7 +6,7 @@ import {docsRouter} from './core/docs.route';
 import type {Env} from './core/config/env';
 import {errorMiddleware} from './core/error.middleware';
 import {notFoundMiddleware} from './core/not-found.middleware';
-import {apiModules} from './modules';
+import {createApiModules} from './modules';
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_PER_WINDOW = 120;
@@ -47,7 +47,7 @@ export function createApp(env: Pick<Env, 'NODE_ENV' | 'JWT_SECRET' | 'CORS_ORIGI
   );
   app.use(express.json({limit: '1mb'}));
 
-  for (const apiModule of apiModules) {
+  for (const apiModule of createApiModules(env.JWT_SECRET)) {
     app.use(apiModule.basePath, apiModule.router);
   }
 

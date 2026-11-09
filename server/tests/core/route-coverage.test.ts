@@ -5,7 +5,7 @@ import {describe, expect, it} from 'vitest';
 import {generateOpenApiDocument} from '../../src/core/openapi-registry';
 import {findUndocumentedRoutes} from '../../src/core/route-coverage';
 import type {ApiModule} from '../../src/core/module-registry';
-import {apiModules} from '../../src/modules';
+import {createApiModules} from '../../src/modules';
 import {createApp} from '../../src/app';
 
 const APP_CONFIG = {
@@ -18,7 +18,7 @@ describe('OpenAPI route coverage', () => {
   it('documents every registered API route', () => {
     const document = generateOpenApiDocument();
 
-    expect(findUndocumentedRoutes(apiModules, document)).toEqual([]);
+    expect(findUndocumentedRoutes(createApiModules(APP_CONFIG.JWT_SECRET), document)).toEqual([]);
   });
 
   it('reports a route that has no OpenAPI operation', () => {
@@ -62,6 +62,17 @@ describe('OpenAPI route coverage', () => {
     expect(document.paths?.['/api/v1/auth/login']?.post).toBeDefined();
     expect(document.paths?.['/api/v1/auth/me']?.get).toMatchObject({security: [{bearerAuth: []}]});
     expect(document.paths?.['/api/v1/auth/me']?.patch).toMatchObject({security: [{bearerAuth: []}]});
+    expect(document.paths?.['/api/v1/auth/register']?.post).toMatchObject({
+      requestBody: {content: {'application/json': {examples: {register: {value: {email: 'tienhung@example.com'}}}}}},
+    });
+    expect(document.paths?.['/api/v1/auth/login']?.post).toMatchObject({
+      requestBody: {content: {'application/json': {examples: {login: {value: {email: 'tienhung@example.com'}}}}}},
+    });
+    expect(document.paths?.['/api/v1/auth/register']?.post).toMatchObject({
+      responses: {
+        201: {content: {'application/json': {examples: {success: {value: {user: {email: 'tienhung@example.com'}}}}}}},
+      },
+    });
   });
 
   it('serves Swagger UI and the generated OpenAPI document', async () => {
