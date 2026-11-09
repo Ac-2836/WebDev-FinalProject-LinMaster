@@ -186,7 +186,7 @@
       "NOT_FOUND": "Không tìm thấy nội dung này. Có thể nó đã bị xóa.",
       "ALREADY_EXISTS": "Nội dung này đã tồn tại.",
       "FAILED_PRECONDITION": "Chưa thể thực hiện thao tác này ở trạng thái hiện tại.",
-      "RESOURCE_EXHAUSTED": "Bạn đã dùng hết lượt cho hôm nay. Hãy thử lại sau.",
+      "RESOURCE_EXHAUSTED": "Bạn thao tác quá nhanh. Hãy thử lại sau ít phút.",
       "INTERNAL": "Máy chủ đang gặp lỗi. Hãy thử lại sau ít phút.",
       "AI_QUOTA_EXCEEDED": "Bạn đã dùng hết lượt AI hôm nay. Lượt mới có vào ngày mai.",
       "AI_INVALID_OUTPUT": "AI trả kết quả chưa đúng. Hãy thử lại.",

@@ -186,7 +186,7 @@
       "NOT_FOUND": "This could not be found. It may have been deleted.",
       "ALREADY_EXISTS": "This already exists.",
       "FAILED_PRECONDITION": "This cannot be done right now.",
-      "RESOURCE_EXHAUSTED": "You have used up today’s limit. Please try again later.",
+      "RESOURCE_EXHAUSTED": "Too many requests. Please wait a few minutes and try again.",
       "INTERNAL": "The server ran into a problem. Please try again in a few minutes.",
       "AI_QUOTA_EXCEEDED": "You have used up today’s AI requests. More will be available tomorrow.",
       "AI_INVALID_OUTPUT": "The AI returned an invalid result. Please try again.",

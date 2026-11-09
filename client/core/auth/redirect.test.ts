@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {isPublicPath, loginUrl, safeNext} from './redirect';
+import {isAuthPath, isPublicPath, loginUrl, safeNext} from './redirect';
 
 describe('loginUrl', () => {
   it('keeps the path readable', () => {
@@ -18,12 +18,27 @@ describe('safeNext', () => {
     expect(safeNext('/tests?tab=mine')).toBe('/tests?tab=mine');
   });
 
-  it.each([null, undefined, '', 'home', 'https://evil.example', '//evil.example', '/\\evil.example'])(
-    'falls back to /home for %s',
-    next => {
-      expect(safeNext(next)).toBe('/home');
-    },
-  );
+  it.each([
+    null,
+    undefined,
+    '',
+    'home',
+    'https://evil.example',
+    '//evil.example',
+    '/\\evil.example',
+    '/login',
+    '/login?next=/home',
+    '/register#form',
+  ])('falls back to /home for %s', next => {
+    expect(safeNext(next)).toBe('/home');
+  });
+});
+
+describe('isAuthPath', () => {
+  it('matches only the login and sign-up pages', () => {
+    expect(['/login', '/register'].every(isAuthPath)).toBe(true);
+    expect(['/', '/home', '/login/extra'].some(isAuthPath)).toBe(false);
+  });
 });
 
 describe('isPublicPath', () => {

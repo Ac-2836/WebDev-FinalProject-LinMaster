@@ -67,6 +67,14 @@ describe('api', () => {
     expect(assign).toHaveBeenCalledWith('/login?next=/tests%3Ftab%3Dmine');
   });
 
+  it('stays on the login page on 401 so the form can show a wrong password', async () => {
+    window.location.pathname = '/login';
+    reply(401, {error: {code: 401, status: 'UNAUTHENTICATED', message: 'x'}});
+    await expect(api('/auth/login', {method: 'POST', body: {}})).rejects.toMatchObject({status: 'UNAUTHENTICATED'});
+    expect(cookie).toBe('');
+    expect(assign).not.toHaveBeenCalled();
+  });
+
   it('reports NETWORK when no response comes back', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     await expect(api('/tests')).rejects.toMatchObject({status: 'NETWORK', httpStatus: 0});

@@ -8,7 +8,7 @@ import {isPublicPath, loginUrl, TOKEN_COOKIE} from '@/core/auth/redirect';
  */
 export function proxy(request: NextRequest) {
   const {pathname, search} = request.nextUrl;
-  if (isPublicPath(pathname) || request.cookies.has(TOKEN_COOKIE)) return NextResponse.next();
+  if (isPublicPath(pathname) || request.cookies.get(TOKEN_COOKIE)?.value) return NextResponse.next();
   return NextResponse.redirect(new URL(loginUrl(pathname + search), request.url));
 }
 

@@ -6,10 +6,17 @@ export const TOKEN_COOKIE = 'lm_token';
 /** Pages anyone can open. Every other page needs a session. */
 const PUBLIC_PATHS = new Set(['/', '/login', '/register']);
 
+/** Login and sign-up pages: never a place to return to after login. */
+const AUTH_PATHS = new Set(['/login', '/register']);
+
 export const HOME_PATH = '/home';
 
 export function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.has(pathname);
+}
+
+export function isAuthPath(pathname: string) {
+  return AUTH_PATHS.has(pathname);
 }
 
 /** `/login?next=<path>`; keeps `/` readable so the URL looks like `/login?next=/home`. */
@@ -20,5 +27,7 @@ export function loginUrl(next: string) {
 /** Where to go after login. Only same-site paths are allowed, so `next` cannot send users to another site. */
 export function safeNext(next: string | null | undefined) {
   if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return HOME_PATH;
+  // Returning to /login after logging in would show the login form again.
+  if (isAuthPath(next.split(/[?#]/)[0])) return HOME_PATH;
   return next;
 }

@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const locale = await getLocale();
-  const signedIn = (await cookies()).has(TOKEN_COOKIE);
+  const signedIn = Boolean((await cookies()).get(TOKEN_COOKIE)?.value);
   return (
     <html lang={locale} className={font.variable}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">

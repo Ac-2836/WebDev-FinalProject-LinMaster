@@ -1,6 +1,6 @@
 import {ApiErrorBody} from '@linmaster/shared';
 
-import {loginUrl} from '@/core/auth/redirect';
+import {isAuthPath, loginUrl} from '@/core/auth/redirect';
 import {clearToken, getToken} from '@/core/auth/token';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -59,7 +59,10 @@ export async function api<T>(path: string, {method = 'GET', body, signal}: ApiOp
 
   if (response.status === 401 && token) {
     clearToken();
-    window.location.assign(loginUrl(window.location.pathname + window.location.search));
+    // On the login page a 401 is a wrong password, not an expired session: stay so the form can show the error.
+    if (!isAuthPath(window.location.pathname)) {
+      window.location.assign(loginUrl(window.location.pathname + window.location.search));
+    }
   }
   throw error;
 }
