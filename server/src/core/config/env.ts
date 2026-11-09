@@ -13,6 +13,18 @@ const envSchema = z.object({
   // Optional so tests and CI run without a key; AI calls answer 503 AI_UNAVAILABLE when it is missing.
   GEMINI_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   GEMINI_MODEL: z.preprocess(emptyToUndefined, z.string().default(DEFAULT_GEMINI_MODEL)),
+  JWT_SECRET: z.string().min(32),
+  CORS_ORIGINS: z
+    .string()
+    .default('http://localhost:3000')
+    .transform(value => [
+      ...new Set(
+        value
+          .split(',')
+          .map(origin => origin.trim())
+          .filter(Boolean),
+      ),
+    ]),
 });
 
 export type Env = z.infer<typeof envSchema>;

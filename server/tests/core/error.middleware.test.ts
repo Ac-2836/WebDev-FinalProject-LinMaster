@@ -9,6 +9,12 @@ import {catchAsync} from '../../src/core/catch-async';
 import {errorMiddleware} from '../../src/core/error.middleware';
 import {validate} from '../../src/core/validate.middleware';
 
+const APP_CONFIG = {
+  NODE_ENV: 'test' as const,
+  JWT_SECRET: 'test-secret-that-is-at-least-thirty-two-characters',
+  CORS_ORIGINS: ['http://localhost:3000'],
+};
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -131,7 +137,7 @@ describe('error handling', () => {
   });
 
   it('returns 400 for malformed JSON through the real app', async () => {
-    const response = await request(createApp())
+    const response = await request(createApp(APP_CONFIG))
       .post('/api/v1/health')
       .set('Content-Type', 'application/json')
       .send('{"a":');
@@ -147,8 +153,8 @@ describe('error handling', () => {
   });
 
   it('returns 413 for an oversized JSON body through the real app', async () => {
-    const body = JSON.stringify({payload: 'x'.repeat(200 * 1024)});
-    const response = await request(createApp())
+    const body = JSON.stringify({payload: 'x'.repeat(1_100_000)});
+    const response = await request(createApp(APP_CONFIG))
       .post('/api/v1/health')
       .set('Content-Type', 'application/json')
       .send(body);
@@ -164,7 +170,7 @@ describe('error handling', () => {
   });
 
   it('returns a JSON 404 for an unknown API route', async () => {
-    const response = await request(createApp()).get('/api/v1/khong-co');
+    const response = await request(createApp(APP_CONFIG)).get('/api/v1/khong-co');
 
     expect(response.status).toBe(404);
     expect(response.body.error).toMatchObject({

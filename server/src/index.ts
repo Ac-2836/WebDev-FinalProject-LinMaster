@@ -13,6 +13,6 @@ try {
   process.exit(1);
 }
 
-createApp().listen(env.PORT, () => {
+createApp(env).listen(env.PORT, () => {
   console.log(`LinMaster API listening on http://localhost:${env.PORT}/api/v1`);
 });

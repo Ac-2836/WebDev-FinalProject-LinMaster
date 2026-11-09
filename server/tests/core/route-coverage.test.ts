@@ -8,6 +8,12 @@ import type {ApiModule} from '../../src/core/module-registry';
 import {apiModules} from '../../src/modules';
 import {createApp} from '../../src/app';
 
+const APP_CONFIG = {
+  NODE_ENV: 'test' as const,
+  JWT_SECRET: 'test-secret-that-is-at-least-thirty-two-characters',
+  CORS_ORIGINS: ['http://localhost:3000'],
+};
+
 describe('OpenAPI route coverage', () => {
   it('documents every registered API route', () => {
     const document = generateOpenApiDocument();
@@ -55,7 +61,7 @@ describe('OpenAPI route coverage', () => {
   });
 
   it('serves Swagger UI and the generated OpenAPI document', async () => {
-    const app = createApp();
+    const app = createApp(APP_CONFIG);
 
     const docsResponse = await request(app).get('/docs');
     expect(docsResponse.status).toBe(301);
