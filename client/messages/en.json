@@ -193,6 +193,89 @@
       "AI_UNAVAILABLE": "AI features are unavailable right now. Please try again later.",
       "NETWORK": "Cannot reach the server. Check your connection and try again.",
       "UNKNOWN": "Something went wrong. Please try again."
+    },
+    "account": {
+      "label": "Account of {name}",
+      "profile": "Profile",
+      "dashboard": "Dashboard",
+      "logout": "Log out"
+    }
+  },
+  "auth": {
+    "homeLink": "LinMaster, home",
+    "showPassword": "Show password",
+    "optional": "(optional)",
+    "noBand": "Not set",
+    "tooManyAttempts": "Too many attempts. Please wait a few minutes and try again.",
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "displayName": "Display name",
+      "targetBand": "Target band",
+      "locale": "Interface language"
+    },
+    "errors": {
+      "email": "Enter a valid email address.",
+      "password": "Password must be at least 8 characters.",
+      "displayName": "Enter a display name of up to 80 characters."
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to pick up where you left off.",
+      "continue": "Log in to continue to the page you opened.",
+      "invalidCredentials": "Incorrect email or password.",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "noAccount": "No account yet?",
+      "toRegister": "Sign up for free",
+      "aside": {
+        "today": "Today",
+        "due": "cards due",
+        "streak": "day streak",
+        "band": "latest band",
+        "tagline": "The words you meet in today’s reading are flashcards by tonight."
+      }
+    },
+    "register": {
+      "title": "Create a free account",
+      "subtitle": "Just an email. Start learning in a minute.",
+      "passwordHint": "At least 8 characters.",
+      "bandHint": "The dashboard compares your mock test scores with it. You can change it in Profile.",
+      "emailTaken": "This email is already in use.",
+      "toLogin": "Log in",
+      "submit": "Create account",
+      "submitting": "Creating…",
+      "hasAccount": "Already have an account?",
+      "aside": {
+        "title": "What you get",
+        "ai": {
+          "title": "AI explains in context",
+          "body": "The meaning in your sentence, not a generic dictionary entry."
+        },
+        "flashcard": {
+          "title": "Self-scheduling flashcards",
+          "body": "Review right before you forget, with SM-2."
+        },
+        "exam": {
+          "title": "An exam room like the real CBT",
+          "body": "Reading and Listening, with an instant band score."
+        }
+      }
+    },
+    "profile": {
+      "eyebrow": "Account",
+      "title": "Profile",
+      "subtitle": "Your account details and learning preferences.",
+      "loading": "Loading profile",
+      "loadError": "Could not load your profile",
+      "retry": "Try again",
+      "memberSince": "Member since {date}",
+      "emailFixed": "Your email cannot be changed.",
+      "preferences": "Learning preferences",
+      "bandHint": "The target line on your band chart.",
+      "saved": "Changes saved",
+      "save": "Save changes",
+      "logout": "Log out"
     }
   }
 }

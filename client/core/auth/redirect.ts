@@ -6,7 +6,7 @@ export const TOKEN_COOKIE = 'lm_token';
 /** Pages anyone can open. Every other page needs a session. */
 const PUBLIC_PATHS = new Set(['/', '/login', '/register']);
 
-/** Login and sign-up pages: never a place to return to after login. */
+/** Login and sign-up pages: never a place to return to after login, and skipped by a signed-in visitor. */
 const AUTH_PATHS = new Set(['/login', '/register']);
 
 export const HOME_PATH = '/home';
