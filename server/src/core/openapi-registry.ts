@@ -24,6 +24,7 @@ export function generateOpenApiDocument() {
       {name: 'Auth', description: 'Account registration, login, and profile management.'},
       {name: 'Vocab', description: 'Personal vocabulary entries and reading contexts.'},
       {name: 'Documents', description: 'Reading document upload, extraction, and personal document management.'},
+      {name: 'Flashcard', description: 'Personal flashcard sets and cards.'},
     ],
   });
 }
