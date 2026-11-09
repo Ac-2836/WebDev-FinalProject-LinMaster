@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {"@linmaster/shared": ["shared/src/index.ts"]}
   },
   "include": [
     "shared/src/**/*.ts",
