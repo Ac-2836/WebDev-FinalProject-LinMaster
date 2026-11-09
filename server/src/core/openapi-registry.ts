@@ -19,6 +19,9 @@ export function generateOpenApiDocument() {
       description: 'API documentation for LinMaster.',
     },
     servers: [{url: '/'}],
-    tags: [{name: 'Core', description: 'Health and core infrastructure.'}],
+    tags: [
+      {name: 'Core', description: 'Health and core infrastructure.'},
+      {name: 'Auth', description: 'Account registration, login, and profile management.'},
+    ],
   });
 }
