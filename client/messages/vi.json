@@ -178,6 +178,21 @@
       "emptyTitle": "Chưa có gì ở đây",
       "emptyBody": "Các widget của trang chủ (bài thi dở, thẻ đến hạn, tài liệu gần đây) sẽ hiện ở đây.",
       "emptyAction": "Mở trình đọc"
+    },
+    "errors": {
+      "INVALID_ARGUMENT": "Dữ liệu chưa hợp lệ. Hãy kiểm tra lại rồi thử lại.",
+      "UNAUTHENTICATED": "Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.",
+      "PERMISSION_DENIED": "Bạn không có quyền thực hiện thao tác này.",
+      "NOT_FOUND": "Không tìm thấy nội dung này. Có thể nó đã bị xóa.",
+      "ALREADY_EXISTS": "Nội dung này đã tồn tại.",
+      "FAILED_PRECONDITION": "Chưa thể thực hiện thao tác này ở trạng thái hiện tại.",
+      "RESOURCE_EXHAUSTED": "Bạn đã dùng hết lượt cho hôm nay. Hãy thử lại sau.",
+      "INTERNAL": "Máy chủ đang gặp lỗi. Hãy thử lại sau ít phút.",
+      "AI_QUOTA_EXCEEDED": "Bạn đã dùng hết lượt AI hôm nay. Lượt mới có vào ngày mai.",
+      "AI_INVALID_OUTPUT": "AI trả kết quả chưa đúng. Hãy thử lại.",
+      "AI_UNAVAILABLE": "Tính năng AI tạm thời không dùng được. Hãy thử lại sau.",
+      "NETWORK": "Không kết nối được tới máy chủ. Hãy kiểm tra mạng rồi thử lại.",
+      "UNKNOWN": "Đã có lỗi xảy ra. Hãy thử lại."
     }
   }
 }

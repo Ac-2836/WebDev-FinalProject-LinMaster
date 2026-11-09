@@ -2,7 +2,11 @@ import type {Metadata} from 'next';
 import {Be_Vietnam_Pro} from 'next/font/google';
 import {NextIntlClientProvider} from 'next-intl';
 import {getLocale, getTranslations} from 'next-intl/server';
+import {cookies} from 'next/headers';
 import {Toaster} from 'sonner';
+
+import {TOKEN_COOKIE} from '@/core/auth/redirect';
+import {SessionProvider} from '@/core/auth/session-provider';
 
 import './globals.css';
 
@@ -19,10 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const locale = await getLocale();
+  const signedIn = (await cookies()).has(TOKEN_COOKIE);
   return (
     <html lang={locale} className={font.variable}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <SessionProvider initialSignedIn={signedIn}>{children}</SessionProvider>
+        </NextIntlClientProvider>
         {/* Toasts: call toast() from 'sonner' anywhere. Top centre keeps them clear of the mobile tab bar. */}
         <Toaster position="top-center" richColors closeButton />
       </body>
