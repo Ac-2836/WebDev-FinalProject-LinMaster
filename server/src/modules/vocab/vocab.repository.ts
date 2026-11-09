@@ -4,6 +4,7 @@ import {getDb} from '../../core/db';
 
 export interface VocabRepository {
   saveEntry(ownerId: string, input: SaveVocabEntry): Promise<VocabEntry>;
+  saveEntries(ownerId: string, inputs: SaveVocabEntry[]): Promise<VocabEntry[]>;
   listEntries(ownerId: string, query: ListVocabEntriesQuery): Promise<{entries: VocabEntry[]; total: number}>;
   findEntry(ownerId: string, id: string): Promise<VocabEntry | null>;
   updateNote(ownerId: string, id: string, note: string | null): Promise<VocabEntry | null>;
@@ -39,8 +40,27 @@ type EntryWithContexts = {
 
 function toEntryDto(entry: EntryWithContexts): VocabEntry {
   return {
-    ...entry,
-    contexts: entry.contexts.map(context => ({...context, createdAt: context.createdAt.toISOString()})),
+    id: entry.id,
+    headword: entry.headword,
+    lemma: entry.lemma,
+    partOfSpeech: entry.partOfSpeech,
+    ipa: entry.ipa,
+    meaningVi: entry.meaningVi,
+    definitionEn: entry.definitionEn,
+    usageNote: entry.usageNote,
+    collocations: entry.collocations,
+    cefr: entry.cefr,
+    topics: entry.topics,
+    note: entry.note,
+    contexts: entry.contexts.map(context => ({
+      id: context.id,
+      documentId: context.documentId,
+      sentence: context.sentence,
+      startOffset: context.startOffset,
+      endOffset: context.endOffset,
+      sourceUrl: context.sourceUrl,
+      createdAt: context.createdAt.toISOString(),
+    })),
     createdAt: entry.createdAt.toISOString(),
     updatedAt: entry.updatedAt.toISOString(),
   };
@@ -80,55 +100,79 @@ function entryWhere(ownerId: string, query: ListVocabEntriesQuery): Prisma.Vocab
 
 const includeContexts = {contexts: {orderBy: {createdAt: 'asc' as const}}};
 
+type VocabTransaction = Prisma.TransactionClient;
+
+async function assertOwnedDocuments(tx: VocabTransaction, ownerId: string, inputs: SaveVocabEntry[]): Promise<void> {
+  const documentIds = [
+    ...new Set(inputs.flatMap(input => (input.context?.documentId ? [input.context.documentId] : []))),
+  ];
+  if (documentIds.length === 0) return;
+
+  const documents = await tx.document.findMany({
+    where: {id: {in: documentIds}, ownerId},
+    select: {id: true},
+  });
+  if (documents.length !== documentIds.length) throw new VocabDocumentNotFoundError();
+}
+
+async function saveEntryInTransaction(
+  tx: VocabTransaction,
+  ownerId: string,
+  input: SaveVocabEntry,
+): Promise<EntryWithContexts> {
+  const saved = await tx.vocabEntry.upsert({
+    where: {ownerId_lemma_partOfSpeech: {ownerId, lemma: input.lemma, partOfSpeech: input.partOfSpeech}},
+    create: entryData(ownerId, input),
+    update: {},
+    include: includeContexts,
+  });
+
+  if (input.context) {
+    const existingContext = await tx.vocabContext.findFirst({
+      where: {
+        entryId: saved.id,
+        sentence: input.context.sentence,
+        documentId: input.context.documentId ?? null,
+        startOffset: input.context.startOffset ?? null,
+        endOffset: input.context.endOffset ?? null,
+        sourceUrl: input.context.sourceUrl ?? null,
+      },
+      select: {id: true},
+    });
+    if (!existingContext) {
+      await tx.vocabContext.create({
+        data: {
+          entryId: saved.id,
+          documentId: input.context.documentId,
+          sentence: input.context.sentence,
+          startOffset: input.context.startOffset,
+          endOffset: input.context.endOffset,
+          sourceUrl: input.context.sourceUrl,
+        },
+      });
+    }
+  }
+
+  return tx.vocabEntry.findUniqueOrThrow({where: {id: saved.id}, include: includeContexts});
+}
+
 export const prismaVocabRepository: VocabRepository = {
   async saveEntry(ownerId, input) {
-    const db = getDb();
-    const entry = await db.$transaction(async tx => {
-      if (input.context?.documentId) {
-        const document = await tx.document.findFirst({
-          where: {id: input.context.documentId, ownerId},
-          select: {id: true},
-        });
-        if (!document) return null;
+    const [entry] = await this.saveEntries(ownerId, [input]);
+    return entry;
+  },
+
+  async saveEntries(ownerId, inputs) {
+    const entries = await getDb().$transaction(async tx => {
+      await assertOwnedDocuments(tx, ownerId, inputs);
+      const saved = new Map<string, EntryWithContexts>();
+      for (const input of inputs) {
+        const entry = await saveEntryInTransaction(tx, ownerId, input);
+        saved.set(entry.id, entry);
       }
-
-      const saved = await tx.vocabEntry.upsert({
-        where: {ownerId_lemma_partOfSpeech: {ownerId, lemma: input.lemma, partOfSpeech: input.partOfSpeech}},
-        create: entryData(ownerId, input),
-        update: entryData(ownerId, input),
-        include: includeContexts,
-      });
-
-      if (input.context) {
-        const existingContext = await tx.vocabContext.findFirst({
-          where: {
-            entryId: saved.id,
-            sentence: input.context.sentence,
-            documentId: input.context.documentId ?? null,
-            startOffset: input.context.startOffset ?? null,
-            endOffset: input.context.endOffset ?? null,
-            sourceUrl: input.context.sourceUrl ?? null,
-          },
-          select: {id: true},
-        });
-        if (!existingContext) {
-          await tx.vocabContext.create({
-            data: {
-              entryId: saved.id,
-              documentId: input.context.documentId,
-              sentence: input.context.sentence,
-              startOffset: input.context.startOffset,
-              endOffset: input.context.endOffset,
-              sourceUrl: input.context.sourceUrl,
-            },
-          });
-        }
-      }
-
-      return tx.vocabEntry.findUnique({where: {id: saved.id}, include: includeContexts});
+      return [...saved.values()];
     });
-    if (!entry) throw new VocabDocumentNotFoundError();
-    return toEntryDto(entry);
+    return entries.map(toEntryDto);
   },
 
   async listEntries(ownerId, query) {

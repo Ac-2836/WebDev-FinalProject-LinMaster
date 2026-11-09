@@ -6,6 +6,7 @@ import {errorMiddleware} from '../../src/core/error.middleware';
 import {generateOpenApiDocument} from '../../src/core/openapi-registry';
 import {signJwt} from '../../src/core/jwt';
 import type {VocabRepository} from '../../src/modules/vocab/vocab.repository';
+import {VocabDocumentNotFoundError} from '../../src/modules/vocab/vocab.repository';
 import {createVocabModule} from '../../src/modules/vocab';
 
 const JWT_SECRET = 'vocab-test-secret-that-is-at-least-32-characters';
@@ -62,18 +63,22 @@ function makeRepository(): VocabRepository & {entries: Map<string, {ownerId: str
         : null;
       const entry = makeEntry({
         ...(existing?.entry ?? {}),
-        headword: input.headword,
-        lemma: input.lemma,
-        partOfSpeech: input.partOfSpeech,
-        meaningVi: input.meaningVi,
         id,
-        ipa: input.ipa ?? null,
-        definitionEn: input.definitionEn ?? null,
-        usageNote: input.usageNote ?? null,
-        collocations: input.collocations ?? [],
-        cefr: input.cefr ?? null,
-        topics: input.topics ?? [],
-        note: existing?.entry.note ?? null,
+        ...(existing
+          ? {}
+          : {
+              headword: input.headword,
+              lemma: input.lemma,
+              partOfSpeech: input.partOfSpeech,
+              meaningVi: input.meaningVi,
+              ipa: input.ipa ?? null,
+              definitionEn: input.definitionEn ?? null,
+              usageNote: input.usageNote ?? null,
+              collocations: input.collocations ?? [],
+              cefr: input.cefr ?? null,
+              topics: input.topics ?? [],
+              note: null,
+            }),
         contexts:
           context && !existing?.entry.contexts.some(item => item.sentence === context.sentence)
             ? [...(existing?.entry.contexts ?? []), context]
@@ -81,6 +86,22 @@ function makeRepository(): VocabRepository & {entries: Map<string, {ownerId: str
       });
       entries.set(id, {ownerId, entry});
       return entry;
+    },
+    async saveEntries(ownerId, inputs) {
+      const snapshot = new Map(entries);
+      try {
+        const saved = new Map<string, VocabEntry>();
+        for (const input of inputs) {
+          if (input.context?.documentId !== undefined) throw new VocabDocumentNotFoundError();
+          const entry = await this.saveEntry(ownerId, input);
+          saved.set(entry.id, entry);
+        }
+        return [...saved.values()];
+      } catch (error) {
+        entries.clear();
+        for (const [id, value] of snapshot) entries.set(id, value);
+        throw error;
+      }
     },
     async listEntries(ownerId, query: ListVocabEntriesQuery) {
       const matches = [...entries.values()]
@@ -161,6 +182,9 @@ describe('vocab entries API', () => {
             headword: 'mitigated',
             lemma: 'mitigate',
             partOfSpeech: 'verb',
+            cefr: 'C1',
+            topics: ['Environment'],
+            collocations: ['mitigate harm'],
             meaningVi: 'giảm nhẹ',
             context: {sentence: 'Policy mitigated harm.'},
           },
@@ -176,6 +200,13 @@ describe('vocab entries API', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.entries).toHaveLength(1);
+    expect(response.body.entries[0]).toMatchObject({
+      headword: 'mitigated',
+      cefr: 'C1',
+      topics: ['environment'],
+      collocations: ['mitigate harm'],
+    });
+    expect(response.body.entries[0]).not.toHaveProperty('ownerId');
     expect(response.body.entries[0].contexts.map((context: {sentence: string}) => context.sentence)).toEqual([
       'Policy mitigated harm.',
       'It mitigates risk.',
@@ -193,7 +224,7 @@ describe('vocab entries API', () => {
             lemma: 'mitigate',
             partOfSpeech: 'verb',
             meaningVi: 'giảm nhẹ',
-            topics: ['environment'],
+            topics: ['Environment'],
             cefr: 'B2',
           },
           {

@@ -1,4 +1,4 @@
-import type {ListVocabEntriesQuery, SaveVocabEntry, VocabEntry} from '@linmaster/shared';
+import type {ListVocabEntriesQuery, SaveVocabEntry} from '@linmaster/shared';
 import {AppError} from '../../core/app-error';
 import type {VocabRepository} from './vocab.repository';
 import {VocabDocumentNotFoundError} from './vocab.repository';
@@ -7,12 +7,7 @@ export function createVocabService(repository: VocabRepository) {
   return {
     async saveEntries(ownerId: string, entries: SaveVocabEntry[]) {
       try {
-        const savedById = new Map<string, VocabEntry>();
-        for (const entry of entries) {
-          const saved = await repository.saveEntry(ownerId, entry);
-          savedById.set(saved.id, saved);
-        }
-        return {entries: [...savedById.values()]};
+        return {entries: await repository.saveEntries(ownerId, entries)};
       } catch (error) {
         if (error instanceof VocabDocumentNotFoundError) throw new AppError('Document not found.', 404);
         throw error;

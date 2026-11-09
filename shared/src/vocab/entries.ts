@@ -69,7 +69,16 @@ export const SaveVocabEntrySchema = z
     usageNote: z.string().trim().nullable().optional(),
     collocations: z.array(z.string().trim().min(1)).max(30).optional(),
     cefr: CefrLevelSchema.nullable().optional(),
-    topics: z.array(z.string().trim().min(1)).max(30).optional(),
+    topics: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1)
+          .transform(value => value.toLowerCase()),
+      )
+      .max(30)
+      .optional(),
     context: VocabContextInputSchema.optional(),
   })
   .strict();
@@ -82,7 +91,13 @@ export const SaveVocabEntriesResponseSchema = z.object({entries: z.array(VocabEn
 export const ListVocabEntriesQuerySchema = z
   .object({
     q: z.string().trim().min(1).max(120).optional(),
-    topic: z.string().trim().min(1).max(80).optional(),
+    topic: z
+      .string()
+      .trim()
+      .min(1)
+      .max(80)
+      .transform(value => value.toLowerCase())
+      .optional(),
     cefr: CefrLevelSchema.optional(),
     documentId: z.string().uuid().optional(),
     page: z.coerce.number().int().min(1).default(1),
