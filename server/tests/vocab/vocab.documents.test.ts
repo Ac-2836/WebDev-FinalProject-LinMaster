@@ -165,6 +165,31 @@ function createPdf(text: string): Buffer {
   return Buffer.from(pdf, 'binary');
 }
 
+function createPdfWithParagraphs(paragraphs: string[]): Buffer {
+  const commands = paragraphs
+    .map((paragraph, index) => `1 0 0 1 72 ${720 - index * 36} Tm\n(${paragraph.replace(/([\\()])/g, '\\$1')}) Tj\n`)
+    .join('');
+  const stream = `BT\n/F1 12 Tf\n${commands}ET\n`;
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    `<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}endstream`,
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  for (const [index, object] of objects.entries()) {
+    offsets.push(Buffer.byteLength(pdf));
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  }
+  const xrefOffset = Buffer.byteLength(pdf);
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const offset of offsets.slice(1)) pdf += `${offset.toString().padStart(10, '0')} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return Buffer.from(pdf, 'binary');
+}
+
 function createTestServer(repository: VocabDocumentRepository) {
   const app = express();
   app.use(express.json());
@@ -229,7 +254,7 @@ describe('vocab documents API', () => {
     [
       'TXT',
       'sample.txt',
-      'text/plain',
+      'text/markdown',
       () => Buffer.from('\uFEFFTXT extraction works.', 'utf8'),
       'TXT extraction works.',
     ],
@@ -247,18 +272,76 @@ describe('vocab documents API', () => {
     );
   });
 
-  it('rejects an unsupported MIME type and files larger than 5 MB', async () => {
+  it('uses Vietnamese upload filenames as titles and accepts DOCX with a generic browser MIME', async () => {
+    const response = await request(app)
+      .post('/api/v1/vocab/documents')
+      .set('Authorization', authHeader())
+      .attach('file', createDocx('Tài liệu tiếng Việt.'), {
+        filename: 'Bài đọc mẫu.docx',
+        contentType: 'application/octet-stream',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.document.title).toBe('Bài đọc mẫu');
+  });
+
+  it('splits PDF paragraphs using vertical whitespace within a page', async () => {
+    const response = await request(app)
+      .post('/api/v1/vocab/documents')
+      .set('Authorization', authHeader())
+      .attach('file', createPdfWithParagraphs(['Short opening paragraph.', 'Second paragraph.', 'Third paragraph.']), {
+        filename: 'paragraphs.pdf',
+        contentType: 'application/pdf',
+      });
+
+    expect(response.status).toBe(201);
+    const extractedParagraphs = response.body.document.paragraphs.map((paragraph: {text: string}) => paragraph.text);
+    expect(extractedParagraphs).toHaveLength(3);
+    expect(extractedParagraphs[0].split(/\s+/u)).toHaveLength(3);
+  });
+
+  it('returns 400 for an incomplete multipart upload', async () => {
+    const response = await request(app)
+      .post('/api/v1/vocab/documents')
+      .set('Authorization', authHeader())
+      .set('Content-Type', 'multipart/form-data; boundary=truncated')
+      .send('--truncated\r\nContent-Disposition: form-data; name="file"; filename="broken.txt"\r\n\r\npartial');
+
+    expect(response.status).toBe(400);
+  });
+
+  it('rejects an unsupported extension, invalid PDF content, and files larger than 5 MB', async () => {
     const unsupported = await request(app)
       .post('/api/v1/vocab/documents')
       .set('Authorization', authHeader())
       .attach('file', Buffer.from('not a document'), {filename: 'sample.bin', contentType: 'application/octet-stream'});
+    const invalidPdf = await request(app)
+      .post('/api/v1/vocab/documents')
+      .set('Authorization', authHeader())
+      .attach('file', Buffer.from('not a PDF'), {filename: 'sample.pdf', contentType: 'application/pdf'});
     const tooLarge = await request(app)
       .post('/api/v1/vocab/documents')
       .set('Authorization', authHeader())
       .attach('file', Buffer.alloc(5 * 1024 * 1024 + 1, 65), {filename: 'large.txt', contentType: 'text/plain'});
 
     expect(unsupported.status).toBe(415);
+    expect(invalidPdf.status).toBe(400);
     expect(tooLarge.status).toBe(413);
+  });
+
+  it('accepts a long Vietnamese title within the document schema limit', async () => {
+    const title = '\u1ea5'.repeat(80);
+    const response = await request(app)
+      .post('/api/v1/vocab/documents')
+      .set('Authorization', authHeader())
+      .field('title', title)
+      .attach('file', Buffer.from('Vietnamese title body.', 'utf8'), {
+        filename: 'title.txt',
+        contentType: 'text/plain',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.document.title).toBe(title);
   });
 
   it('requires authentication and documents every document endpoint and upload content type', async () => {
