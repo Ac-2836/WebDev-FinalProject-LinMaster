@@ -159,7 +159,8 @@ export const prismaFlashcardRepository: FlashcardRepository = {
           await tx.card.update({where: {id: card.id}, data});
           retainedIds.push(card.id);
         } else {
-          await tx.card.create({data: {...data, setId}});
+          const createdCard = await tx.card.create({data: {...data, setId}, select: {id: true}});
+          retainedIds.push(createdCard.id);
         }
       }
 
