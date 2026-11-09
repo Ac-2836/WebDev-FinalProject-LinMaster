@@ -9,9 +9,143 @@
       "en": "English",
       "toggle": "Đổi ngôn ngữ giao diện, đang là {current}. Bấm để chuyển sang {next}"
     },
-    "placeholder": {
-      "title": "LinMaster đang được xây dựng",
-      "body": "Đây là trang tạm của khung client. Đổi ngôn ngữ bằng các nút bên dưới, lựa chọn được giữ lại sau khi tải lại trang."
+    "landing": {
+      "skip": "Bỏ qua tới nội dung",
+      "homeLink": "LinMaster, trang chủ",
+      "announce": "Mới: <b>Lọc nhanh</b> từ vựng theo CEFR và chủ đề bằng AI.",
+      "announceCta": "Dùng thử →",
+      "nav": {
+        "label": "Giới thiệu",
+        "loop": "Cách học",
+        "reader": "Trình đọc",
+        "flashcard": "Flashcard",
+        "exam": "Thi thử"
+      },
+      "login": "Đăng nhập",
+      "start": "Bắt đầu miễn phí",
+      "hero": {
+        "eyebrow": "IELTS Reading · Listening · Từ vựng",
+        "title": "Gặp từ nào lạ, <hl>nhớ luôn</hl> từ đó.",
+        "body": "Đọc bài, bôi chọn từ để AI giải thích đúng nghĩa trong câu, lưu thành flashcard và ôn đúng lúc sắp quên. Thi thử trên giao diện giống thi máy thật.",
+        "register": "Đăng ký bằng email",
+        "login": "Tôi đã có tài khoản",
+        "note": "Miễn phí cho người học. Không cần thẻ thanh toán."
+      },
+      "demo": {
+        "save": "Lưu vào kho từ",
+        "today": "Ôn hôm nay",
+        "again": "Quên",
+        "hard": "Khó",
+        "good": "Tốt",
+        "easy": "Dễ",
+        "correct": "{n}/{total} câu đúng",
+        "scan": "Lọc nhanh · B2–C2 · Environment",
+        "saveSelected": "Lưu {n} từ đã chọn",
+        "learning": "Đang học",
+        "flipHint": "Nhấn phím cách để lật"
+      },
+      "loop": {
+        "eyebrow": "Vòng học khép kín",
+        "title": "Mỗi từ bạn gặp đều có đường về trí nhớ",
+        "body": "Không còn chép từ ra sổ rồi quên. LinMaster nối việc đọc, tra, ôn và thi thành một vòng.",
+        "cta": "Bắt đầu",
+        "due": "{n} thẻ đến hạn hôm nay",
+        "steps": {
+          "read": {
+            "tag": "Đọc",
+            "title": "Mở bài bạn muốn đọc",
+            "body": "Dán văn bản hoặc tải PDF, DOCX, TXT."
+          },
+          "lookup": {
+            "tag": "Tra",
+            "title": "AI giải thích theo câu",
+            "body": "Nghĩa đúng ngữ cảnh, IPA, collocations, CEFR."
+          },
+          "review": {
+            "tag": "Ôn",
+            "title": "Flashcard tự lên lịch",
+            "body": "SM-2 nhắc đúng lúc sắp quên, không dồn thẻ."
+          },
+          "exam": {
+            "tag": "Thi",
+            "title": "Thi thử như thi máy",
+            "body": "Chấm band, mở lại bài đọc để học tiếp từ mới."
+          }
+        }
+      },
+      "reader": {
+        "badge": "Trình đọc + AI",
+        "title": "Tra từ đúng nghĩa trong câu bạn đang đọc",
+        "items": {
+          "0": {
+            "title": "Bôi chọn là hiểu",
+            "body": "Chọn một từ hoặc cụm tối đa 6 từ. Cùng một từ ở hai câu khác nhau sẽ ra hai nghĩa khác nhau."
+          },
+          "1": {
+            "title": "Lọc nhanh theo CEFR và chủ đề",
+            "body": "AI quét cả bài và gợi ý các từ đúng trình độ hoặc chủ đề bạn chọn, kèm câu gốc trong bài."
+          },
+          "2": {
+            "title": "Kho từ lưu kèm câu gốc",
+            "body": "Mỗi từ lưu cùng câu bạn gặp nó. Tìm kiếm, lọc và chọn nhiều từ để tạo bộ thẻ."
+          }
+        }
+      },
+      "flashcard": {
+        "badge": "Flashcard",
+        "title": "Ôn đúng lúc sắp quên, không phải ôn cho nhiều",
+        "items": {
+          "0": {
+            "title": "Lịch ôn SM-2",
+            "body": "Chấm Quên / Khó / Tốt / Dễ, hệ thống tự tính lần ôn tiếp. Giới hạn thẻ mỗi ngày để không bị dồn."
+          },
+          "1": {
+            "title": "Soạn bộ thẻ kiểu Quizlet",
+            "body": "Thêm, xóa, đổi thứ tự thẻ, hoặc tạo bộ thẻ ngay từ kho từ."
+          },
+          "2": {
+            "title": "Kiểm tra, ghép thẻ, bài luyện AI",
+            "body": "Thêm cách ôn ngoài thẻ lật để nhớ từ chắc hơn."
+          }
+        }
+      },
+      "exam": {
+        "badge": "Thi thử",
+        "title": "Phòng thi giống thi máy, đề là của bạn",
+        "items": {
+          "0": {
+            "title": "Thả file đề (PDF, audio)",
+            "body": "AI nhận diện cấu trúc đề, hệ thống kiểm tra đủ câu rồi tạo phòng thi riêng cho bạn."
+          },
+          "1": {
+            "title": "Highlight, ghi chú, gạch phương án",
+            "body": "Công cụ làm bài như trên máy ở điểm thi: tô sáng, ghi chú, đánh dấu câu để xem lại."
+          },
+          "2": {
+            "title": "Chấm band và xem điểm yếu",
+            "body": "Chấm điểm ngay khi nộp, quy ra band, xem từng câu sai và dạng câu còn yếu."
+          }
+        }
+      },
+      "dashboard": {
+        "eyebrow": "Dashboard",
+        "title": "Nhìn một lần là thấy mình tiến bộ",
+        "body": "Lịch hoạt động, chuỗi ngày học, xu hướng band và dạng câu bạn còn yếu.",
+        "streak": "Chuỗi {days} ngày · {count} hoạt động trong năm"
+      },
+      "final": {
+        "eyebrow": "Bắt đầu ngay",
+        "title": "Từ bài đọc đầu tiên tới band mục tiêu",
+        "cta": "Tạo tài khoản miễn phí"
+      },
+      "footer": {
+        "tagline": "Học từ vựng tiếng Anh theo ngữ cảnh và luyện thi IELTS trên máy.",
+        "product": "Sản phẩm",
+        "account": "Tài khoản",
+        "register": "Đăng ký",
+        "copyright": "© 2026 LinMaster · Đồ án môn Phát triển ứng dụng Web",
+        "disclaimer": "Không liên kết với IDP, British Council hay Cambridge."
+      }
     },
     "loading": "Đang tải",
     "nav": {
