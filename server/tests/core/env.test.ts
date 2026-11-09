@@ -6,7 +6,18 @@ const DATABASE_URL = 'postgresql://linmaster:linmaster@localhost:5432/linmaster_
 
 describe('parseEnv', () => {
   it('applies defaults', () => {
-    expect(parseEnv({DATABASE_URL})).toEqual({NODE_ENV: 'development', PORT: 4000, DATABASE_URL});
+    expect(parseEnv({DATABASE_URL})).toEqual({
+      NODE_ENV: 'development',
+      PORT: 4000,
+      DATABASE_URL,
+      GEMINI_MODEL: 'gemini-3.5-flash',
+    });
+  });
+
+  it('treats empty Gemini variables as unset', () => {
+    const env = parseEnv({DATABASE_URL, GEMINI_API_KEY: '', GEMINI_MODEL: ''});
+    expect(env.GEMINI_API_KEY).toBeUndefined();
+    expect(env.GEMINI_MODEL).toBe('gemini-3.5-flash');
   });
 
   it('coerces PORT to a number', () => {
