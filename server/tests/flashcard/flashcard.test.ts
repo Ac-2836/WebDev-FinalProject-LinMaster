@@ -1,6 +1,13 @@
 import express from 'express';
 import request from 'supertest';
 import {beforeEach, describe, expect, it} from 'vitest';
+import {
+  MAX_CARDS_PER_SET,
+  MAX_DEFINITION_LENGTH,
+  MAX_EXAMPLE_LENGTH,
+  MAX_SET_DESCRIPTION_LENGTH,
+  MAX_TERM_LENGTH,
+} from '@linmaster/shared';
 import type {FlashcardCard, FlashcardSet, VocabEntry} from '@linmaster/shared';
 import {errorMiddleware} from '../../src/core/error.middleware';
 import {generateOpenApiDocument} from '../../src/core/openapi-registry';
@@ -234,6 +241,35 @@ describe('flashcard API', () => {
     expect(response.body.cards).toHaveLength(2);
     expect(response.body.cards[0]).toMatchObject({id: CARD_ID, term: 'mitigates', position: 0});
     expect(response.body.cards[1]).toMatchObject({term: 'resilient', position: 1});
+  });
+
+  it('limits the number of cards and the length of card and set text', async () => {
+    const card = (i: number) => ({term: `term ${i}`, definition: `definition ${i}`});
+    const replace = (cards: unknown[]) =>
+      request(app).put(`/flashcards/sets/${SET_ID}/cards`).set('Authorization', authHeader()).send({cards});
+
+    const atLimit = await replace(Array.from({length: MAX_CARDS_PER_SET}, (_, i) => card(i)));
+    const overLimit = await replace(Array.from({length: MAX_CARDS_PER_SET + 1}, (_, i) => card(i)));
+    const longTerm = await replace([{term: 'x'.repeat(MAX_TERM_LENGTH + 1), definition: 'd'}]);
+    const longDefinition = await replace([{term: 't', definition: 'x'.repeat(MAX_DEFINITION_LENGTH + 1)}]);
+    const longExample = await replace([{term: 't', definition: 'd', example: 'x'.repeat(MAX_EXAMPLE_LENGTH + 1)}]);
+    const longDescription = await request(app)
+      .post('/flashcards/sets')
+      .set('Authorization', authHeader())
+      .send({title: 'Set', description: 'x'.repeat(MAX_SET_DESCRIPTION_LENGTH + 1)});
+    const longDescriptionUpdate = await request(app)
+      .patch(`/flashcards/sets/${SET_ID}`)
+      .set('Authorization', authHeader())
+      .send({description: 'x'.repeat(MAX_SET_DESCRIPTION_LENGTH + 1)});
+
+    expect(atLimit.status).toBe(200);
+    expect(atLimit.body.cards).toHaveLength(MAX_CARDS_PER_SET);
+    expect(overLimit.status).toBe(400);
+    expect(longTerm.status).toBe(400);
+    expect(longDefinition.status).toBe(400);
+    expect(longExample.status).toBe(400);
+    expect(longDescription.status).toBe(400);
+    expect(longDescriptionUpdate.status).toBe(400);
   });
 
   it('creates a set from owned vocabulary entries and rejects entries owned by someone else', async () => {

@@ -1,5 +1,12 @@
 import {z} from 'zod';
 
+// Limits keep one editor save well inside the database transaction timeout (about 1 s for 500 cards).
+export const MAX_CARDS_PER_SET = 500;
+export const MAX_TERM_LENGTH = 500;
+export const MAX_DEFINITION_LENGTH = 2000;
+export const MAX_EXAMPLE_LENGTH = 2000;
+export const MAX_SET_DESCRIPTION_LENGTH = 2000;
+
 export const FlashcardCardSchema = z.object({
   id: z.string().uuid(),
   term: z.string(),
@@ -27,7 +34,7 @@ export const FlashcardSetSummarySchema = FlashcardSetSchema.omit({cards: true}).
 export const CreateFlashcardSetSchema = z
   .object({
     title: z.string().trim().min(1).max(200),
-    description: z.string().trim().nullable().optional(),
+    description: z.string().trim().max(MAX_SET_DESCRIPTION_LENGTH).nullable().optional(),
     termLang: z.string().trim().min(2).max(10).default('en'),
     definitionLang: z.string().trim().min(2).max(10).default('vi'),
   })
@@ -36,7 +43,7 @@ export const CreateFlashcardSetSchema = z
 export const UpdateFlashcardSetSchema = z
   .object({
     title: z.string().trim().min(1).max(200).optional(),
-    description: z.string().trim().nullable().optional(),
+    description: z.string().trim().max(MAX_SET_DESCRIPTION_LENGTH).nullable().optional(),
     termLang: z.string().trim().min(2).max(10).optional(),
     definitionLang: z.string().trim().min(2).max(10).optional(),
   })
@@ -46,15 +53,15 @@ export const UpdateFlashcardSetSchema = z
 export const ReplaceFlashcardCardInputSchema = z
   .object({
     id: z.string().uuid().optional(),
-    term: z.string().trim().min(1),
-    definition: z.string().trim().min(1),
-    example: z.string().trim().nullable().optional(),
+    term: z.string().trim().min(1).max(MAX_TERM_LENGTH),
+    definition: z.string().trim().min(1).max(MAX_DEFINITION_LENGTH),
+    example: z.string().trim().max(MAX_EXAMPLE_LENGTH).nullable().optional(),
     vocabEntryId: z.string().uuid().nullable().optional(),
   })
   .strict();
 
 export const ReplaceFlashcardCardsRequestSchema = z
-  .object({cards: z.array(ReplaceFlashcardCardInputSchema)})
+  .object({cards: z.array(ReplaceFlashcardCardInputSchema).max(MAX_CARDS_PER_SET)})
   .strict()
   .refine(
     value => {
