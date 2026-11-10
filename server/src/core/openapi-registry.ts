@@ -22,6 +22,7 @@ export function generateOpenApiDocument() {
     tags: [
       {name: 'Core', description: 'Health and core infrastructure.'},
       {name: 'Auth', description: 'Account registration, login, and profile management.'},
+      {name: 'Vocab', description: 'Personal vocabulary entries and reading contexts.'},
     ],
   });
 }

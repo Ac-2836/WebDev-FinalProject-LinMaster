@@ -2,3 +2,4 @@
 export const APP_NAME = 'LinMaster';
 export * from './core/api-error';
 export * from './auth/auth';
+export * from './vocab';

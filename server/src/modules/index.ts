@@ -1,6 +1,7 @@
 import {createModuleRegistry} from '../core/module-registry';
 import {healthModule} from '../core/health.route';
 import {createAuthModule} from './auth';
+import {createVocabModule} from './vocab';
 
 export function createApiModules(jwtSecret: string) {
   const registry = createModuleRegistry();
@@ -8,6 +9,7 @@ export function createApiModules(jwtSecret: string) {
   // Register each API module once here.
   registry.register(healthModule);
   registry.register(createAuthModule(jwtSecret));
+  registry.register(createVocabModule(jwtSecret));
 
   return registry.getAll();
 }
