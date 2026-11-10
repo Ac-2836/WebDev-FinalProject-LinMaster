@@ -2,8 +2,12 @@ import {Router} from 'express';
 import type {
   CreateFlashcardSetFromVocabSchema,
   CreateFlashcardSetSchema,
+  EndStudySessionRequestSchema,
   FlashcardSetIdParamsSchema,
   ReplaceFlashcardCardsRequestSchema,
+  ReviewCardRequestSchema,
+  StartStudySessionRequestSchema,
+  StudySessionIdParamsSchema,
   UpdateFlashcardSetSchema,
 } from '@linmaster/shared';
 import {catchAsync} from '../../core/catch-async';
@@ -14,20 +18,31 @@ import {
   createFlashcardSetFromVocabSchema,
   createFlashcardSetSchema,
   deleteFlashcardSetSchema,
+  dueSummarySchema,
+  endStudySessionSchema,
   getFlashcardSetSchema,
+  getStudyCardsSchema,
   listFlashcardSetsSchema,
   replaceFlashcardCardsSchema,
+  reviewCardSchema,
+  startStudySessionSchema,
   updateFlashcardSetSchema,
 } from './flashcard.schema';
+import type {createStudyService} from './study.service';
 
 type FlashcardService = ReturnType<typeof createFlashcardService>;
+type StudyService = ReturnType<typeof createStudyService>;
+type SessionParams = typeof StudySessionIdParamsSchema._output;
+type ReviewInput = typeof ReviewCardRequestSchema._output;
+type StartSessionInput = typeof StartStudySessionRequestSchema._output;
+type EndSessionInput = typeof EndStudySessionRequestSchema._output;
 type SetParams = typeof FlashcardSetIdParamsSchema._output;
 type CreateSetInput = typeof CreateFlashcardSetSchema._output;
 type CreateFromVocabInput = typeof CreateFlashcardSetFromVocabSchema._output;
 type UpdateSetInput = typeof UpdateFlashcardSetSchema._output;
 type ReplaceCardsInput = typeof ReplaceFlashcardCardsRequestSchema._output;
 
-export function createFlashcardRouter(service: FlashcardService, jwtSecret: string): Router {
+export function createFlashcardRouter(service: FlashcardService, study: StudyService, jwtSecret: string): Router {
   const router = Router();
 
   router.post(
@@ -92,6 +107,46 @@ export function createFlashcardRouter(service: FlashcardService, jwtSecret: stri
           (req.body as ReplaceCardsInput).cards,
         ),
       );
+    }),
+  );
+  router.get(
+    '/flashcards/sets/:id/study',
+    requireAuth(jwtSecret),
+    validate(getStudyCardsSchema),
+    catchAsync(async (req, res) => {
+      res.json(await study.getStudyCards(req.user!.userId, (req.params as SetParams).id));
+    }),
+  );
+  router.post(
+    '/flashcards/reviews',
+    requireAuth(jwtSecret),
+    validate(reviewCardSchema),
+    catchAsync(async (req, res) => {
+      res.json(await study.review(req.user!.userId, req.body as ReviewInput));
+    }),
+  );
+  router.post(
+    '/flashcards/sessions',
+    requireAuth(jwtSecret),
+    validate(startStudySessionSchema),
+    catchAsync(async (req, res) => {
+      res.status(201).json(await study.startSession(req.user!.userId, req.body as StartSessionInput));
+    }),
+  );
+  router.patch(
+    '/flashcards/sessions/:id',
+    requireAuth(jwtSecret),
+    validate(endStudySessionSchema),
+    catchAsync(async (req, res) => {
+      res.json(await study.endSession(req.user!.userId, (req.params as SessionParams).id, req.body as EndSessionInput));
+    }),
+  );
+  router.get(
+    '/flashcards/due-summary',
+    requireAuth(jwtSecret),
+    validate(dueSummarySchema),
+    catchAsync(async (req, res) => {
+      res.json(await study.dueSummary(req.user!.userId));
     }),
   );
 
