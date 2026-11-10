@@ -7,6 +7,7 @@ import {createVocabRouter} from './vocab.routes';
 import {createVocabService} from './vocab.service';
 import {createVocabDocumentService} from './documents.service';
 import {addLookupRoute} from './lookup.routes';
+import {addScanRoute} from './scan.routes';
 import './vocab.openapi';
 
 export function createVocabModule(
@@ -17,6 +18,7 @@ export function createVocabModule(
   const service = createVocabService(repository);
   const documentService = createVocabDocumentService(documentRepository);
   const router = addLookupRoute(createVocabRouter(service, documentService, jwtSecret), jwtSecret);
+  addScanRoute(router, jwtSecret);
   return {name: 'vocab', basePath: '/api/v1', router};
 }
 

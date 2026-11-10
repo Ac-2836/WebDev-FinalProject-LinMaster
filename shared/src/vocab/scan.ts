@@ -46,20 +46,22 @@ export const ScanDocumentRequestSchema = z
  * No transforms here: the gateway turns this schema into the JSON Schema sent to Gemini.
  */
 export const ScanDocumentOutputSchema = z.object({
-  candidates: z
-    .array(
-      z.object({
-        headword: z.string().min(1).max(120),
-        lemma: z.string().min(1).max(120),
-        partOfSpeech: z.string().min(1).max(20),
-        meaningVi: z.string().min(1),
-        cefr: CefrLevelSchema,
-        topics: z.array(z.string().min(1)).max(3),
-        sentence: z.string().min(1),
-      }),
-    )
-    .max(40),
+  candidates: z.array(
+    z.object({
+      headword: z.string().min(1).max(120),
+      lemma: z.string().min(1).max(120),
+      partOfSpeech: z.string().min(1).max(20),
+      meaningVi: z.string().min(1),
+      cefr: CefrLevelSchema,
+      topics: z.array(z.string().min(1)).max(3),
+      sentence: z.string().min(1),
+    }),
+  ),
+  // No .max() here: Gemini rejects a large maxItems as too complex; the server keeps at most MAX_SCAN_CANDIDATES.
 });
+
+/** Most candidates one scan returns. */
+export const MAX_SCAN_CANDIDATES = 30;
 
 /**
  * One word worth learning, with the sentence it came from.
