@@ -277,5 +277,92 @@
       "save": "Lưu thay đổi",
       "logout": "Đăng xuất"
     }
+  },
+  "vocab": {
+    "documents": {
+      "eyebrow": "Đọc & tra từ",
+      "title": "Tài liệu đọc",
+      "subtitle": "Mở một bài, bôi chọn từ lạ để tra theo ngữ cảnh.",
+      "new": "Tài liệu mới",
+      "search": "Tìm theo tiêu đề",
+      "sourceFilter": "Lọc theo nguồn",
+      "allSources": "Mọi nguồn",
+      "source": {
+        "paste": "Dán văn bản",
+        "file": "File",
+        "exam": "Từ bài thi"
+      },
+      "words": "{count} từ",
+      "created": "Tạo ngày {date}",
+      "options": "Tùy chọn cho {title}",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "confirmTitle": "Xóa tài liệu này?",
+      "confirmBody": "\"{title}\" sẽ bị xóa. Các từ đã lưu trong kho từ vẫn được giữ lại.",
+      "deleted": "Đã xóa \"{title}\"",
+      "loading": "Đang tải danh sách tài liệu",
+      "loadError": "Không tải được danh sách tài liệu",
+      "retry": "Thử lại",
+      "emptyTitle": "Chưa có tài liệu nào",
+      "emptyBody": "Dán một bài báo tiếng Anh hoặc tải file PDF, DOCX, TXT để bắt đầu học từ theo ngữ cảnh.",
+      "noMatch": "Không có tài liệu nào khớp."
+    },
+    "new": {
+      "title": "Tài liệu mới",
+      "close": "Đóng",
+      "source": "Cách thêm tài liệu",
+      "paste": "Dán văn bản",
+      "file": "Tải file",
+      "docTitle": "Tiêu đề",
+      "titleFromText": "Tự lấy từ dòng đầu nếu bỏ trống",
+      "titleFromFile": "Tự lấy từ tên file nếu bỏ trống",
+      "content": "Nội dung",
+      "contentPlaceholder": "Dán đoạn văn tiếng Anh vào đây…",
+      "paragraphHint": "Đoạn mới khi xuống dòng hai lần.",
+      "wordCount": "{count} / {max} từ",
+      "chooseFile": "Chọn file",
+      "orDrop": "hoặc kéo thả vào đây",
+      "fileHint": "PDF, DOCX, TXT · tối đa 5 MB · chỉ giữ phần chữ, không lưu file",
+      "cancel": "Hủy",
+      "submit": "Tạo và mở",
+      "errors": {
+        "emptyText": "Hãy dán nội dung tài liệu.",
+        "tooManyWords": "Tài liệu dài quá 20.000 từ. Hãy chia thành nhiều phần.",
+        "noFile": "Hãy chọn một file PDF, DOCX hoặc TXT.",
+        "tooLarge": "\"{name}\" lớn hơn 5 MB.",
+        "unsupported": "\"{name}\" không phải file PDF, DOCX hoặc TXT.",
+        "noText": "\"{name}\" không có chữ để đọc (có thể là ảnh chụp). Hãy dùng file có chữ chọn được."
+      }
+    },
+    "reader": {
+      "back": "Tài liệu đọc",
+      "loading": "Đang tải tài liệu",
+      "loadError": "Không tải được tài liệu",
+      "retry": "Thử lại",
+      "notFoundTitle": "Không tìm thấy tài liệu",
+      "notFoundBody": "Tài liệu này không tồn tại, đã bị xóa, hoặc không phải của bạn.",
+      "savedCount": "{count} từ đã lưu",
+      "help": "Bôi chọn một từ hoặc cụm tối đa {max} từ, rồi nhấn <kbd>T</kbd> hoặc nút <b>Tra</b>. Dùng bàn phím: Tab vào bài, mũi tên để chọn từ, Shift + mũi tên để chọn cụm, Enter để tra.",
+      "articleLabel": "Nội dung bài đọc",
+      "oneParagraph": "Chỉ chọn trong một đoạn.",
+      "tooManyWords": "Chọn tối đa {max} từ.",
+      "selected": "Đã chọn: {text}",
+      "lookupButton": "Tra “{text}”",
+      "lookupLabel": "Giải thích “{text}”"
+    },
+    "lookup": {
+      "loading": "AI đang đọc câu để giải thích “{text}”…",
+      "quotaTitle": "Hết lượt AI hôm nay",
+      "errorTitle": "Chưa tra được từ này",
+      "close": "Đóng",
+      "speak": "Nghe phát âm {word}",
+      "usage": "Cách dùng:",
+      "collocations": "Cụm từ hay đi kèm",
+      "topics": "Chủ đề",
+      "save": "Lưu vào kho từ",
+      "saved": "Đã lưu kèm câu này",
+      "openBank": "Mở kho từ",
+      "alreadySaved": "Từ này đã có trong kho. Lưu sẽ thêm câu này vào từ đó."
+    }
   }
 }

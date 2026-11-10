@@ -1,0 +1,6 @@
+import {ReaderPage} from '@/features/vocab';
+
+export default async function Reader({params}: {params: Promise<{id: string}>}) {
+  const {id} = await params;
+  return <ReaderPage id={id} />;
+}

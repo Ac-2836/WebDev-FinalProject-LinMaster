@@ -277,5 +277,92 @@
       "save": "Save changes",
       "logout": "Log out"
     }
+  },
+  "vocab": {
+    "documents": {
+      "eyebrow": "Read & look up",
+      "title": "Reading documents",
+      "subtitle": "Open a text and select unknown words to look them up in context.",
+      "new": "New document",
+      "search": "Search by title",
+      "sourceFilter": "Filter by source",
+      "allSources": "All sources",
+      "source": {
+        "paste": "Pasted text",
+        "file": "File",
+        "exam": "From a test"
+      },
+      "words": "{count} words",
+      "created": "Created {date}",
+      "options": "Options for {title}",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirmTitle": "Delete this document?",
+      "confirmBody": "\"{title}\" will be deleted. Words you saved to your word bank stay there.",
+      "deleted": "Deleted \"{title}\"",
+      "loading": "Loading documents",
+      "loadError": "Could not load your documents",
+      "retry": "Try again",
+      "emptyTitle": "No documents yet",
+      "emptyBody": "Paste an English article or upload a PDF, DOCX or TXT file to start learning words in context.",
+      "noMatch": "No documents match."
+    },
+    "new": {
+      "title": "New document",
+      "close": "Close",
+      "source": "How to add the document",
+      "paste": "Paste text",
+      "file": "Upload file",
+      "docTitle": "Title",
+      "titleFromText": "Taken from the first line if left empty",
+      "titleFromFile": "Taken from the file name if left empty",
+      "content": "Content",
+      "contentPlaceholder": "Paste English text here…",
+      "paragraphHint": "Leave a blank line between paragraphs.",
+      "wordCount": "{count} / {max} words",
+      "chooseFile": "Choose a file",
+      "orDrop": "or drop it here",
+      "fileHint": "PDF, DOCX, TXT · up to 5 MB · only the text is kept, not the file",
+      "cancel": "Cancel",
+      "submit": "Create and open",
+      "errors": {
+        "emptyText": "Paste the text of the document.",
+        "tooManyWords": "The document is longer than 20,000 words. Split it into parts.",
+        "noFile": "Choose a PDF, DOCX or TXT file.",
+        "tooLarge": "\"{name}\" is larger than 5 MB.",
+        "unsupported": "\"{name}\" is not a PDF, DOCX or TXT file.",
+        "noText": "\"{name}\" has no readable text (it may be a scan). Use a file whose text can be selected."
+      }
+    },
+    "reader": {
+      "back": "Reading documents",
+      "loading": "Loading document",
+      "loadError": "Could not load the document",
+      "retry": "Try again",
+      "notFoundTitle": "Document not found",
+      "notFoundBody": "This document does not exist, was deleted, or is not yours.",
+      "savedCount": "{count} saved words",
+      "help": "Select a word or a phrase of up to {max} words, then press <kbd>T</kbd> or the <b>Look up</b> button. With the keyboard: Tab into the text, arrows to pick a word, Shift + arrows for a phrase, Enter to look up.",
+      "articleLabel": "Reading text",
+      "oneParagraph": "Select within one paragraph.",
+      "tooManyWords": "Select at most {max} words.",
+      "selected": "Selected: {text}",
+      "lookupButton": "Look up “{text}”",
+      "lookupLabel": "Explanation of “{text}”"
+    },
+    "lookup": {
+      "loading": "AI is reading the sentence to explain “{text}”…",
+      "quotaTitle": "No AI requests left today",
+      "errorTitle": "Could not look up this word",
+      "close": "Close",
+      "speak": "Hear {word}",
+      "usage": "Usage:",
+      "collocations": "Common collocations",
+      "topics": "Topics",
+      "save": "Save to word bank",
+      "saved": "Saved with this sentence",
+      "openBank": "Open word bank",
+      "alreadySaved": "This word is already in your word bank. Saving adds this sentence to it."
+    }
   }
 }
