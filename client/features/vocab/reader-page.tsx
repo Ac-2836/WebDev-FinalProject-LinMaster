@@ -5,8 +5,9 @@ import {
   MAX_LOOKUP_WORDS,
   SaveVocabEntriesResponseSchema,
   type VocabDocumentDetail,
+  type VocabEntry,
 } from '@linmaster/shared';
-import {ArrowLeft, CloudOff, FileQuestion, MousePointerClick, RotateCw, Search} from 'lucide-react';
+import {ArrowLeft, CloudOff, FileQuestion, MousePointerClick, RotateCw, Search, Sparkles} from 'lucide-react';
 import {useFormatter, useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {Dialog, Popover} from 'radix-ui';
@@ -22,6 +23,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {lookupWord} from './lookup';
 import {LookupCard, type LookupState} from './lookup-card';
+import {QuickFilterPanel, type SavedWord, useQuickFilter} from './quick-filter-panel';
 import {layoutDocument, segmentParagraph, sentenceAround, tokenAt} from './reader-text';
 
 export interface ReaderPageProps {
@@ -133,7 +135,19 @@ function Reader({document}: {document: VocabDocumentDetail}) {
       ),
     ),
   );
-  const [savedCount, setSavedCount] = useState(document.entries.length);
+  const [words, setWords] = useState<SavedWord[]>(() => document.entries.map(e => ({id: e.id, headword: e.headword})));
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  const filter = useQuickFilter({documentId: document.id, saved, onSaved: addSaved});
+
+  /** After saving from the popover or the quick filter: count each entry once and highlight the new ranges. */
+  function addSaved(entries: VocabEntry[], ranges: Range[]) {
+    setWords(list => [
+      ...list,
+      ...entries.filter(e => !list.some(w => w.id === e.id)).map(e => ({id: e.id, headword: e.headword})),
+    ]);
+    setSaved(list => [...list, ...ranges]);
+  }
   /** Selected words as an inclusive token index range. */
   const [selection, setSelection] = useState<{i: number; j: number} | null>(null);
   const [lookup, setLookup] = useState<{text: string; sentence: string; range: Range; state: LookupState} | null>(null);
@@ -206,7 +220,7 @@ function Reader({document}: {document: VocabDocumentDetail}) {
     const {explanation, alreadySaved} = lookup.state;
     setLookup({...lookup, state: {status: 'saving', explanation, alreadySaved}});
     try {
-      SaveVocabEntriesResponseSchema.parse(
+      const {entries} = SaveVocabEntriesResponseSchema.parse(
         await api('/vocab/entries', {
           method: 'POST',
           body: {
@@ -224,8 +238,7 @@ function Reader({document}: {document: VocabDocumentDetail}) {
           },
         }),
       );
-      setSaved(list => [...list, lookup.range]);
-      if (!alreadySaved) setSavedCount(n => n + 1);
+      addSaved(entries, [lookup.range]);
       setLookup({...lookup, state: {status: 'saved', explanation, alreadySaved}});
     } catch (err) {
       toast.error(errorMessage(err));
@@ -328,124 +341,155 @@ function Reader({document}: {document: VocabDocumentDetail}) {
     article.current?.focus();
   };
 
+  const panel = (
+    <QuickFilterPanel documentId={document.id} wordCount={document.wordCount} words={words} filter={filter} />
+  );
+
   return (
-    <>
-      <h1 className="mt-2 text-2xl leading-tight font-bold break-words sm:text-3xl">{document.title}</h1>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
-        <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground">
-          {tDocs(`source.${document.source}`)}
-        </span>
-        <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground">
-          {tDocs('words', {count: format.number(document.wordCount)})}
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-0.5 text-primary">
-          <span className="inline-block size-2 rounded-sm bg-mark" aria-hidden="true" />
-          {t('savedCount', {count: savedCount})}
-        </span>
-      </div>
-      <p
-        id="reader-help"
-        className="mt-4 flex items-start gap-2 rounded-lg bg-secondary px-3 py-2 text-[13px] text-primary"
-      >
-        <MousePointerClick className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        <span>
-          {t.rich('help', {
-            max: MAX_LOOKUP_WORDS,
-            kbd: chunks => <kbd className="rounded border bg-card px-1.5 font-mono text-xs">{chunks}</kbd>,
-            b: chunks => <strong>{chunks}</strong>,
-          })}
-        </span>
-      </p>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0">
+        <h1 className="mt-2 text-2xl leading-tight font-bold break-words sm:text-3xl">{document.title}</h1>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground">
+            {tDocs(`source.${document.source}`)}
+          </span>
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground">
+            {tDocs('words', {count: format.number(document.wordCount)})}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-0.5 text-primary">
+            <span className="inline-block size-2 rounded-sm bg-mark" aria-hidden="true" />
+            {t('savedCount', {count: words.length})}
+          </span>
+        </div>
+        <p
+          id="reader-help"
+          className="mt-4 flex items-start gap-2 rounded-lg bg-secondary px-3 py-2 text-[13px] text-primary"
+        >
+          <MousePointerClick className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <span>
+            {t.rich('help', {
+              max: MAX_LOOKUP_WORDS,
+              kbd: chunks => <kbd className="rounded border bg-card px-1.5 font-mono text-xs">{chunks}</kbd>,
+              b: chunks => <strong>{chunks}</strong>,
+            })}
+          </span>
+        </p>
 
-      <Popover.Root open={desktop && lookup !== null} onOpenChange={open => !open && closeLookup()}>
-        <Popover.Anchor virtualRef={anchor} />
-        <Popover.Portal>
-          <Popover.Content
-            side="bottom"
-            align="start"
-            sideOffset={8}
-            collisionPadding={16}
-            onCloseAutoFocus={returnFocus}
-            aria-label={t('lookupLabel', {text: lookup?.text ?? ''})}
-            className="z-40 w-[380px] rounded-xl border bg-card p-4 shadow-2xl outline-none"
-          >
-            {card}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
+        <Popover.Root open={desktop && lookup !== null} onOpenChange={open => !open && closeLookup()}>
+          <Popover.Anchor virtualRef={anchor} />
+          <Popover.Portal>
+            <Popover.Content
+              side="bottom"
+              align="start"
+              sideOffset={8}
+              collisionPadding={16}
+              onCloseAutoFocus={returnFocus}
+              aria-label={t('lookupLabel', {text: lookup?.text ?? ''})}
+              className="z-40 w-[380px] rounded-xl border bg-card p-4 shadow-2xl outline-none"
+            >
+              {card}
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
 
-      <Dialog.Root open={!desktop && lookup !== null} onOpenChange={open => !open && closeLookup()}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/30" />
-          <Dialog.Content
-            aria-describedby={undefined}
-            onCloseAutoFocus={returnFocus}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75dvh] flex-col gap-3 overflow-y-auto rounded-t-2xl bg-card p-5 pb-8 shadow-2xl outline-none"
-          >
-            <span className="mx-auto h-1 w-10 rounded-full bg-border" aria-hidden="true" />
-            <Dialog.Title className="sr-only">{t('lookupLabel', {text: lookup?.text ?? ''})}</Dialog.Title>
-            {card}
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+        <Dialog.Root open={!desktop && lookup !== null} onOpenChange={open => !open && closeLookup()}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/30" />
+            <Dialog.Content
+              aria-describedby={undefined}
+              onCloseAutoFocus={returnFocus}
+              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75dvh] flex-col gap-3 overflow-y-auto rounded-t-2xl bg-card p-5 pb-8 shadow-2xl outline-none"
+            >
+              <span className="mx-auto h-1 w-10 rounded-full bg-border" aria-hidden="true" />
+              <Dialog.Title className="sr-only">{t('lookupLabel', {text: lookup?.text ?? ''})}</Dialog.Title>
+              {card}
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
 
-      <article
-        ref={article}
-        tabIndex={0}
-        aria-label={t('articleLabel')}
-        aria-describedby="reader-help"
-        onPointerUp={onPointerUp}
-        onKeyDown={onKeyDown}
-        className="mt-6 flex max-w-[68ch] flex-col gap-5 rounded-lg font-serif text-[17px] leading-8 outline-offset-8"
-      >
-        {paragraphs.map((p, k) => (
-          <p key={k}>
-            {segmentParagraph(p, highlights).map(s => {
-              const active = range !== null && s.mark === highlights.length - 1;
-              if (active) {
+        <article
+          ref={article}
+          tabIndex={0}
+          aria-label={t('articleLabel')}
+          aria-describedby="reader-help"
+          onPointerUp={onPointerUp}
+          onKeyDown={onKeyDown}
+          className="mt-6 flex max-w-[68ch] flex-col gap-5 rounded-lg font-serif text-[17px] leading-8 outline-offset-8"
+        >
+          {paragraphs.map((p, k) => (
+            <p key={k}>
+              {segmentParagraph(p, highlights).map(s => {
+                const active = range !== null && s.mark === highlights.length - 1;
+                if (active) {
+                  return (
+                    <span
+                      key={s.start}
+                      data-start={s.start}
+                      data-active=""
+                      className="rounded-sm bg-primary/15 ring-2 ring-primary"
+                    >
+                      {s.text}
+                    </span>
+                  );
+                }
+                if (s.mark >= 0) {
+                  return (
+                    <mark key={s.start} data-start={s.start}>
+                      {s.text}
+                    </mark>
+                  );
+                }
                 return (
-                  <span
-                    key={s.start}
-                    data-start={s.start}
-                    data-active=""
-                    className="rounded-sm bg-primary/15 ring-2 ring-primary"
-                  >
+                  <span key={s.start} data-start={s.start}>
                     {s.text}
                   </span>
                 );
-              }
-              if (s.mark >= 0) {
-                return (
-                  <mark key={s.start} data-start={s.start}>
-                    {s.text}
-                  </mark>
-                );
-              }
-              return (
-                <span key={s.start} data-start={s.start}>
-                  {s.text}
-                </span>
-              );
-            })}
-          </p>
-        ))}
-      </article>
+              })}
+            </p>
+          ))}
+        </article>
 
-      {/* Screen readers hear what is selected; sighted users see the ring. */}
-      <p className="sr-only" aria-live="polite">
-        {selectedText && t('selected', {text: selectedText})}
-      </p>
+        {/* Screen readers hear what is selected; sighted users see the ring. */}
+        <p className="sr-only" aria-live="polite">
+          {selectedText && t('selected', {text: selectedText})}
+        </p>
+      </div>
 
-      {selection && !lookup && (
-        <Button
-          size="lg"
-          onClick={() => void startLookup()}
-          className="fixed right-4 bottom-24 z-30 h-12 max-w-[calc(100vw-2rem)] rounded-full shadow-lg lg:bottom-6"
-        >
-          <Search aria-hidden="true" />
-          <span className="truncate">{t('lookupButton', {text: selectedText})}</span>
-        </Button>
+      {desktop ? (
+        <aside aria-label={t('panelLabel')}>
+          <div className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden rounded-[20px] border bg-card shadow-soft">
+            {panel}
+          </div>
+        </aside>
+      ) : (
+        <Dialog.Root open={panelOpen} onOpenChange={setPanelOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/30" />
+            <Dialog.Content
+              aria-describedby={undefined}
+              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-2xl bg-card shadow-2xl outline-none"
+            >
+              <Dialog.Title className="sr-only">{t('panelLabel')}</Dialog.Title>
+              {panel}
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       )}
-    </>
+
+      <div className="fixed right-4 bottom-24 z-30 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2 lg:bottom-6">
+        {selection && !lookup && (
+          <Button size="lg" onClick={() => void startLookup()} className="h-12 max-w-full rounded-full shadow-lg">
+            <Search aria-hidden="true" />
+            <span className="truncate">{t('lookupButton', {text: selectedText})}</span>
+          </Button>
+        )}
+        {!desktop && (
+          <Button variant="outline" onClick={() => setPanelOpen(true)} className="h-11 rounded-full bg-card shadow-lg">
+            <Sparkles aria-hidden="true" />
+            {t('panelButton', {count: words.length})}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
