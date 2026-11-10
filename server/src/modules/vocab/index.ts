@@ -6,6 +6,7 @@ import type {VocabDocumentRepository} from './documents.repository';
 import {createVocabRouter} from './vocab.routes';
 import {createVocabService} from './vocab.service';
 import {createVocabDocumentService} from './documents.service';
+import {addLookupRoute} from './lookup.routes';
 import './vocab.openapi';
 
 export function createVocabModule(
@@ -15,7 +16,8 @@ export function createVocabModule(
 ): ApiModule {
   const service = createVocabService(repository);
   const documentService = createVocabDocumentService(documentRepository);
-  return {name: 'vocab', basePath: '/api/v1', router: createVocabRouter(service, documentService, jwtSecret)};
+  const router = addLookupRoute(createVocabRouter(service, documentService, jwtSecret), jwtSecret);
+  return {name: 'vocab', basePath: '/api/v1', router};
 }
 
 export async function getEntriesForUser(userId: string, ids: string[]) {
