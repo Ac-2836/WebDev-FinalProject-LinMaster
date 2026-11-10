@@ -79,6 +79,8 @@ describe('Prisma flashcard repository', () => {
     expect(progress).toMatchObject({easiness: 2.7, intervalDays: 6, repetitions: 3, lapses: 1, dueAt});
     expect(reviewCount).toBe(1);
     expect(await db.card.findUnique({where: {id: removedCard.id}})).toBeNull();
+    const updatedSet = await db.flashcardSet.findUniqueOrThrow({where: {id: set.id}});
+    expect(updatedSet.updatedAt.getTime()).toBeGreaterThan(new Date(set.updatedAt).getTime());
   });
 
   it('scopes set reads and edits to the owner', async () => {

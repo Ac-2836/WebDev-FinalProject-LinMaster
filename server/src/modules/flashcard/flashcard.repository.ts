@@ -167,6 +167,8 @@ export const prismaFlashcardRepository: FlashcardRepository = {
       await tx.card.deleteMany({
         where: {setId, ...(retainedIds.length > 0 ? {id: {notIn: retainedIds}} : {})},
       });
+      // Editing cards counts as editing the set, so it moves to the top of the list (ordered by updatedAt).
+      await tx.flashcardSet.update({where: {id: setId}, data: {updatedAt: new Date()}});
 
       const updatedSet = await tx.flashcardSet.findFirstOrThrow({where: {id: setId, ownerId}, include: includeCards});
       return updatedSet.cards.map(toCard);
