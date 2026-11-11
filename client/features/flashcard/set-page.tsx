@@ -6,7 +6,7 @@ import {
   GetStudyCardsResponseSchema,
   type FlashcardSet,
 } from '@linmaster/shared';
-import {ArrowLeft, Brain, CloudOff, EllipsisVertical, Layers, Pencil, RotateCw, Rotate3d, Trash2} from 'lucide-react';
+import {ArrowLeft, CloudOff, EllipsisVertical, Layers, Pencil, RotateCw, Trash2} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -20,6 +20,8 @@ import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
 import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
+
+import {studyModes} from './study-modes';
 
 const card = 'rounded-[20px] border bg-card shadow-soft';
 const badge =
@@ -113,15 +115,17 @@ export function SetPage({id}: SetPageProps) {
   }
 
   const cards = [...set.cards].sort((a, b) => a.position - b.position);
-  const modes = [
-    {
-      mode: 'learn',
-      icon: Brain,
-      label: t('learn'),
-      hint: counts ? t('learnHint', {due: counts.due, fresh: counts.fresh}) : t('learnFallback'),
-    },
-    {mode: 'flip', icon: Rotate3d, label: t('flip'), hint: t('flipHint')},
-  ];
+  const modes = studyModes.map(({id: mode, icon}) => ({
+    mode,
+    icon,
+    label: t(mode),
+    hint:
+      mode === 'learn'
+        ? counts
+          ? t('learnHint', {due: counts.due, fresh: counts.fresh})
+          : t('learnFallback')
+        : t(`${mode}Hint`),
+  }));
 
   return (
     <div className="flex flex-col gap-6">
