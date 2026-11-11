@@ -1,8 +1,12 @@
 import {
   CreateFlashcardSetFromVocabSchema,
   CreateFlashcardSetSchema,
+  EndStudySessionRequestSchema,
   FlashcardSetIdParamsSchema,
   ReplaceFlashcardCardsRequestSchema,
+  ReviewCardRequestSchema,
+  StartStudySessionRequestSchema,
+  StudySessionIdParamsSchema,
   UpdateFlashcardSetSchema,
 } from '@linmaster/shared';
 import {z} from 'zod';
@@ -20,3 +24,8 @@ export const replaceFlashcardCardsSchema = z.object({
   params: FlashcardSetIdParamsSchema,
   body: ReplaceFlashcardCardsRequestSchema,
 });
+export const getStudyCardsSchema = z.object({params: FlashcardSetIdParamsSchema});
+export const reviewCardSchema = z.object({body: ReviewCardRequestSchema});
+export const startStudySessionSchema = z.object({body: StartStudySessionRequestSchema});
+export const endStudySessionSchema = z.object({params: StudySessionIdParamsSchema, body: EndStudySessionRequestSchema});
+export const dueSummarySchema = z.object({});
