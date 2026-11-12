@@ -1,0 +1,1139 @@
+{
+  "title": "Sample Listening test (synthetic)",
+  "kind": "listening",
+  "source": "LinMaster synthetic test L0, AI-written for testing, not a real IELTS test",
+  "sections": [
+    {
+      "skill": "listening",
+      "passages": [
+        {
+          "title": "Part 1: Swimming course enquiry",
+          "paragraphs": [
+            {
+              "label": "Narrator",
+              "text": "Part 1. You will hear a man calling a sports centre to ask about a swimming course. First, you have some time to look at questions 1 to 7."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen carefully and answer questions 1 to 7."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Good morning, Riverside Sports Centre, Emma speaking. How can I help you?"
+            },
+            {
+              "label": "Daniel",
+              "text": "Hi, I'm calling about your swimming courses for adults. I saw a poster and I'd like some more information."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Of course. I'll just take a few details first. Can I have your name, please?"
+            },
+            {
+              "label": "Daniel",
+              "text": "Yes, it's Daniel Fairbank. That's F, A, I, R, B, A, N, K."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Thank you, Daniel. And what is your address?"
+            },
+            {
+              "label": "Daniel",
+              "text": "It's 14 Kestrel Road. Kestrel is spelt K, E, S, T, R, E, L."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Lovely. Now, we run two adult courses. There's a beginner course for people who can't swim at all, and an improver course for people who can already swim a little but want to get better."
+            },
+            {
+              "label": "Daniel",
+              "text": "I can manage a couple of lengths, but my technique is terrible, so I think the improver course is the one for me."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Okay. The improver course runs on Tuesday and Thursday evenings, but I'm afraid Tuesday is already full."
+            },
+            {
+              "label": "Daniel",
+              "text": "That's fine, Thursday suits me better anyway."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Great. The course lasts eight weeks, with one session a week."
+            },
+            {
+              "label": "Daniel",
+              "text": "Eight weeks. Okay."
+            },
+            {
+              "label": "Receptionist",
+              "text": "And is there anything in particular you want to work on? It helps the instructor plan the sessions."
+            },
+            {
+              "label": "Daniel",
+              "text": "Mainly my breathing. I get out of breath really quickly. And I'd like to build up my stamina so I can swim for longer."
+            },
+            {
+              "label": "Receptionist",
+              "text": "Breathing and stamina. I'll note that down. And can I ask how you heard about the course? Was it our website?"
+            },
+            {
+              "label": "Daniel",
+              "text": "No, actually, a colleague at work told me about it. She did the course last year."
+            },
+            {
+              "label": "Receptionist",
+              "text": "That's nice to hear."
+            },
+            {
+              "label": "Narrator",
+              "text": "Before you hear the rest of the conversation, you have some time to look at questions 8 to 10."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen and answer questions 8 to 10."
+            },
+            {
+              "label": "Daniel",
+              "text": "Do I need to be a member of the centre to join the course?"
+            },
+            {
+              "label": "Receptionist",
+              "text": "Yes, you do. There are three types of membership. Standard membership is thirty-two pounds a month and covers both the gym and the pool."
+            },
+            {
+              "label": "Daniel",
+              "text": "And the others?"
+            },
+            {
+              "label": "Receptionist",
+              "text": "Off-peak membership is twenty-four pounds a month. It's the same facilities, but you can only use them before four p.m. on weekdays."
+            },
+            {
+              "label": "Daniel",
+              "text": "Hmm, the course is in the evening, so that won't work for me."
+            },
+            {
+              "label": "Receptionist",
+              "text": "No, probably not. Then there's family membership at fifty-eight pounds, which includes free parking for children's activities. Some families find that very useful."
+            },
+            {
+              "label": "Daniel",
+              "text": "I don't have children, so I'll go for standard. Thanks very much."
+            },
+            {
+              "label": "Narrator",
+              "text": "That is the end of Part 1. You now have some time to check your answers."
+            }
+          ],
+          "audioStartSec": 13,
+          "groups": [
+            {
+              "kind": "completion",
+              "fromNo": 1,
+              "toNo": 7,
+              "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+              "wordLimit": 1,
+              "shared": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Riverside Sports Centre – Course enquiry"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Name: Daniel {{1}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Address: 14 {{2}} Road"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Course: {{3}} swimming for adults"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Day: {{4}} evenings"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Length of course: {{5}} weeks"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Wants to improve: breathing and {{6}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Heard about the course from a {{7}}"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 1,
+                  "prompt": "Name: Daniel {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "Fairbank"
+                    ]
+                  }
+                },
+                {
+                  "number": 2,
+                  "prompt": "Address: 14 {{blank}} Road",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "Kestrel"
+                    ]
+                  }
+                },
+                {
+                  "number": 3,
+                  "prompt": "Course: {{blank}} swimming for adults",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "improver"
+                    ]
+                  }
+                },
+                {
+                  "number": 4,
+                  "prompt": "Day: {{blank}} evenings",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "Thursday"
+                    ]
+                  }
+                },
+                {
+                  "number": 5,
+                  "prompt": "Length of course: {{blank}} weeks",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "8",
+                      "eight"
+                    ]
+                  }
+                },
+                {
+                  "number": 6,
+                  "prompt": "Wants to improve: breathing and {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "stamina"
+                    ]
+                  }
+                },
+                {
+                  "number": 7,
+                  "prompt": "Heard about the course from a {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "colleague"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "completion",
+              "fromNo": 8,
+              "toNo": 10,
+              "instructions": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
+              "wordLimit": 1,
+              "shared": {
+                "content": [
+                  {
+                    "type": "table",
+                    "rows": [
+                      [
+                        "Membership",
+                        "Monthly cost",
+                        "Notes"
+                      ],
+                      [
+                        "Standard",
+                        "£32",
+                        "gym and pool"
+                      ],
+                      [
+                        "Off-peak",
+                        "£{{8}}",
+                        "use only before {{9}} p.m. on weekdays"
+                      ],
+                      [
+                        "Family",
+                        "£58",
+                        "includes free {{10}} for children's activities"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 8,
+                  "prompt": "Off-peak | £{{blank}} | use only before ____ p.m. on weekdays",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "24",
+                      "twenty-four"
+                    ]
+                  }
+                },
+                {
+                  "number": 9,
+                  "prompt": "Off-peak | £____ | use only before {{blank}} p.m. on weekdays",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "4",
+                      "four"
+                    ]
+                  }
+                },
+                {
+                  "number": 10,
+                  "prompt": "Family | £58 | includes free {{blank}} for children's activities",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "parking"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Part 2: Hollowmere wetland park",
+          "paragraphs": [
+            {
+              "label": "Narrator",
+              "text": "Part 2. You will hear a guide talking to a group of visitors at a wetland park. First, you have some time to look at questions 11 to 15."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen carefully and answer questions 11 to 15."
+            },
+            {
+              "label": "Guide",
+              "text": "Good morning, everyone, and welcome to Hollowmere Wetland Park. We're standing outside the visitor centre, at the southern end of the park, and you should all have a copy of the map. Let me point out a few places before you set off."
+            },
+            {
+              "label": "Guide",
+              "text": "As you leave the visitor centre and face the lake, the cafe is immediately on your left, on the western side. It opens at nine, so it's a good place to start the day."
+            },
+            {
+              "label": "Guide",
+              "text": "If you're interested in birds, head for the bird hide. It's at the north-western corner of the lake, where the reeds are thickest. It's a long walk, but the views are worth it."
+            },
+            {
+              "label": "Guide",
+              "text": "On the way there you'll pass the boardwalk. It runs out over the water from the west shore of the lake, about halfway up. Please take care, because it can be slippery after rain."
+            },
+            {
+              "label": "Guide",
+              "text": "Families with young children will want the play area. It's just on your right as you leave this building, so on the eastern side, opposite the cafe."
+            },
+            {
+              "label": "Guide",
+              "text": "Finally, the picnic area is right up at the far end of the park, next to the North Gate, just to the east of it. There are tables there, and some shelter if it rains."
+            },
+            {
+              "label": "Narrator",
+              "text": "Before you hear the rest of the talk, you have some time to look at questions 16 to 20."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen and answer questions 16 to 20."
+            },
+            {
+              "label": "Guide",
+              "text": "A little history. Many visitors assume this land was always farmland, and it's true that there were farms nearby. But the park itself was created on an old quarry. When the quarry closed, the deep pits filled with water and became the lake you see today."
+            },
+            {
+              "label": "Guide",
+              "text": "A few rules. Dogs are welcome as long as they're kept on a lead. You're welcome to feed the ducks, but please use the special food sold in the cafe. And we ask you not to ride bicycles on the boardwalk, because it's too narrow to pass safely."
+            },
+            {
+              "label": "Guide",
+              "text": "We also run a guided bat walk. People often think it's only in summer, but in fact it runs all year, on the first Saturday of each month, starting at dusk."
+            },
+            {
+              "label": "Guide",
+              "text": "And before you go: there are a few things you can borrow free of charge from the visitor centre. We lend binoculars, and we also have wheelchairs available for anyone who needs one. We don't lend fishing equipment, I'm afraid, as fishing isn't allowed here, and we used to lend umbrellas, but too many of them never came back!"
+            },
+            {
+              "label": "Narrator",
+              "text": "That is the end of Part 2. You now have some time to check your answers."
+            }
+          ],
+          "audioStartSec": 254,
+          "groups": [
+            {
+              "kind": "diagram_label",
+              "fromNo": 11,
+              "toNo": 15,
+              "instructions": "Label the map below. Write the correct letter, A–H, next to Questions 11–15.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 11,
+                  "prompt": "Cafe",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "A"
+                    ]
+                  }
+                },
+                {
+                  "number": 12,
+                  "prompt": "Bird hide",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "G"
+                    ]
+                  }
+                },
+                {
+                  "number": 13,
+                  "prompt": "Boardwalk",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ]
+                  }
+                },
+                {
+                  "number": 14,
+                  "prompt": "Children's play area",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 15,
+                  "prompt": "Picnic area",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "F"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "single_choice",
+              "fromNo": 16,
+              "toNo": 18,
+              "instructions": "Choose the correct letter, A, B or C.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 16,
+                  "prompt": "The park was created on land that used to be",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "a farm."
+                    },
+                    {
+                      "key": "B",
+                      "text": "a quarry."
+                    },
+                    {
+                      "key": "C",
+                      "text": "an airfield."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 17,
+                  "prompt": "Visitors are asked not to",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "feed the ducks."
+                    },
+                    {
+                      "key": "B",
+                      "text": "bring dogs."
+                    },
+                    {
+                      "key": "C",
+                      "text": "ride bicycles on the boardwalk."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ]
+                  }
+                },
+                {
+                  "number": 18,
+                  "prompt": "The guided bat walk takes place",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "every Friday."
+                    },
+                    {
+                      "key": "B",
+                      "text": "on the first Saturday of each month."
+                    },
+                    {
+                      "key": "C",
+                      "text": "only in summer."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "multi_choice",
+              "fromNo": 19,
+              "toNo": 20,
+              "instructions": "Choose TWO letters, A–E. Which TWO things can visitors borrow from the visitor centre?",
+              "wordLimit": null,
+              "shared": {
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "binoculars"
+                  },
+                  {
+                    "key": "B",
+                    "text": "fishing equipment"
+                  },
+                  {
+                    "key": "C",
+                    "text": "wheelchairs"
+                  },
+                  {
+                    "key": "D",
+                    "text": "maps of the lake depth"
+                  },
+                  {
+                    "key": "E",
+                    "text": "umbrellas"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 19,
+                  "prompt": "",
+                  "options": null,
+                  "answer": {
+                    "choices": [
+                      "A",
+                      "C"
+                    ]
+                  }
+                },
+                {
+                  "number": 20,
+                  "prompt": "",
+                  "options": null,
+                  "answer": {
+                    "choices": [
+                      "A",
+                      "C"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Part 3: Student noise project",
+          "paragraphs": [
+            {
+              "label": "Narrator",
+              "text": "Part 3. You will hear two students, Kate and Josh, discussing their research project with their tutor, Dr Hale. First, you have some time to look at questions 21 to 25."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen carefully and answer questions 21 to 25."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "Come in, both of you. So, how is the project on noise in student housing going?"
+            },
+            {
+              "label": "Kate",
+              "text": "Quite well, thanks. You might remember you originally suggested we look at energy use in the halls, but we went with noise in the end."
+            },
+            {
+              "label": "Josh",
+              "text": "Yes, that was really because of my own flat. It was so noisy last year that I could hardly sleep, so we were both curious about how common the problem was."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "And how did you collect your data?"
+            },
+            {
+              "label": "Kate",
+              "text": "We started with a questionnaire, but hardly anyone returned it. So most of our data came from sound meters that we left in kitchens and corridors in three different halls."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "Did that go smoothly?"
+            },
+            {
+              "label": "Josh",
+              "text": "Mostly. The batteries lasted fine, but a few times students moved the meters, so we lost a couple of nights of readings from one of the kitchens."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "That happens. Now, I've read your draft literature review. The length is fine, but most of the studies you cite are over fifteen years old. I'd like you to include some more recent research."
+            },
+            {
+              "label": "Kate",
+              "text": "Okay, we can do that."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "And what surprised you most in the results?"
+            },
+            {
+              "label": "Josh",
+              "text": "For me, it was that the kitchens were much noisier than the corridors. We expected the opposite, because the corridors are where people come in late at night. Kate was more surprised that the weekends weren't much worse than weekdays."
+            },
+            {
+              "label": "Narrator",
+              "text": "Before you hear the rest of the discussion, you have some time to look at questions 26 to 30."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen and answer questions 26 to 30."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "Let's go through the report section by section. The introduction is clear and well organised. I wouldn't change it."
+            },
+            {
+              "label": "Kate",
+              "text": "Great. What about the method section?"
+            },
+            {
+              "label": "Dr Hale",
+              "text": "It's accurate, but it's hard to picture where the meters were. A diagram showing their positions in each hall would help a lot."
+            },
+            {
+              "label": "Josh",
+              "text": "We can draw that. And the raw data tables? They take up nearly ten pages."
+            },
+            {
+              "label": "Dr Hale",
+              "text": "They're useful, but they interrupt the reading. Move them to an appendix and just keep the summary chart in the main text."
+            },
+            {
+              "label": "Kate",
+              "text": "And the discussion?"
+            },
+            {
+              "label": "Dr Hale",
+              "text": "That needs the most work. At the moment it repeats the results instead of explaining them, so I'd like you to rewrite it completely."
+            },
+            {
+              "label": "Josh",
+              "text": "Okay. And the section with our personal reflections?"
+            },
+            {
+              "label": "Dr Hale",
+              "text": "Honestly, it doesn't belong in a research report. I'd cut it altogether."
+            },
+            {
+              "label": "Narrator",
+              "text": "That is the end of Part 3. You now have some time to check your answers."
+            }
+          ],
+          "audioStartSec": 460,
+          "groups": [
+            {
+              "kind": "single_choice",
+              "fromNo": 21,
+              "toNo": 25,
+              "instructions": "Choose the correct letter, A, B or C.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 21,
+                  "prompt": "Why did Kate and Josh choose noise as their topic?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "because of Josh's own experience"
+                    },
+                    {
+                      "key": "B",
+                      "text": "because their tutor recommended it"
+                    },
+                    {
+                      "key": "C",
+                      "text": "because a lot of data was already available"
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "A"
+                    ]
+                  }
+                },
+                {
+                  "number": 22,
+                  "prompt": "How did they collect most of their data?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "with a questionnaire"
+                    },
+                    {
+                      "key": "B",
+                      "text": "with sound meters"
+                    },
+                    {
+                      "key": "C",
+                      "text": "through interviews"
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 23,
+                  "prompt": "What problem did they have with the sound meters?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "The batteries ran out."
+                    },
+                    {
+                      "key": "B",
+                      "text": "Students moved some of them."
+                    },
+                    {
+                      "key": "C",
+                      "text": "The readings were wrong at night."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 24,
+                  "prompt": "Dr Hale says their literature review should",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "be shorter."
+                    },
+                    {
+                      "key": "B",
+                      "text": "include more recent studies."
+                    },
+                    {
+                      "key": "C",
+                      "text": "focus on one country."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 25,
+                  "prompt": "What surprised Josh most about the results?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "Noise was much worse at weekends."
+                    },
+                    {
+                      "key": "B",
+                      "text": "Kitchens were noisier than corridors."
+                    },
+                    {
+                      "key": "C",
+                      "text": "Students got used to the noise."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "matching",
+              "fromNo": 26,
+              "toNo": 30,
+              "instructions": "What do they decide to do with each section of the report? Choose FIVE answers from the box and write the correct letter, A–F.",
+              "wordLimit": null,
+              "shared": {
+                "optionsTitle": "Decisions",
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "cut it"
+                  },
+                  {
+                    "key": "B",
+                    "text": "move it to an appendix"
+                  },
+                  {
+                    "key": "C",
+                    "text": "add a diagram"
+                  },
+                  {
+                    "key": "D",
+                    "text": "rewrite it"
+                  },
+                  {
+                    "key": "E",
+                    "text": "ask another tutor for advice"
+                  },
+                  {
+                    "key": "F",
+                    "text": "leave it as it is"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 26,
+                  "prompt": "Introduction",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "F"
+                    ]
+                  }
+                },
+                {
+                  "number": 27,
+                  "prompt": "Method",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ]
+                  }
+                },
+                {
+                  "number": 28,
+                  "prompt": "Raw data tables",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ]
+                  }
+                },
+                {
+                  "number": 29,
+                  "prompt": "Discussion",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "D"
+                    ]
+                  }
+                },
+                {
+                  "number": 30,
+                  "prompt": "Personal reflections",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "A"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Part 4: Mangrove forests",
+          "paragraphs": [
+            {
+              "label": "Narrator",
+              "text": "Part 4. You will hear a lecture about mangrove forests. First, you have some time to look at questions 31 to 40."
+            },
+            {
+              "label": "Narrator",
+              "text": "Now listen carefully and answer questions 31 to 40."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Good afternoon. Today I'm going to talk about mangrove forests, which are among the most productive and also the most threatened ecosystems on Earth."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Mangroves are trees that grow along tropical coastlines, in the intertidal zone, that is, the area between land and sea that is covered by water at high tide and exposed at low tide."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Living in seawater is difficult for a tree. Many mangrove species deal with this through their roots, which filter out most of the salt before the water is drawn up into the plant."
+            },
+            {
+              "label": "Lecturer",
+              "text": "The mud they grow in also contains very little air. To cope with this, some species produce special roots that grow upwards, out of the mud, so that they can take in oxygen directly from the atmosphere."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Why do mangroves matter? First, they protect coastlines. The dense network of roots reduces the energy of waves, which means less erosion and less damage during storms."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Second, mangroves are extremely good at storing carbon. Most of it is not in the trees themselves but in the soil beneath them, where it can remain for thousands of years."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Third, the sheltered water between the roots acts as a nursery for young fish, many of which later move out to coral reefs or the open sea."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Unfortunately, mangroves are disappearing. The biggest single cause in recent decades has been clearing land for shrimp farms. Another serious problem is plastic. Floating plastic waste collects among the roots and smothers the seedlings, so new trees cannot establish themselves."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Many countries have tried to restore lost mangroves by planting, but the results have often been disappointing. In a number of projects, the young trees were placed too low on the shore, where they were underwater for too long each day, and most of them died."
+            },
+            {
+              "label": "Lecturer",
+              "text": "Researchers now agree that the best results come not from planting at all, but from restoring the natural water flow, for example by removing old walls and channels. When the water moves freely again, mangroves usually return on their own."
+            },
+            {
+              "label": "Narrator",
+              "text": "That is the end of Part 4. You now have some time to check your answers. That is the end of the listening test."
+            }
+          ],
+          "audioStartSec": 670,
+          "groups": [
+            {
+              "kind": "completion",
+              "fromNo": 31,
+              "toNo": 40,
+              "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+              "wordLimit": 1,
+              "shared": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Mangrove forests"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Where and how they grow"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• grow in the {{31}} zone between land and sea"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• roots filter out {{32}} from seawater"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• some species have roots that grow upwards to take in {{33}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Value"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• reduce the energy of {{34}}, so less erosion"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• store large amounts of {{35}}, mostly in the soil"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• act as a nursery for young {{36}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Threats"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• land cleared for shrimp {{37}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• {{38}} smothers seedlings"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Restoration"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• planting failed when trees were placed too low on the {{39}}"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• best results come from restoring natural water {{40}}"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 31,
+                  "prompt": "grow in the {{blank}} zone between land and sea",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "intertidal"
+                    ]
+                  }
+                },
+                {
+                  "number": 32,
+                  "prompt": "roots filter out {{blank}} from seawater",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "salt"
+                    ]
+                  }
+                },
+                {
+                  "number": 33,
+                  "prompt": "some species have roots that grow upwards to take in {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "oxygen"
+                    ]
+                  }
+                },
+                {
+                  "number": 34,
+                  "prompt": "reduce the energy of {{blank}}, so less erosion",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "waves"
+                    ]
+                  }
+                },
+                {
+                  "number": 35,
+                  "prompt": "store large amounts of {{blank}}, mostly in the soil",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "carbon"
+                    ]
+                  }
+                },
+                {
+                  "number": 36,
+                  "prompt": "act as a nursery for young {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "fish"
+                    ]
+                  }
+                },
+                {
+                  "number": 37,
+                  "prompt": "land cleared for shrimp {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "farms"
+                    ]
+                  }
+                },
+                {
+                  "number": 38,
+                  "prompt": "{{blank}} smothers seedlings",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "plastic"
+                    ]
+                  }
+                },
+                {
+                  "number": 39,
+                  "prompt": "planting failed when trees were placed too low on the {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "shore"
+                    ]
+                  }
+                },
+                {
+                  "number": 40,
+                  "prompt": "best results come from restoring natural water {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "flow",
+                      "flows"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
