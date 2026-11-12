@@ -30,6 +30,8 @@ export interface AttemptRepository {
   findInProgress(userId: string, testId: string): Promise<AttemptRow | null>;
   /** Null when the user already has an attempt in progress on the test (unique index). */
   createAttempt(attempt: NewAttempt): Promise<AttemptRow | null>;
+  /** Saves only while the attempt is in progress and `now` is before the deadline; false otherwise. */
+  saveState(attemptId: string, state: AttemptState, now: Date): Promise<boolean>;
   /** Length of a Listening audio file, null when unknown. */
   findAudioDurationSec(fileId: string): Promise<number | null>;
 }
@@ -70,6 +72,14 @@ export const prismaAttemptRepository: AttemptRepository = {
       if (hasPrismaCode(error, 'P2002')) return null;
       throw error;
     }
+  },
+
+  async saveState(attemptId, state, now) {
+    const {count} = await getDb().attempt.updateMany({
+      where: {id: attemptId, status: 'in_progress', deadlineAt: {gt: now}},
+      data: {state},
+    });
+    return count > 0;
   },
 
   async findAudioDurationSec(fileId) {

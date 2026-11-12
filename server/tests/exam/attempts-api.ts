@@ -37,6 +37,9 @@ export function setupAttemptsApi(name: string, deps: ExamModuleDeps = {}) {
     },
     start: (testId: string, userId?: string) =>
       request(app).post('/api/v1/attempts').set('Authorization', as(userId)).send({testId}),
+    get: (id: string, userId?: string) => request(app).get(`/api/v1/attempts/${id}`).set('Authorization', as(userId)),
+    save: (id: string, state: object, userId?: string) =>
+      request(app).put(`/api/v1/attempts/${id}/state`).set('Authorization', as(userId)).send({state}),
     createTest: (title: string, visibility: 'private' | 'public' = 'private') =>
       createFixtureTest({ownerId: users.owner, title: `${title} ${run}`, run, visibility, audioFileId}),
 

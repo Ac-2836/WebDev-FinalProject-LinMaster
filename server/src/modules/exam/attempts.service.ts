@@ -1,4 +1,10 @@
-import {type Attempt, AttemptStateSchema, EMPTY_ATTEMPT_STATE} from '@linmaster/shared';
+import {
+  type Attempt,
+  type AttemptState,
+  AttemptStateSchema,
+  EMPTY_ATTEMPT_STATE,
+  type SaveAttemptStateResponse,
+} from '@linmaster/shared';
 
 import {AppError} from '../../core/app-error';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
@@ -14,6 +20,20 @@ export interface AttemptServiceDeps {
 }
 
 export function createAttemptService({attempts, tests, now = () => new Date()}: AttemptServiceDeps) {
+  /** The attempt of the user; another user's attempt answers 403. */
+  async function ownAttempt(userId: string, attemptId: string): Promise<AttemptRow> {
+    const attempt = await attempts.findAttempt(attemptId);
+    if (!attempt) throw new AppError('Attempt not found.', 404);
+    if (attempt.userId !== userId) throw new AppError('This attempt belongs to another user.', 403);
+    return attempt;
+  }
+
+  async function testOf(testId: string): Promise<TestContentRow> {
+    const test = await tests.findTestContent(testId);
+    if (!test) throw new AppError('Test not found.', 404);
+    return test;
+  }
+
   /** The attempt at `now` by server time: time left, running section and Listening audio position. */
   async function toAttempt(attempt: AttemptRow, test: TestContentRow): Promise<Attempt> {
     const at = now();
@@ -72,6 +92,27 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
       const attempt = created ?? (await attempts.findInProgress(userId, testId));
       if (!attempt) throw new AppError('The attempt could not be started.', 500);
       return {attempt: await toAttempt(attempt, test), created: created !== null};
+    },
+
+    /** `GET /attempts/:id`: owner only, with `serverNow`, the time left and the audio position. */
+    async getAttempt(userId: string, attemptId: string): Promise<{attempt: Attempt}> {
+      const attempt = await ownAttempt(userId, attemptId);
+      return {attempt: await toAttempt(attempt, await testOf(attempt.testId))};
+    },
+
+    /** `PUT /attempts/:id/state`: autosave, refused after the deadline or once submitted. */
+    async saveState(userId: string, attemptId: string, state: AttemptState): Promise<SaveAttemptStateResponse> {
+      const attempt = await ownAttempt(userId, attemptId);
+      const at = now();
+      const submitted = new AppError('The attempt was already submitted.', 409, undefined, 'ATTEMPT_SUBMITTED');
+      if (attempt.status === 'submitted') throw submitted;
+      if (at >= attempt.deadlineAt) {
+        throw new AppError('Time is over; the attempt can no longer be saved.', 409, undefined, 'ATTEMPT_EXPIRED');
+      }
+      // The deadline was checked above, so a refused write means the attempt was submitted in between.
+      if (!(await attempts.saveState(attemptId, state, at))) throw submitted;
+      const savedAt = at.toISOString();
+      return {savedAt, serverNow: savedAt, remainingSec: remainingSec(attempt.deadlineAt, at)};
     },
   };
 }

@@ -1,4 +1,12 @@
-import {ApiErrorBody, CreateAttemptRequestSchema, CreateAttemptResponseSchema} from '@linmaster/shared';
+import {
+  ApiErrorBody,
+  AttemptIdParamsSchema,
+  CreateAttemptRequestSchema,
+  CreateAttemptResponseSchema,
+  GetAttemptResponseSchema,
+  SaveAttemptStateRequestSchema,
+  SaveAttemptStateResponseSchema,
+} from '@linmaster/shared';
 import {extendZodWithOpenApi} from '@asteasolutions/zod-to-openapi';
 import {z} from 'zod';
 
@@ -64,5 +72,55 @@ openApiRegistry.registerPath({
     401: error('Authentication required.'),
     404: error('Test not found, or private to another user.'),
     500: error('Unexpected server error.'),
+  },
+});
+
+/** Responses of every endpoint on one attempt. */
+export const ATTEMPT_ERRORS = {
+  400: error('Invalid attempt id or body.'),
+  401: error('Authentication required.'),
+  403: error('The attempt belongs to another user.'),
+  404: error('Attempt not found.'),
+  500: error('Unexpected server error.'),
+};
+
+openApiRegistry.registerPath({
+  method: 'get',
+  path: '/api/v1/attempts/{id}',
+  summary: 'Get an attempt',
+  description:
+    'Owner only. `serverNow`, `remainingSec` and the audio position come from the server clock, so a refresh ' +
+    'keeps the timer and the audio where they were. The test never holds answers, explanations or transcripts.',
+  tags: ['Exam'],
+  security,
+  request: {params: AttemptIdParamsSchema},
+  responses: {
+    200: {description: 'The attempt.', content: json(GetAttemptResponseSchema, {attempt: ATTEMPT_EXAMPLE})},
+    ...ATTEMPT_ERRORS,
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'put',
+  path: '/api/v1/attempts/{id}/state',
+  summary: 'Autosave an attempt',
+  description: 'Owner only. Replaces the saved answers, highlights, notes, flags and position.',
+  tags: ['Exam'],
+  security,
+  request: {
+    params: AttemptIdParamsSchema,
+    body: {content: json(SaveAttemptStateRequestSchema, {state: ATTEMPT_EXAMPLE.state})},
+  },
+  responses: {
+    200: {
+      description: 'State saved.',
+      content: json(SaveAttemptStateResponseSchema, {
+        savedAt: ATTEMPT_EXAMPLE.serverNow,
+        serverNow: ATTEMPT_EXAMPLE.serverNow,
+        remainingSec: ATTEMPT_EXAMPLE.remainingSec,
+      }),
+    },
+    ...ATTEMPT_ERRORS,
+    409: error('`ATTEMPT_EXPIRED`: the deadline passed. `ATTEMPT_SUBMITTED`: the attempt was submitted.'),
   },
 });
