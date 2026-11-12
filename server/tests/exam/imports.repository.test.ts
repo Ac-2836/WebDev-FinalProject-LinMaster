@@ -77,4 +77,51 @@ describe('Prisma import repository', () => {
     await db.test.delete({where: {id: test.id}});
     expect(await repo.deleteFile(ownerId, audio.id)).toBe('deleted');
   });
+
+  it('finds the files of the user with whether an import uses them', async () => {
+    const free = await repo.createFile(ownerId, newFile());
+    const used = await repo.createFile(ownerId, newFile());
+    const foreign = await repo.createFile(otherUserId, newFile());
+    await db.testImport.create({data: {ownerId, kind: 'reading', questionFileId: used.id, answerFileId: used.id}});
+
+    const found = await repo.findFiles(ownerId, [free.id, used.id, foreign.id]);
+
+    expect(found.map(file => [file.id, file.inUse]).sort()).toEqual(
+      [
+        [free.id, false],
+        [used.id, true],
+      ].sort(),
+    );
+  });
+
+  it('creates a queued import from one PDF, or stores the merged PDF with it', async () => {
+    const pdf = await repo.createFile(ownerId, newFile());
+    const audio = await repo.createFile(ownerId, newFile('audio/mpeg'));
+
+    const single = await repo.createImport(ownerId, {kind: 'reading', pdf: {fileId: pdf.id}, audioFileId: null});
+    const merged = await repo.createImport(ownerId, {
+      kind: 'listening',
+      pdf: {merged: {...newFile(), originalName: 'merged-test.pdf'}},
+      audioFileId: audio.id,
+    });
+
+    expect(single).toMatchObject({ownerId, kind: 'reading', status: 'queued', testId: null, finishedAt: null});
+    const mergedRow = await db.testImport.findUniqueOrThrow({where: {id: merged.id}, include: {questionFile: true}});
+    expect(mergedRow).toMatchObject({audioFileId: audio.id, answerFileId: mergedRow.questionFileId});
+    expect(mergedRow.questionFile).toMatchObject({ownerId, originalName: 'merged-test.pdf'});
+    expect(await repo.findImport(ownerId, single.id)).toEqual(single);
+    expect(await repo.findImport(otherUserId, single.id)).toBeNull();
+  });
+
+  it('stores no merged PDF when the import cannot be created', async () => {
+    const storageKey = randomUUID();
+    await expect(
+      repo.createImport(ownerId, {
+        kind: 'listening',
+        pdf: {merged: {...newFile(), storageKey}},
+        audioFileId: randomUUID(),
+      }),
+    ).rejects.toThrow();
+    expect(await db.storedFile.count({where: {storageKey}})).toBe(0);
+  });
 });
