@@ -593,5 +593,40 @@
       "summaryTitle": "Session complete!",
       "summaryBody": "{count} cards in {minutes} min"
     }
+  },
+  "exam": {
+    "intro": {
+      "back": "Mock tests",
+      "loading": "Loading test",
+      "loadError": "Could not load the test",
+      "retry": "Try again",
+      "notFoundTitle": "Test not found",
+      "notFoundBody": "This test does not exist, was deleted, or is not shared with you.",
+      "kind": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "source": "Source: {source}",
+      "info": "Test information",
+      "sections": "Sections",
+      "questions": "Questions",
+      "time": "Time",
+      "minutes": "{value} min",
+      "lastAttempt": "Last attempt",
+      "beforeTitle": "Before you start",
+      "notes": {
+        "fullScreen": "The exam room opens full screen, like a computer-based test at a test centre.",
+        "audio": "Listening plays on its own and cannot be paused or replayed. Wear headphones.",
+        "clock": "The clock follows the server, even if you close the page. When the time is up, your answers are submitted.",
+        "autosave": "Your answers are saved as you go. Open the page again to carry on.",
+        "device": "A computer works best. A phone works too, but two columns are hard to read."
+      },
+      "start": "Start the test",
+      "inProgressTitle": "You have not finished this test",
+      "inProgressBody": "Started {startedAt} · {minutes, plural, one {# minute} other {# minutes}} left. The clock has kept running since you started.",
+      "continue": "Continue the test",
+      "pastTitle": "Past attempts"
+    }
   }
 }

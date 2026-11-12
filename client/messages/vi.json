@@ -593,5 +593,40 @@
       "summaryTitle": "Xong phiên học!",
       "summaryBody": "{count} thẻ trong {minutes} phút"
     }
+  },
+  "exam": {
+    "intro": {
+      "back": "Thi thử",
+      "loading": "Đang tải đề",
+      "loadError": "Không tải được đề",
+      "retry": "Thử lại",
+      "notFoundTitle": "Không tìm thấy đề",
+      "notFoundBody": "Đề này không tồn tại, đã bị xóa, hoặc không được chia sẻ với bạn.",
+      "kind": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "source": "Nguồn: {source}",
+      "info": "Thông tin đề",
+      "sections": "Phần thi",
+      "questions": "Số câu",
+      "time": "Thời gian",
+      "minutes": "{value} phút",
+      "lastAttempt": "Lần làm trước",
+      "beforeTitle": "Trước khi bắt đầu",
+      "notes": {
+        "fullScreen": "Phòng thi mở toàn màn hình, giống thi trên máy tính tại điểm thi.",
+        "audio": "Listening phát tự động, không tạm dừng hay tua lại được. Hãy đeo tai nghe.",
+        "clock": "Đồng hồ chạy theo máy chủ, kể cả khi bạn đóng trang. Hết giờ thì bài tự nộp.",
+        "autosave": "Bài làm tự lưu liên tục. Mở lại trang là làm tiếp.",
+        "device": "Nên làm trên máy tính. Màn hình điện thoại vẫn làm được nhưng khó nhìn hai cột."
+      },
+      "start": "Bắt đầu làm bài",
+      "inProgressTitle": "Bạn đang làm dở đề này",
+      "inProgressBody": "Bắt đầu lúc {startedAt} · còn {minutes} phút. Đồng hồ vẫn chạy từ lúc bắt đầu.",
+      "continue": "Tiếp tục làm bài",
+      "pastTitle": "Các lần làm trước"
+    }
   }
 }
