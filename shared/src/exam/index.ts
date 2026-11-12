@@ -6,3 +6,4 @@ export * from './imports';
 export * from './page-labels';
 export * from './question-kinds';
 export * from './parsed-test';
+export * from './parsed-answers';
