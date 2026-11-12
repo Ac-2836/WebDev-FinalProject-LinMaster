@@ -4,3 +4,4 @@ export * from './core/api-error';
 export * from './auth/auth';
 export * from './vocab';
 export * from './flashcard';
+export * from './exam';

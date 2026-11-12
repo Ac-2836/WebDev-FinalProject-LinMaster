@@ -20,8 +20,8 @@ export interface AiModel {
   generateJson(request: AiModelRequest): Promise<AiModelResponse>;
 }
 
-// Long enough for a full test PDF; a hung call must not hold the request forever.
-const GEMINI_TIMEOUT_MS = 120_000;
+// A full test PDF took over 2 minutes in testing (it runs in the import job); a hung call must not hold forever.
+const GEMINI_TIMEOUT_MS = 300_000;
 
 /** Gemini through the official SDK, asking for JSON that follows `jsonSchema`. */
 export function createGeminiModel(apiKey: string, model: string): AiModel {
