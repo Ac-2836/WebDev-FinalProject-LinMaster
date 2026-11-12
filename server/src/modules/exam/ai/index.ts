@@ -1,9 +1,11 @@
-import type {ClassifyPagesOutput, PageLabels} from '@linmaster/shared';
+import type {ClassifyPagesOutput, PageLabels, ParseAnswersOutput, ParseTestOutput} from '@linmaster/shared';
 import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 import {runJsonTask} from '../../../core/ai/ai-gateway';
 import {AppError} from '../../../core/app-error';
 import {classifyPagesTask} from './classify-pages.v1';
+import {parseAnswersTask} from './parse-answers.v1';
+import {parseTestTask} from './parse-test.v1';
 
 // AI tasks of the exam module (KH's part). The import flow of TH calls only the functions exported here.
 
@@ -51,3 +53,32 @@ export async function classifyPages(pdf: Buffer, {userId}: {userId: string}): Pr
   const output = await runJsonTask(classifyPagesTask, pdf, {userId});
   return alignPageLabels(output, pageCount);
 }
+
+interface ParseOptions {
+  /** 1-based pages of `pdf` to read, picked from the classify-pages labels. */
+  pages: number[];
+  userId: string;
+}
+
+function checkPages(pages: number[]): number[] {
+  const unique = [...new Set(pages)].sort((a, b) => a - b);
+  if (unique.length === 0 || unique.some(page => !Number.isInteger(page) || page < 1)) {
+    throw new Error('parse tasks need at least one valid page number.');
+  }
+  return unique;
+}
+
+/**
+ * Passages, Listening transcript and questions (no answers) with `parse-test.v1`.
+ * Pass the pages labelled instructions, passage, questions and transcript.
+ */
+export function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseTestOutput> {
+  return runJsonTask(parseTestTask, {pdf, pages: checkPages(pages)}, {userId});
+}
+
+/** Answer key and explanations per skill and question with `parse-answers.v1`. Pass the answers and explanations pages. */
+export function parseAnswers(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseAnswersOutput> {
+  return runJsonTask(parseAnswersTask, {pdf, pages: checkPages(pages)}, {userId});
+}
+
+export {buildParsedTest, toQuestionAnswer} from './build-parsed-test';

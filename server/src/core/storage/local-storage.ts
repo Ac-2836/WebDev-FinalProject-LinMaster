@@ -12,7 +12,17 @@ const MAX_SIZE_BY_MIME: Readonly<Record<string, number>> = {
   'audio/mpeg': MAX_AUDIO_SIZE_BYTES,
   'audio/mp4': MAX_AUDIO_SIZE_BYTES,
 };
-const MIME_ALIASES: Readonly<Record<string, string>> = {'audio/x-m4a': 'audio/mp4'};
+// Browsers and operating systems send these names for the same formats.
+const MIME_ALIASES: Readonly<Record<string, string>> = {
+  'application/x-pdf': 'application/pdf',
+  'audio/mp3': 'audio/mpeg',
+  'audio/mpeg3': 'audio/mpeg',
+  'audio/x-mp3': 'audio/mpeg',
+  'audio/x-mpeg': 'audio/mpeg',
+  'audio/x-mpeg-3': 'audio/mpeg',
+  'audio/m4a': 'audio/mp4',
+  'audio/x-m4a': 'audio/mp4',
+};
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface LocalStorageOptions {
@@ -30,7 +40,7 @@ export function detectMimeType(data: Buffer): string | undefined {
 
 function normalizeMimeType(mimeType: string): string {
   const baseMimeType = mimeType.split(';', 1)[0].trim().toLowerCase();
-  return MIME_ALIASES[baseMimeType] ?? baseMimeType;
+  return Object.hasOwn(MIME_ALIASES, baseMimeType) ? MIME_ALIASES[baseMimeType] : baseMimeType;
 }
 
 function validateInput(input: StorageInput): string {
@@ -42,7 +52,11 @@ function validateInput(input: StorageInput): string {
   const declaredMimeType = normalizeMimeType(input.mimeType);
   const detectedMimeType = detectMimeType(input.data);
   const maxSize = detectedMimeType ? MAX_SIZE_BY_MIME[detectedMimeType] : undefined;
-  if (!detectedMimeType || !maxSize || declaredMimeType !== detectedMimeType) {
+  // The content decides the type. The declared type only counts when it names another supported type;
+  // an empty, generic (application/octet-stream) or unknown type is ignored.
+  const declaresOtherSupportedType =
+    Object.hasOwn(MAX_SIZE_BY_MIME, declaredMimeType) && declaredMimeType !== detectedMimeType;
+  if (!detectedMimeType || !maxSize || declaresOtherSupportedType) {
     throw new AppError('Unsupported or mismatched file type.', 415, undefined, 'INVALID_ARGUMENT');
   }
   if (input.data.byteLength > maxSize) {

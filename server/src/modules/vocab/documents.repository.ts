@@ -4,11 +4,25 @@ import {getDb} from '../../core/db';
 
 export type DocumentParagraphs = VocabDocument['paragraphs'];
 
+export interface ExamSourceRef {
+  attemptId: string;
+  passageId: string;
+}
+
 export interface VocabDocumentRepository {
   createDocument(
     ownerId: string,
-    input: {title: string; source: 'paste' | 'file'; paragraphs: DocumentParagraphs; wordCount: number},
+    input: {
+      title: string;
+      source: VocabDocument['source'];
+      paragraphs: DocumentParagraphs;
+      wordCount: number;
+      /** For source `exam`: where the text comes from. */
+      sourceRef?: ExamSourceRef;
+    },
   ): Promise<VocabDocument>;
+  /** The document already made from this passage of this attempt, if any. */
+  findExamDocument(ownerId: string, sourceRef: ExamSourceRef): Promise<VocabDocument | null>;
   listDocuments(ownerId: string): Promise<Array<Omit<VocabDocument, 'paragraphs'>>>;
   findDocument(ownerId: string, id: string): Promise<VocabDocumentDetail | null>;
   getDocumentForUser(ownerId: string, id: string): Promise<VocabDocument | null>;
@@ -40,9 +54,22 @@ function toDocument(record: DocumentRecord): VocabDocument {
 export const prismaVocabDocumentRepository: VocabDocumentRepository = {
   async createDocument(ownerId, input) {
     const document = await getDb().document.create({
-      data: {...input, ownerId, paragraphs: input.paragraphs as Prisma.InputJsonValue},
+      data: {
+        ...input,
+        ownerId,
+        paragraphs: input.paragraphs as Prisma.InputJsonValue,
+        sourceRef: input.sourceRef ? {...input.sourceRef} : Prisma.DbNull,
+      },
     });
     return toDocument(document);
+  },
+
+  async findExamDocument(ownerId, {attemptId, passageId}) {
+    const document = await getDb().document.findFirst({
+      where: {ownerId, source: 'exam', sourceRef: {equals: {attemptId, passageId}}},
+      orderBy: {createdAt: 'asc'},
+    });
+    return document ? toDocument(document) : null;
   },
 
   async listDocuments(ownerId) {

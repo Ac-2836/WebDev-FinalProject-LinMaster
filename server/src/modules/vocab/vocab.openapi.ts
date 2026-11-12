@@ -14,6 +14,7 @@ import {z} from 'zod';
 import {extendZodWithOpenApi} from '@asteasolutions/zod-to-openapi';
 import {openApiRegistry} from '../../core/openapi-registry';
 import {
+  CreateExamDocumentRequestSchema,
   CreatePastedDocumentRequestSchema,
   CreateVocabDocumentResponseSchema,
   DeleteVocabDocumentResponseSchema,
@@ -131,6 +132,68 @@ openApiRegistry.registerPath({
       content: {'application/json': {schema: ApiErrorBody}},
     },
     422: {description: 'No readable text was found.', content: {'application/json': {schema: ApiErrorBody}}},
+    500: internalError,
+  },
+});
+
+const examDocumentExample = {
+  ...documentExample,
+  title: 'Cambridge 18 Reading Test 1: Urban farming',
+  source: 'exam',
+  paragraphs: [{label: 'A', text: 'In Paris, urban farmers are growing food on rooftops.'}],
+  wordCount: 10,
+};
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/vocab/documents/from-exam',
+  summary: 'Open an exam passage as a reading document',
+  description:
+    'A Reading passage or Listening transcript of an attempt the user submitted becomes a document (source ' +
+    '`exam`), read through the public API of exam. The same passage again returns the document already made (200).',
+  tags: ['Documents'],
+  security: [{bearerAuth: []}],
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: CreateExamDocumentRequestSchema,
+          examples: {
+            passage: {
+              value: {
+                attemptId: '0192f7e0-0bcd-7000-8000-000000000071',
+                passageId: '0192f7e0-0bcd-7000-8000-000000000063',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'The document already made from this passage.',
+      content: {'application/json': {schema: CreateVocabDocumentResponseSchema}},
+    },
+    201: {
+      description: 'Document created from the passage.',
+      content: {
+        'application/json': {
+          schema: CreateVocabDocumentResponseSchema,
+          examples: {success: {value: {document: examDocumentExample}}},
+        },
+      },
+    },
+    400: invalidError,
+    401: authError,
+    403: {
+      description: 'The attempt belongs to another user, or `ATTEMPT_NOT_SUBMITTED`: it is still in progress.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
+    404: {
+      description: 'Attempt or passage not found, or the part has no text.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
     500: internalError,
   },
 });

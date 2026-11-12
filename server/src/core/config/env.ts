@@ -1,7 +1,7 @@
 import {z} from 'zod';
 
-// Free-tier Gemini model; override with GEMINI_MODEL.
-const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
+// shortcut: lite model while testing on the free tier (gemini-3.5-flash allows only 20 requests a day); choose the production model before deploy.
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
 
 // Treats `KEY=` in .env as unset so defaults apply.
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);

@@ -63,6 +63,9 @@ function makeDocumentRepository(): VocabDocumentRepository & {
       const record = documents.get(id);
       return record?.ownerId === ownerId ? record.document : null;
     },
+    async findExamDocument() {
+      return null;
+    },
     async deleteDocument(ownerId, id) {
       const record = documents.get(id);
       if (record?.ownerId !== ownerId) return false;

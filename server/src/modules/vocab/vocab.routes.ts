@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import type {
+  CreateExamDocumentRequest,
   CreatePastedDocumentRequestSchema,
   CreateUploadedDocumentFieldsSchema,
   ListVocabEntriesQuery,
@@ -16,6 +17,7 @@ import type {createVocabDocumentService} from './documents.service';
 import type {UploadedDocument} from './document-parser';
 import type {createVocabService} from './vocab.service';
 import {
+  createExamDocumentSchema,
   deleteVocabEntrySchema,
   createVocabDocumentSchema,
   getVocabEntrySchema,
@@ -68,6 +70,18 @@ export function createVocabRouter(
         return;
       }
       throw new AppError('Upload a file using the "file" form field.', 400);
+    }),
+  );
+  router.post(
+    '/vocab/documents/from-exam',
+    requireAuth(jwtSecret),
+    validate(createExamDocumentSchema),
+    catchAsync(async (req, res) => {
+      const {document, created} = await documentService.createExamDocument(
+        req.user!.userId,
+        req.body as CreateExamDocumentRequest,
+      );
+      res.status(created ? 201 : 200).json({document});
     }),
   );
   router.get(

@@ -1,4 +1,5 @@
 import {
+  CreateExamDocumentRequestSchema,
   CreatePastedDocumentRequestSchema,
   CreateUploadedDocumentFieldsSchema,
   ListVocabEntriesQuerySchema,
@@ -18,4 +19,5 @@ export const createVocabDocumentSchema = z.union([
   z.object({body: CreatePastedDocumentRequestSchema}),
   z.object({body: CreateUploadedDocumentFieldsSchema}),
 ]);
+export const createExamDocumentSchema = z.object({body: CreateExamDocumentRequestSchema});
 export const vocabDocumentParamsSchema = z.object({params: VocabDocumentIdParamsSchema});

@@ -11,7 +11,7 @@ describe('parseEnv', () => {
       NODE_ENV: 'development',
       PORT: 4000,
       DATABASE_URL,
-      GEMINI_MODEL: 'gemini-3.5-flash',
+      GEMINI_MODEL: 'gemini-3.1-flash-lite',
       JWT_SECRET,
       CORS_ORIGINS: ['http://localhost:3000'],
     });
@@ -20,7 +20,7 @@ describe('parseEnv', () => {
   it('treats empty Gemini variables as unset', () => {
     const env = parseEnv({DATABASE_URL, GEMINI_API_KEY: '', GEMINI_MODEL: '', JWT_SECRET});
     expect(env.GEMINI_API_KEY).toBeUndefined();
-    expect(env.GEMINI_MODEL).toBe('gemini-3.5-flash');
+    expect(env.GEMINI_MODEL).toBe('gemini-3.1-flash-lite');
   });
 
   it('coerces PORT to a number', () => {

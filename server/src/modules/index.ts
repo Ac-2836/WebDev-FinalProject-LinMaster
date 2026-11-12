@@ -13,7 +13,7 @@ export function createApiModules(jwtSecret: string) {
   registry.register(createAuthModule(jwtSecret));
   registry.register(createVocabModule(jwtSecret));
   registry.register(createFlashcardModule(jwtSecret));
-  registry.register(createExamModule());
+  registry.register(createExamModule(jwtSecret));
 
   return registry.getAll();
 }
