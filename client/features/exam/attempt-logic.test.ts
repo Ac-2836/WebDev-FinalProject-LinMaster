@@ -1,7 +1,18 @@
 import {EMPTY_ATTEMPT_STATE, type AttemptState, type CandidateSection} from '@linmaster/shared';
 import {describe, expect, it} from 'vitest';
 
-import {answeredNumbers, flaggedNumbers, questionIndex, sectionParts, startQuestion, toggleFlag} from './attempt-logic';
+import {
+  answeredNumbers,
+  answersByNumber,
+  flaggedNumbers,
+  passageMarks,
+  questionIndex,
+  sectionParts,
+  setAnswers,
+  setPassageMarks,
+  startQuestion,
+  toggleFlag,
+} from './attempt-logic';
 
 const question = (number: number) => ({id: `q${number}`, number, prompt: '', options: null});
 const group = (from: number, to: number) => ({
@@ -58,5 +69,32 @@ describe('attempt state in the room', () => {
     expect(startQuestion(at7, section, parts)).toBe(7);
     const otherSection = {...EMPTY_ATTEMPT_STATE, position: {sectionId: 's0', questionId: 'q7'}};
     expect(startQuestion(otherSection, section, parts)).toBe(1);
+  });
+});
+
+describe('answers and highlights by question number', () => {
+  it('maps answers between numbers and ids, removing emptied ones', () => {
+    const {idOf, numberOf} = questionIndex(section);
+    const state = setAnswers({...EMPTY_ATTEMPT_STATE, answers: {q1: 'A', q2: 'B'}}, {2: null, 6: 'iv'}, idOf);
+    expect(state.answers).toEqual({q1: 'A', q6: 'iv'});
+    expect(answersByNumber(state, numberOf)).toEqual({1: 'A', 6: 'iv'});
+  });
+
+  it('saves highlights and notes per passage and reads them back', () => {
+    const other = {passageId: 'p2', paragraph: 0, start: 0, end: 4};
+    const start: AttemptState = {...EMPTY_ATTEMPT_STATE, highlights: [other], notes: [{...other, text: 'keep'}]};
+    const state = setPassageMarks(start, 'p1', [
+      {paragraph: 1, start: 2, end: 9, note: 'date'},
+      {paragraph: 2, start: 0, end: 3},
+    ]);
+    expect(state.highlights).toHaveLength(3);
+    expect(state.notes).toEqual([
+      {...other, text: 'keep'},
+      {passageId: 'p1', paragraph: 1, start: 2, end: 9, text: 'date'},
+    ]);
+    expect(passageMarks(state, 'p1')).toEqual([
+      {paragraph: 1, start: 2, end: 9, note: 'date'},
+      {paragraph: 2, start: 0, end: 3},
+    ]);
   });
 });

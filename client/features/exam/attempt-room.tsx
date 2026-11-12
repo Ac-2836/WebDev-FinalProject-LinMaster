@@ -15,14 +15,20 @@ import {useSession} from '@/core/auth/session-provider';
 
 import {
   answeredNumbers,
+  answersByNumber,
   currentSectionOf,
   flaggedNumbers,
+  passageMarks,
   questionIndex,
   sectionParts,
+  setAnswers,
+  setPassageMarks,
   startQuestion,
   toggleFlag,
 } from './attempt-logic';
 import {ExamRoom} from './exam-room';
+import {toggleStruck, type Struck} from './reading/reading-logic';
+import {ReadingRoom} from './reading/reading-room';
 import {useAutosave} from './room-hooks';
 import {partOf} from './room-logic';
 
@@ -94,6 +100,15 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
   const [current, setCurrent] = useState(() => startQuestion(attempt.state, section, parts));
   const [submitting, setSubmitting] = useState(false);
   const {saveState, flush} = useAutosave(attempt.id, state, reload);
+  // Crossed-out options are a reading aid, not part of the saved attempt: they stay on this device.
+  const struckKey = `lm_struck_${attempt.id}_${section.id}`;
+  const [struck, setStruck] = useState<Struck>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(struckKey) ?? '{}') as Struck;
+    } catch {
+      return {};
+    }
+  });
 
   const sectionTime = attempt.sections.find(s => s.sectionId === section.id);
   const isLastSection = attempt.sections.at(-1)?.sectionId === section.id;
@@ -101,6 +116,16 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
   function navigate(n: number) {
     setCurrent(n);
     setState(s => ({...s, position: {sectionId: section.id, questionId: idOf.get(n) ?? null}}));
+  }
+
+  function strike(question: number, key: string) {
+    const next = toggleStruck(struck, question, key);
+    setStruck(next);
+    try {
+      localStorage.setItem(struckKey, JSON.stringify(next));
+    } catch {
+      // Private mode: crossed-out options last for this page only.
+    }
   }
 
   async function submit() {
@@ -162,16 +187,30 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
         )
       }
     >
-      {/* shortcut: read-only view of the current question until the Reading (P3-13) and Listening (P3-14) views mount here. */}
-      <div className="flex-1 overflow-y-auto p-5 sm:p-8">
-        {passage && <h1 className="text-[1.3em] font-bold">{passage.title}</h1>}
-        {group && <p className="mt-4 font-semibold whitespace-pre-line">{group.instructions}</p>}
-        {question && (
-          <p className="mt-4">
-            <strong>{question.number}.</strong> {question.prompt.replace('{{blank}}', '______')}
-          </p>
-        )}
-      </div>
+      {section.skill === 'reading' && passage ? (
+        <ReadingRoom
+          passage={passage}
+          answers={answersByNumber(state, numberOf)}
+          onAnswer={patch => setState(s => setAnswers(s, patch, idOf))}
+          highlights={passageMarks(state, passage.id)}
+          onHighlightsChange={marks => setState(s => setPassageMarks(s, passage.id, marks))}
+          struck={struck}
+          onStrike={strike}
+          current={current}
+          onCurrentChange={navigate}
+        />
+      ) : (
+        // shortcut: read-only view of the current question until the Listening view (P3-14) mounts here.
+        <div className="flex-1 overflow-y-auto p-5 sm:p-8">
+          {passage && <h1 className="text-[1.3em] font-bold">{passage.title}</h1>}
+          {group && <p className="mt-4 font-semibold whitespace-pre-line">{group.instructions}</p>}
+          {question && (
+            <p className="mt-4">
+              <strong>{question.number}.</strong> {question.prompt.replace('{{blank}}', '______')}
+            </p>
+          )}
+        </div>
+      )}
     </ExamRoom>
   );
 }
