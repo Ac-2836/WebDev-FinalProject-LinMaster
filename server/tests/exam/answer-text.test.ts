@@ -35,5 +35,21 @@ describe('answer text helpers', () => {
     expect(splitAnswerKey('bus OR coach')).toEqual(['bus', 'coach']);
     expect(splitAnswerKey('bread or rice')).toEqual(['bread or rice']);
     expect(splitAnswerKey('24/7')).toEqual(['24/7']);
+    expect(splitAnswerKey('centre/center/middle')).toEqual(['centre', 'center', 'middle']);
+  });
+
+  it('keeps units and short words joined by a slash', () => {
+    expect(splitAnswerKey('km/h')).toEqual(['km/h']);
+    expect(splitAnswerKey('50 km/h')).toEqual(['50 km/h']);
+    expect(splitAnswerKey('m/s')).toEqual(['m/s']);
+    expect(splitAnswerKey('and/or')).toEqual(['and/or']);
+    expect(splitAnswerKey('a/c')).toEqual(['a/c']);
+    expect(splitAnswerKey('50 km/h OR 50 kph')).toEqual(['50 km/h', '50 kph']);
+  });
+
+  it('drops a leading currency sign', () => {
+    expect(normalizeText('£1,500')).toBe('1500');
+    expect(normalizeText('$ 20')).toBe('20');
+    expect(normalizeText('20 euros')).toBe('20 euros');
   });
 });

@@ -6,7 +6,8 @@ const NUMBER_TOKEN = /^[£$€]?\d+(?:[.,:/]\d+)*(?:st|nd|rd|th|%|am|pm)?$/u;
 
 /**
  * Canonical form of a typed answer: same Unicode form, straight quotes and hyphens, lower case,
- * thousands separators dropped (`1,000` → `1000`), single spaces and no punctuation at the ends.
+ * thousands separators dropped (`1,000` → `1000`), no leading currency sign (`£1500` = `1500`),
+ * single spaces and no punctuation at the ends.
  */
 export function normalizeText(value: string): string {
   return value
@@ -17,7 +18,8 @@ export function normalizeText(value: string): string {
     .toLowerCase()
     .replace(/(\d),(?=\d{3}(?!\d))/gu, '$1')
     .replace(/\s+/gu, ' ')
-    .replace(EDGE_PUNCTUATION, '');
+    .replace(EDGE_PUNCTUATION, '')
+    .replace(/^[£$€]\s?/u, '');
 }
 
 /** An answer counts the same with or without a leading article ("the library" = "library"). */
@@ -43,13 +45,32 @@ export function expandOptionalWords(answer: string): string[] {
   return [...expandOptionalWords(before + match[1] + after), ...expandOptionalWords(before + after)];
 }
 
+// A `/` separates spellings only between two words of 3+ letters, so `km/h`, `m/s`, `and/or`, `24/7` stay whole.
+const WORD_BEFORE_SLASH = /\p{L}{3,}$/u;
+const WORD_AFTER_SLASH = /^\p{L}{3,}/u;
+
+function splitOnSlash(cell: string): string[] {
+  const parts: string[] = [];
+  let start = 0;
+  for (const slash of cell.matchAll(/\s*\/\s*/gu)) {
+    const end = slash.index + slash[0].length;
+    if (WORD_BEFORE_SLASH.test(cell.slice(start, slash.index)) && WORD_AFTER_SLASH.test(cell.slice(end))) {
+      parts.push(cell.slice(start, slash.index));
+      start = end;
+    }
+  }
+  parts.push(cell.slice(start));
+  return parts;
+}
+
 /**
- * Splits one answer key cell into its accepted spellings: alternatives are separated by `/` (not between
- * digits, so `24/7` stays whole) or by an upper-case ` OR ` (PLAN F).
+ * Splits one answer key cell into its accepted spellings, separated by an upper-case ` OR ` or by `/`
+ * between two words (`color/colour`, PLAN F).
  */
 export function splitAnswerKey(cell: string): string[] {
   return cell
-    .split(/\s+OR\s+|(?<!\d)\s*\/\s*|\s*\/\s*(?!\d)/u)
+    .split(/\s+OR\s+/u)
+    .flatMap(splitOnSlash)
     .map(part => part.trim())
     .filter(part => part.length > 0);
 }

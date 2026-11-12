@@ -177,6 +177,7 @@ describe('completion', () => {
 
   it('matches numbers written with a thousands separator and straight or curly quotes', () => {
     expect(grade('completion', '1,500', {accepted: ['1500']})).toBe(true);
+    expect(grade('completion', '£1,500', {accepted: ['1500']})).toBe(true);
     expect(grade('completion', 'children’s', {accepted: ["children's"]})).toBe(true);
   });
 });
