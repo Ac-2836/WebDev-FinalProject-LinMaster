@@ -82,15 +82,18 @@ export function SettingsDialog({
         <legend className="mb-2 text-sm font-semibold">Text size</legend>
         <div className="grid grid-cols-3 gap-2">
           {TEXT_SIZES.map(size => (
-            <Button
+            <button
               key={size}
-              variant="outline"
+              type="button"
               aria-pressed={settings.textSize === size}
-              className={cn('h-11 whitespace-normal', settings.textSize === size && 'border-primary bg-secondary')}
+              className={cn(
+                'h-11 rounded-lg border bg-white px-1 text-sm font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                settings.textSize === size && 'border-2 border-primary bg-secondary',
+              )}
               onClick={() => onChange({textSize: size})}
             >
               {TEXT_SIZE_LABEL[size]}
-            </Button>
+            </button>
           ))}
         </div>
       </fieldset>

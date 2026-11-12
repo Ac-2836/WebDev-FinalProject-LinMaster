@@ -1,7 +1,7 @@
 'use client';
 
 import {cn} from 'cn';
-import {ArrowLeft, ArrowRight, Check} from 'lucide-react';
+import {ArrowLeft, ArrowRight, Check, Flag} from 'lucide-react';
 import {useEffect, useRef} from 'react';
 
 import {Button} from '@/components/ui/button';
@@ -40,15 +40,16 @@ export function QuestionNav({
   return (
     <footer className="shrink-0 border-t bg-white">
       <div className="flex items-stretch">
-        {/* Hidden under 640px like the wireframe: the bar keeps room for the numbers. */}
-        <label className="hidden cursor-pointer items-center gap-2 border-r px-4 text-sm sm:flex">
+        {/* Under 640px the word becomes a flag icon so the numbers keep their room. */}
+        <label className="flex min-w-11 cursor-pointer items-center justify-center gap-1.5 border-r px-3 text-sm sm:gap-2 sm:px-4">
           <input
             type="checkbox"
             className="size-4 accent-primary"
             checked={flagged.has(current)}
             onChange={() => onToggleReview(current)}
           />
-          Review
+          <Flag className="size-4 text-warning sm:hidden" aria-hidden="true" />
+          <span className="sr-only sm:not-sr-only">Review</span>
         </label>
         <nav
           aria-label="Question navigation"

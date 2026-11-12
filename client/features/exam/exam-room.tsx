@@ -225,9 +225,9 @@ function SaveIndicator({online, state}: {online: boolean; state: SaveState}) {
     error: {Icon: CircleAlert, text: 'Not saved', className: 'text-warning', icon: ''},
   }[state];
   return (
-    <span role="status" className={cn('hidden items-center gap-1 px-2 text-xs md:flex', view.className)}>
+    <span role="status" className={cn('flex items-center gap-1 px-1 text-xs md:px-2', view.className)}>
       <view.Icon className={cn('size-4', view.icon)} aria-hidden="true" />
-      {view.text}
+      <span className="sr-only md:not-sr-only">{view.text}</span>
     </span>
   );
 }
