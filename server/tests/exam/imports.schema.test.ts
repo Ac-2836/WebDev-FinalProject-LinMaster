@@ -9,8 +9,19 @@ describe('test import schemas', () => {
   it('accepts 1 to 10 files, with or without a box', () => {
     expect(CreateImportRequestSchema.safeParse({kind: 'full', files: files(MAX_IMPORT_FILES)}).success).toBe(true);
     expect(
-      CreateImportRequestSchema.safeParse({kind: 'reading', files: [{fileId: id(1), slot: 'answers'}]}).success,
+      CreateImportRequestSchema.safeParse({kind: 'reading', files: [{fileId: id(1), slots: ['answers']}]}).success,
     ).toBe(true);
+  });
+
+  it('lets one file fill several boxes (Phần F)', () => {
+    const body = {
+      kind: 'listening',
+      files: [
+        {fileId: id(1), slots: ['test', 'answers', 'explanations']},
+        {fileId: id(2), slots: ['audio']},
+      ],
+    };
+    expect(CreateImportRequestSchema.safeParse(body).success).toBe(true);
   });
 
   it('rejects no file, more than 10 files, a repeated file, an unknown box or extra fields', () => {
@@ -18,7 +29,17 @@ describe('test import schemas', () => {
       {kind: 'reading', files: []},
       {kind: 'reading', files: files(MAX_IMPORT_FILES + 1)},
       {kind: 'reading', files: [{fileId: id(1)}, {fileId: id(1)}]},
-      {kind: 'reading', files: [{fileId: id(1), slot: 'cover'}]},
+      {kind: 'reading', files: [{fileId: id(1), slots: ['cover']}]},
+      {kind: 'reading', files: [{fileId: id(1), slots: ['test', 'test']}]},
+      {kind: 'reading', files: [{fileId: id(1), slots: []}]},
+      {kind: 'reading', files: [{fileId: id(1), slot: 'test'}]},
+      {
+        kind: 'reading',
+        files: [
+          {fileId: id(1), slots: ['test']},
+          {fileId: id(1), slots: ['answers']},
+        ],
+      },
       {kind: 'speaking', files: files(1)},
       {kind: 'reading', files: files(1), title: 'x'},
     ]) {

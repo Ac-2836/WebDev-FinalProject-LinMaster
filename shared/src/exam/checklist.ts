@@ -53,8 +53,8 @@ export interface ChecklistFile {
   type: ImportFileType;
   /** Page labels of a PDF (`classify-pages.v1`); null for audio or when labels are not known. */
   pages: readonly PageLabels[] | null;
-  /** Box of the "Theo mẫu" tab; a file in a box counts for that whole part. */
-  slot?: ImportSlot;
+  /** Boxes of the "Theo mẫu" tab; a file counts for the whole part of each box it fills. */
+  slots?: readonly ImportSlot[];
 }
 
 export interface ChecklistInput {
@@ -79,10 +79,17 @@ const CONTENT_LABELS: ReadonlySet<PageLabel> = new Set([
   'transcript',
 ]);
 
+const LISTENING_SLOTS: ReadonlySet<ImportSlot> = new Set(['audio', 'transcript']);
+/**
+ * In a full test, `parse-answers.v1` tells which answers belong to which skill (PLAN C4 step 3), so answer and
+ * explanation pages without a skill count for both skills here.
+ */
+const LABELS_FOR_ANY_SKILL: ReadonlySet<PageLabel> = new Set(['answers', 'explanations']);
+
 function isUnusedPdf(file: ChecklistFile): boolean {
   return (
     file.type === 'pdf' &&
-    !file.slot &&
+    !file.slots?.length &&
     file.pages !== null &&
     file.pages.every(page => page.labels.every(label => label === 'other'))
   );
@@ -91,7 +98,7 @@ function isUnusedPdf(file: ChecklistFile): boolean {
 function detectKind(files: readonly ChecklistFile[]): TestKind | null {
   const skills = new Set<Skill>();
   for (const file of files) {
-    if (file.type === 'audio' || file.slot === 'audio' || file.slot === 'transcript') skills.add('listening');
+    if (file.type === 'audio' || file.slots?.some(slot => LISTENING_SLOTS.has(slot))) skills.add('listening');
     for (const page of file.pages ?? []) {
       if (page.skill && page.labels.some(label => CONTENT_LABELS.has(label))) skills.add(page.skill);
     }
@@ -132,14 +139,14 @@ export function buildChecklist({
   if (!checkedKind) return {kind: null, detectedKind, items: [], unusedFileIds, complete: false};
 
   const used = files.filter(file => !unusedFileIds.includes(file.fileId));
-  const hasSlot = (slot: ImportSlot) => used.some(file => file.slot === slot);
-  // In a one-skill test, a page without a skill (e.g. an answer key with no heading) belongs to that skill.
+  const hasSlot = (slot: ImportSlot) => used.some(file => file.slots?.includes(slot));
+  // A page without a skill (e.g. an answer key with no heading) belongs to the only skill of a one-skill test;
+  // in a full test only answer and explanation pages count, for both skills.
+  const ownsPage = (skill: Skill, label: PageLabel, pageSkill: Skill | null) =>
+    pageSkill === skill || (pageSkill === null && (checkedKind !== 'full' || LABELS_FOR_ANY_SKILL.has(label)));
   const pagesOf = (skill: Skill, label: PageLabel) =>
     used.flatMap(file =>
-      (file.pages ?? []).filter(
-        page =>
-          page.labels.includes(label) && (page.skill === skill || (page.skill === null && checkedKind !== 'full')),
-      ),
+      (file.pages ?? []).filter(page => page.labels.includes(label) && ownsPage(skill, label, page.skill)),
     );
   const statusOf = (found: boolean): ChecklistStatus => (found ? 'complete' : 'missing');
 

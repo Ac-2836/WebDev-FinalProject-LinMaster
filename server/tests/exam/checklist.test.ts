@@ -4,6 +4,7 @@ import {
   type ChecklistFile,
   type ChecklistItem,
   ChecklistSchema,
+  type ImportSlot,
   type PageLabel,
   type PageLabels,
   type Skill,
@@ -15,17 +16,17 @@ function page(labels: PageLabel[], skill: Skill | null, range: [number, number] 
   return {page: number, labels, skill, questionRange: range && {from: range[0], to: range[1]}};
 }
 
-const pdf = (n: number, pages: PageLabels[], slot?: ChecklistFile['slot']): ChecklistFile => ({
+const pdf = (n: number, pages: PageLabels[], ...slots: ImportSlot[]): ChecklistFile => ({
   fileId: id(n),
   type: 'pdf',
   pages,
-  slot,
+  slots: slots.length > 0 ? slots : undefined,
 });
-const audio = (n: number, slot?: ChecklistFile['slot']): ChecklistFile => ({
+const audio = (n: number, ...slots: ImportSlot[]): ChecklistFile => ({
   fileId: id(n),
   type: 'audio',
   pages: null,
-  slot,
+  slots: slots.length > 0 ? slots : undefined,
 });
 
 /** A complete Academic Reading paper with the answer key at the end. */
@@ -128,11 +129,34 @@ describe('buildChecklist', () => {
     expect(checklist.unusedFileIds).toEqual([id(3)]);
   });
 
-  it('gives a page without a skill to the only skill of the test, but not in a full test', () => {
+  it('gives a page without a skill to the only skill of a one-skill test', () => {
     const file = pdf(1, [page(['passage', 'questions'], 'reading', [1, 40]), page(['answers'], null, [1, 40])]);
 
     expect(buildChecklist({files: [file]}).complete).toBe(true);
-    expect(row(buildChecklist({kind: 'full', files: [file]}).items, 'answers', 'reading')?.status).toBe('missing');
+  });
+
+  it('counts answer pages without a skill for both skills of a full test', () => {
+    const file = pdf(1, [
+      page(['questions'], 'listening', [1, 40]),
+      page(['passage', 'questions'], 'reading', [1, 40], 2),
+      page(['answers', 'explanations'], null, [1, 40], 3),
+    ]);
+    const checklist = buildChecklist({files: [file, audio(3)]});
+
+    expect(checklist).toMatchObject({kind: 'full', complete: true});
+    for (const skill of ['listening', 'reading'] as const) {
+      expect(row(checklist.items, 'answers', skill)?.status).toBe('complete');
+      expect(row(checklist.items, 'explanations', skill)?.status).toBe('complete');
+    }
+  });
+
+  it('does not give question or passage pages without a skill to a skill of a full test', () => {
+    const file = pdf(1, [page(['passage', 'questions'], null, [1, 40]), page(['answers'], null, [1, 40], 2)]);
+    const checklist = buildChecklist({kind: 'full', files: [file, audio(3)]});
+
+    expect(checklist.complete).toBe(false);
+    expect(row(checklist.items, 'questions', 'reading')?.status).toBe('missing');
+    expect(row(checklist.items, 'passages', 'reading')?.status).toBe('missing');
   });
 
   it('accepts labelled pages without question numbers', () => {
@@ -167,6 +191,14 @@ describe('buildChecklist', () => {
 
       expect(buildChecklist({kind: 'listening', files}).complete).toBe(true);
       expect(buildChecklist({kind: 'full', files}).complete).toBe(true);
+    });
+
+    it('lets one file fill several boxes', () => {
+      const paperWithKey = pdf(1, [], 'test', 'answers');
+
+      expect(buildChecklist({kind: 'listening', files: [paperWithKey, audio(3, 'audio')]}).complete).toBe(true);
+      expect(buildChecklist({kind: 'reading', files: [paperWithKey]}).complete).toBe(true);
+      expect(buildChecklist({kind: 'reading', files: [pdf(1, [], 'test', 'explanations')]}).complete).toBe(false);
     });
 
     it('reports an empty required box', () => {

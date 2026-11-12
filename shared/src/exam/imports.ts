@@ -12,8 +12,16 @@ export const MAX_IMPORT_AUDIO_BYTES = 60 * 1024 * 1024;
 /** Uploaded files that no import uses are deleted after this many hours. */
 export const IMPORT_FILE_TTL_HOURS = 24;
 
-/** Boxes of the "Theo mẫu" tab. The "AI nhận diện" tab sends no slot and relies on page labels. */
+/**
+ * Boxes of the "Theo mẫu" tab. One file can fill several boxes (a paper with the answer key at the end,
+ * Phần F). The "AI nhận diện" tab sends no box and relies on page labels.
+ */
 export const ImportSlotSchema = z.enum(['test', 'answers', 'audio', 'transcript', 'explanations']);
+export const ImportSlotsSchema = z
+  .array(ImportSlotSchema)
+  .min(1)
+  .max(ImportSlotSchema.options.length)
+  .refine(slots => new Set(slots).size === slots.length, {message: 'Each box can be chosen only once per file.'});
 export const ImportFileTypeSchema = z.enum(['pdf', 'audio']);
 
 export const ImportFileSchema = z.object({
@@ -41,7 +49,7 @@ export const CreateImportRequestSchema = z
   .object({
     kind: TestKindSchema,
     files: z
-      .array(z.object({fileId: z.string().uuid(), slot: ImportSlotSchema.optional()}).strict())
+      .array(z.object({fileId: z.string().uuid(), slots: ImportSlotsSchema.optional()}).strict())
       .min(1)
       .max(MAX_IMPORT_FILES)
       .refine(files => new Set(files.map(file => file.fileId)).size === files.length, {
