@@ -1,16 +1,17 @@
 'use client';
 
+import type {CandidatePassage} from '@linmaster/shared';
 import {cn} from 'cn';
 import {GripVertical} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
 
 import {QuestionGroupView} from './question-views';
-import type {Answers, ExamGroup, ExamPassage, Highlight, Struck} from './reading-logic';
+import type {Answers, Highlight, Struck} from './reading-logic';
 import {ReadingPassage} from './reading-passage';
 
 export interface ReadingRoomProps {
-  passage: ExamPassage;
-  groups: ExamGroup[];
+  /** The passage of the current Part, with its question groups. */
+  passage: CandidatePassage;
   answers: Answers;
   onAnswer: (patch: Record<number, string | null>) => void;
   highlights: readonly Highlight[];
@@ -32,7 +33,6 @@ const clampSplit = (value: number) => Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, Ma
  */
 export function ReadingRoom({
   passage,
-  groups,
   answers,
   onAnswer,
   highlights,
@@ -47,6 +47,12 @@ export function ReadingRoom({
   const container = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const shownQuestion = useRef(current);
+  const passageColumn = useRef<HTMLElement>(null);
+
+  // A new Part starts at the top of its passage, not where the last one was scrolled to.
+  useEffect(() => {
+    passageColumn.current?.scrollTo({top: 0});
+  }, [passage.id]);
 
   // Navigating from the bottom bar: show that question (switching to the questions pane on small screens).
   useEffect(() => {
@@ -63,6 +69,8 @@ export function ReadingRoom({
     if (n !== current) onCurrentChange(n);
   };
 
+  const groups = passage.groups;
+  const paragraphLabels = (passage.paragraphs ?? []).flatMap(p => p.label ?? []);
   const fromNo = groups[0]?.fromNo;
   const toNo = groups[groups.length - 1]?.toNo;
 
@@ -92,6 +100,7 @@ export function ReadingRoom({
 
       <div ref={container} className="flex min-h-0 flex-1" style={{'--split': `${split}%`} as React.CSSProperties}>
         <section
+          ref={passageColumn}
           id="reading-passage"
           aria-label="Reading passage"
           className={cn(
@@ -137,8 +146,9 @@ export function ReadingRoom({
           <div className="flex flex-col gap-10">
             {groups.map(group => (
               <QuestionGroupView
-                key={group.fromNo}
+                key={group.id}
                 group={group}
+                paragraphLabels={paragraphLabels}
                 answers={answers}
                 current={current}
                 onAnswer={onAnswer}

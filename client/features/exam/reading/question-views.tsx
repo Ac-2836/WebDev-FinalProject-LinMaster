@@ -1,24 +1,24 @@
 'use client';
 
-import type {QuestionKind} from '@linmaster/shared';
+import type {CandidateGroup, ChoiceOption, QuestionKind} from '@linmaster/shared';
 import {cn} from 'cn';
-import {useId} from 'react';
+import {Fragment, useId} from 'react';
 
 import {
   JUDGEMENTS,
   multiChoiceSelected,
   overWordLimit,
   splitBlank,
+  splitGaps,
   toggleMultiChoice,
   type Answers,
-  type ExamGroup,
-  type ExamOption,
-  type ExamQuestion,
   type Struck,
 } from './reading-logic';
 
 export interface GroupViewProps {
-  group: ExamGroup;
+  group: CandidateGroup;
+  /** Paragraph letters of the passage: the options of "Which paragraph contains…" when the group lists none. */
+  paragraphLabels: readonly string[];
   answers: Answers;
   current: number;
   onAnswer: (patch: Record<number, string | null>) => void;
@@ -114,7 +114,7 @@ function ChoiceList({
   );
 }
 
-const optionLabel = (o: ExamOption) => (o.text ? `${o.key}  ${o.text}` : o.key);
+const optionLabel = (o: ChoiceOption) => (o.text ? `${o.key}  ${o.text}` : o.key);
 
 function TextAnswer({
   number,
@@ -160,7 +160,7 @@ function SingleChoice({group, answers, current, onAnswer, struck, onStrike, onFo
       <p>{q.prompt}</p>
       <ChoiceList
         number={q.number}
-        options={(q.options ?? group.sharedOptions ?? []).map(o => ({key: o.key, label: optionLabel(o)}))}
+        options={(q.options ?? group.shared?.options ?? []).map(o => ({key: o.key, label: optionLabel(o)}))}
         isChecked={key => answers[q.number] === key}
         onToggle={key => onAnswer({[q.number]: key})}
         struck={struck}
@@ -183,11 +183,11 @@ function MultiChoice({group, answers, current, onAnswer, struck, onStrike, onFoc
       current={numbers.includes(current)}
       onFocusQuestion={onFocusQuestion}
     >
-      <p>{first.prompt}</p>
+      {first.prompt && <p>{first.prompt}</p>}
       <ChoiceList
         number={first.number}
         type="checkbox"
-        options={(first.options ?? group.sharedOptions ?? []).map(o => ({key: o.key, label: optionLabel(o)}))}
+        options={(first.options ?? group.shared?.options ?? []).map(o => ({key: o.key, label: optionLabel(o)}))}
         isChecked={key => selected.includes(key)}
         isDisabled={key => full && !selected.includes(key)}
         onToggle={key => {
@@ -221,7 +221,7 @@ function Judgement({group, answers, current, onAnswer, struck, onStrike, onFocus
   ));
 }
 
-function OptionBox({title, options}: {title: string; options: ExamOption[]}) {
+function OptionBox({title, options}: {title: string; options: ChoiceOption[]}) {
   return (
     <div className="rounded-lg border border-current/30 p-4">
       <p className="mb-2 font-bold">{title}</p>
@@ -237,57 +237,114 @@ function OptionBox({title, options}: {title: string; options: ExamOption[]}) {
   );
 }
 
-function Matching({group, answers, current, onAnswer, onFocusQuestion}: GroupViewProps) {
-  const options = group.sharedOptions ?? [];
+function Matching({group, paragraphLabels, answers, current, onAnswer, onFocusQuestion}: GroupViewProps) {
+  const listed = group.shared?.options ?? [];
+  const options = listed.length ? listed : paragraphLabels.map(key => ({key, text: ''}));
   return (
     <>
-      {options.some(o => o.text) && <OptionBox title="List of options" options={options} />}
-      {group.questions.map(q => (
-        <QuestionBlock
-          key={q.number}
-          number={q.number}
-          current={current === q.number}
-          onFocusQuestion={onFocusQuestion}
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="min-w-0 flex-1 basis-48">{q.prompt}</p>
-            <select
-              className={cn(inputClass, 'w-24 px-2')}
-              aria-label={`Answer ${q.number}`}
-              value={answers[q.number] ?? ''}
-              onChange={e => onAnswer({[q.number]: e.target.value || null})}
-            >
-              <option value="" />
-              {(q.options ?? options).map(o => (
-                <option key={o.key} value={o.key}>
-                  {o.key}
-                </option>
-              ))}
-            </select>
-          </div>
-        </QuestionBlock>
-      ))}
+      {options.some(o => o.text) && (
+        <OptionBox title={group.shared?.optionsTitle ?? 'List of options'} options={options} />
+      )}
+      {group.questions.map(q => {
+        const select = (
+          <select
+            className={cn(inputClass, 'w-24 px-2 font-sans')}
+            aria-label={`Answer ${q.number}`}
+            value={answers[q.number] ?? ''}
+            onChange={e => onAnswer({[q.number]: e.target.value || null})}
+          >
+            <option value="" />
+            {(q.options ?? options).map(o => (
+              <option key={o.key} value={o.key}>
+                {o.key}
+              </option>
+            ))}
+          </select>
+        );
+        // Summary with a word box: the choice goes in the gap.
+        const parts = splitBlank(q.prompt);
+        return (
+          <QuestionBlock
+            key={q.number}
+            number={q.number}
+            current={current === q.number}
+            onFocusQuestion={onFocusQuestion}
+          >
+            {parts ? (
+              <p className="leading-loose">
+                {parts[0]}
+                {select}
+                {parts[1]}
+              </p>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="min-w-0 flex-1 basis-48">{q.prompt}</p>
+                {select}
+              </div>
+            )}
+          </QuestionBlock>
+        );
+      })}
     </>
   );
 }
 
 function Completion({group, answers, current, onAnswer, onFocusQuestion}: GroupViewProps) {
+  const gap = (n: number) => (
+    <span
+      key={n}
+      id={`q-${n}`}
+      onFocusCapture={() => onFocusQuestion(n)}
+      className={cn('inline-block scroll-mt-4 rounded-md p-0.5', current === n && 'ring-2 ring-primary')}
+    >
+      <span className="mr-1 font-sans font-bold">{n}</span>
+      <TextAnswer number={n} value={answers[n]} wordLimit={group.wordLimit} onAnswer={onAnswer} />
+    </span>
+  );
+  const withGaps = (text: string) =>
+    splitGaps(text).map((part, i) =>
+      typeof part === 'number' ? gap(part) : <Fragment key={`t${i}`}>{part}</Fragment>,
+    );
+  const content = group.shared?.content;
+
+  // Notes, table or flow chart of the group, with the gaps in place.
+  if (content?.length) {
+    return (
+      <div className="flex flex-col gap-2 overflow-x-auto rounded-lg border border-current/30 p-4 font-serif leading-loose">
+        {content.map((block, i) =>
+          block.type === 'text' ? (
+            <p key={i}>{withGaps(block.text)}</p>
+          ) : (
+            <table key={i} className="border-collapse">
+              <tbody>
+                {block.rows.map((row, r) => (
+                  <tr key={r}>
+                    {row.map((cell, c) => {
+                      const Cell = r === 0 ? 'th' : 'td';
+                      return (
+                        <Cell key={c} className="border border-current/30 px-3 py-2 text-left align-top">
+                          {withGaps(cell)}
+                        </Cell>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ),
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-current/30 p-4 font-serif leading-loose">
       {group.questions.map(q => {
         const parts = splitBlank(q.prompt);
-        const input = (
-          <TextAnswer number={q.number} value={answers[q.number]} wordLimit={group.wordLimit} onAnswer={onAnswer} />
-        );
         return (
-          <p
-            key={q.number}
-            id={`q-${q.number}`}
-            onFocusCapture={() => onFocusQuestion(q.number)}
-            className={cn('-m-1 scroll-mt-4 rounded-md p-1', current === q.number && 'ring-2 ring-primary')}
-          >
+          <p key={q.number}>
             {parts ? parts[0] : `${q.prompt} `}
-            <span className="font-sans font-bold">{q.number}</span> {input}
+            {gap(q.number)}
             {parts?.[1]}
           </p>
         );
@@ -299,11 +356,7 @@ function Completion({group, answers, current, onAnswer, onFocusQuestion}: GroupV
 function ShortAnswer({group, answers, current, onAnswer, onFocusQuestion}: GroupViewProps) {
   return (
     <>
-      {group.imageUrl && (
-        // Diagram from the test file; its labels are the questions below.
-        <img src={group.imageUrl} alt={`Diagram for questions ${group.fromNo}–${group.toNo}`} className="max-w-full" />
-      )}
-      {group.questions.map((q: ExamQuestion) => (
+      {group.questions.map(q => (
         <QuestionBlock
           key={q.number}
           number={q.number}

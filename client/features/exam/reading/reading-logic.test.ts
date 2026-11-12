@@ -9,6 +9,7 @@ import {
   segments,
   setNote,
   splitBlank,
+  splitGaps,
   toggleMultiChoice,
   toggleStruck,
 } from './reading-logic';
@@ -36,6 +37,8 @@ describe('answers', () => {
       ' that told stories.',
     ]);
     expect(splitBlank('No gap')).toBeNull();
+    expect(splitGaps('Name: Daniel {{1}}')).toEqual(['Name: Daniel ', 1]);
+    expect(splitGaps('{{8}} and {{9}} p.m.')).toEqual([8, ' and ', 9, ' p.m.']);
   });
 });
 

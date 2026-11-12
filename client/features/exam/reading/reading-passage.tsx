@@ -1,21 +1,14 @@
 'use client';
 
+import type {CandidatePassage} from '@linmaster/shared';
 import {Eraser, StickyNote, X} from 'lucide-react';
 import {DropdownMenu, Popover} from 'radix-ui';
 import {Fragment, useRef, useState} from 'react';
 
-import {
-  addHighlights,
-  clearHighlights,
-  segments,
-  setNote,
-  type ExamPassage,
-  type Highlight,
-  type TextRange,
-} from './reading-logic';
+import {addHighlights, clearHighlights, segments, setNote, type Highlight, type TextRange} from './reading-logic';
 
 export interface ReadingPassageProps {
-  passage: ExamPassage;
+  passage: CandidatePassage;
   highlights: readonly Highlight[];
   onHighlightsChange: (next: Highlight[]) => void;
 }
@@ -117,7 +110,7 @@ export function ReadingPassage({passage, highlights, onHighlightsChange}: Readin
     <div ref={root} onContextMenu={onContextMenu}>
       <h1 className="text-[1.3em] font-bold">{passage.title}</h1>
       <div className="mt-4 flex max-w-[70ch] flex-col gap-4 font-serif text-[1.13em] leading-[1.9]">
-        {passage.paragraphs.map((p, i) => (
+        {(passage.paragraphs ?? []).map((p, i) => (
           <p key={i}>
             {p.label && <strong className="mr-2 font-sans">{p.label}</strong>}
             <span data-para={i}>

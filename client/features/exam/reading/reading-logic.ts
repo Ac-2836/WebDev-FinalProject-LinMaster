@@ -1,41 +1,6 @@
 import {countWords, normalizeText, type GivenAnswer, type QuestionKind} from '@linmaster/shared';
 
-/**
- * Candidate view of a Reading passage and its question groups, named after the `exam` tables
- * (Passage → QuestionGroup → Question, answers left out). Component-level until P3-08 adds the
- * attempt payload schema to `shared/src/exam`; then switch to it.
- */
-export interface ExamOption {
-  /** Letter (`A`) or roman numeral (`iv`). */
-  key: string;
-  text: string;
-}
-
-export interface ExamQuestion {
-  number: number;
-  /** Completion prompts mark the gap with `{{blank}}`. */
-  prompt: string;
-  options?: ExamOption[] | null;
-}
-
-export interface ExamGroup {
-  kind: QuestionKind;
-  fromNo: number;
-  toNo: number;
-  instructions: string;
-  /** Heading list, A–G list… shared by the whole group. */
-  sharedOptions?: ExamOption[] | null;
-  wordLimit?: number | null;
-  imageUrl?: string | null;
-  questions: ExamQuestion[];
-}
-
-export interface ExamPassage {
-  title: string;
-  paragraphs: {label?: string | null; text: string}[];
-}
-
-/** Answers by question number, as in `Attempt.state.answers`. */
+/** Answers by question number (the room maps them to the question ids of `Attempt.state.answers`). */
 export type Answers = Readonly<Record<number, GivenAnswer | undefined>>;
 
 export const isAnswered = (given: GivenAnswer | undefined) => typeof given === 'string' && given.trim() !== '';
@@ -71,11 +36,18 @@ export function toggleMultiChoice(
   return Object.fromEntries(numbers.map((n, i) => [n, next[i] ?? null]));
 }
 
-/** Splits a completion prompt around its `{{blank}}`. */
+/** Splits a prompt around its `{{blank}}`. */
 export function splitBlank(prompt: string): [string, string] | null {
   const i = prompt.indexOf('{{blank}}');
   return i === -1 ? null : [prompt.slice(0, i), prompt.slice(i + '{{blank}}'.length)];
 }
+
+/** Cuts group text (notes, table cells) at its `{{n}}` gaps: strings stay, gaps become question numbers. */
+export const splitGaps = (text: string): (string | number)[] =>
+  text
+    .split(/\{\{(\d+)\}\}/)
+    .map((part, i) => (i % 2 ? Number(part) : part))
+    .filter(part => part !== '');
 
 // --- Highlights and notes on the passage ---
 
