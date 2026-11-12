@@ -64,6 +64,39 @@ export const CreateImportRequestSchema = z
 /** State diagram st-02. */
 export const ImportStatusSchema = z.enum(['queued', 'parsing', 'validating', 'done', 'failed']);
 
+/**
+ * Codes of `TestImport.errors` written by the import job (PLAN C4 steps 3–4); the client shows a message per code.
+ * Blocking errors (`failed`):
+ * - `PAGES_MISSING`: no page labelled as questions or as answers in the PDF.
+ * - `SECTION_MISSING`: a skill of the test kind was not found.
+ * - `QUESTION_COUNT`: a section has another number of questions than the certification (IELTS: 40).
+ * - `QUESTION_NUMBERING`: a question number is missing or repeated (`questionNo`).
+ * - `KIND_NOT_ALLOWED`: a question kind the skill does not use.
+ * - `ANSWER_MISSING`, `ANSWER_INVALID`: no answer, or an answer that does not fit the question kind (`questionNo`).
+ * - `MULTI_CHOICE_MISMATCH`: a "Choose TWO" group whose number of questions differs from its number of letters.
+ * - `PASSAGE_TEXT_MISSING`: a Reading passage without text.
+ * - `AUDIO_MISSING`, `AUDIO_DURATION_UNKNOWN`: Listening without audio, or audio of unknown length.
+ * - `IMPORT_JOB_FAILED`: the files could not be read (AI or storage error).
+ * Warnings (`done`): `EXPLANATION_MISSING`, `TRANSCRIPT_MISSING`, `SECTION_IGNORED` (a skill outside the kind).
+ */
+export const ImportIssueCodeSchema = z.enum([
+  'PAGES_MISSING',
+  'SECTION_MISSING',
+  'QUESTION_COUNT',
+  'QUESTION_NUMBERING',
+  'KIND_NOT_ALLOWED',
+  'ANSWER_MISSING',
+  'ANSWER_INVALID',
+  'MULTI_CHOICE_MISMATCH',
+  'PASSAGE_TEXT_MISSING',
+  'AUDIO_MISSING',
+  'AUDIO_DURATION_UNKNOWN',
+  'IMPORT_JOB_FAILED',
+  'EXPLANATION_MISSING',
+  'TRANSCRIPT_MISSING',
+  'SECTION_IGNORED',
+]);
+
 /** One row of `TestImport.errors`: `error` blocks the import (`failed`), `warning` still creates the test. */
 export const ImportIssueSchema = z.object({
   severity: z.enum(['error', 'warning']),
@@ -103,5 +136,6 @@ export type ImportFile = z.infer<typeof ImportFileSchema>;
 export type CreateImportRequest = z.infer<typeof CreateImportRequestSchema>;
 export type ImportStatus = z.infer<typeof ImportStatusSchema>;
 export type ImportIssue = z.infer<typeof ImportIssueSchema>;
+export type ImportIssueCode = z.infer<typeof ImportIssueCodeSchema>;
 export type TestImport = z.infer<typeof TestImportSchema>;
 export type ImportErrorStatus = z.infer<typeof ImportErrorStatusSchema>;
