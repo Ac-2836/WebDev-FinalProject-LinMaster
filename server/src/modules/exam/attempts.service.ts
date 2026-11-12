@@ -13,6 +13,7 @@ import {
 import {z} from 'zod';
 
 import {AppError} from '../../core/app-error';
+import type {Storage} from '../../core/storage';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
 import {correctTexts, explanationOf, gradeAttempt} from './attempt-grading';
 import type {AttemptRepository, AttemptRow, AttemptSummaryRow} from './attempts.repository';
@@ -22,11 +23,31 @@ import {toCandidateTest} from './tests.service';
 export interface AttemptServiceDeps {
   attempts: AttemptRepository;
   tests: TestRepository;
+  storage: Storage;
   /** Server clock; tests pass a fixed one. */
   now?: () => Date;
 }
 
 const ParagraphsSchema = z.array(ParsedParagraphSchema);
+
+/** Audio sent ahead of the server-time position, so playback does not stall between two range requests. */
+export const AUDIO_LEAD_SEC = 30;
+
+export interface AudioChunk {
+  status: 206 | 416;
+  mimeType: string;
+  /** Value of `Content-Range`. */
+  range: string;
+  body: Buffer;
+}
+
+/** `bytes=start-end` → the first byte asked; a suffix range (`bytes=-500`) counts from the end. */
+function rangeStart(header: string | undefined, size: number): number {
+  const match = header ? /^bytes=(\d*)-(\d*)$/u.exec(header.trim()) : null;
+  if (!match) return 0;
+  if (match[1] === '') return match[2] === '' ? 0 : Math.max(0, size - Number(match[2]));
+  return Number(match[1]);
+}
 
 /** Scores kept on the attempt; `total` is the number of graded questions of the skill. */
 function scoresOf(row: AttemptSummaryRow): SkillScore[] {
@@ -56,7 +77,7 @@ function toSummary(row: AttemptSummaryRow): AttemptSummary {
   };
 }
 
-export function createAttemptService({attempts, tests, now = () => new Date()}: AttemptServiceDeps) {
+export function createAttemptService({attempts, tests, storage, now = () => new Date()}: AttemptServiceDeps) {
   /** The attempt of the user; another user's attempt answers 403. */
   async function ownAttempt(userId: string, attemptId: string): Promise<AttemptRow> {
     const attempt = await attempts.findAttempt(attemptId);
@@ -222,6 +243,43 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
         throw new AppError('Submit the attempt to see its result.', 409, undefined, 'ATTEMPT_NOT_SUBMITTED');
       }
       return {result: await resultOf(attemptId)};
+    },
+
+    /**
+     * `GET /attempts/:id/audio`: owner only, while the Listening section runs and its audio is playing. Only the
+     * bytes up to the server-time position (+ AUDIO_LEAD_SEC) are sent: the audio cannot be downloaded ahead or
+     * skipped forward. The room plays it without controls, so it cannot be paused either.
+     */
+    async streamAudio(userId: string, attemptId: string, range: string | undefined): Promise<AudioChunk> {
+      const attempt = await ownAttempt(userId, attemptId);
+      const test = await testOf(attempt.testId);
+      const at = now();
+      const unavailable = () =>
+        new AppError('No audio is playing in this attempt now.', 409, undefined, 'AUDIO_NOT_AVAILABLE');
+      if (attempt.status !== 'in_progress' || at >= attempt.deadlineAt) throw unavailable();
+      const current = currentSection(
+        sectionTimes(attempt.startedAt, clockSections(test.certification, test.content)),
+        at,
+      );
+      const section = test.content.find(item => item.id === current?.sectionId);
+      if (!current || section?.skill !== 'listening' || section.audioFileId === null) throw unavailable();
+      const file = await attempts.findAudioFile(section.audioFileId);
+      const data = file && (await storage.get(file.storageKey));
+      if (!file || !data) throw unavailable();
+      const {positionSec, ended} = audioPosition(current, file.durationSec, at);
+      if (ended) throw unavailable();
+
+      const size = data.length;
+      const ratio = file.durationSec ? Math.min(1, (positionSec + AUDIO_LEAD_SEC) / file.durationSec) : 1;
+      const last = Math.max(0, Math.floor(size * ratio) - 1);
+      const start = rangeStart(range, size);
+      if (start > last) return {status: 416, mimeType: file.mimeType, range: `bytes */${size}`, body: Buffer.alloc(0)};
+      return {
+        status: 206,
+        mimeType: file.mimeType,
+        range: `bytes ${start}-${last}/${size}`,
+        body: data.subarray(start, last + 1),
+      };
     },
 
     /** `GET /attempts`: attempts of the user, newest first. */

@@ -81,6 +81,7 @@ export interface AttemptRepository {
   findTranscripts(testId: string): Promise<TranscriptRow[]>;
   /** Length of a Listening audio file, null when unknown. */
   findAudioDurationSec(fileId: string): Promise<number | null>;
+  findAudioFile(fileId: string): Promise<{storageKey: string; mimeType: string; durationSec: number | null} | null>;
 }
 
 export const ATTEMPT_SELECT = {
@@ -236,6 +237,13 @@ export const prismaAttemptRepository: AttemptRepository = {
       select: {id: true, sectionId: true, title: true, paragraphs: true},
     });
     return passages.map(({id, ...passage}) => ({passageId: id, ...passage}));
+  },
+
+  async findAudioFile(fileId) {
+    return getDb().storedFile.findUnique({
+      where: {id: fileId},
+      select: {storageKey: true, mimeType: true, durationSec: true},
+    });
   },
 
   async findAudioDurationSec(fileId) {

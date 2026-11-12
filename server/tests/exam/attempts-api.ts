@@ -45,6 +45,10 @@ export function setupAttemptsApi(name: string, deps: ExamModuleDeps = {}) {
     result: (id: string, userId?: string) =>
       request(app).get(`/api/v1/attempts/${id}/result`).set('Authorization', as(userId)),
     list: (userId?: string) => request(app).get('/api/v1/attempts').set('Authorization', as(userId)),
+    audio: (id: string, range?: string, userId?: string) => {
+      const call = request(app).get(`/api/v1/attempts/${id}/audio`).set('Authorization', as(userId));
+      return range ? call.set('Range', range) : call;
+    },
     createTest: (title: string, visibility: 'private' | 'public' = 'private') =>
       createFixtureTest({ownerId: users.owner, title: `${title} ${run}`, run, visibility, audioFileId}),
 

@@ -43,6 +43,7 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
   const attempts = createAttemptService({
     attempts: deps.attemptRepository ?? prismaAttemptRepository,
     tests: testRepository,
+    storage,
     now: deps.now,
   });
   const router = addAttemptRoutes(

@@ -74,5 +74,23 @@ export function addAttemptRoutes(router: Router, service: AttemptService, jwtSec
       res.json(await service.getResult(req.user!.userId, attemptId(req.params)));
     }),
   );
+  router.get(
+    '/attempts/:id/audio',
+    auth,
+    validate(attemptIdSchema),
+    catchAsync(async (req, res) => {
+      const chunk = await service.streamAudio(req.user!.userId, attemptId(req.params), req.headers.range);
+      res
+        .status(chunk.status)
+        .set({
+          'Content-Type': chunk.mimeType,
+          'Content-Range': chunk.range,
+          'Accept-Ranges': 'bytes',
+          'Cache-Control': 'no-store',
+          'Content-Disposition': 'inline',
+        })
+        .send(chunk.body);
+    }),
+  );
   return router;
 }

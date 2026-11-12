@@ -209,3 +209,30 @@ openApiRegistry.registerPath({
     500: error('Unexpected server error.'),
   },
 });
+
+const audioBytes = (description: string) => ({
+  description,
+  content: {
+    'audio/mpeg': {schema: {type: 'string' as const, format: 'binary'}},
+    'audio/mp4': {schema: {type: 'string' as const, format: 'binary'}},
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'get',
+  path: '/api/v1/attempts/{id}/audio',
+  summary: 'Stream the Listening audio of an attempt',
+  description:
+    'Owner only, while the Listening section runs and its audio is playing (`attempt.audio`). Answers with ' +
+    '`206` and only the bytes up to the server-time position + 30 seconds, so the audio cannot be downloaded ' +
+    'ahead or skipped forward; `Range` asks for a start byte. `Cache-Control: no-store`.',
+  tags: ['Exam'],
+  security,
+  request: {params: AttemptIdParamsSchema},
+  responses: {
+    206: audioBytes('Audio bytes; `Content-Range` tells which.'),
+    ...ATTEMPT_ERRORS,
+    409: error('`AUDIO_NOT_AVAILABLE`: no Listening audio is playing in the attempt now.'),
+    416: audioBytes('The asked range starts after the bytes played so far.'),
+  },
+});
