@@ -1,7 +1,11 @@
 'use client';
 
-import {useEffect, useRef, useState, useSyncExternalStore} from 'react';
+import type {AttemptState} from '@linmaster/shared';
+import {useCallback, useEffect, useRef, useState, useSyncExternalStore} from 'react';
 
+import {ApiError, api} from '@/core/api/client';
+
+import type {SaveState} from './exam-room';
 import {clockOffset, crossedWarning, remainingMs, type WarningMinute} from './room-logic';
 
 /**
@@ -114,4 +118,63 @@ export function useRoomSettings() {
       return next;
     });
   return [settings, update] as const;
+}
+
+const SAVE_DELAY_MS = 800;
+const RETRY_MS = 5000;
+
+/**
+ * Autosave of the attempt state (`PUT /attempts/:id/state`): a short pause after each change, again when the
+ * connection comes back, and every few seconds after a failed save. `onClosed` runs when the server refuses
+ * because the time is over or the attempt was submitted. `flush()` waits for the last save and tells whether it
+ * went through: call it before submitting, or the answer typed just before would not be graded.
+ */
+export function useAutosave(attemptId: string, state: AttemptState, onClosed: () => void) {
+  const online = useOnline();
+  const [saveState, setSaveState] = useState<SaveState>('saved');
+  const latest = useRef(state);
+  // The state loaded from the server (at mount) counts as saved.
+  const saved = useRef(state);
+  const inFlight = useRef<Promise<void> | null>(null);
+  const closed = useRef(onClosed);
+  useEffect(() => {
+    latest.current = state;
+    closed.current = onClosed;
+  });
+
+  const flush = useCallback(async () => {
+    while (inFlight.current) await inFlight.current;
+    const next = latest.current;
+    if (next === saved.current) return true;
+    inFlight.current = api(`/attempts/${attemptId}/state`, {method: 'PUT', body: {state: next}})
+      .then(() => {
+        saved.current = next;
+        if (latest.current === next) setSaveState('saved');
+      })
+      .catch((error: unknown) => {
+        if (error instanceof ApiError && (error.status === 'ATTEMPT_EXPIRED' || error.status === 'ATTEMPT_SUBMITTED')) {
+          saved.current = next;
+          closed.current();
+        } else setSaveState('error');
+      })
+      .finally(() => (inFlight.current = null));
+    await inFlight.current;
+    return saved.current === next;
+  }, [attemptId]);
+
+  useEffect(() => {
+    if (state === saved.current) return;
+    setSaveState(s => (s === 'error' ? s : 'saving'));
+    if (!online) return;
+    const id = setTimeout(flush, SAVE_DELAY_MS);
+    return () => clearTimeout(id);
+  }, [state, online, flush]);
+
+  useEffect(() => {
+    if (saveState !== 'error' || !online) return;
+    const id = setTimeout(flush, RETRY_MS);
+    return () => clearTimeout(id);
+  }, [saveState, online, flush]);
+
+  return {saveState, flush};
 }
