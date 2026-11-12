@@ -1,4 +1,4 @@
-import type {ImportStatus, TestKind} from '@linmaster/shared';
+import type {ImportIssue, ImportStatus, TestKind} from '@linmaster/shared';
 
 import {getDb} from '../../core/db';
 
@@ -46,6 +46,23 @@ export interface NewImport {
   audioFileId: string | null;
 }
 
+/** What the background job reads: the import and the files it points at. */
+export interface ImportJob {
+  id: string;
+  ownerId: string;
+  kind: TestKind;
+  /** The same PDF as the answer file (PLAN C4 step 2). */
+  questionFileId: string;
+  answerFileId: string;
+  audioFileId: string | null;
+}
+
+/** End of a job: `done` with the new test and its warnings, or `failed` with the blocking errors. */
+export type ImportOutcome =
+  {status: 'done'; testId: string; issues: ImportIssue[]} | {status: 'failed'; issues: ImportIssue[]};
+
+const UNFINISHED: ImportStatus[] = ['queued', 'parsing', 'validating'];
+
 export interface ImportRepository {
   createFile(ownerId: string, file: NewImportFile): Promise<ImportFileRecord>;
   /** The file when it belongs to the user, else null. */
@@ -62,6 +79,19 @@ export interface ImportRepository {
   createImport(ownerId: string, data: NewImport): Promise<ImportRecord>;
   /** The import when it belongs to the user, else null. */
   findImport(ownerId: string, importId: string): Promise<ImportRecord | null>;
+  /**
+   * Moves an unfinished import to `parsing` and returns it, or null when it is already `done` or `failed`.
+   * An import left in `parsing` or `validating` by a stopped server is claimed again.
+   */
+  claimImport(importId: string): Promise<ImportJob | null>;
+  setImportStatus(importId: string, status: 'validating'): Promise<void>;
+  /** Stores the outcome, unless the import is already finished. */
+  finishImport(importId: string, outcome: ImportOutcome): Promise<void>;
+  /**
+   * Deletes up to `limit` files created before `createdBefore` that nothing refers to, and returns their storage
+   * keys so the caller removes the stored objects.
+   */
+  deleteOrphanFiles(createdBefore: Date, limit: number): Promise<string[]>;
 }
 
 /** No row of the exam module refers to the file. */
@@ -122,5 +152,55 @@ export const prismaImportRepository: ImportRepository = {
 
   async findImport(ownerId, importId) {
     return getDb().testImport.findFirst({where: {id: importId, ownerId}});
+  },
+
+  async claimImport(importId) {
+    const db = getDb();
+    const {count} = await db.testImport.updateMany({
+      where: {id: importId, status: {in: UNFINISHED}},
+      data: {status: 'parsing'},
+    });
+    if (count === 0) return null;
+    return db.testImport.findUnique({
+      where: {id: importId},
+      select: {id: true, ownerId: true, kind: true, questionFileId: true, answerFileId: true, audioFileId: true},
+    });
+  },
+
+  async setImportStatus(importId, status) {
+    await getDb().testImport.updateMany({where: {id: importId, status: {in: UNFINISHED}}, data: {status}});
+  },
+
+  async finishImport(importId, outcome) {
+    await getDb().testImport.updateMany({
+      where: {id: importId, status: {in: UNFINISHED}},
+      data: {
+        status: outcome.status,
+        errors: outcome.issues,
+        testId: outcome.status === 'done' ? outcome.testId : null,
+        finishedAt: new Date(),
+      },
+    });
+  },
+
+  async deleteOrphanFiles(createdBefore, limit) {
+    const db = getDb();
+    const orphans = await db.storedFile.findMany({
+      where: {createdAt: {lt: createdBefore}, ...UNUSED},
+      select: {id: true, storageKey: true},
+      orderBy: {createdAt: 'asc'},
+      take: limit,
+    });
+    if (orphans.length === 0) return [];
+    const ids = orphans.map(file => file.id);
+    try {
+      // The references are checked again: an import may have taken a file since the first query.
+      await db.storedFile.deleteMany({where: {id: {in: ids}, ...UNUSED}});
+    } catch (error) {
+      if (hasPrismaCode(error, 'P2003')) return [];
+      throw error;
+    }
+    const kept = new Set((await db.storedFile.findMany({where: {id: {in: ids}}, select: {id: true}})).map(f => f.id));
+    return orphans.filter(file => !kept.has(file.id)).map(file => file.storageKey);
   },
 };

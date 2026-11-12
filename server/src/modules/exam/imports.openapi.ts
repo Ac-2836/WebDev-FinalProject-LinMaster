@@ -110,7 +110,8 @@ openApiRegistry.registerPath({
     'AI call; the "AI nhận diện" tab sends none and its PDFs are labelled again (from the AI cache). The server ' +
     'rebuilds the "Độ đầy đủ" table and answers 422 `IMPORT_INCOMPLETE` with `{checklist}` in `error.details` ' +
     'when a required part is missing. The PDFs used are merged into one, which becomes both the question and ' +
-    'the answer file; the audio becomes the audio file. Poll `GET /tests/imports/{id}` for the status.',
+    'the answer file; the audio becomes the audio file. A background job starts at once ' +
+    '(`queued` → `parsing` → `validating` → `done` | `failed`); poll `GET /tests/imports/{id}` every few seconds.',
   tags: ['Exam'],
   security,
   request: {
@@ -161,7 +162,9 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/tests/imports/{id}',
   summary: 'Status and issues of a test import',
-  description: 'Only the owner. `errors` holds blocking errors (`failed`) and warnings (`done`).',
+  description:
+    'Only the owner. `errors` holds blocking errors (`failed`) and warnings (`done`). An unfinished import whose ' +
+    'job stopped (the server restarted or slept) starts again on this call.',
   tags: ['Exam'],
   security,
   request: {params: ImportIdParamsSchema},

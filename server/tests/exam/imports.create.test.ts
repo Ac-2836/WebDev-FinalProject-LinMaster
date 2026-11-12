@@ -16,7 +16,7 @@ import {AppError} from '../../src/core/app-error';
 import {errorMiddleware} from '../../src/core/error.middleware';
 import {signJwt} from '../../src/core/jwt';
 import {createLocalStorage} from '../../src/core/storage';
-import {createExamModule} from '../../src/modules/exam';
+import {createExamModule, createImportJobs, type ImportJob, type ImportJobs} from '../../src/modules/exam';
 import {cbrMp3} from './audio-fixtures';
 import {makeImportRepository} from './import-fakes';
 
@@ -24,6 +24,7 @@ const JWT_SECRET = 'imports-test-secret-that-is-at-least-32-characters';
 const USER_ID = '0192f7e0-0bcd-7000-8000-000000000041';
 const OTHER_USER_ID = '0192f7e0-0bcd-7000-8000-000000000042';
 const MISSING_ID = '0192f7e0-0bcd-7000-8000-000000000999';
+const TEST_ID = '0192f7e0-0bcd-7000-8000-000000000777';
 
 const page = (labels: PageLabels['labels'], from?: number, to?: number): Omit<PageLabels, 'page'> => ({
   labels,
@@ -49,6 +50,8 @@ describe('test imports API', () => {
   let labelCalls: number;
   let aiDown: boolean;
   let app: express.Express;
+  let jobs: ImportJobs;
+  let processed: ImportJob[];
 
   const auth = (userId = USER_ID) => `Bearer ${signJwt(userId, JWT_SECRET)}`;
   const upload = async (data: Buffer, filename: string, contentType: string, userId = USER_ID): Promise<string> => {
@@ -78,6 +81,17 @@ describe('test imports API', () => {
     labels = [];
     aiDown = false;
     labelCalls = 0;
+    processed = [];
+    jobs = createImportJobs({
+      repository: state.repository,
+      storage,
+      process: async (job, progress) => {
+        processed.push(job);
+        await progress.validating();
+        return {status: 'done', testId: TEST_ID, issues: []};
+      },
+      now: () => new Date('2026-11-13T04:00:00.000Z'),
+    });
     app = express();
     app.use(express.json());
     app.use(
@@ -85,6 +99,7 @@ describe('test imports API', () => {
       createExamModule(JWT_SECRET, {
         repository: state.repository,
         storage,
+        jobs,
         labelPages: async pdf => {
           labelCalls += 1;
           if (aiDown) throw new AppError('AI unavailable.', 503, undefined, 'AI_UNAVAILABLE');
@@ -96,6 +111,7 @@ describe('test imports API', () => {
   });
 
   afterEach(async () => {
+    await jobs.idle();
     await rm(directory, {recursive: true, force: true});
   });
 
@@ -258,6 +274,7 @@ describe('test imports API', () => {
       const pdfId = await uploadPdf(1, 'get');
       const created = await createImport({kind: 'reading', files: [{fileId: pdfId, slots: ['test', 'answers']}]});
       const url = `/api/v1/tests/imports/${created.body.import.id}`;
+      await jobs.idle();
 
       const own = await request(app).get(url).set('Authorization', auth());
       const other = await request(app).get(url).set('Authorization', auth(OTHER_USER_ID));
@@ -266,7 +283,13 @@ describe('test imports API', () => {
 
       expect(own.status).toBe(200);
       expect(GetImportResponseSchema.safeParse(own.body).success).toBe(true);
-      expect(own.body).toEqual(created.body);
+      expect(own.body.import).toMatchObject({
+        id: created.body.import.id,
+        status: 'done',
+        testId: TEST_ID,
+        finishedAt: '2026-11-13T03:06:00.000Z',
+      });
+      expect(processed).toHaveLength(1);
       expect(other.status).toBe(404);
       expect(invalid.status).toBe(400);
       expect(anonymous.status).toBe(401);

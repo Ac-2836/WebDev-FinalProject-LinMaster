@@ -124,4 +124,51 @@ describe('Prisma import repository', () => {
     ).rejects.toThrow();
     expect(await db.storedFile.count({where: {storageKey}})).toBe(0);
   });
+
+  it('claims an unfinished import once it is queued, and stores the outcome once', async () => {
+    const pdf = await repo.createFile(ownerId, newFile());
+    const created = await repo.createImport(ownerId, {kind: 'reading', pdf: {fileId: pdf.id}, audioFileId: null});
+
+    const job = await repo.claimImport(created.id);
+    await repo.setImportStatus(created.id, 'validating');
+    await repo.finishImport(created.id, {status: 'failed', issues: [{severity: 'error', code: 'X', message: 'x'}]});
+    await repo.finishImport(created.id, {status: 'done', testId: randomUUID(), issues: []});
+
+    expect(job).toEqual({
+      id: created.id,
+      ownerId,
+      kind: 'reading',
+      questionFileId: pdf.id,
+      answerFileId: pdf.id,
+      audioFileId: null,
+    });
+    const row = await repo.findImport(ownerId, created.id);
+    expect(row).toMatchObject({status: 'failed', testId: null, errors: [{code: 'X'}]});
+    expect(row?.finishedAt).toBeInstanceOf(Date);
+    expect(await repo.claimImport(created.id)).toBeNull();
+  });
+
+  it('claims again an import left in parsing', async () => {
+    const pdf = await repo.createFile(ownerId, newFile());
+    const created = await repo.createImport(ownerId, {kind: 'reading', pdf: {fileId: pdf.id}, audioFileId: null});
+    await db.testImport.update({where: {id: created.id}, data: {status: 'parsing'}});
+
+    expect((await repo.claimImport(created.id))?.id).toBe(created.id);
+  });
+
+  it('deletes only old files that nothing refers to', async () => {
+    const longAgo = new Date('2000-01-01T00:00:00.000Z');
+    const free = await repo.createFile(ownerId, newFile());
+    const used = await repo.createFile(ownerId, newFile());
+    const recent = await repo.createFile(ownerId, newFile());
+    await db.testImport.create({data: {ownerId, kind: 'reading', questionFileId: used.id, answerFileId: used.id}});
+    await db.storedFile.updateMany({where: {id: {in: [free.id, used.id]}}, data: {createdAt: longAgo}});
+
+    const keys = await repo.deleteOrphanFiles(new Date('2000-01-02T00:00:00.000Z'), 100);
+
+    expect(keys).toEqual([free.storageKey]);
+    expect(await repo.findFile(ownerId, free.id)).toBeNull();
+    expect(await repo.findFile(ownerId, used.id)).not.toBeNull();
+    expect(await repo.findFile(ownerId, recent.id)).not.toBeNull();
+  });
 });

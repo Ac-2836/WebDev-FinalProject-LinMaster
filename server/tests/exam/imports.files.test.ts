@@ -9,7 +9,7 @@ import {AppError} from '../../src/core/app-error';
 import {errorMiddleware} from '../../src/core/error.middleware';
 import {signJwt} from '../../src/core/jwt';
 import {createLocalStorage} from '../../src/core/storage';
-import {createExamModule, type PageLabeler} from '../../src/modules/exam';
+import {createExamModule, createImportJobs, type ImportJobs, type PageLabeler} from '../../src/modules/exam';
 import {cbrMp3, m4a} from './audio-fixtures';
 import {makeImportRepository} from './import-fakes';
 
@@ -29,6 +29,7 @@ describe('test import files API', () => {
   let labelCalls: {size: number; userId: string}[];
   let labelPages: PageLabeler;
   let app: express.Express;
+  let jobs: ImportJobs;
 
   const auth = (userId = USER_ID) => `Bearer ${signJwt(userId, JWT_SECRET)}`;
   const storedObjects = async () => readdir(directory).catch(() => []);
@@ -46,12 +47,21 @@ describe('test import files API', () => {
       labelCalls.push({size: pdf.length, userId});
       return READING_PAGES;
     };
+    const storage = createLocalStorage({directory});
+    // The clock stays next to the file dates, so the orphan cleanup never removes a file of these tests.
+    jobs = createImportJobs({
+      repository: state.repository,
+      storage,
+      process: async () => ({status: 'failed', issues: []}),
+      now: () => new Date('2026-11-13T04:00:00.000Z'),
+    });
     app = express();
     app.use(
       '/api/v1',
       createExamModule(JWT_SECRET, {
         repository: state.repository,
-        storage: createLocalStorage({directory}),
+        storage,
+        jobs,
         labelPages: (pdf, context) => labelPages(pdf, context),
       }).router,
     );
@@ -59,6 +69,7 @@ describe('test import files API', () => {
   });
 
   afterEach(async () => {
+    await jobs.idle();
     await rm(directory, {recursive: true, force: true});
   });
 
