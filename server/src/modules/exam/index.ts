@@ -8,12 +8,17 @@ import {prismaImportRepository} from './imports.repository';
 import {addImportRoutes} from './imports.routes';
 import {createImportService, type ImportServiceDeps} from './imports.service';
 import './imports.openapi';
+import {prismaTestRepository, type TestRepository} from './tests.repository';
+import {addTestRoutes} from './tests.routes';
+import {createTestService} from './tests.service';
+import './tests.openapi';
 
 export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>> {
   /** Reads an import into a test; P3-06 replaces the default. */
   processImport?: ImportProcessor;
   /** Built from the other dependencies when left out. */
   jobs?: ImportJobs;
+  testRepository?: TestRepository;
 }
 
 /**
@@ -26,10 +31,12 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
   const jobs =
     deps.jobs ?? createImportJobs({repository, storage, process: deps.processImport ?? pendingImportProcessor});
   const imports = createImportService({repository, storage, labelPages: deps.labelPages ?? classifyPages, jobs});
-  const router = addImportRoutes(Router(), imports, jwtSecret);
+  const tests = createTestService(deps.testRepository ?? prismaTestRepository);
+  const router = addTestRoutes(addImportRoutes(Router(), imports, jwtSecret), tests, jwtSecret);
   return {name: 'exam', basePath: '/api/v1', router};
 }
 
 export {createImportJobs, type ImportJobs, type ImportProcessor} from './import-jobs';
 export type {ImportJob, ImportOutcome, ImportRepository} from './imports.repository';
 export type {PageLabeler} from './imports.service';
+export type {TestContentRow, TestRepository, TestRow} from './tests.repository';
