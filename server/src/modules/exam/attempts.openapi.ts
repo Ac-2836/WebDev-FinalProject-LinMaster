@@ -6,6 +6,7 @@ import {
   GetAttemptResponseSchema,
   SaveAttemptStateRequestSchema,
   SaveAttemptStateResponseSchema,
+  SubmitAttemptResponseSchema,
 } from '@linmaster/shared';
 import {extendZodWithOpenApi} from '@asteasolutions/zod-to-openapi';
 import {z} from 'zod';
@@ -122,5 +123,50 @@ openApiRegistry.registerPath({
     },
     ...ATTEMPT_ERRORS,
     409: error('`ATTEMPT_EXPIRED`: the deadline passed. `ATTEMPT_SUBMITTED`: the attempt was submitted.'),
+  },
+});
+
+/** A submitted Listening test; `correct` lists the accepted answers of the key. */
+export const RESULT_EXAMPLE = {
+  id: ID(71),
+  testId: ID(61),
+  testTitle: 'Cambridge 18 Listening Test 1',
+  testKind: 'listening',
+  status: 'submitted',
+  startedAt: '2026-11-13T03:00:00.000Z',
+  deadlineAt: '2026-11-13T03:32:00.000Z',
+  submittedAt: '2026-11-13T03:31:10.000Z',
+  autoSubmitted: false,
+  scores: [{skill: 'listening', correct: 31, total: 40, band: 7}],
+  questions: [
+    {
+      questionId: ID(73),
+      number: 1,
+      skill: 'listening',
+      kind: 'completion',
+      given: 'libary',
+      correct: ['library'],
+      isCorrect: false,
+      explanation: 'The woman says they will meet "outside the library".',
+    },
+  ],
+  transcripts: [
+    {sectionId: ID(72), passageId: ID(74), title: 'Part 1', paragraphs: [{label: 'Woman', text: 'Shall we meet…'}]},
+  ],
+};
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/attempts/{id}/submit',
+  summary: 'Submit an attempt',
+  description:
+    'Owner only. Grades every question, snapshots the answer key (`AttemptAnswer`) and turns each raw score into ' +
+    'a band. Calling it again returns the same result; after the deadline the attempt counts as `autoSubmitted`.',
+  tags: ['Exam'],
+  security,
+  request: {params: AttemptIdParamsSchema},
+  responses: {
+    200: {description: 'The result.', content: json(SubmitAttemptResponseSchema, {result: RESULT_EXAMPLE})},
+    ...ATTEMPT_ERRORS,
   },
 });

@@ -51,5 +51,13 @@ export function addAttemptRoutes(router: Router, service: AttemptService, jwtSec
       res.json(await service.saveState(req.user!.userId, attemptId(req.params), state));
     }),
   );
+  router.post(
+    '/attempts/:id/submit',
+    auth,
+    validate(attemptIdSchema),
+    catchAsync(async (req, res) => {
+      res.json(await service.submitAttempt(req.user!.userId, attemptId(req.params)));
+    }),
+  );
   return router;
 }

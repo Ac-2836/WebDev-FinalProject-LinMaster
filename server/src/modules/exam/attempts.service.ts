@@ -1,14 +1,20 @@
 import {
   type Attempt,
+  type AttemptResult,
   type AttemptState,
   AttemptStateSchema,
   EMPTY_ATTEMPT_STATE,
+  GivenAnswerSchema,
+  ParsedParagraphSchema,
   type SaveAttemptStateResponse,
+  type SkillScore,
 } from '@linmaster/shared';
+import {z} from 'zod';
 
 import {AppError} from '../../core/app-error';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
-import type {AttemptRepository, AttemptRow} from './attempts.repository';
+import {correctTexts, explanationOf, gradeAttempt} from './attempt-grading';
+import type {AttemptRepository, AttemptResultRow, AttemptRow} from './attempts.repository';
 import type {TestContentRow, TestRepository} from './tests.repository';
 import {toCandidateTest} from './tests.service';
 
@@ -17,6 +23,21 @@ export interface AttemptServiceDeps {
   tests: TestRepository;
   /** Server clock; tests pass a fixed one. */
   now?: () => Date;
+}
+
+const ParagraphsSchema = z.array(ParsedParagraphSchema);
+
+/** Scores kept on the attempt; `total` is the number of graded questions of the skill. */
+function scoresOf(row: AttemptResultRow): SkillScore[] {
+  const columns = {
+    listening: [row.listeningCorrect, row.listeningBand],
+    reading: [row.readingCorrect, row.readingBand],
+  } as const;
+  return (['listening', 'reading'] as const).flatMap(skill => {
+    const [correct, band] = columns[skill];
+    if (correct === null || band === null) return [];
+    return [{skill, correct, band, total: row.answers.filter(answer => answer.skill === skill).length}];
+  });
 }
 
 export function createAttemptService({attempts, tests, now = () => new Date()}: AttemptServiceDeps) {
@@ -63,6 +84,60 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
       audio,
       state: state.success ? state.data : EMPTY_ATTEMPT_STATE,
       test: toCandidateTest(test),
+    };
+  }
+
+  /** Grades the attempt once; a second call (or a concurrent one) leaves the first result in place. */
+  async function submit(attempt: AttemptRow, certification: string): Promise<void> {
+    if (attempt.status === 'submitted') return;
+    const at = now();
+    const autoSubmitted = at >= attempt.deadlineAt;
+    const state = AttemptStateSchema.safeParse(attempt.state);
+    const graded = gradeAttempt(
+      certification,
+      await attempts.findAnswerKey(attempt.testId),
+      state.success ? state.data : EMPTY_ATTEMPT_STATE,
+    );
+    await attempts.submitAttempt(attempt.id, {
+      submittedAt: autoSubmitted ? attempt.deadlineAt : at,
+      autoSubmitted,
+      graded,
+    });
+  }
+
+  /** Result of a submitted attempt, with the explanations from the files and the Listening transcripts. */
+  async function resultOf(attemptId: string): Promise<AttemptResult> {
+    const row = await attempts.findResult(attemptId);
+    if (!row) throw new AppError('Attempt not found.', 404);
+    const transcripts = await attempts.findTranscripts(row.testId);
+    return {
+      id: row.id,
+      testId: row.testId,
+      testTitle: row.test.title,
+      testKind: row.test.kind,
+      status: row.status,
+      startedAt: row.startedAt.toISOString(),
+      deadlineAt: row.deadlineAt.toISOString(),
+      submittedAt: row.submittedAt?.toISOString() ?? null,
+      autoSubmitted: row.autoSubmitted,
+      scores: scoresOf(row),
+      questions: row.answers.map(answer => {
+        const given = GivenAnswerSchema.safeParse(answer.given);
+        return {
+          questionId: answer.questionId,
+          number: answer.questionNumber,
+          skill: answer.skill,
+          kind: answer.kind,
+          given: given.success ? given.data : null,
+          correct: correctTexts(answer.correctAnswer),
+          isCorrect: answer.isCorrect,
+          explanation: explanationOf(answer.correctAnswer),
+        };
+      }),
+      transcripts: transcripts.flatMap(({paragraphs, ...passage}) => {
+        const parsed = ParagraphsSchema.safeParse(paragraphs);
+        return parsed.success && parsed.data.length > 0 ? [{...passage, paragraphs: parsed.data}] : [];
+      }),
     };
   }
 
@@ -113,6 +188,13 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
       if (!(await attempts.saveState(attemptId, state, at))) throw submitted;
       const savedAt = at.toISOString();
       return {savedAt, serverNow: savedAt, remainingSec: remainingSec(attempt.deadlineAt, at)};
+    },
+
+    /** `POST /attempts/:id/submit`: grades the attempt; calling again returns the same result. */
+    async submitAttempt(userId: string, attemptId: string): Promise<{result: AttemptResult}> {
+      const attempt = await ownAttempt(userId, attemptId);
+      await submit(attempt, (await testOf(attempt.testId)).certification);
+      return {result: await resultOf(attemptId)};
     },
   };
 }
