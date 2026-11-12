@@ -27,13 +27,18 @@ export interface NewAttempt {
   countForTest: boolean;
 }
 
-/** A submitted attempt with its graded answers, for the result page. */
-export interface AttemptResultRow extends AttemptRow {
+/** An attempt with its test and scores, for the history; `answers` only tells the skill of each graded question. */
+export interface AttemptSummaryRow extends AttemptRow {
   test: {title: string; kind: TestKind};
   listeningCorrect: number | null;
   readingCorrect: number | null;
   listeningBand: number | null;
   readingBand: number | null;
+  answers: {skill: Skill}[];
+}
+
+/** A submitted attempt with its graded answers, for the result page. */
+export interface AttemptResultRow extends AttemptSummaryRow {
   answers: {
     questionId: string | null;
     questionNumber: number;
@@ -71,6 +76,8 @@ export interface AttemptRepository {
   /** Writes the grades once: false when the attempt was already submitted. */
   submitAttempt(attemptId: string, submitted: SubmittedAttempt): Promise<boolean>;
   findResult(attemptId: string): Promise<AttemptResultRow | null>;
+  /** Attempts of the user, newest first. */
+  listAttempts(userId: string): Promise<AttemptSummaryRow[]>;
   findTranscripts(testId: string): Promise<TranscriptRow[]>;
   /** Length of a Listening audio file, null when unknown. */
   findAudioDurationSec(fileId: string): Promise<number | null>;
@@ -207,6 +214,19 @@ export const prismaAttemptRepository: AttemptRepository = {
     });
     if (!attempt) return null;
     return {...attempt, listeningBand: toNumber(attempt.listeningBand), readingBand: toNumber(attempt.readingBand)};
+  },
+
+  async listAttempts(userId) {
+    const attempts = await getDb().attempt.findMany({
+      where: {userId},
+      orderBy: {startedAt: 'desc'},
+      select: {...RESULT_SELECT, answers: {select: {skill: true}}},
+    });
+    return attempts.map(attempt => ({
+      ...attempt,
+      listeningBand: toNumber(attempt.listeningBand),
+      readingBand: toNumber(attempt.readingBand),
+    }));
   },
 
   async findTranscripts(testId) {

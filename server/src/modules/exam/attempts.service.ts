@@ -2,6 +2,7 @@ import {
   type Attempt,
   type AttemptResult,
   type AttemptState,
+  type AttemptSummary,
   AttemptStateSchema,
   EMPTY_ATTEMPT_STATE,
   GivenAnswerSchema,
@@ -14,7 +15,7 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
 import {correctTexts, explanationOf, gradeAttempt} from './attempt-grading';
-import type {AttemptRepository, AttemptResultRow, AttemptRow} from './attempts.repository';
+import type {AttemptRepository, AttemptRow, AttemptSummaryRow} from './attempts.repository';
 import type {TestContentRow, TestRepository} from './tests.repository';
 import {toCandidateTest} from './tests.service';
 
@@ -28,7 +29,7 @@ export interface AttemptServiceDeps {
 const ParagraphsSchema = z.array(ParsedParagraphSchema);
 
 /** Scores kept on the attempt; `total` is the number of graded questions of the skill. */
-function scoresOf(row: AttemptResultRow): SkillScore[] {
+function scoresOf(row: AttemptSummaryRow): SkillScore[] {
   const columns = {
     listening: [row.listeningCorrect, row.listeningBand],
     reading: [row.readingCorrect, row.readingBand],
@@ -38,6 +39,21 @@ function scoresOf(row: AttemptResultRow): SkillScore[] {
     if (correct === null || band === null) return [];
     return [{skill, correct, band, total: row.answers.filter(answer => answer.skill === skill).length}];
   });
+}
+
+function toSummary(row: AttemptSummaryRow): AttemptSummary {
+  return {
+    id: row.id,
+    testId: row.testId,
+    testTitle: row.test.title,
+    testKind: row.test.kind,
+    status: row.status,
+    startedAt: row.startedAt.toISOString(),
+    deadlineAt: row.deadlineAt.toISOString(),
+    submittedAt: row.submittedAt?.toISOString() ?? null,
+    autoSubmitted: row.autoSubmitted,
+    scores: scoresOf(row),
+  };
 }
 
 export function createAttemptService({attempts, tests, now = () => new Date()}: AttemptServiceDeps) {
@@ -105,22 +121,20 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
     });
   }
 
+  /** Lazy submit: an attempt past its deadline is submitted when it is next read. */
+  async function settle(attempt: AttemptRow, certification: string): Promise<AttemptRow> {
+    if (attempt.status !== 'in_progress' || now() < attempt.deadlineAt) return attempt;
+    await submit(attempt, certification);
+    return (await attempts.findAttempt(attempt.id)) ?? attempt;
+  }
+
   /** Result of a submitted attempt, with the explanations from the files and the Listening transcripts. */
   async function resultOf(attemptId: string): Promise<AttemptResult> {
     const row = await attempts.findResult(attemptId);
     if (!row) throw new AppError('Attempt not found.', 404);
     const transcripts = await attempts.findTranscripts(row.testId);
     return {
-      id: row.id,
-      testId: row.testId,
-      testTitle: row.test.title,
-      testKind: row.test.kind,
-      status: row.status,
-      startedAt: row.startedAt.toISOString(),
-      deadlineAt: row.deadlineAt.toISOString(),
-      submittedAt: row.submittedAt?.toISOString() ?? null,
-      autoSubmitted: row.autoSubmitted,
-      scores: scoresOf(row),
+      ...toSummary(row),
       questions: row.answers.map(answer => {
         const given = GivenAnswerSchema.safeParse(answer.given);
         return {
@@ -152,7 +166,9 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
         throw new AppError('Test not found.', 404);
       }
       const existing = await attempts.findInProgress(userId, testId);
-      if (existing) return {attempt: await toAttempt(existing, test), created: false};
+      if (existing && (await settle(existing, test.certification)).status === 'in_progress') {
+        return {attempt: await toAttempt(existing, test), created: false};
+      }
 
       const startedAt = now();
       const created = await attempts.createAttempt({
@@ -172,7 +188,8 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
     /** `GET /attempts/:id`: owner only, with `serverNow`, the time left and the audio position. */
     async getAttempt(userId: string, attemptId: string): Promise<{attempt: Attempt}> {
       const attempt = await ownAttempt(userId, attemptId);
-      return {attempt: await toAttempt(attempt, await testOf(attempt.testId))};
+      const test = await testOf(attempt.testId);
+      return {attempt: await toAttempt(await settle(attempt, test.certification), test)};
     },
 
     /** `PUT /attempts/:id/state`: autosave, refused after the deadline or once submitted. */
@@ -195,6 +212,21 @@ export function createAttemptService({attempts, tests, now = () => new Date()}: 
       const attempt = await ownAttempt(userId, attemptId);
       await submit(attempt, (await testOf(attempt.testId)).certification);
       return {result: await resultOf(attemptId)};
+    },
+
+    /** `GET /attempts/:id/result`: owner only, once submitted (an attempt past its deadline is submitted first). */
+    async getResult(userId: string, attemptId: string): Promise<{result: AttemptResult}> {
+      const owned = await ownAttempt(userId, attemptId);
+      const attempt = await settle(owned, (await testOf(owned.testId)).certification);
+      if (attempt.status !== 'submitted') {
+        throw new AppError('Submit the attempt to see its result.', 409, undefined, 'ATTEMPT_NOT_SUBMITTED');
+      }
+      return {result: await resultOf(attemptId)};
+    },
+
+    /** `GET /attempts`: attempts of the user, newest first. */
+    async listAttempts(userId: string): Promise<{attempts: AttemptSummary[]}> {
+      return {attempts: (await attempts.listAttempts(userId)).map(toSummary)};
     },
   };
 }

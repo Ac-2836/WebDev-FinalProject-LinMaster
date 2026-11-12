@@ -4,6 +4,8 @@ import {
   CreateAttemptRequestSchema,
   CreateAttemptResponseSchema,
   GetAttemptResponseSchema,
+  GetAttemptResultResponseSchema,
+  ListAttemptsResponseSchema,
   SaveAttemptStateRequestSchema,
   SaveAttemptStateResponseSchema,
   SubmitAttemptResponseSchema,
@@ -91,7 +93,8 @@ openApiRegistry.registerPath({
   summary: 'Get an attempt',
   description:
     'Owner only. `serverNow`, `remainingSec` and the audio position come from the server clock, so a refresh ' +
-    'keeps the timer and the audio where they were. The test never holds answers, explanations or transcripts.',
+    'keeps the timer and the audio where they were. The test never holds answers, explanations or transcripts. ' +
+    'An attempt past its deadline is submitted first (lazy submit).',
   tags: ['Exam'],
   security,
   request: {params: AttemptIdParamsSchema},
@@ -168,5 +171,41 @@ openApiRegistry.registerPath({
   responses: {
     200: {description: 'The result.', content: json(SubmitAttemptResponseSchema, {result: RESULT_EXAMPLE})},
     ...ATTEMPT_ERRORS,
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'get',
+  path: '/api/v1/attempts/{id}/result',
+  summary: 'Get the result of an attempt',
+  description:
+    'Owner only, once submitted; an attempt past its deadline is submitted first. Holds the accepted answers, ' +
+    'the explanations from the uploaded files and the Listening transcripts.',
+  tags: ['Exam'],
+  security,
+  request: {params: AttemptIdParamsSchema},
+  responses: {
+    200: {description: 'The result.', content: json(GetAttemptResultResponseSchema, {result: RESULT_EXAMPLE})},
+    ...ATTEMPT_ERRORS,
+    409: error('`ATTEMPT_NOT_SUBMITTED`: the attempt is still in progress.'),
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'get',
+  path: '/api/v1/attempts',
+  summary: 'List my attempts',
+  description: 'Attempts of the user, newest first; `scores` is empty until submitted.',
+  tags: ['Exam'],
+  security,
+  responses: {
+    200: {
+      description: 'Attempts of the user.',
+      content: json(ListAttemptsResponseSchema, {
+        attempts: [{...RESULT_EXAMPLE, questions: undefined, transcripts: undefined}],
+      }),
+    },
+    401: error('Authentication required.'),
+    500: error('Unexpected server error.'),
   },
 });
