@@ -2,12 +2,13 @@ import {Router} from 'express';
 
 import type {ApiModule} from '../../core/module-registry';
 import {storage as defaultStorage} from '../../core/storage';
-import {classifyPages} from './ai';
+import {classifyPages, parseAnswers, parseTest} from './ai';
 import {type AttemptRepository, prismaAttemptRepository} from './attempts.repository';
 import {addAttemptRoutes} from './attempts.routes';
 import {createAttemptService} from './attempts.service';
 import './attempts.openapi';
-import {createImportJobs, type ImportJobs, type ImportProcessor, pendingImportProcessor} from './import-jobs';
+import {createImportJobs, type ImportJobs, type ImportProcessor} from './import-jobs';
+import {createImportProcessor} from './import-processor';
 import {prismaImportRepository} from './imports.repository';
 import {addImportRoutes} from './imports.routes';
 import {createImportService, type ImportServiceDeps} from './imports.service';
@@ -18,8 +19,11 @@ import {createTestService} from './tests.service';
 import './tests.openapi';
 
 export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>> {
-  /** Reads an import into a test; P3-06 replaces the default. */
+  /** Reads an import into a test; built from the other dependencies when left out. */
   processImport?: ImportProcessor;
+  /** AI tasks of `./ai`; tests pass fakes. */
+  parseTest?: typeof parseTest;
+  parseAnswers?: typeof parseAnswers;
   /** Built from the other dependencies when left out. */
   jobs?: ImportJobs;
   testRepository?: TestRepository;
@@ -35,9 +39,18 @@ export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>>
 export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): ApiModule {
   const repository = deps.repository ?? prismaImportRepository;
   const storage = deps.storage ?? defaultStorage;
-  const jobs =
-    deps.jobs ?? createImportJobs({repository, storage, process: deps.processImport ?? pendingImportProcessor});
-  const imports = createImportService({repository, storage, labelPages: deps.labelPages ?? classifyPages, jobs});
+  const labelPages = deps.labelPages ?? classifyPages;
+  const process =
+    deps.processImport ??
+    createImportProcessor({
+      repository,
+      storage,
+      labelPages,
+      parseTest: deps.parseTest ?? parseTest,
+      parseAnswers: deps.parseAnswers ?? parseAnswers,
+    });
+  const jobs = deps.jobs ?? createImportJobs({repository, storage, process});
+  const imports = createImportService({repository, storage, labelPages, jobs});
   const testRepository = deps.testRepository ?? prismaTestRepository;
   const tests = createTestService(testRepository);
   const attempts = createAttemptService({

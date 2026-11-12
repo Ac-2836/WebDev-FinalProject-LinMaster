@@ -10,18 +10,6 @@ import type {ImportJob, ImportOutcome, ImportRepository} from './imports.reposit
  */
 export type ImportProcessor = (job: ImportJob, progress: {validating(): Promise<void>}) => Promise<ImportOutcome>;
 
-/** Default until P3-06 plugs in parsing, validation and saving the test: the import fails with a clear issue. */
-export const pendingImportProcessor: ImportProcessor = async () => ({
-  status: 'failed',
-  issues: [
-    {
-      severity: 'error',
-      code: 'IMPORT_NOT_AVAILABLE',
-      message: 'Creating a test from files is not available yet.',
-    },
-  ],
-});
-
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 const CLEANUP_BATCH = 100;
 
