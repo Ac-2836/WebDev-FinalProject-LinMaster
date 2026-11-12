@@ -59,3 +59,4 @@ export type {ImportJob, ImportOutcome, ImportRepository} from './imports.reposit
 export type {AttemptRepository, AttemptRow, NewAttempt} from './attempts.repository';
 export type {PageLabeler} from './imports.service';
 export type {TestContentRow, TestRepository, TestRow} from './tests.repository';
+export {getPassageText, type PassageText} from './passage-text';
