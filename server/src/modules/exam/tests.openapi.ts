@@ -36,7 +36,7 @@ const SUMMARY = {
   updatedAt: '2026-11-13T03:10:00.000Z',
 };
 
-const CANDIDATE_TEST = {
+export const CANDIDATE_TEST = {
   ...SUMMARY,
   sections: [
     {

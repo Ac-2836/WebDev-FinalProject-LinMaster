@@ -11,15 +11,12 @@ import {getDb} from '../../src/core/db';
 import {errorMiddleware} from '../../src/core/error.middleware';
 import {signJwt} from '../../src/core/jwt';
 import {createExamModule} from '../../src/modules/exam';
+import {createFixtureTest, testSecrets} from './exam-fixtures';
 
 const JWT_SECRET = 'tests-api-test-secret-that-is-at-least-32-characters';
 const testRun = `${Date.now()}`;
 const MISSING_ID = '0192f7e0-0bcd-7000-8000-000000000999';
-// Secrets stored in the test; none of them may reach a candidate.
-const ANSWER = `answer-${testRun}`;
-const EXPLANATION = `explanation-${testRun}`;
-const TRANSCRIPT = `transcript-${testRun}`;
-const HIDDEN_KEY = `hidden-${testRun}`;
+const {answer: ANSWER, explanation: EXPLANATION, transcript: TRANSCRIPT, hiddenKey: HIDDEN_KEY} = testSecrets(testRun);
 
 describe('tests API', () => {
   const db = getDb();
@@ -33,85 +30,8 @@ describe('tests API', () => {
   const auth = (userId: string) => `Bearer ${signJwt(userId, JWT_SECRET)}`;
   const get = (url: string, userId = ownerId) => request(app).get(url).set('Authorization', auth(userId));
 
-  /** A full test: Listening with a transcript, Reading with paragraphs; answers carry an explanation. */
-  async function createTest(
-    title: string,
-    data: {ownerId?: string; visibility?: 'private' | 'public' | 'hidden'} = {},
-  ) {
-    const answer = {accepted: [ANSWER], explanation: EXPLANATION};
-    return db.test.create({
-      data: {
-        ownerId: data.ownerId ?? ownerId,
-        certification: 'IELTS_ACADEMIC',
-        kind: 'full',
-        title,
-        visibility: data.visibility ?? 'private',
-        sections: {
-          create: [
-            {
-              skill: 'reading',
-              position: 2,
-              durationSec: 3600,
-              passages: {
-                create: {
-                  position: 1,
-                  title: 'Urban farming',
-                  paragraphs: [{label: 'A', text: 'Farms grow on roofs.', note: HIDDEN_KEY}],
-                  groups: {
-                    create: {
-                      position: 1,
-                      kind: 'single_choice',
-                      fromNo: 1,
-                      toNo: 1,
-                      instructions: 'Choose the correct letter.',
-                      sharedOptions: {optionsTitle: 'Options', answerKey: HIDDEN_KEY},
-                      questions: {
-                        create: {
-                          number: 1,
-                          prompt: 'Where do farms grow?',
-                          options: [{key: 'A', text: 'On roofs', correct: HIDDEN_KEY}],
-                          answer: {key: 'A', explanation: EXPLANATION},
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            {
-              skill: 'listening',
-              position: 1,
-              durationSec: 1800,
-              passages: {
-                create: {
-                  position: 1,
-                  title: 'Part 1',
-                  paragraphs: [{label: 'Woman', text: TRANSCRIPT}],
-                  audioStartSec: 0,
-                  groups: {
-                    create: {
-                      position: 1,
-                      kind: 'completion',
-                      fromNo: 1,
-                      toNo: 2,
-                      instructions: 'Write ONE WORD ONLY.',
-                      wordLimit: 1,
-                      questions: {
-                        create: [
-                          {number: 1, prompt: 'Meet at the {{blank}}', answer},
-                          {number: 2, prompt: 'Bring a {{blank}}', answer},
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
-  }
+  const createTest = (title: string, data: {ownerId?: string; visibility?: 'private' | 'public' | 'hidden'} = {}) =>
+    createFixtureTest({ownerId: data.ownerId ?? ownerId, title, run: testRun, visibility: data.visibility});
 
   beforeAll(async () => {
     const create = (name: string) =>
