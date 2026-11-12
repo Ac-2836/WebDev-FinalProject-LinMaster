@@ -77,3 +77,53 @@ export type ParsedQuestion = z.infer<typeof ParsedQuestionSchema>;
 export type ParsedGroup = z.infer<typeof ParsedGroupSchema>;
 export type ParsedPassage = z.infer<typeof ParsedPassageSchema>;
 export type ParsedTest = z.infer<typeof ParsedTestSchema>;
+
+/**
+ * Output of the `parse-test.v1` AI task: the test without answers. Fields are nullable rather than optional
+ * and the content block is one flat object, so the JSON Schema stays simple enough for Gemini.
+ * `buildParsedTest` (server) turns it and the parse-answers output into a ParsedTest.
+ */
+export const ParseTestOutputSchema = z.object({
+  title: z.string().min(1).max(200),
+  sections: z.array(
+    z.object({
+      skill: SkillSchema,
+      passages: z.array(
+        z.object({
+          title: z.string().min(1).max(200),
+          /** Reading: passage paragraphs. Listening: transcript lines (label = speaker), or null without a transcript. */
+          paragraphs: z.array(z.object({label: z.string().max(40).nullable(), text: z.string().min(1)})).nullable(),
+          groups: z.array(
+            z.object({
+              kind: QuestionKindSchema,
+              fromNo: z.number().int().min(1),
+              toNo: z.number().int().min(1),
+              instructions: z.string().min(1),
+              wordLimit: z.number().int().min(1).nullable(),
+              optionsTitle: z.string().nullable(),
+              options: z.array(ChoiceOptionSchema).nullable(),
+              content: z
+                .array(
+                  z.object({
+                    type: z.enum(['text', 'table']),
+                    text: z.string().nullable(),
+                    rows: z.array(z.array(z.string())).nullable(),
+                  }),
+                )
+                .nullable(),
+              questions: z.array(
+                z.object({
+                  number: z.number().int().min(1),
+                  prompt: z.string(),
+                  options: z.array(ChoiceOptionSchema).nullable(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      ),
+    }),
+  ),
+});
+
+export type ParseTestOutput = z.infer<typeof ParseTestOutputSchema>;
