@@ -53,6 +53,20 @@ export const VocabDocumentDetailSchema = VocabDocumentSchema.extend({
   ),
 });
 
+/**
+ * `POST /vocab/documents/from-exam`: a Reading passage or a Listening transcript of an attempt the user submitted
+ * becomes a document (source `exam`). The same passage again returns the document already made.
+ */
+export const CreateExamDocumentRequestSchema = z
+  .object({attemptId: z.string().uuid(), passageId: z.string().uuid()})
+  .strict();
+
+/**
+ * Module statuses in the error body (`error.status`).
+ * - `ATTEMPT_NOT_SUBMITTED` (403): the attempt is still in progress; its passages open after submitting.
+ */
+export const ExamDocumentErrorStatusSchema = z.enum(['ATTEMPT_NOT_SUBMITTED']);
+
 export const CreateVocabDocumentResponseSchema = z.object({document: VocabDocumentSchema});
 export const ListVocabDocumentsResponseSchema = z.object({documents: z.array(VocabDocumentListItemSchema)});
 export const VocabDocumentIdParamsSchema = z.object({id: z.string().uuid()}).strict();
@@ -60,5 +74,6 @@ export const GetVocabDocumentResponseSchema = z.object({document: VocabDocumentD
 export const DeleteVocabDocumentResponseSchema = z.object({deleted: z.literal(true)});
 
 export type CreatePastedDocumentRequest = z.infer<typeof CreatePastedDocumentRequestSchema>;
+export type CreateExamDocumentRequest = z.infer<typeof CreateExamDocumentRequestSchema>;
 export type VocabDocument = z.infer<typeof VocabDocumentSchema>;
 export type VocabDocumentDetail = z.infer<typeof VocabDocumentDetailSchema>;
