@@ -33,7 +33,10 @@ export const ImportFileSchema = z.object({
   pageCount: z.number().int().positive().nullable(),
   /** Audio only. */
   durationSec: z.number().int().nonnegative().nullable(),
-  /** Labels of every page (`classify-pages.v1`); null for audio. */
+  /**
+   * Labels of every page (`classify-pages.v1`). Null for audio, and for a PDF when the AI is unavailable or out of
+   * quota: the "Theo mẫu" tab still works, the "AI nhận diện" tab asks to upload again later.
+   */
   pages: z.array(PageLabelsSchema).nullable(),
   /** The file does not look like part of an IELTS test and will be ignored. */
   unused: z.boolean(),
