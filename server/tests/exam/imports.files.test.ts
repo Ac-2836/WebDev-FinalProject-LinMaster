@@ -10,8 +10,8 @@ import {errorMiddleware} from '../../src/core/error.middleware';
 import {signJwt} from '../../src/core/jwt';
 import {createLocalStorage} from '../../src/core/storage';
 import {createExamModule, type PageLabeler} from '../../src/modules/exam';
-import type {ImportFileRecord, ImportRepository} from '../../src/modules/exam/imports.repository';
 import {cbrMp3, m4a} from './audio-fixtures';
+import {makeImportRepository} from './import-fakes';
 
 const JWT_SECRET = 'imports-test-secret-that-is-at-least-32-characters';
 const USER_ID = '0192f7e0-0bcd-7000-8000-000000000041';
@@ -23,36 +23,9 @@ const READING_PAGES: PageLabels[] = [
   {page: 2, labels: ['answers'], skill: 'reading', questionRange: {from: 1, to: 40}},
 ];
 
-function makeRepository() {
-  const files = new Map<string, ImportFileRecord>();
-  const inUse = new Set<string>();
-  let next = 0;
-  const repository: ImportRepository = {
-    async createFile(ownerId, file) {
-      next += 1;
-      const id = `0192f7e0-0bcd-7000-8000-${String(100 + next).padStart(12, '0')}`;
-      const record = {id, ownerId, ...file, createdAt: new Date('2026-11-13T03:00:00.000Z')};
-      files.set(id, record);
-      return record;
-    },
-    async findFile(ownerId, fileId) {
-      const file = files.get(fileId);
-      return file && file.ownerId === ownerId ? file : null;
-    },
-    async deleteFile(ownerId, fileId) {
-      const file = files.get(fileId);
-      if (!file || file.ownerId !== ownerId) return 'missing';
-      if (inUse.has(fileId)) return 'in_use';
-      files.delete(fileId);
-      return 'deleted';
-    },
-  };
-  return {repository, files, inUse};
-}
-
 describe('test import files API', () => {
   let directory: string;
-  let state: ReturnType<typeof makeRepository>;
+  let state: ReturnType<typeof makeImportRepository>;
   let labelCalls: {size: number; userId: string}[];
   let labelPages: PageLabeler;
   let app: express.Express;
@@ -67,7 +40,7 @@ describe('test import files API', () => {
 
   beforeEach(async () => {
     directory = await mkdtemp(path.join(tmpdir(), 'linmaster-imports-'));
-    state = makeRepository();
+    state = makeImportRepository();
     labelCalls = [];
     labelPages = async (pdf, {userId}) => {
       labelCalls.push({size: pdf.length, userId});

@@ -1,3 +1,5 @@
+import type {ImportStatus, TestKind} from '@linmaster/shared';
+
 import {getDb} from '../../core/db';
 
 /** A row of `StoredFile` uploaded for a test import. */
@@ -20,6 +22,30 @@ export interface NewImportFile {
   durationSec: number | null;
 }
 
+/** A stored file looked up for a new import. `inUse` when an import or a test already points at it. */
+export interface ImportFileUse extends ImportFileRecord {
+  inUse: boolean;
+}
+
+/** A row of `TestImport`. `errors` is the raw jsonb column. */
+export interface ImportRecord {
+  id: string;
+  ownerId: string;
+  kind: TestKind;
+  status: ImportStatus;
+  errors: unknown;
+  testId: string | null;
+  createdAt: Date;
+  finishedAt: Date | null;
+}
+
+export interface NewImport {
+  kind: TestKind;
+  /** The only PDF of the import, or a PDF merged from several that is stored together with the import. */
+  pdf: {fileId: string} | {merged: NewImportFile};
+  audioFileId: string | null;
+}
+
 export interface ImportRepository {
   createFile(ownerId: string, file: NewImportFile): Promise<ImportFileRecord>;
   /** The file when it belongs to the user, else null. */
@@ -30,6 +56,12 @@ export interface ImportRepository {
    * database alone would silently detach the audio from a test instead of refusing.
    */
   deleteFile(ownerId: string, fileId: string): Promise<'deleted' | 'missing' | 'in_use'>;
+  /** The files of the user among `fileIds`; ids of other users or unknown ids are left out. */
+  findFiles(ownerId: string, fileIds: string[]): Promise<ImportFileUse[]>;
+  /** Creates a `queued` import whose question and answer file are the same PDF (PLAN C4 step 2). */
+  createImport(ownerId: string, data: NewImport): Promise<ImportRecord>;
+  /** The import when it belongs to the user, else null. */
+  findImport(ownerId: string, importId: string): Promise<ImportRecord | null>;
 }
 
 /** No row of the exam module refers to the file. */
@@ -65,5 +97,30 @@ export const prismaImportRepository: ImportRepository = {
       throw error;
     }
     return (await db.storedFile.count({where: {id: fileId, ownerId}})) > 0 ? 'in_use' : 'missing';
+  },
+
+  async findFiles(ownerId, fileIds) {
+    const db = getDb();
+    const where = {id: {in: fileIds}, ownerId};
+    const [files, unused] = await Promise.all([
+      db.storedFile.findMany({where}),
+      db.storedFile.findMany({where: {...where, ...UNUSED}, select: {id: true}}),
+    ]);
+    const unusedIds = new Set(unused.map(file => file.id));
+    return files.map(file => ({...file, inUse: !unusedIds.has(file.id)}));
+  },
+
+  async createImport(ownerId, {kind, pdf, audioFileId}) {
+    return getDb().$transaction(async tx => {
+      const pdfFileId =
+        'fileId' in pdf ? pdf.fileId : (await tx.storedFile.create({data: {ownerId, ...pdf.merged}})).id;
+      return tx.testImport.create({
+        data: {ownerId, kind, questionFileId: pdfFileId, answerFileId: pdfFileId, audioFileId},
+      });
+    });
+  },
+
+  async findImport(ownerId, importId) {
+    return getDb().testImport.findFirst({where: {id: importId, ownerId}});
   },
 };
