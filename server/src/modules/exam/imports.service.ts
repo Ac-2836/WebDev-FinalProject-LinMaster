@@ -5,6 +5,7 @@ import {
   type ImportFile,
   type ImportFileType,
   ImportIssueSchema,
+  type ImportStatus,
   type PageLabels,
   type TestImport,
 } from '@linmaster/shared';
@@ -14,6 +15,7 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
 import {readAudioDurationSec} from './audio-duration';
+import type {ImportJobs} from './import-jobs';
 import type {
   ImportFileRecord,
   ImportFileUse,
@@ -29,6 +31,7 @@ export interface ImportServiceDeps {
   repository: ImportRepository;
   storage: Storage;
   labelPages: PageLabeler;
+  jobs: ImportJobs;
 }
 
 export interface UploadedFile {
@@ -40,6 +43,7 @@ export interface UploadedFile {
 const PDF_MIME_TYPE = 'application/pdf';
 const MERGED_PDF_NAME = 'merged-test.pdf';
 const ImportIssuesSchema = z.array(ImportIssueSchema);
+const UNFINISHED: ReadonlySet<ImportStatus> = new Set(['queued', 'parsing', 'validating']);
 
 const fileTypeOf = (mimeType: string): ImportFileType => (mimeType === PDF_MIME_TYPE ? 'pdf' : 'audio');
 
@@ -91,7 +95,7 @@ async function mergePdfs(pdfs: Buffer[]): Promise<Buffer> {
   return Buffer.from(await merged.save());
 }
 
-export function createImportService({repository, storage, labelPages}: ImportServiceDeps) {
+export function createImportService({repository, storage, labelPages, jobs}: ImportServiceDeps) {
   /**
    * When the AI is out of quota or unavailable the file is still kept without labels, so the "Theo mẫu" tab works.
    * An unreadable PDF (400) is rejected.
@@ -156,6 +160,7 @@ export function createImportService({repository, storage, labelPages}: ImportSer
   return {
     /** `POST /tests/imports/files`: stores one PDF or audio file and reads its page labels or length. */
     async uploadFile(userId: string, file: UploadedFile): Promise<{file: ImportFile}> {
+      jobs.cleanupOrphans();
       const stored = await storage.put(file);
       try {
         let pages: PageLabels[] | null = null;
@@ -230,6 +235,7 @@ export function createImportService({repository, storage, labelPages}: ImportSer
           pdf,
           audioFileId: audios[0]?.record.id ?? null,
         });
+        jobs.start(record.id);
         return {import: toTestImport(record)};
       } catch (error) {
         if ('merged' in pdf) await storage.delete(pdf.merged.storageKey).catch(() => undefined);
@@ -241,6 +247,8 @@ export function createImportService({repository, storage, labelPages}: ImportSer
     async getImport(userId: string, importId: string): Promise<{import: TestImport}> {
       const record = await repository.findImport(userId, importId);
       if (!record) throw new AppError('Test import not found.', 404);
+      // A job stopped by a restart or by the server sleeping starts again when the client polls.
+      if (UNFINISHED.has(record.status) && !jobs.isRunning(record.id)) jobs.start(record.id);
       return {import: toTestImport(record)};
     },
   };
