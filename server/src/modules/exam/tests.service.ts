@@ -76,6 +76,11 @@ function toCandidateSections(content: TestContentRow['content']): CandidateSecti
   }));
 }
 
+/** The test without answers, explanations or Listening transcripts; also used by attempts. */
+export function toCandidateTest(row: TestContentRow): CandidateTest {
+  return {...toSummary(row), sections: toCandidateSections(row.content)};
+}
+
 export function createTestService(repository: TestRepository) {
   return {
     /** `GET /tests`: tests of the user. */
@@ -87,7 +92,7 @@ export function createTestService(repository: TestRepository) {
     async getTest(userId: string, testId: string): Promise<{test: CandidateTest}> {
       const row = await repository.findTestContent(testId);
       if (!row || (row.ownerId !== userId && row.visibility !== 'public')) throw new AppError('Test not found.', 404);
-      return {test: {...toSummary(row), sections: toCandidateSections(row.content)}};
+      return {test: toCandidateTest(row)};
     },
 
     /** `PATCH /tests/:id`: title and source, owner only. */
