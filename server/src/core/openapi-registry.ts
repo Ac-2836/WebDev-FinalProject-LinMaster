@@ -25,6 +25,7 @@ export function generateOpenApiDocument() {
       {name: 'Vocab', description: 'Personal vocabulary entries and reading contexts.'},
       {name: 'Documents', description: 'Reading document upload, extraction, and personal document management.'},
       {name: 'Flashcard', description: 'Personal flashcard sets and cards.'},
+      {name: 'Exam', description: 'IELTS test imports, tests, attempts and results.'},
     ],
   });
 }
