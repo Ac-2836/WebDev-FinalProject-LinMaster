@@ -1,0 +1,953 @@
+{
+  "title": "Sample Reading test (synthetic)",
+  "kind": "reading",
+  "source": "LinMaster synthetic test R0, AI-written for testing, not a real IELTS test",
+  "sections": [
+    {
+      "skill": "reading",
+      "passages": [
+        {
+          "title": "Islands That Never Were",
+          "paragraphs": [
+            {
+              "text": "For roughly four hundred years, navigators trusted charts that showed islands nobody could ever find again. Historians now call these places phantom islands. They were rarely the product of deliberate deception. Most began as honest mistakes: a bank of low cloud mistaken for a coastline, a floating mass of pumice from an underwater volcano, or a simple error made when a hand-drawn chart was copied."
+            },
+            {
+              "text": "The best-documented case is Verlund, said to lie some 300 kilometres south-west of the Faroe Islands. It first appeared on a Venetian chart in 1482, drawn as a long green island with two harbours. Over the next century it was copied into at least nineteen atlases, and each copyist added details of his own: a river, a small town, even a population figure. By 1590, Verlund had acquired a name for its capital, although no account exists of anyone having landed there."
+            },
+            {
+              "text": "Why did such errors survive so long? The main reason is that map-makers worked largely from earlier maps rather than from fresh observation. Removing an island was risky, because a chart that left out real land could lead a ship onto rocks, whereas a chart that showed an imaginary island merely caused a captain to keep a careful lookout. For publishers, it was therefore safer to keep doubtful islands than to delete them."
+            },
+            {
+              "text": "Measuring position was another problem. Until the late eighteenth century, sailors could find their latitude fairly reliably by measuring the height of the sun at noon, but longitude was largely guesswork. A captain who sighted land might record its latitude accurately and still place it hundreds of kilometres too far east or west. When a second ship later reported land at the same latitude, cartographers often assumed both crews had seen different islands, and so one real island could appear twice on the same chart."
+            },
+            {
+              "text": "The process of removing a phantom island was slow and followed a recognised sequence. First, a ship would be sent to the reported position and fail to find land. Its captain would then file a report with the national hydrographic office, which would mark the island on its charts as 'existence doubtful'. Only after several independent searches had failed would the office finally delete the island altogether. Verlund was marked as doubtful in 1821 and removed in 1853, after a survey vessel spent eleven days sailing across the area."
+            },
+            {
+              "text": "Some phantom islands lasted well into the age of satellites. A small island in the Coral Sea was shown on several digital maps until 2012, when a research ship sailed straight through the spot where it was supposed to be and recorded water more than 1,400 metres deep. The error was eventually traced to a single typing mistake in a database built in the 1970s."
+            },
+            {
+              "text": "Modern cartographers point out that the story is not only one of failure. The effort to confirm or reject doubtful islands drove much of the systematic surveying of the world's oceans, and the records kept by hydrographic offices are now a valuable source for historians studying how scientific knowledge is checked and corrected."
+            }
+          ],
+          "audioStartSec": null,
+          "groups": [
+            {
+              "kind": "tfng",
+              "fromNo": 1,
+              "toNo": 4,
+              "instructions": "Do the following statements agree with the information given in Reading Passage 1?\nWrite TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 1,
+                  "prompt": "Most phantom islands were invented in order to mislead rival nations.",
+                  "options": null,
+                  "answer": {
+                    "value": "FALSE",
+                    "explanation": "Paragraph 1: phantom islands 'were rarely the product of deliberate deception'; most were honest mistakes."
+                  }
+                },
+                {
+                  "number": 2,
+                  "prompt": "Verlund was first shown on a chart produced in Venice.",
+                  "options": null,
+                  "answer": {
+                    "value": "TRUE",
+                    "explanation": "Paragraph 2: Verlund 'first appeared on a Venetian chart in 1482'."
+                  }
+                },
+                {
+                  "number": 3,
+                  "prompt": "The Venetian chart of 1482 was the most accurate map of its time.",
+                  "options": null,
+                  "answer": {
+                    "value": "NOT GIVEN",
+                    "explanation": "The passage never compares the 1482 chart with other maps of its time."
+                  }
+                },
+                {
+                  "number": 4,
+                  "prompt": "Some copyists added information about Verlund that did not appear on earlier maps.",
+                  "options": null,
+                  "answer": {
+                    "value": "TRUE",
+                    "explanation": "Paragraph 2: 'each copyist added details of his own: a river, a small town, even a population figure'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "completion",
+              "fromNo": 5,
+              "toNo": 7,
+              "instructions": "Complete the notes below. Choose ONE WORD AND/OR A NUMBER from the passage for each answer.",
+              "wordLimit": 1,
+              "shared": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Causes of phantom islands"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• low {{5}} that was mistaken for a coastline"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• {{6}} floating on the sea after underwater eruptions"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• errors made when charts were copied by hand"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Verlund"
+                  },
+                  {
+                    "type": "text",
+                    "text": "• copied into at least {{7}} atlases"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 5,
+                  "prompt": "low {{blank}} that was mistaken for a coastline",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "cloud",
+                      "clouds"
+                    ],
+                    "explanation": "Paragraph 1: 'a bank of low cloud mistaken for a coastline'."
+                  }
+                },
+                {
+                  "number": 6,
+                  "prompt": "{{blank}} floating on the sea after underwater eruptions",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "pumice"
+                    ],
+                    "explanation": "Paragraph 1: 'a floating mass of pumice from an underwater volcano'."
+                  }
+                },
+                {
+                  "number": 7,
+                  "prompt": "copied into at least {{blank}} atlases",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "19",
+                      "nineteen"
+                    ],
+                    "explanation": "Paragraph 2: 'copied into at least nineteen atlases'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "completion",
+              "fromNo": 8,
+              "toNo": 10,
+              "instructions": "Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+              "wordLimit": 2,
+              "shared": {
+                "content": [
+                  {
+                    "type": "table",
+                    "rows": [
+                      [
+                        "Problem",
+                        "Effect"
+                      ],
+                      [
+                        "Map-makers relied on {{8}}",
+                        "new observations were rarely used"
+                      ],
+                      [
+                        "Leaving out real land",
+                        "ships could be led onto {{9}}"
+                      ],
+                      [
+                        "Longitude was mostly {{10}}",
+                        "one island could appear twice"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 8,
+                  "prompt": "Map-makers relied on {{blank}} | new observations were rarely used",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "earlier maps"
+                    ],
+                    "explanation": "Paragraph 3: 'map-makers worked largely from earlier maps rather than from fresh observation'."
+                  }
+                },
+                {
+                  "number": 9,
+                  "prompt": "Leaving out real land | ships could be led onto {{blank}}",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "rocks"
+                    ],
+                    "explanation": "Paragraph 3: 'a chart that left out real land could lead a ship onto rocks'."
+                  }
+                },
+                {
+                  "number": 10,
+                  "prompt": "Longitude was mostly {{blank}} | one island could appear twice",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "guesswork"
+                    ],
+                    "explanation": "Paragraph 4: 'longitude was largely guesswork'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "completion",
+              "fromNo": 11,
+              "toNo": 13,
+              "instructions": "Complete the flow-chart below. Choose ONE WORD ONLY from the passage for each answer.",
+              "wordLimit": 1,
+              "shared": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "How a phantom island was removed"
+                  },
+                  {
+                    "type": "text",
+                    "text": "A ship is sent to the reported position and finds no land"
+                  },
+                  {
+                    "type": "text",
+                    "text": "↓"
+                  },
+                  {
+                    "type": "text",
+                    "text": "The captain sends a {{11}} to the hydrographic office"
+                  },
+                  {
+                    "type": "text",
+                    "text": "↓"
+                  },
+                  {
+                    "type": "text",
+                    "text": "The island is marked 'existence {{12}}'"
+                  },
+                  {
+                    "type": "text",
+                    "text": "↓"
+                  },
+                  {
+                    "type": "text",
+                    "text": "Several independent {{13}} fail"
+                  },
+                  {
+                    "type": "text",
+                    "text": "↓"
+                  },
+                  {
+                    "type": "text",
+                    "text": "The island is deleted from the charts"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 11,
+                  "prompt": "The captain sends a {{blank}} to the hydrographic office",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "report"
+                    ],
+                    "explanation": "Paragraph 5: 'Its captain would then file a report with the national hydrographic office'."
+                  }
+                },
+                {
+                  "number": 12,
+                  "prompt": "The island is marked 'existence {{blank}}'",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "doubtful"
+                    ],
+                    "explanation": "Paragraph 5: the island was marked as 'existence doubtful'."
+                  }
+                },
+                {
+                  "number": 13,
+                  "prompt": "Several independent {{blank}} fail",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "searches"
+                    ],
+                    "explanation": "Paragraph 5: 'Only after several independent searches had failed would the office finally delete the island'."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Bees on the Rooftops",
+          "paragraphs": [
+            {
+              "label": "A",
+              "text": "In the last twenty years, beekeeping has moved from the countryside onto the roofs of city buildings. Hotels, banks and universities in many European and North American cities now keep hives, and some city councils have begun to offer small grants to residents who want to start. Supporters say urban hives help to reverse the decline in bee numbers and reconnect city dwellers with nature. Not everyone is convinced."
+            },
+            {
+              "label": "B",
+              "text": "The main argument for urban beekeeping is that cities can be surprisingly good places for bees. Parks, private gardens, street trees and balconies provide a wide variety of flowers that bloom at different times of year, while farmland is often planted with a single crop that flowers for only a few weeks. A 2019 survey in the city of Halden found that honey from rooftop hives contained pollen from more than 120 plant species, compared with about 40 in honey from nearby farms."
+            },
+            {
+              "label": "C",
+              "text": "However, ecologists warn that honeybees are only one of many pollinating insects, and not the ones most at risk. Wild bees, many of which live alone and nest in the ground, are declining much faster. Dr Ines Marlow, who studies wild pollinators, argues that adding large numbers of honeybee colonies to a city may harm wild species by competing with them for the same limited supply of flowers. In her view, planting more flowers would do more for pollinators than adding more hives."
+            },
+            {
+              "label": "D",
+              "text": "Disease is another concern. Hives that are kept close together allow parasites and viruses to spread easily from one colony to the next, and from honeybees to wild bees that visit the same flowers. Professor Tomas Reyes, a bee pathologist, notes that many new urban beekeepers have little training and may not recognise the early signs of infection. He recommends that cities require beekeepers to register their hives so that outbreaks can be tracked."
+            },
+            {
+              "label": "E",
+              "text": "Despite these doubts, most researchers agree that urban hives have value as a tool for education. School programmes that bring children onto a rooftop to watch a hive at work report strong interest in science and the environment. Lena Okafor, who runs one such programme, says that the hive is less important than the conversation it starts. The challenge for cities, she argues, is to keep that interest while making sure that the number of hives does not grow faster than the flowers available to feed them."
+            }
+          ],
+          "audioStartSec": null,
+          "groups": [
+            {
+              "kind": "matching",
+              "fromNo": 14,
+              "toNo": 18,
+              "instructions": "Reading Passage 2 has five paragraphs, A–E. Choose the correct heading for each paragraph from the list of headings below. Write the correct number, i–viii.",
+              "wordLimit": null,
+              "shared": {
+                "optionsTitle": "v   Varied food sources in urban areas",
+                "options": [
+                  {
+                    "key": "ii",
+                    "text": "Why honey from cities tastes different"
+                  },
+                  {
+                    "key": "iii",
+                    "text": "A popular trend with critics"
+                  },
+                  {
+                    "key": "iv",
+                    "text": "The value of hives as a teaching aid"
+                  },
+                  {
+                    "key": "vi",
+                    "text": "Rules introduced by city councils"
+                  },
+                  {
+                    "key": "vii",
+                    "text": "Competition with other insects"
+                  },
+                  {
+                    "key": "viii",
+                    "text": "The cost of starting a hive"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 14,
+                  "prompt": "Paragraph A",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "iii"
+                    ],
+                    "explanation": "Paragraph A describes a growing trend and ends 'Not everyone is convinced', so it is a popular trend with critics."
+                  }
+                },
+                {
+                  "number": 15,
+                  "prompt": "Paragraph B",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "v"
+                    ],
+                    "explanation": "Paragraph B explains that parks, gardens and street trees provide a wide variety of flowers through the year."
+                  }
+                },
+                {
+                  "number": 16,
+                  "prompt": "Paragraph C",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "vii"
+                    ],
+                    "explanation": "Paragraph C: honeybees may harm wild species 'by competing with them for the same limited supply of flowers'."
+                  }
+                },
+                {
+                  "number": 17,
+                  "prompt": "Paragraph D",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "i"
+                    ],
+                    "explanation": "Paragraph D: parasites and viruses 'spread easily from one colony to the next'."
+                  }
+                },
+                {
+                  "number": 18,
+                  "prompt": "Paragraph E",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "iv"
+                    ],
+                    "explanation": "Paragraph E: urban hives 'have value as a tool for education'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "matching",
+              "fromNo": 19,
+              "toNo": 20,
+              "instructions": "Reading Passage 2 has five paragraphs, A–E. Which paragraph contains the following information? Write the correct letter, A–E.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 19,
+                  "prompt": "a comparison of the pollen found in two kinds of honey",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph B compares pollen from 'more than 120 plant species' in rooftop honey with 'about 40' in farm honey."
+                  }
+                },
+                {
+                  "number": 20,
+                  "prompt": "a suggestion for an official record of hives",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "D"
+                    ],
+                    "explanation": "Paragraph D: Reyes recommends that cities 'require beekeepers to register their hives'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "multi_choice",
+              "fromNo": 21,
+              "toNo": 22,
+              "instructions": "Choose TWO letters, A–E. Which TWO claims are made by supporters of urban beekeeping?",
+              "wordLimit": null,
+              "shared": {
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "It helps to increase the number of bees."
+                  },
+                  {
+                    "key": "B",
+                    "text": "It produces more honey than rural beekeeping."
+                  },
+                  {
+                    "key": "C",
+                    "text": "It connects city residents with the natural world."
+                  },
+                  {
+                    "key": "D",
+                    "text": "It is cheaper than keeping bees on farms."
+                  },
+                  {
+                    "key": "E",
+                    "text": "It protects wild bees from disease."
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 21,
+                  "prompt": "",
+                  "options": null,
+                  "answer": {
+                    "choices": [
+                      "A",
+                      "C"
+                    ],
+                    "explanation": "Paragraph A: supporters say urban hives 'help to reverse the decline in bee numbers' (A) and 'reconnect city dwellers with nature' (C)."
+                  }
+                },
+                {
+                  "number": 22,
+                  "prompt": "",
+                  "options": null,
+                  "answer": {
+                    "choices": [
+                      "A",
+                      "C"
+                    ],
+                    "explanation": "See question 21: the two claims are A and C. B, D and E are not claims made by supporters."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "short_answer",
+              "fromNo": 23,
+              "toNo": 24,
+              "instructions": "Answer the questions below. Choose NO MORE THAN THREE WORDS from the passage for each answer.",
+              "wordLimit": 3,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 23,
+                  "prompt": "What do some city councils offer residents who want to keep bees?",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "(small) grants"
+                    ],
+                    "explanation": "Paragraph A: 'some city councils have begun to offer small grants to residents who want to start'."
+                  }
+                },
+                {
+                  "number": 24,
+                  "prompt": "Where do many wild bees build their nests?",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "(in the) ground"
+                    ],
+                    "explanation": "Paragraph C: wild bees 'live alone and nest in the ground'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "matching",
+              "fromNo": 25,
+              "toNo": 26,
+              "instructions": "Complete the summary using the list of words, A–G, below. Write the correct letter, A–G.",
+              "wordLimit": null,
+              "shared": {
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "alone"
+                  },
+                  {
+                    "key": "B",
+                    "text": "flowers"
+                  },
+                  {
+                    "key": "C",
+                    "text": "nests"
+                  },
+                  {
+                    "key": "D",
+                    "text": "parasites"
+                  },
+                  {
+                    "key": "E",
+                    "text": "farms"
+                  },
+                  {
+                    "key": "F",
+                    "text": "hives"
+                  },
+                  {
+                    "key": "G",
+                    "text": "together"
+                  }
+                ],
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Wild bees, many of which live {{25}}, are declining faster than honeybees. Dr Marlow believes the best way to help pollinators is to increase the number of {{26}} rather than the number of hives."
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 25,
+                  "prompt": "Wild bees, many of which live {{blank}}, are declining faster than honeybees. Dr Marlow believes the best way to help pollinators is to increase the number of ____ rather than the number of hives.",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "A"
+                    ],
+                    "explanation": "Paragraph C: 'Wild bees, many of which live alone'."
+                  }
+                },
+                {
+                  "number": 26,
+                  "prompt": "Wild bees, many of which live ____, are declining faster than honeybees. Dr Marlow believes the best way to help pollinators is to increase the number of {{blank}} rather than the number of hives.",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph C: 'planting more flowers would do more for pollinators than adding more hives'."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The Psychology of Waiting",
+          "paragraphs": [
+            {
+              "label": "A",
+              "text": "Most of us spend a surprising amount of our lives waiting: in queues at shops, on the phone to customer services, for buses and lifts. Researchers who study waiting have reached a conclusion that businesses are only beginning to act on: how long people wait matters less than how long they feel they have waited. In my view, this is the most useful idea the field has produced."
+            },
+            {
+              "label": "B",
+              "text": "The principle was first demonstrated, according to a widely repeated account, at an office building where tenants complained that the lifts were too slow. Rather than install faster lifts, the managers placed mirrors beside the lift doors. The complaints stopped almost immediately, apparently because people had something to look at. Whether or not the story is true, it captures a finding that has since been confirmed in laboratory studies: occupied time feels shorter than unoccupied time."
+            },
+            {
+              "label": "C",
+              "text": "Uncertainty also makes waiting feel longer. In a series of experiments, the psychologist Maria Delgado asked volunteers to wait in a room before a test. Those who were told how long the delay would last rated their wait as shorter and less annoying than those given no information, even when the second group actually waited for less time. Delgado concluded that an unexplained wait is more stressful than a longer wait whose length is known."
+            },
+            {
+              "label": "D",
+              "text": "Fairness matters too. The sociologist Kwame Asante has studied how people react when someone arrives after them but is served first. He found that customers will accept a long wait in a single queue more readily than a shorter wait in several parallel queues, where they constantly compare their progress with others. Many supermarkets and banks have adopted the single 'snake' queue for this reason, although some customers still dislike it because the line looks longer."
+            },
+            {
+              "label": "E",
+              "text": "Technology has added new complications. Apps that show the expected arrival time of a bus, for example, reduce uncertainty, and the economist Hannah Lindqvist found that bus users who had access to real-time information reported waits that felt about a fifth shorter. Yet Lindqvist also observed that when the predictions were wrong, satisfaction dropped below that of users with no information at all. I believe this shows that inaccurate information can be worse than none."
+            },
+            {
+              "label": "F",
+              "text": "None of this means that real waiting times are unimportant. A business that relies only on mirrors and progress bars, without actually reducing delays, will eventually lose customers. But the research suggests that the experience of waiting can be improved cheaply, and sometimes dramatically, by managing what people know and feel while they wait."
+            }
+          ],
+          "audioStartSec": null,
+          "groups": [
+            {
+              "kind": "single_choice",
+              "fromNo": 27,
+              "toNo": 29,
+              "instructions": "Choose the correct letter, A, B, C or D.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 27,
+                  "prompt": "What does the writer say in paragraph A about research on waiting?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "It has produced few practical results."
+                    },
+                    {
+                      "key": "B",
+                      "text": "Its main finding concerns perceived rather than actual time."
+                    },
+                    {
+                      "key": "C",
+                      "text": "It has mostly been carried out by businesses."
+                    },
+                    {
+                      "key": "D",
+                      "text": "It shows that people wait longer than they used to."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph A: 'how long people wait matters less than how long they feel they have waited'."
+                  }
+                },
+                {
+                  "number": 28,
+                  "prompt": "What is the writer's view of the story about the lifts?",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "It is definitely untrue."
+                    },
+                    {
+                      "key": "B",
+                      "text": "It is the original source of all later research."
+                    },
+                    {
+                      "key": "C",
+                      "text": "Its point is supported by later studies, whether or not it happened."
+                    },
+                    {
+                      "key": "D",
+                      "text": "It shows that managers often ignore complaints."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ],
+                    "explanation": "Paragraph B: 'Whether or not the story is true, it captures a finding that has since been confirmed in laboratory studies'."
+                  }
+                },
+                {
+                  "number": 29,
+                  "prompt": "In Delgado's experiments, the volunteers who received no information",
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "waited longer than the other volunteers."
+                    },
+                    {
+                      "key": "B",
+                      "text": "felt that their wait was more annoying."
+                    },
+                    {
+                      "key": "C",
+                      "text": "refused to complete the test."
+                    },
+                    {
+                      "key": "D",
+                      "text": "guessed the length of the wait correctly."
+                    }
+                  ],
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph C: those given no information rated their wait as longer and more annoying."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "ynng",
+              "fromNo": 30,
+              "toNo": 33,
+              "instructions": "Do the following statements agree with the claims of the writer in Reading Passage 3?\nWrite YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+              "wordLimit": null,
+              "shared": null,
+              "questions": [
+                {
+                  "number": 30,
+                  "prompt": "The idea that perceived waiting time matters more than actual time is the most useful finding in the field.",
+                  "options": null,
+                  "answer": {
+                    "value": "YES",
+                    "explanation": "Paragraph A: 'In my view, this is the most useful idea the field has produced'."
+                  }
+                },
+                {
+                  "number": 31,
+                  "prompt": "Mirrors should be installed beside all lifts in office buildings.",
+                  "options": null,
+                  "answer": {
+                    "value": "NOT GIVEN",
+                    "explanation": "The writer reports the lift story but never recommends installing mirrors everywhere."
+                  }
+                },
+                {
+                  "number": 32,
+                  "prompt": "Inaccurate information about waiting times may be worse than having no information.",
+                  "options": null,
+                  "answer": {
+                    "value": "YES",
+                    "explanation": "Paragraph E: 'I believe this shows that inaccurate information can be worse than none'."
+                  }
+                },
+                {
+                  "number": 33,
+                  "prompt": "Reducing real waiting times is unnecessary if customers are kept occupied.",
+                  "options": null,
+                  "answer": {
+                    "value": "NO",
+                    "explanation": "Paragraph F: 'None of this means that real waiting times are unimportant'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "matching",
+              "fromNo": 34,
+              "toNo": 36,
+              "instructions": "Look at the following findings (Questions 34–36) and the list of researchers below. Match each finding with the correct researcher, A, B or C. You may use any letter more than once.",
+              "wordLimit": null,
+              "shared": {
+                "optionsTitle": "List of Researchers",
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "Maria Delgado"
+                  },
+                  {
+                    "key": "B",
+                    "text": "Kwame Asante"
+                  },
+                  {
+                    "key": "C",
+                    "text": "Hannah Lindqvist"
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 34,
+                  "prompt": "people prefer one long queue to several shorter ones",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph D: Asante found customers 'accept a long wait in a single queue more readily'."
+                  }
+                },
+                {
+                  "number": 35,
+                  "prompt": "knowing the length of a delay makes it less stressful",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "A"
+                    ],
+                    "explanation": "Paragraph C: Delgado concluded that 'an unexplained wait is more stressful than a longer wait whose length is known'."
+                  }
+                },
+                {
+                  "number": 36,
+                  "prompt": "real-time travel information changes how long a wait feels",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ],
+                    "explanation": "Paragraph E: Lindqvist studied bus users 'who had access to real-time information'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "matching",
+              "fromNo": 37,
+              "toNo": 38,
+              "instructions": "Complete each sentence with the correct ending, A–E, below.",
+              "wordLimit": null,
+              "shared": {
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "staff can serve customers more quickly."
+                  },
+                  {
+                    "key": "B",
+                    "text": "the line appears longer."
+                  },
+                  {
+                    "key": "C",
+                    "text": "customers find them fairer than several parallel queues."
+                  },
+                  {
+                    "key": "D",
+                    "text": "they cost more to manage."
+                  },
+                  {
+                    "key": "E",
+                    "text": "real-time predictions are often wrong."
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 37,
+                  "prompt": "Many supermarkets have introduced single queues because",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "C"
+                    ],
+                    "explanation": "Paragraph D: single queues are adopted 'for this reason', i.e. people accept them more readily than parallel queues."
+                  }
+                },
+                {
+                  "number": 38,
+                  "prompt": "Some customers dislike single queues because",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "B"
+                    ],
+                    "explanation": "Paragraph D: 'some customers still dislike it because the line looks longer'."
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "completion",
+              "fromNo": 39,
+              "toNo": 40,
+              "instructions": "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+              "wordLimit": 2,
+              "shared": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Bus users with real-time information felt that their waits were about a {{39}} shorter."
+                  },
+                  {
+                    "type": "text",
+                    "text": "A business that does not actually reduce delays will eventually lose {{40}}."
+                  }
+                ]
+              },
+              "questions": [
+                {
+                  "number": 39,
+                  "prompt": "Bus users with real-time information felt that their waits were about a {{blank}} shorter.",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "(a) fifth",
+                      "one fifth"
+                    ],
+                    "explanation": "Paragraph E: 'waits that felt about a fifth shorter'."
+                  }
+                },
+                {
+                  "number": 40,
+                  "prompt": "A business that does not actually reduce delays will eventually lose {{blank}}.",
+                  "options": null,
+                  "answer": {
+                    "accepted": [
+                      "customers"
+                    ],
+                    "explanation": "Paragraph F: such a business 'will eventually lose customers'."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
