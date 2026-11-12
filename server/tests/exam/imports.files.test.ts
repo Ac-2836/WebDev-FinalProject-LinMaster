@@ -152,6 +152,39 @@ describe('test import files API', () => {
     expect(labelCalls).toEqual([]);
   });
 
+  it('accepts valid files whatever generic or alias type the browser declares', async () => {
+    const responses = [
+      await upload(cbrMp3(30), 'part1.mp3', 'audio/mp3'),
+      await upload(cbrMp3(30), 'part1.mp3', 'application/octet-stream'),
+      await upload(m4a(1800), 'listening.m4a', 'application/octet-stream'),
+      await upload(PDF, 'test.pdf', 'application/octet-stream'),
+    ];
+
+    for (const response of responses) expect(response.status).toBe(201);
+    expect(responses[0].body.file).toMatchObject({type: 'audio', mimeType: 'audio/mpeg', durationSec: 30});
+    expect(responses[1].body.file).toMatchObject({type: 'audio', mimeType: 'audio/mpeg', durationSec: 30});
+    expect(responses[2].body.file).toMatchObject({type: 'audio', mimeType: 'audio/mp4', durationSec: 1800});
+    expect(responses[3].body.file).toMatchObject({type: 'pdf', mimeType: 'application/pdf'});
+  });
+
+  it('accepts a file part sent without a Content-Type', async () => {
+    const boundary = 'linmaster-no-type';
+    const body = Buffer.concat([
+      Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="part1"\r\n\r\n`),
+      cbrMp3(30),
+      Buffer.from(`\r\n--${boundary}--\r\n`),
+    ]);
+
+    const response = await request(app)
+      .post('/api/v1/tests/imports/files')
+      .set('Authorization', auth())
+      .set('Content-Type', `multipart/form-data; boundary=${boundary}`)
+      .send(body);
+
+    expect(response.status).toBe(201);
+    expect(response.body.file).toMatchObject({type: 'audio', mimeType: 'audio/mpeg', durationSec: 30});
+  });
+
   it('rejects audio whose length cannot be read and removes the stored object', async () => {
     const silentTag = Buffer.concat([Buffer.from('ID3\x04\0\0\0\0\0\0', 'latin1'), Buffer.alloc(100)]);
 
