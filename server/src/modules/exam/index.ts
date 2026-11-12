@@ -3,6 +3,10 @@ import {Router} from 'express';
 import type {ApiModule} from '../../core/module-registry';
 import {storage as defaultStorage} from '../../core/storage';
 import {classifyPages} from './ai';
+import {type AttemptRepository, prismaAttemptRepository} from './attempts.repository';
+import {addAttemptRoutes} from './attempts.routes';
+import {createAttemptService} from './attempts.service';
+import './attempts.openapi';
 import {createImportJobs, type ImportJobs, type ImportProcessor, pendingImportProcessor} from './import-jobs';
 import {prismaImportRepository} from './imports.repository';
 import {addImportRoutes} from './imports.routes';
@@ -19,6 +23,9 @@ export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>>
   /** Built from the other dependencies when left out. */
   jobs?: ImportJobs;
   testRepository?: TestRepository;
+  attemptRepository?: AttemptRepository;
+  /** Server clock of attempts; tests pass a fixed one. */
+  now?: () => Date;
 }
 
 /**
@@ -31,12 +38,23 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
   const jobs =
     deps.jobs ?? createImportJobs({repository, storage, process: deps.processImport ?? pendingImportProcessor});
   const imports = createImportService({repository, storage, labelPages: deps.labelPages ?? classifyPages, jobs});
-  const tests = createTestService(deps.testRepository ?? prismaTestRepository);
-  const router = addTestRoutes(addImportRoutes(Router(), imports, jwtSecret), tests, jwtSecret);
+  const testRepository = deps.testRepository ?? prismaTestRepository;
+  const tests = createTestService(testRepository);
+  const attempts = createAttemptService({
+    attempts: deps.attemptRepository ?? prismaAttemptRepository,
+    tests: testRepository,
+    now: deps.now,
+  });
+  const router = addAttemptRoutes(
+    addTestRoutes(addImportRoutes(Router(), imports, jwtSecret), tests, jwtSecret),
+    attempts,
+    jwtSecret,
+  );
   return {name: 'exam', basePath: '/api/v1', router};
 }
 
 export {createImportJobs, type ImportJobs, type ImportProcessor} from './import-jobs';
 export type {ImportJob, ImportOutcome, ImportRepository} from './imports.repository';
+export type {AttemptRepository, AttemptRow, NewAttempt} from './attempts.repository';
 export type {PageLabeler} from './imports.service';
 export type {TestContentRow, TestRepository, TestRow} from './tests.repository';
