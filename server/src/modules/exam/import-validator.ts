@@ -2,8 +2,10 @@ import {
   type Certification,
   type ImportIssue,
   type ImportIssueCode,
+  normalizeChoice,
   type ParsedTest,
   parseAnswer,
+  type QuestionKind,
   sectionsOf,
   type Skill,
   type TestKind,
@@ -29,6 +31,47 @@ export interface ValidationResult {
 
 type Issue = Omit<ImportIssue, 'code'> & {code: ImportIssueCode};
 type ParsedSection = ParsedTest['sections'][number];
+type ParsedPassage = ParsedSection['passages'][number];
+type ParsedGroup = ParsedPassage['groups'][number];
+
+/** Kinds answered with an option key; a Reading passage's paragraph labels are their options when none is listed. */
+const CHOICE_KINDS: ReadonlySet<QuestionKind> = new Set(['single_choice', 'multi_choice', 'matching']);
+
+/**
+ * Keys a question may be answered with: its own options, else the options of its group, else (Reading choice
+ * kinds, e.g. "Which paragraph contains…") the paragraph labels. Null when the question has no list to check,
+ * like a `diagram_label` group drawn as a picture or answered with words.
+ */
+function allowedKeys(
+  skill: Skill,
+  kind: QuestionKind,
+  question: ParsedGroup['questions'][number],
+  group: ParsedGroup,
+  passage: ParsedPassage,
+): string[] | null {
+  if (!CHOICE_KINDS.has(kind) && kind !== 'diagram_label') return null;
+  let keys = question.options?.map(option => option.key) ?? [];
+  if (keys.length === 0) keys = group.shared?.options?.map(option => option.key) ?? [];
+  if (keys.length === 0 && skill === 'reading' && CHOICE_KINDS.has(kind)) {
+    keys = (passage.paragraphs ?? []).flatMap(paragraph => (paragraph.label ? [paragraph.label] : []));
+  }
+  return keys.length > 0 ? keys.map(normalizeChoice) : null;
+}
+
+/** Keys in a canonical answer: `accepted` (single choice, matching, labels) or `choices` (Choose TWO). */
+function keysOf(answer: unknown): string[] {
+  const {accepted, choices} = answer as {accepted?: unknown; choices?: unknown};
+  const list = Array.isArray(accepted) ? accepted : Array.isArray(choices) ? choices : [];
+  return list.filter((key): key is string => typeof key === 'string').map(normalizeChoice);
+}
+
+/** `A B C D E` → `A–E`; other lists are joined with commas. */
+export function formatKeys(keys: readonly string[]): string {
+  const letters = keys.every(key => /^[A-Z]$/u.test(key));
+  const codes = keys.map(key => key.charCodeAt(0));
+  const consecutive = codes.every((code, index) => index === 0 || code === codes[index - 1] + 1);
+  return letters && consecutive && keys.length > 2 ? `${keys[0]}–${keys[keys.length - 1]}` : keys.join(', ');
+}
 
 /** `[1, 2, 3, 7]` → `1–3, 7`. */
 export function formatNumbers(numbers: readonly number[]): string {
@@ -96,6 +139,16 @@ function checkSection(section: ParsedSection, certification: Certification, issu
         const parsed = parseAnswer(group.kind, question.answer);
         if (!parsed.success) {
           error('ANSWER_INVALID', `The answer of question ${question.number} does not fit its kind.`, question.number);
+          return question;
+        }
+        const keys = allowedKeys(section.skill, group.kind, question, group, passage);
+        const outside = keys ? keysOf(parsed.data).filter(key => !keys.includes(key)) : [];
+        if (keys && outside.length > 0) {
+          error(
+            'ANSWER_INVALID',
+            `The answer of question ${question.number} is ${outside.join(', ')}; the choices are ${formatKeys(keys)}.`,
+            question.number,
+          );
           return question;
         }
         if (!(parsed.data as {explanation?: string}).explanation) withoutExplanation.push(question.number);

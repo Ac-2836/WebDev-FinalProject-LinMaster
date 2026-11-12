@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {CERTIFICATIONS, type ParsedTest} from '@linmaster/shared';
-import {formatNumbers, validateParsedTest} from '../../src/modules/exam/import-validator';
+import {formatKeys, formatNumbers, validateParsedTest} from '../../src/modules/exam/import-validator';
 
 type Group = ParsedTest['sections'][number]['passages'][number]['groups'][number];
 
@@ -148,6 +148,79 @@ describe('validateParsedTest', () => {
         .filter(([severity]) => severity === 'warning')
         .map(([, code]) => code),
     ).toEqual(['TRANSCRIPT_MISSING', 'EXPLANATION_MISSING']);
+  });
+
+  describe('answer keys outside the choices', () => {
+    const LABELS = ['A', 'B', 'C', 'D', 'E'].map(label => ({label, text: `Paragraph ${label}.`}));
+    const options = (keys: string[]) => keys.map(key => ({key, text: `Option ${key}`}));
+
+    /** Reading 1–13 TRUE/FALSE, then `group` (from 14), then completion up to 40. */
+    function readingWith(choiceGroup: Group, paragraphs = LABELS): ParsedTest {
+      const test = fullTest();
+      const passage = test.sections[0].passages[0];
+      passage.paragraphs = paragraphs;
+      passage.groups = [
+        passage.groups[0],
+        choiceGroup,
+        group('completion', choiceGroup.toNo + 1, 40, () => explained({accepted: ['roofs']})),
+      ];
+      return test;
+    }
+    const errors = (test: ParsedTest) =>
+      validate(test)
+        .issues.filter(issue => issue.severity === 'error')
+        .map(issue => [issue.code, issue.questionNo]);
+
+    it('checks "which paragraph" answers against the paragraph labels of the passage', () => {
+      const wrong = validate(
+        readingWith(group('matching', 14, 19, n => explained({accepted: [n === 19 ? 'F' : 'B']}))),
+      );
+      const right = readingWith(group('matching', 14, 19, () => explained({accepted: ['b']})));
+
+      expect(wrong.issues.filter(issue => issue.severity === 'error')).toEqual([
+        expect.objectContaining({
+          code: 'ANSWER_INVALID',
+          section: 'reading',
+          questionNo: 19,
+          message: 'The answer of question 19 is F; the choices are A–E.',
+        }),
+      ]);
+      expect(errors(right)).toEqual([]);
+    });
+
+    it('checks single choice answers against the options of the question or of the group', () => {
+      const own = group('single_choice', 14, 15, n => explained({accepted: [n === 15 ? 'E' : 'D']}));
+      for (const question of own.questions) question.options = options(['A', 'B', 'C', 'D']);
+      const shared = group('matching', 14, 15, n => explained({accepted: [n === 14 ? 'iii' : 'ix']}));
+      shared.shared = {optionsTitle: 'List of Headings', options: options(['i', 'ii', 'III', 'iv'])};
+
+      expect(errors(readingWith(own))).toEqual([['ANSWER_INVALID', 15]]);
+      expect(errors(readingWith(shared))).toEqual([['ANSWER_INVALID', 15]]);
+    });
+
+    it('checks every letter of a Choose TWO answer', () => {
+      const pair = group('multi_choice', 14, 15, () => explained({choices: ['A', 'G']}));
+      pair.shared = {options: options(['A', 'B', 'C', 'D', 'E'])};
+
+      expect(errors(readingWith(pair))).toEqual([
+        ['ANSWER_INVALID', 14],
+        ['ANSWER_INVALID', 15],
+      ]);
+    });
+
+    it('skips questions without any list of choices', () => {
+      const labels = group('diagram_label', 14, 15, () => explained({accepted: ['roof garden']}));
+      const noLabels = group('matching', 14, 15, () => explained({accepted: ['F']}));
+
+      expect(errors(readingWith(labels))).toEqual([]);
+      expect(errors(readingWith(noLabels, [{text: 'One paragraph without a label.'}] as typeof LABELS))).toEqual([]);
+    });
+
+    it('formats the choices', () => {
+      expect(formatKeys(['A', 'B', 'C', 'D', 'E'])).toBe('A–E');
+      expect(formatKeys(['I', 'II', 'III'])).toBe('I, II, III');
+      expect(formatKeys(['A', 'C', 'D'])).toBe('A, C, D');
+    });
   });
 
   it('formats question numbers as ranges', () => {
