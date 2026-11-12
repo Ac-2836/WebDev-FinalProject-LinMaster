@@ -1,6 +1,7 @@
-import type {ImportIssue, ImportStatus, TestKind} from '@linmaster/shared';
+import type {ImportIssue, ImportStatus, ParsedTest, Skill, TestKind} from '@linmaster/shared';
 
 import {getDb} from '../../core/db';
+import {Prisma} from '../../generated/prisma/client';
 
 /** A row of `StoredFile` uploaded for a test import. */
 export interface ImportFileRecord {
@@ -61,6 +62,16 @@ export interface ImportJob {
 export type ImportOutcome =
   {status: 'done'; testId: string; issues: ImportIssue[]} | {status: 'failed'; issues: ImportIssue[]};
 
+/** A validated test to save as a private test of the user. */
+export interface NewTest {
+  certification: string;
+  test: ParsedTest;
+  /** Duration of each section, from the certification. */
+  durationSec: Record<Skill, number>;
+  /** Audio of the Listening section. */
+  audioFileId: string | null;
+}
+
 const UNFINISHED: ImportStatus[] = ['queued', 'parsing', 'validating'];
 
 export interface ImportRepository {
@@ -92,7 +103,12 @@ export interface ImportRepository {
    * keys so the caller removes the stored objects.
    */
   deleteOrphanFiles(createdBefore: Date, limit: number): Promise<string[]>;
+  /** Creates the private test with all its sections, passages, groups and questions; returns its id. */
+  saveTest(ownerId: string, data: NewTest): Promise<string>;
 }
+
+const json = (value: unknown) =>
+  value === null || value === undefined ? Prisma.DbNull : (value as Prisma.InputJsonValue);
 
 /** No row of the exam module refers to the file. */
 const UNUSED = {
@@ -202,5 +218,55 @@ export const prismaImportRepository: ImportRepository = {
     }
     const kept = new Set((await db.storedFile.findMany({where: {id: {in: ids}}, select: {id: true}})).map(f => f.id));
     return orphans.filter(file => !kept.has(file.id)).map(file => file.storageKey);
+  },
+
+  async saveTest(ownerId, {certification, test, durationSec, audioFileId}) {
+    const created = await getDb().test.create({
+      data: {
+        ownerId,
+        certification,
+        kind: test.kind,
+        title: test.title,
+        source: test.source,
+        visibility: 'private',
+        sections: {
+          create: test.sections.map((section, sectionIndex) => ({
+            skill: section.skill,
+            position: sectionIndex + 1,
+            durationSec: durationSec[section.skill],
+            audioFileId: section.skill === 'listening' ? audioFileId : null,
+            passages: {
+              create: section.passages.map((passage, passageIndex) => ({
+                position: passageIndex + 1,
+                title: passage.title,
+                paragraphs: json(passage.paragraphs),
+                audioStartSec: passage.audioStartSec,
+                groups: {
+                  create: passage.groups.map((group, groupIndex) => ({
+                    position: groupIndex + 1,
+                    kind: group.kind,
+                    fromNo: group.fromNo,
+                    toNo: group.toNo,
+                    instructions: group.instructions,
+                    wordLimit: group.wordLimit,
+                    sharedOptions: json(group.shared),
+                    questions: {
+                      create: group.questions.map(question => ({
+                        number: question.number,
+                        prompt: question.prompt,
+                        options: json(question.options),
+                        answer: question.answer as Prisma.InputJsonValue,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          })),
+        },
+      },
+      select: {id: true},
+    });
+    return created.id;
   },
 };

@@ -1,4 +1,9 @@
-import type {ImportFileRecord, ImportRecord, ImportRepository} from '../../src/modules/exam/imports.repository';
+import type {
+  ImportFileRecord,
+  ImportRecord,
+  ImportRepository,
+  NewTest,
+} from '../../src/modules/exam/imports.repository';
 
 type FakeImport = ImportRecord & {questionFileId: string; answerFileId: string; audioFileId: string | null};
 
@@ -12,6 +17,7 @@ export function makeImportRepository() {
   const files = new Map<string, ImportFileRecord>();
   const imports = new Map<string, FakeImport>();
   const inUse = new Set<string>();
+  const savedTests = new Map<string, NewTest & {ownerId: string}>();
   const clock = {fileCreatedAt: new Date('2026-11-13T03:00:00.000Z')};
   let next = 0;
   const nextId = () => {
@@ -97,6 +103,11 @@ export function makeImportRepository() {
       for (const file of orphans) files.delete(file.id);
       return orphans.map(file => file.storageKey);
     },
+    async saveTest(ownerId, data) {
+      const id = nextId();
+      savedTests.set(id, {ownerId, ...data});
+      return id;
+    },
   };
-  return {repository, files, imports, inUse, clock};
+  return {repository, files, imports, inUse, clock, savedTests};
 }
