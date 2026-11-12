@@ -627,6 +627,180 @@
       "inProgressBody": "Bắt đầu lúc {startedAt} · còn {minutes} phút. Đồng hồ vẫn chạy từ lúc bắt đầu.",
       "continue": "Tiếp tục làm bài",
       "pastTitle": "Các lần làm trước"
+    },
+    "tests": {
+      "title": "Thi thử",
+      "subtitle": "Đề bạn đã tải lên. Đề công khai của người khác nằm trong Thư viện.",
+      "upload": "Tải đề lên",
+      "loading": "Đang tải danh sách đề",
+      "loadError": "Không tải được danh sách đề",
+      "retry": "Thử lại",
+      "emptyTitle": "Bạn chưa có đề nào",
+      "emptyBody": "Thả các file của đề (PDF, audio) để AI tự nhận diện và tạo phòng thi riêng.",
+      "kind": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "public": "Công khai",
+      "meta": "{skills} · {questions} câu · {minutes} phút",
+      "progress": {
+        "inProgress": "Đang làm dở",
+        "new": "Chưa làm"
+      },
+      "start": "Làm bài",
+      "continue": "Tiếp tục",
+      "more": "Tùy chọn cho {title}",
+      "rename": "Đổi tên",
+      "renameTitle": "Đổi tên đề",
+      "titleLabel": "Tiêu đề",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "delete": "Xóa đề",
+      "deleteBlocked": "{count} người khác đã làm nên không xóa được",
+      "confirmTitle": "Xóa đề này?",
+      "confirmBody": "\"{title}\" và các lần làm bài của bạn sẽ bị xóa. Không hoàn tác được.",
+      "deleted": "Đã xóa \"{title}\""
+    },
+    "upload": {
+      "back": "Thi thử",
+      "title": "Tải đề lên",
+      "subtitle": "Chọn cách tải. Cả hai cách đều dùng AI đọc đề, bạn không phải gõ lại câu hỏi hay đáp án.",
+      "how": "Cách tải đề",
+      "tabAi": "AI nhận diện",
+      "tabTemplate": "Theo mẫu",
+      "drop": "Thả mọi file của đề vào đây",
+      "dropHint": "PDF đề, đáp án, giải thích, transcript, audio MP3 / M4A. Một file hay nhiều file đều được, thả thêm dần cũng được. Không cần chọn loại đề.",
+      "remove": "Bỏ {name}",
+      "reading": "AI đang đọc từng trang…",
+      "unused": "Không dùng · không nhận ra là đề IELTS",
+      "audio": "Audio · {length}",
+      "notRead": "AI chưa đọc được file này. Thử lại sau, hoặc dùng tab Theo mẫu.",
+      "pages": "{count} trang",
+      "page": "tr. {n}",
+      "pageRange": "tr. {from}–{to}",
+      "labels": {
+        "instructions": "Hướng dẫn",
+        "passage": "Bài đọc",
+        "questions": "Câu hỏi",
+        "answers": "Đáp án",
+        "explanations": "Giải thích",
+        "transcript": "Transcript",
+        "other": "Khác"
+      },
+      "checklist": "Độ đầy đủ",
+      "kind": "Loại đề",
+      "kindAuto": "Tự nhận ra",
+      "kindDetected": "{kind} (tự nhận ra)",
+      "kinds": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "checklistEmpty": "Thả file vào để xem đề đã có gì và còn thiếu gì.",
+      "parts": {
+        "questions": "Câu hỏi",
+        "passages": "Bài đọc",
+        "answers": "Đáp án",
+        "audio": "Audio",
+        "explanations": "Giải thích",
+        "transcript": "Transcript"
+      },
+      "status": {
+        "complete": "Đủ",
+        "partial": "Thiếu câu {ranges}",
+        "missing": "Chưa có",
+        "optional": "Không bắt buộc · chưa có"
+      },
+      "create": "Tạo đề",
+      "checklistNote": "Bảng này kiểm tra sơ bộ theo nhãn trang. Sau khi bấm Tạo đề, hệ thống còn kiểm tra kỹ từng câu.",
+      "step1": "1. Loại đề",
+      "kindHints": {
+        "reading": "3 passage · 40 câu · 60 phút",
+        "listening": "4 part · 40 câu · cần audio",
+        "full": "Listening + Reading · 80 câu"
+      },
+      "step2": "2. File",
+      "slots": {
+        "test": "Đề",
+        "answers": "Đáp án",
+        "audio": "Audio",
+        "transcript": "Transcript",
+        "explanations": "Giải thích"
+      },
+      "optional": "(không bắt buộc)",
+      "noPdf": "Chưa chọn · PDF",
+      "noAudio": "Chưa chọn · MP3 / M4A",
+      "uploading": "Đang tải lên…",
+      "choose": "Chọn file",
+      "change": "Đổi file",
+      "useTestFile": "Cùng file với Đề",
+      "clear": "Bỏ file {slot}",
+      "sameFile": "Đề có đáp án hoặc giải thích ở cuối thì chọn cùng một file cho nhiều ô. Hệ thống tự lấy đúng phần cho từng ô.",
+      "rulesTitle": "Quy định file (đọc trước khi tải)",
+      "rules": {
+        "pdf": "PDF nên có lớp chữ, tối đa 20 MB mỗi file.",
+        "audio": "Audio MP3 hoặc M4A, một file cho cả bài, tối đa 60 MB.",
+        "answers": "Đáp án đánh số câu rõ ràng. Nhiều cách viết thì ngăn bằng / hoặc OR; phần tùy chọn để trong ngoặc, ví dụ (the) library.",
+        "rights": "Chỉ tải đề bạn có quyền dùng."
+      },
+      "wait": "Thường mất 1–3 phút. Bạn có thể rời trang trong lúc chờ.",
+      "submitTemplate": "Tải lên và nhận diện",
+      "errors": {
+        "type": "{name}: chỉ nhận PDF, MP3 hoặc M4A.",
+        "size": "{name} lớn hơn {max} MB.",
+        "upload": "Không tải được {name}: {reason}",
+        "tooMany": "Tối đa {max} file cho một đề.",
+        "slotType": "{name} không đúng loại file của ô này."
+      }
+    },
+    "import": {
+      "back": "Thi thử",
+      "notFoundTitle": "Không tìm thấy lượt tải",
+      "notFoundBody": "Lượt tải này không tồn tại hoặc không phải của bạn.",
+      "loadError": "Không tải được trạng thái",
+      "retry": "Thử lại",
+      "heading": {
+        "running": "Đang nhận diện đề…",
+        "done": "Đề đã sẵn sàng",
+        "failed": "Chưa tạo được đề"
+      },
+      "kind": "Đề {kind, select, reading {Reading} listening {Listening} other {Full}}",
+      "steps": "Các bước",
+      "step": {
+        "queued": "Chờ xử lý",
+        "parsing": "AI đọc đề, đáp án và giải thích",
+        "validating": "Kiểm tra từng câu"
+      },
+      "runningNow": "đang chạy…",
+      "errorCount": "Phát hiện {count} lỗi",
+      "canLeave": "Bạn có thể rời trang; đề sẽ hiện trong mục Thi thử khi xong.",
+      "warnings": "{count} cảnh báo, đề vẫn dùng được:",
+      "takeNow": "Làm bài ngay",
+      "toList": "Về danh sách đề",
+      "failedBody": "Đề chưa đạt kiểm tra nên chưa được tạo. Sửa file theo các lỗi dưới đây rồi tải lên lại.",
+      "colSection": "Phần",
+      "colQuestion": "Câu",
+      "colError": "Lỗi",
+      "retryUpload": "Tải lên lại",
+      "issues": {
+        "PAGES_MISSING": "Không tìm thấy trang câu hỏi hoặc trang đáp án.",
+        "SECTION_MISSING": "Không tìm thấy một phần thi của loại đề này.",
+        "QUESTION_COUNT": "Số câu của phần thi khác với IELTS (40 câu).",
+        "QUESTION_NUMBERING": "Câu {questionNo} bị thiếu hoặc bị lặp.",
+        "KIND_NOT_ALLOWED": "Câu {questionNo} dùng dạng câu mà kỹ năng này không có.",
+        "ANSWER_MISSING": "Không tìm thấy đáp án câu {questionNo}.",
+        "ANSWER_INVALID": "Đáp án câu {questionNo} không hợp lệ với dạng câu.",
+        "MULTI_CHOICE_MISMATCH": "Một nhóm \"Choose TWO\" có số câu khác số chữ cái.",
+        "PASSAGE_TEXT_MISSING": "Một bài đọc Reading không có nội dung.",
+        "AUDIO_MISSING": "Listening cần file audio.",
+        "AUDIO_DURATION_UNKNOWN": "Không đọc được độ dài audio.",
+        "IMPORT_JOB_FAILED": "Không đọc được các file. Thử lại sau.",
+        "EXPLANATION_MISSING": "Không có giải thích; sau này có thể nhờ AI giải thích đáp án.",
+        "TRANSCRIPT_MISSING": "Không có transcript Listening.",
+        "SECTION_IGNORED": "Đã bỏ qua một phần thi ngoài loại đề đã chọn.",
+        "unknown": "Có lỗi khác trong các file."
+      }
     }
   }
 }

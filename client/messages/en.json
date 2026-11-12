@@ -627,6 +627,180 @@
       "inProgressBody": "Started {startedAt} · {minutes, plural, one {# minute} other {# minutes}} left. The clock has kept running since you started.",
       "continue": "Continue the test",
       "pastTitle": "Past attempts"
+    },
+    "tests": {
+      "title": "Mock tests",
+      "subtitle": "Tests you uploaded. Public tests from others are in the Library.",
+      "upload": "Upload a test",
+      "loading": "Loading tests",
+      "loadError": "Could not load your tests",
+      "retry": "Try again",
+      "emptyTitle": "You have no tests yet",
+      "emptyBody": "Drop the files of a test (PDF, audio) and the AI builds a private exam room from them.",
+      "kind": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "public": "Public",
+      "meta": "{skills} · {questions} questions · {minutes} min",
+      "progress": {
+        "inProgress": "In progress",
+        "new": "Not taken"
+      },
+      "start": "Take test",
+      "continue": "Continue",
+      "more": "Options for {title}",
+      "rename": "Rename",
+      "renameTitle": "Rename test",
+      "titleLabel": "Title",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete test",
+      "deleteBlocked": "{count, plural, one {# other learner has} other {# other learners have}} taken it, so it cannot be deleted",
+      "confirmTitle": "Delete this test?",
+      "confirmBody": "\"{title}\" and your attempts on it will be deleted. This cannot be undone.",
+      "deleted": "Deleted \"{title}\""
+    },
+    "upload": {
+      "back": "Mock tests",
+      "title": "Upload a test",
+      "subtitle": "Pick how to upload. Both ways use AI to read the test, so you never type questions or answers.",
+      "how": "How to upload",
+      "tabAi": "AI detection",
+      "tabTemplate": "By template",
+      "drop": "Drop every file of the test here",
+      "dropHint": "Test PDF, answers, explanations, transcript, MP3 / M4A audio. One file or several, added bit by bit. No need to pick the test type.",
+      "remove": "Remove {name}",
+      "reading": "The AI is reading each page…",
+      "unused": "Not used · does not look like an IELTS test",
+      "audio": "Audio · {length}",
+      "notRead": "The AI could not read this file now. Try again later, or use the By template tab.",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "page": "p. {n}",
+      "pageRange": "p. {from}–{to}",
+      "labels": {
+        "instructions": "Instructions",
+        "passage": "Passage",
+        "questions": "Questions",
+        "answers": "Answers",
+        "explanations": "Explanations",
+        "transcript": "Transcript",
+        "other": "Other"
+      },
+      "checklist": "Completeness",
+      "kind": "Type",
+      "kindAuto": "Detect",
+      "kindDetected": "{kind} (detected)",
+      "kinds": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "full": "Full"
+      },
+      "checklistEmpty": "Add files to see what the test has and what is missing.",
+      "parts": {
+        "questions": "Questions",
+        "passages": "Passages",
+        "answers": "Answers",
+        "audio": "Audio",
+        "explanations": "Explanations",
+        "transcript": "Transcript"
+      },
+      "status": {
+        "complete": "Complete",
+        "partial": "Missing questions {ranges}",
+        "missing": "Not found yet",
+        "optional": "Optional · not found"
+      },
+      "create": "Create test",
+      "checklistNote": "This table is a quick check on page labels. After you click Create test, every question is checked again.",
+      "step1": "1. Test type",
+      "kindHints": {
+        "reading": "3 passages · 40 questions · 60 min",
+        "listening": "4 parts · 40 questions · needs audio",
+        "full": "Listening + Reading · 80 questions"
+      },
+      "step2": "2. Files",
+      "slots": {
+        "test": "Test",
+        "answers": "Answers",
+        "audio": "Audio",
+        "transcript": "Transcript",
+        "explanations": "Explanations"
+      },
+      "optional": "(optional)",
+      "noPdf": "No file yet · PDF",
+      "noAudio": "No file yet · MP3 / M4A",
+      "uploading": "Uploading…",
+      "choose": "Choose file",
+      "change": "Change file",
+      "useTestFile": "Same file as Test",
+      "clear": "Remove the {slot} file",
+      "sameFile": "If the test has its answers or explanations at the end, pick the same file for several boxes. The right part is taken for each box.",
+      "rulesTitle": "File rules (read before uploading)",
+      "rules": {
+        "pdf": "PDF with a text layer, up to 20 MB each.",
+        "audio": "One MP3 or M4A file for the whole test, up to 60 MB.",
+        "answers": "Answers numbered clearly. Separate alternatives with / or OR; put optional words in brackets, e.g. (the) library.",
+        "rights": "Only upload tests you have the right to use."
+      },
+      "wait": "Usually takes 1–3 minutes. You can leave the page while you wait.",
+      "submitTemplate": "Upload and read",
+      "errors": {
+        "type": "{name}: only PDF, MP3 or M4A files.",
+        "size": "{name} is larger than {max} MB.",
+        "upload": "Could not upload {name}: {reason}",
+        "tooMany": "At most {max} files per test.",
+        "slotType": "{name} is not the right type for this box."
+      }
+    },
+    "import": {
+      "back": "Mock tests",
+      "notFoundTitle": "Upload not found",
+      "notFoundBody": "This upload does not exist or is not yours.",
+      "loadError": "Could not load the upload",
+      "retry": "Try again",
+      "heading": {
+        "running": "Reading the test…",
+        "done": "The test is ready",
+        "failed": "The test could not be created"
+      },
+      "kind": "{kind, select, reading {Reading} listening {Listening} other {Full}} test",
+      "steps": "Steps",
+      "step": {
+        "queued": "Waiting to start",
+        "parsing": "AI reads the test, answers and explanations",
+        "validating": "Checking every question"
+      },
+      "runningNow": "running…",
+      "errorCount": "{count, plural, one {# error found} other {# errors found}}",
+      "canLeave": "You can leave this page; the test shows up in Mock tests when it is ready.",
+      "warnings": "{count, plural, one {# warning} other {# warnings}}, the test can still be used:",
+      "takeNow": "Take it now",
+      "toList": "Back to my tests",
+      "failedBody": "The test did not pass the checks, so it was not created. Fix the files as listed below and upload again.",
+      "colSection": "Section",
+      "colQuestion": "Question",
+      "colError": "Problem",
+      "retryUpload": "Upload again",
+      "issues": {
+        "PAGES_MISSING": "No page with questions or with answers was found.",
+        "SECTION_MISSING": "A section of this test type was not found.",
+        "QUESTION_COUNT": "The section does not have the number of questions IELTS has (40).",
+        "QUESTION_NUMBERING": "Question {questionNo} is missing or appears twice.",
+        "KIND_NOT_ALLOWED": "Question {questionNo} uses a question type this skill does not have.",
+        "ANSWER_MISSING": "No answer found for question {questionNo}.",
+        "ANSWER_INVALID": "The answer of question {questionNo} does not fit its question type.",
+        "MULTI_CHOICE_MISMATCH": "A \"Choose TWO\" group has a different number of questions and letters.",
+        "PASSAGE_TEXT_MISSING": "A Reading passage has no text.",
+        "AUDIO_MISSING": "Listening needs an audio file.",
+        "AUDIO_DURATION_UNKNOWN": "The length of the audio could not be read.",
+        "IMPORT_JOB_FAILED": "The files could not be read. Try again later.",
+        "EXPLANATION_MISSING": "No explanations; you can ask the AI to explain answers later.",
+        "TRANSCRIPT_MISSING": "No Listening transcript.",
+        "SECTION_IGNORED": "A section outside the chosen test type was left out.",
+        "unknown": "Another problem was found in the files."
+      }
     }
   }
 }
