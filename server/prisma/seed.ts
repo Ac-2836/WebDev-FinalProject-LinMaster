@@ -6,6 +6,7 @@ import {PrismaPg} from '@prisma/adapter-pg';
 import {hash} from 'bcryptjs';
 
 import {PrismaClient} from '../src/generated/prisma/client';
+import {seedSampleTests} from './seed-tests';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 
@@ -191,7 +192,7 @@ function locate(paragraphs: string[], headword: string) {
   throw new Error(`Seed word "${headword}" is not in its document.`);
 }
 
-async function seedDemo(db: PrismaClient) {
+async function seedDemo(db: PrismaClient): Promise<string> {
   const passwordHash = await hash(DEMO_PASSWORD, HASH_ROUNDS);
   const user = await db.user.upsert({
     where: {email: DEMO_EMAIL},
@@ -293,12 +294,13 @@ async function seedDemo(db: PrismaClient) {
   console.log(
     `Seed: demo user ${DEMO_EMAIL} with ${documents.length} documents, ${entries.length} words, 2 sets, ${progress.length} progress rows.`,
   );
+  return userId;
 }
 
 async function main() {
   const db = new PrismaClient({adapter: new PrismaPg({connectionString: process.env.DATABASE_URL})});
   try {
-    await seedDemo(db);
+    await seedSampleTests(db, await seedDemo(db));
   } finally {
     await db.$disconnect();
   }
