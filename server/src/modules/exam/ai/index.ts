@@ -5,7 +5,8 @@ import {runJsonTask} from '../../../core/ai/ai-gateway';
 import {AppError} from '../../../core/app-error';
 import {classifyPagesTask} from './classify-pages.v1';
 import {parseAnswersTask} from './parse-answers.v1';
-import {parseTestTask} from './parse-test.v1';
+import {parseTestTask} from './parse-test.v2';
+import {parseTranscriptTask} from './parse-transcript.v1';
 
 // AI tasks of the exam module (KH's part). The import flow of TH calls only the functions exported here.
 
@@ -69,11 +70,22 @@ function checkPages(pages: number[]): number[] {
 }
 
 /**
- * Passages, Listening transcript and questions (no answers) with `parse-test.v1`.
- * Pass the pages labelled instructions, passage, questions and transcript.
+ * Passages, questions (no answers) and Listening transcripts. Pass the pages labelled instructions, passage,
+ * questions and transcript. `parse-test.v2` reads the test; when it reports a transcript, `parse-transcript.v1`
+ * reads it in its own call and its lines become the `paragraphs` of the Listening parts, in order.
  */
-export function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseTestOutput> {
-  return runJsonTask(parseTestTask, {pdf, pages: checkPages(pages)}, {userId});
+export async function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseTestOutput> {
+  const input = {pdf, pages: checkPages(pages)};
+  const {hasTranscript, ...outline} = await runJsonTask(parseTestTask, input, {userId});
+  const listening = outline.sections.find(section => section.skill === 'listening');
+  if (!hasTranscript || !listening) return outline;
+
+  const {parts} = await runJsonTask(parseTranscriptTask, {...input, parts: listening.passages.length}, {userId});
+  listening.passages.forEach((passage, index) => {
+    const lines = parts.find(entry => entry.part === index + 1)?.lines;
+    if (lines?.length) passage.paragraphs = lines;
+  });
+  return outline;
 }
 
 /** Answer key and explanations per skill and question with `parse-answers.v1`. Pass the answers and explanations pages. */

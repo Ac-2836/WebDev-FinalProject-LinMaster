@@ -19,6 +19,11 @@ export interface AiTask<Input, Output> {
   output: z.ZodType<Output>;
   /** How long a cached output stays valid. Omit to keep it forever. */
   cacheTtlSeconds?: number;
+  /**
+   * Content check beyond the schema, e.g. "every Reading passage has text". An incomplete output is retried and
+   * never cached; if every attempt is incomplete, the last one is returned so the caller can still warn.
+   */
+  isComplete?(output: Output, input: Input): boolean;
 }
 
 /** Registry of every AI task the server runs (PLAN B4). Each module registers its own tasks. */

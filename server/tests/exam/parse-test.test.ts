@@ -180,14 +180,16 @@ describe('parseTest and parseAnswers', () => {
     userId = (await db.user.create({data: {email, passwordHash: 'x', displayName: 'Parse'}})).id;
   });
   afterAll(async () => {
-    await db.aiCache.deleteMany({where: {task: {in: ['parse-test.v1', 'parse-answers.v1']}, model: 'mock-model'}});
+    await db.aiCache.deleteMany({
+      where: {task: {in: ['parse-test.v2', 'parse-transcript.v1', 'parse-answers.v1']}, model: 'mock-model'},
+    });
     await db.user.deleteMany({where: {email}});
     await db.$disconnect();
   });
 
   it('sends the PDF with only the chosen pages and caches per page set', async () => {
     const key: ParseAnswersOutput = {answers: [{skill: 'reading', number: 1, answer: 'TRUE', explanation: null}]};
-    const model = createMockAiModel([outline, key, key]);
+    const model = createMockAiModel([{...outline, hasTranscript: false}, key, key]);
     setAiModel(model);
 
     expect(await parseTest(pdf, {pages: [3, 1, 3], userId})).toEqual(outline);
@@ -203,7 +205,80 @@ describe('parseTest and parseAnswers', () => {
     expect(model.requests[0].pdf?.equals(pdf)).toBe(true);
   });
 
-  it('refuses an empty page list', () => {
-    expect(() => parseTest(pdf, {pages: [], userId})).toThrow(/page/);
+  it('refuses an empty page list', async () => {
+    await expect(parseTest(pdf, {pages: [], userId})).rejects.toThrow(/page/);
+  });
+
+  // Listening parts without transcript, as parse-test.v2 returns them.
+  const withoutTranscript = (hasTranscript: boolean) => ({
+    ...outline,
+    hasTranscript,
+    sections: outline.sections.map(section => ({
+      ...section,
+      passages: section.passages.map(passage =>
+        section.skill === 'listening' ? {...passage, paragraphs: null} : passage,
+      ),
+    })),
+  });
+
+  it('reads the transcript in its own call and puts its lines on the Listening parts', async () => {
+    const model = createMockAiModel([
+      withoutTranscript(true),
+      {parts: [{part: 1, lines: [{label: 'Receptionist', text: 'Good morning.'}]}]},
+    ]);
+    setAiModel(model);
+
+    const result = await parseTest(Buffer.from(`${pdf} transcript`), {pages: [1, 9], userId});
+
+    expect(result).toEqual(outline); // hasTranscript is not part of the result
+    expect(model.requests[1].text).toBe(
+      'Read only these pages of the attached PDF: 1, 9. The test has 1 Listening parts.',
+    );
+  });
+
+  it('skips the transcript call when the pages hold no transcript', async () => {
+    const model = createMockAiModel([withoutTranscript(false)]);
+    setAiModel(model);
+    const result = await parseTest(Buffer.from(`${pdf} no transcript`), {pages: [1], userId});
+    expect(result.sections[1].passages[0].paragraphs).toBeNull();
+    expect(model.requests).toHaveLength(1);
+  });
+
+  it('retries a test whose Reading passage came back without text, and caches only the full one', async () => {
+    const empty = {
+      ...withoutTranscript(false),
+      sections: withoutTranscript(false).sections.map(section => ({
+        ...section,
+        passages: section.passages.map(passage =>
+          section.skill === 'reading' ? {...passage, paragraphs: null} : passage,
+        ),
+      })),
+    };
+    const model = createMockAiModel([empty, withoutTranscript(false)]);
+    setAiModel(model);
+    const file = Buffer.from(`${pdf} retry`);
+
+    const first = await parseTest(file, {pages: [2], userId});
+    const second = await parseTest(file, {pages: [2], userId});
+
+    expect(first.sections[0].passages[0].paragraphs).toHaveLength(2);
+    expect(second).toEqual(first);
+    expect(model.requests).toHaveLength(2); // one retry, then the cache
+  });
+
+  it('returns the transcript it got, without caching it, when parts stay missing', async () => {
+    const partial = {parts: [{part: 1, lines: []}]};
+    const model = createMockAiModel([withoutTranscript(true), partial, partial, partial]);
+    setAiModel(model);
+    const file = Buffer.from(`${pdf} missing transcript`);
+    const cachedTranscripts = () => db.aiCache.count({where: {task: 'parse-transcript.v1', model: 'mock-model'}});
+    const before = await cachedTranscripts();
+
+    const result = await parseTest(file, {pages: [9], userId});
+
+    // Three attempts, then the outline without transcript: the import validator warns TRANSCRIPT_MISSING.
+    expect(result.sections[1].passages[0].paragraphs).toBeNull();
+    expect(model.requests).toHaveLength(4);
+    expect(await cachedTranscripts()).toBe(before);
   });
 });

@@ -127,3 +127,22 @@ export const ParseTestOutputSchema = z.object({
 });
 
 export type ParseTestOutput = z.infer<typeof ParseTestOutputSchema>;
+
+/**
+ * Output of `parse-test.v2`: parse-test without Listening transcripts (paragraphs stay null for Listening),
+ * plus whether the given pages hold a transcript, which `parse-transcript.v1` then reads on its own.
+ */
+export const ParseTestV2OutputSchema = ParseTestOutputSchema.extend({hasTranscript: z.boolean()});
+
+/** Output of `parse-transcript.v1`: the transcript lines of each Listening part (1–4). */
+export const ParseTranscriptOutputSchema = z.object({
+  parts: z.array(
+    z.object({
+      part: z.number().int().min(1),
+      lines: z.array(z.object({label: z.string().max(40).nullable(), text: z.string().min(1)})),
+    }),
+  ),
+});
+
+export type ParseTestV2Output = z.infer<typeof ParseTestV2OutputSchema>;
+export type ParseTranscriptOutput = z.infer<typeof ParseTranscriptOutputSchema>;

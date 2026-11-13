@@ -1,7 +1,7 @@
 import {type ParseAnswersOutput, ParseAnswersOutputSchema} from '@linmaster/shared';
 
 import {type AiTask, aiTaskRegistry} from '../../../core/ai/ai-task';
-import {type PdfPagesInput, pageList} from './parse-test.v1';
+import {type PdfPagesInput, pageList} from './parse-test.v2';
 
 // Version 1. Changing this prompt or ParseAnswersOutputSchema means a new file parse-answers.v2.ts.
 const SYSTEM_PROMPT = `You read the answer key of an IELTS-style test PDF and return it as JSON.
