@@ -52,7 +52,8 @@ function parseJson(text: string): unknown {
 /** Builds the gateway around a database and a model, so tests can pass the mock model. */
 export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = () => new Date()}: AiGatewayDeps) {
   /**
-   * Runs one registered AI task for a user: quota → cache → model with schema validation and retry → AiUsage.
+   * Runs one registered AI task for a user: quota → cache → model with schema validation, content check
+   * (`task.isComplete`) and retry → AiUsage.
    * Throws AppError 429 AI_QUOTA_EXCEEDED, 502 AI_INVALID_OUTPUT or 503 AI_UNAVAILABLE.
    */
   async function runJsonTask<Input, Output>(
@@ -73,7 +74,7 @@ export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = (
     const cached = await db.aiCache.findUnique({where: {task_inputHash: {task: task.name, inputHash}}});
     if (cached && (cached.expiresAt === null || cached.expiresAt > now())) {
       const output = task.output.safeParse(cached.output);
-      if (output.success) {
+      if (output.success && (task.isComplete?.(output.data, input) ?? true)) {
         await db.aiUsage.create({data: {userId, task: task.name, cached: true}});
         return output.data;
       }
@@ -82,6 +83,7 @@ export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = (
     const jsonSchema = z.toJSONSchema(task.output);
     let inputTokens = 0;
     let outputTokens = 0;
+    let incomplete: {output: Output} | undefined;
     for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt++) {
       let response;
       try {
@@ -95,6 +97,10 @@ export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = (
 
       const output = task.output.safeParse(parseJson(response.text));
       if (!output.success) continue;
+      if (task.isComplete && !task.isComplete(output.data, input)) {
+        incomplete = {output: output.data};
+        continue;
+      }
 
       const expiresAt = task.cacheTtlSeconds ? new Date(now().getTime() + task.cacheTtlSeconds * 1000) : null;
       const row = {output: output.data as object, model: model.name, expiresAt};
@@ -108,6 +114,12 @@ export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = (
       return output.data;
     }
 
+    if (incomplete) {
+      // Valid but missing content every time: hand it back uncached, so a later run can still get a full one.
+      console.warn(`AI task ${task.name} returned incomplete output after ${AI_MAX_ATTEMPTS} attempts.`);
+      await db.aiUsage.create({data: {userId, task: task.name, cached: false, inputTokens, outputTokens}});
+      return incomplete.output;
+    }
     throw new AppError('AI trả về kết quả không hợp lệ, hãy thử lại.', 502, undefined, 'AI_INVALID_OUTPUT');
   }
 
