@@ -1,6 +1,6 @@
 'use client';
 
-import {GetAttemptResponseSchema, type Attempt} from '@linmaster/shared';
+import {CERTIFICATIONS, GetAttemptResponseSchema, type Attempt, type CertificationId} from '@linmaster/shared';
 import {CircleAlert, CircleCheck} from 'lucide-react';
 import Link from 'next/link';
 import {useCallback, useEffect, useMemo, useState} from 'react';
@@ -27,6 +27,7 @@ import {
   toggleFlag,
 } from './attempt-logic';
 import {ExamRoom} from './exam-room';
+import {ListeningRoom} from './listening/listening-room';
 import {toggleStruck, type Struck} from './reading/reading-logic';
 import {ReadingRoom} from './reading/reading-room';
 import {useAutosave} from './room-hooks';
@@ -154,8 +155,7 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
 
   const part = partOf(parts, current);
   const passage = section.passages.find(p => p.id === part?.id);
-  const group = passage?.groups.find(g => g.fromNo <= current && current <= g.toNo);
-  const question = group?.questions.find(q => q.number === current);
+  const certification = CERTIFICATIONS[attempt.test.certification as CertificationId];
   const skill = section.skill === 'listening' ? 'Listening' : 'Reading';
 
   return (
@@ -200,16 +200,19 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
           onCurrentChange={navigate}
         />
       ) : (
-        // shortcut: read-only view of the current question until the Listening view (P3-14) mounts here.
-        <div className="flex-1 overflow-y-auto p-5 sm:p-8">
-          {passage && <h1 className="text-[1.3em] font-bold">{passage.title}</h1>}
-          {group && <p className="mt-4 font-semibold whitespace-pre-line">{group.instructions}</p>}
-          {question && (
-            <p className="mt-4">
-              <strong>{question.number}.</strong> {question.prompt.replace('{{blank}}', '______')}
-            </p>
-          )}
-        </div>
+        passage && (
+          <ListeningRoom
+            audio={attempt.audio?.sectionId === section.id ? attempt.audio : null}
+            passage={passage}
+            reviewMinutes={(certification?.sections.listening.reviewSec ?? 0) / 60}
+            answers={answersByNumber(state, numberOf)}
+            onAnswer={patch => setState(s => setAnswers(s, patch, idOf))}
+            struck={struck}
+            onStrike={strike}
+            current={current}
+            onCurrentChange={navigate}
+          />
+        )
       )}
     </ExamRoom>
   );
