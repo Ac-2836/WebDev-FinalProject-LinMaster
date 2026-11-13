@@ -3,6 +3,7 @@ export {ImportStatusPage} from './import-status-page';
 export {ExamRoom, type ExamRoomProps, type SaveState} from './exam-room';
 export {PreExam} from './pre-exam';
 export {QUESTION_VIEWS} from './reading/question-views';
+export {ResultPage} from './result-page';
 export {ReadingRoom, type ReadingRoomProps} from './reading/reading-room';
 export {useOnline} from './room-hooks';
 export type {RoomPart} from './room-logic';

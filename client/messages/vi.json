@@ -626,7 +626,8 @@
       "inProgressTitle": "Bạn đang làm dở đề này",
       "inProgressBody": "Bắt đầu lúc {startedAt} · còn {minutes} phút. Đồng hồ vẫn chạy từ lúc bắt đầu.",
       "continue": "Tiếp tục làm bài",
-      "pastTitle": "Các lần làm trước"
+      "pastTitle": "Các lần làm trước",
+      "seeResult": "Xem kết quả"
     },
     "tests": {
       "title": "Thi thử",
@@ -800,6 +801,58 @@
         "TRANSCRIPT_MISSING": "Không có transcript Listening.",
         "SECTION_IGNORED": "Đã bỏ qua một phần thi ngoài loại đề đã chọn.",
         "unknown": "Có lỗi khác trong các file."
+      }
+    },
+    "result": {
+      "back": "Thi thử",
+      "loading": "Đang tải kết quả",
+      "loadError": "Không tải được kết quả",
+      "retry": "Thử lại",
+      "notFoundTitle": "Không tìm thấy kết quả",
+      "notFoundBody": "Lượt làm bài này không tồn tại hoặc không phải của bạn.",
+      "notSubmittedTitle": "Bài này chưa nộp",
+      "notSubmittedBody": "Kết quả hiện khi bạn nộp bài hoặc hết giờ.",
+      "continue": "Tiếp tục làm bài",
+      "title": "Kết quả · {title}",
+      "submitted": "Nộp lúc {at} · làm trong {minutes} phút",
+      "autoSubmitted": "tự nộp khi hết giờ",
+      "scores": "Điểm",
+      "overall": "Band trung bình",
+      "target": "Mục tiêu {band}",
+      "correct": "{correct}/{total} câu đúng",
+      "readerTitle": "Học từ ngay trong bài vừa thi",
+      "readerBody": "Mở passage trong Trình đọc để tra và lưu những từ bạn chưa hiểu.",
+      "passage": "Passage {n}",
+      "transcriptTitle": "Transcript Listening",
+      "transcriptBody": "Lời thoại của từng Part, có trong bộ file đề bạn tải lên.",
+      "openTranscript": "Mở trong Trình đọc",
+      "questions": "Từng câu",
+      "wrongOnly": "Chỉ câu sai ({count})",
+      "skill": "Kỹ năng",
+      "noWrong": "Không có câu sai ở đây.",
+      "colNo": "Câu",
+      "colKind": "Dạng",
+      "colGiven": "Bạn trả lời",
+      "colCorrect": "Đáp án",
+      "colExplain": "Giải thích",
+      "right": "đúng",
+      "wrong": "sai",
+      "blank": "bỏ trống",
+      "explain": "Giải thích",
+      "explainTitle": "Câu {n} · Giải thích",
+      "yourAnswer": "Bạn trả lời {given} · đáp án {correct}",
+      "fromFile": "Từ file đề bạn tải lên.",
+      "close": "Đóng",
+      "byKind": "Theo dạng câu",
+      "kinds": {
+        "single_choice": "Trắc nghiệm",
+        "multi_choice": "Chọn nhiều đáp án",
+        "tfng": "True / False / Not Given",
+        "ynng": "Yes / No / Not Given",
+        "matching": "Nối",
+        "completion": "Điền chỗ trống",
+        "short_answer": "Trả lời ngắn",
+        "diagram_label": "Điền nhãn sơ đồ"
       }
     }
   }

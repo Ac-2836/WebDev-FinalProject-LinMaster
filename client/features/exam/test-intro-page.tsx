@@ -184,12 +184,17 @@ export function TestIntroPage({id}: {id: string}) {
           <h2 id="past-attempts" className="mb-3 text-xl font-semibold">
             {t('pastTitle')}
           </h2>
-          {/* shortcut: no link to the result yet, add it with the result page (P3-16). */}
           <ul className={cn(card, 'divide-y')}>
             {submitted.map(a => (
-              <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-                <span>{dateTime(a.startedAt)}</span>
+              <li key={a.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2">
+                <span className="flex-1">{dateTime(a.startedAt)}</span>
                 <span className="font-semibold">{formatScores(a.scores)}</span>
+                <Link
+                  href={`/attempts/${a.id}/result`}
+                  className="inline-flex min-h-11 items-center text-sm font-semibold text-primary hover:underline"
+                >
+                  {t('seeResult')}
+                </Link>
               </li>
             ))}
           </ul>
