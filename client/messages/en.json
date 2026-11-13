@@ -626,7 +626,8 @@
       "inProgressTitle": "You have not finished this test",
       "inProgressBody": "Started {startedAt} · {minutes, plural, one {# minute} other {# minutes}} left. The clock has kept running since you started.",
       "continue": "Continue the test",
-      "pastTitle": "Past attempts"
+      "pastTitle": "Past attempts",
+      "seeResult": "See result"
     },
     "tests": {
       "title": "Mock tests",
@@ -800,6 +801,58 @@
         "TRANSCRIPT_MISSING": "No Listening transcript.",
         "SECTION_IGNORED": "A section outside the chosen test type was left out.",
         "unknown": "Another problem was found in the files."
+      }
+    },
+    "result": {
+      "back": "Mock tests",
+      "loading": "Loading the result",
+      "loadError": "Could not load the result",
+      "retry": "Try again",
+      "notFoundTitle": "Result not found",
+      "notFoundBody": "This attempt does not exist or is not yours.",
+      "notSubmittedTitle": "This test is not submitted yet",
+      "notSubmittedBody": "The result shows once you submit or the time runs out.",
+      "continue": "Continue the test",
+      "title": "Result · {title}",
+      "submitted": "Submitted {at} · took {minutes} min",
+      "autoSubmitted": "submitted when time ran out",
+      "scores": "Scores",
+      "overall": "Average band",
+      "target": "Target {band}",
+      "correct": "{correct}/{total} correct",
+      "readerTitle": "Learn words from this test",
+      "readerBody": "Open a passage in the Reader to look up and save the words you did not know.",
+      "passage": "Passage {n}",
+      "transcriptTitle": "Listening transcript",
+      "transcriptBody": "What was said in each Part, from the files you uploaded.",
+      "openTranscript": "Open in the Reader",
+      "questions": "Every question",
+      "wrongOnly": "Wrong only ({count})",
+      "skill": "Skill",
+      "noWrong": "No wrong answers here.",
+      "colNo": "No.",
+      "colKind": "Type",
+      "colGiven": "Your answer",
+      "colCorrect": "Answer",
+      "colExplain": "Explanation",
+      "right": "correct",
+      "wrong": "wrong",
+      "blank": "blank",
+      "explain": "Explanation",
+      "explainTitle": "Question {n} · Explanation",
+      "yourAnswer": "You answered {given} · the answer is {correct}",
+      "fromFile": "From the test file you uploaded.",
+      "close": "Close",
+      "byKind": "By question type",
+      "kinds": {
+        "single_choice": "Multiple choice",
+        "multi_choice": "Choose two or more",
+        "tfng": "True / False / Not Given",
+        "ynng": "Yes / No / Not Given",
+        "matching": "Matching",
+        "completion": "Completion",
+        "short_answer": "Short answer",
+        "diagram_label": "Diagram labelling"
       }
     }
   }

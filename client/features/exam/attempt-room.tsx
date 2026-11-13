@@ -82,7 +82,14 @@ export function AttemptRoom({attemptId}: {attemptId: string}) {
           icon={CircleCheck}
           title={attempt.autoSubmitted ? 'Time is up' : 'Test submitted'}
           description="Your answers have been submitted."
-          action={<HomeLink />}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link href={`/attempts/${attempt.id}/result`} className={buttonVariants({className: 'h-11'})}>
+                See your result
+              </Link>
+              <HomeLink />
+            </div>
+          }
         />
       </Centered>
     );
@@ -224,7 +231,7 @@ function Centered({children}: {children: React.ReactNode}) {
 
 function HomeLink() {
   return (
-    <Link href={HOME_PATH} className={buttonVariants({className: 'h-11'})}>
+    <Link href={HOME_PATH} className={buttonVariants({variant: 'outline', className: 'h-11'})}>
       Back to home
     </Link>
   );

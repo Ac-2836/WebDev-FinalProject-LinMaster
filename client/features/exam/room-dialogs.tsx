@@ -14,8 +14,8 @@ const overlay = 'fixed inset-0 z-40 bg-foreground/40';
 const panel =
   'fixed top-1/2 left-1/2 z-50 flex max-h-[85dvh] w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl bg-white p-6 shadow-2xl';
 
-/** The dialogs open from header buttons, not a Radix Trigger, so focus goes back to whatever opened them. */
-function useReturnFocus() {
+/** Dialogs opened without a Radix Trigger (from state): on close, focus goes back to whatever opened them. */
+export function useReturnFocus() {
   const opener = useRef<HTMLElement | null>(null);
   return {
     onOpenAutoFocus: () => {
