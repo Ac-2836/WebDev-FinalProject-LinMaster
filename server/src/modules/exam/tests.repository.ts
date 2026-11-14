@@ -64,7 +64,7 @@ export interface TestRepository {
   deleteTest(ownerId: string, testId: string): Promise<'deleted' | 'missing' | 'has_attempts'>;
 }
 
-const SUMMARY = {
+export const SUMMARY = {
   id: true,
   ownerId: true,
   certification: true,
@@ -129,7 +129,7 @@ type SummarySections = {
   passages: {groups: {_count: {questions: number}}[]}[];
 }[];
 
-function withSectionSizes<T extends {sections: SummarySections}>({sections, ...test}: T) {
+export function withSectionSizes<T extends {sections: SummarySections}>({sections, ...test}: T) {
   return {
     ...test,
     sections: sections.map(({skill, durationSec, passages}) => ({

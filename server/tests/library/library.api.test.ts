@@ -1,0 +1,141 @@
+import {
+  LibraryListResponseSchema,
+  LibrarySetPreviewResponseSchema,
+  LibraryTestPreviewResponseSchema,
+} from '@linmaster/shared';
+import express from 'express';
+import request from 'supertest';
+import {afterAll, beforeAll, describe, expect, it} from 'vitest';
+
+import {seedSampleTests} from '../../prisma/seed-tests';
+import {getDb} from '../../src/core/db';
+import {errorMiddleware} from '../../src/core/error.middleware';
+import {signJwt} from '../../src/core/jwt';
+import {createLibraryModule} from '../../src/modules/library';
+
+const JWT_SECRET = 'library-test-secret-that-is-at-least-32-characters';
+const run = `${Date.now()}`;
+const emails = ['owner', 'a', 'b', 'c'].map(name => `library-${name}-${run}@linmaster.test`);
+
+// Real database and the real public APIs of flashcard and exam.
+describe('library API', () => {
+  const db = getDb();
+  const app = express();
+  app.use(express.json());
+  app.use(createLibraryModule(JWT_SECRET).router);
+  app.use(errorMiddleware);
+  let owner: string;
+  let others: string[];
+  let setId: string;
+  let readingId: string;
+  let listeningId: string;
+
+  const as = (userId: string) => {
+    const token = `Bearer ${signJwt(userId, JWT_SECRET)}`;
+    return {
+      get: (path: string) => request(app).get(path).set('Authorization', token),
+      post: (path: string, body?: object) => request(app).post(path).set('Authorization', token).send(body),
+    };
+  };
+  const browse = async (query: string) =>
+    LibraryListResponseSchema.parse((await as(others[0]).get(`/library?${query}`).expect(200)).body);
+
+  beforeAll(async () => {
+    const users = await Promise.all(
+      emails.map(email => db.user.create({data: {email, passwordHash: 'x', displayName: 'Library'}})),
+    );
+    [owner, ...others] = users.map(user => user.id);
+    const set = await db.flashcardSet.create({
+      data: {
+        ownerId: owner,
+        title: `Environment ${run}`,
+        cards: {createMany: {data: [0, 1].map(position => ({position, term: `term ${position}`, definition: '-'}))}},
+      },
+    });
+    setId = set.id;
+    await seedSampleTests(db, owner);
+    readingId = (await db.test.findFirstOrThrow({where: {ownerId: owner, kind: 'reading'}})).id;
+    listeningId = (await db.test.findFirstOrThrow({where: {ownerId: owner, kind: 'listening'}})).id;
+    await db.test.updateMany({where: {ownerId: owner}, data: {title: `Sample ${run}`, source: null}});
+  });
+
+  afterAll(async () => {
+    await db.report.deleteMany({where: {reporter: {email: {in: emails}}}});
+    await db.user.deleteMany({where: {email: {in: emails}}});
+    await db.$disconnect();
+  });
+
+  it('never shows private content, in the list or by URL', async () => {
+    expect((await browse(`q=${run}`)).items).toEqual([]);
+    expect((await browse(`type=test&q=${run}`)).items).toEqual([]);
+    await as(others[0]).get(`/library/sets/${setId}`).expect(404);
+    await as(owner).get(`/library/tests/${readingId}`).expect(404);
+  });
+
+  it('lets only the owner publish, and a test needs a source', async () => {
+    await as(others[0]).post(`/library/sets/${setId}/publish`).expect(404);
+    await as(others[0]).post(`/library/tests/${readingId}/publish`).expect(404);
+    const noSource = await as(owner).post(`/library/tests/${readingId}/publish`).expect(409);
+    expect(noSource.body.error.status).toBe('TEST_SOURCE_REQUIRED');
+
+    const published = await as(owner).post(`/library/sets/${setId}/publish`).expect(200);
+    expect(published.body).toMatchObject({visibility: 'public'});
+    const again = await as(owner).post(`/library/sets/${setId}/publish`).expect(200);
+    expect(again.body.publishedAt).toBe(published.body.publishedAt);
+
+    await db.test.updateMany({where: {ownerId: owner}, data: {source: 'Cambridge IELTS 18'}});
+    for (const id of [readingId, listeningId]) await as(owner).post(`/library/tests/${id}/publish`).expect(200);
+  });
+
+  it('lists public content with search, skill filter and sort', async () => {
+    const sets = await browse(`q=${run}`);
+    expect(sets.items).toMatchObject([{type: 'set', id: setId, cardCount: 2, author: {id: owner}}]);
+    expect(sets.pagination).toEqual({page: 1, pageSize: 20, total: 1, totalPages: 1});
+    expect((await browse(`q=environment%20${run}`)).items).toHaveLength(1);
+
+    const tests = await browse(`type=test&q=${run}&sort=popular`);
+    expect(tests.items.map(item => item.id).sort()).toEqual([readingId, listeningId].sort());
+    const listening = await browse(`type=test&q=${run}&skill=listening`);
+    expect(listening.items.map(item => item.id)).toEqual([listeningId]);
+    await as(owner).get('/library?topic=x').expect(400);
+  });
+
+  it('previews a test without its questions, answers or transcripts', async () => {
+    const response = await as(others[0]).get(`/library/tests/${readingId}`).expect(200);
+    const {test, viewer} = LibraryTestPreviewResponseSchema.parse(response.body);
+    expect(test).toMatchObject({id: readingId, source: 'Cambridge IELTS 18', skills: ['reading']});
+    expect(test.questionCount).toBeGreaterThan(0);
+    expect(test.questionKinds.length).toBeGreaterThan(0);
+    expect(viewer).toEqual({isOwner: false, reported: false});
+
+    const question = await db.question.findFirstOrThrow({where: {group: {passage: {section: {testId: readingId}}}}});
+    const body = JSON.stringify(response.body);
+    for (const key of ['sections', 'passages', 'questions', 'answer', 'paragraphs', 'explanation']) {
+      expect(body).not.toContain(`"${key}"`);
+    }
+    expect(body).not.toContain(question.prompt);
+  });
+
+  it('shows the whole set, and refuses to publish hidden content until it is unpublished', async () => {
+    const preview = LibrarySetPreviewResponseSchema.parse(
+      (await as(others[0]).get(`/library/sets/${setId}`).expect(200)).body,
+    );
+    expect(preview.set.cards.map(card => card.term)).toEqual(['term 0', 'term 1']);
+    expect(preview.viewer).toEqual({isOwner: false, reported: false, copiedSetId: null});
+
+    await db.flashcardSet.update({where: {id: setId}, data: {visibility: 'hidden'}});
+    expect((await browse(`q=${run}`)).items).toEqual([]);
+    await as(others[0]).get(`/library/sets/${setId}`).expect(404);
+    const hidden = await as(owner).post(`/library/sets/${setId}/publish`).expect(409);
+    expect(hidden.body.error.status).toBe('CONTENT_HIDDEN');
+    await as(owner).post(`/library/sets/${setId}/unpublish`).expect(200);
+    await as(owner).post(`/library/sets/${setId}/publish`).expect(200);
+    expect((await browse(`q=${run}`)).items).toHaveLength(1);
+  });
+
+  it('takes an unpublished test out of the library', async () => {
+    await as(owner).post(`/library/tests/${listeningId}/unpublish`).expect(200);
+    expect((await browse(`type=test&q=${run}`)).items.map(item => item.id)).toEqual([readingId]);
+    await as(others[0]).get(`/library/tests/${listeningId}`).expect(404);
+  });
+});
