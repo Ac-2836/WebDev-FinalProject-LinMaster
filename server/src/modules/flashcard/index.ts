@@ -33,7 +33,9 @@ export {getStudyStats, type StudyStats} from './flashcard.stats';
 export {
   copyLibrarySet,
   findLatestCopy,
+  findSetOwner,
   getLibrarySet,
+  hideLibrarySet,
   listLibrarySets,
   setLibrarySetVisibility,
 } from './flashcard.library';

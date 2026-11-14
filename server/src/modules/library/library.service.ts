@@ -1,4 +1,5 @@
 import {
+  type CreateReportRequest,
   type LibraryCopyResponse,
   type LibraryListResponse,
   type LibraryQuery,
@@ -6,6 +7,7 @@ import {
   type LibraryTestPreviewResponse,
   type LibraryType,
   type LibraryVisibilityResponse,
+  REPORTS_TO_HIDE,
 } from '@linmaster/shared';
 
 import {AppError} from '../../core/app-error';
@@ -17,9 +19,18 @@ import type {ReportRepository} from './library.repository';
 export interface LibrarySources {
   sets: Pick<
     typeof flashcard,
-    'setLibrarySetVisibility' | 'listLibrarySets' | 'getLibrarySet' | 'findLatestCopy' | 'copyLibrarySet'
+    | 'setLibrarySetVisibility'
+    | 'listLibrarySets'
+    | 'getLibrarySet'
+    | 'findLatestCopy'
+    | 'copyLibrarySet'
+    | 'findSetOwner'
+    | 'hideLibrarySet'
   >;
-  tests: Pick<typeof exam, 'setLibraryTestVisibility' | 'listLibraryTests' | 'getLibraryTest'>;
+  tests: Pick<
+    typeof exam,
+    'setLibraryTestVisibility' | 'listLibraryTests' | 'getLibraryTest' | 'findTestOwner' | 'hideLibraryTest'
+  >;
   reports: ReportRepository;
 }
 
@@ -44,6 +55,7 @@ export function createLibraryService({sets, tests, reports}: LibrarySources) {
           ? await sets.setLibrarySetVisibility(userId, id, action)
           : await tests.setLibraryTestVisibility(userId, id, action);
       if (outcome.status !== 'ok') throw VISIBILITY_ERRORS[outcome.status]();
+      if (outcome.wasHidden) await reports.resolveOpen(type, id);
       return {visibility: outcome.visibility, publishedAt: outcome.publishedAt?.toISOString() ?? null};
     },
 
@@ -78,6 +90,18 @@ export function createLibraryService({sets, tests, reports}: LibrarySources) {
       if (outcome.status === 'not_found') throw notFound();
       if (outcome.status !== 'ok') throw conflict('This set is already yours.', 'OWN_CONTENT');
       return {setId: outcome.setId};
+    },
+
+    /** Reports public content of someone else; the third open report hides it (C5). */
+    async report(userId: string, {targetType, targetId, reason, detail}: CreateReportRequest): Promise<void> {
+      const target = targetType === 'set' ? await sets.findSetOwner(targetId) : await tests.findTestOwner(targetId);
+      if (!target || target.visibility !== 'public') throw notFound();
+      if (target.ownerId === userId) throw conflict('You cannot report your own content.', 'OWN_CONTENT');
+      const saved = await reports.create({reporterId: userId, targetType, targetId, reason, detail: detail ?? null});
+      if (saved.status === 'duplicate') throw conflict('You already reported this content.', 'ALREADY_REPORTED');
+      if (saved.openReports < REPORTS_TO_HIDE) return;
+      if (targetType === 'set') await sets.hideLibrarySet(targetId);
+      else await tests.hideLibraryTest(targetId);
     },
   };
 }

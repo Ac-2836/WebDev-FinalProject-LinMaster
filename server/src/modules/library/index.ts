@@ -1,19 +1,35 @@
 import type {ApiModule} from '../../core/module-registry';
-import {getLibraryTest, listLibraryTests, setLibraryTestVisibility} from '../exam';
-import {copyLibrarySet, findLatestCopy, getLibrarySet, listLibrarySets, setLibrarySetVisibility} from '../flashcard';
+import {findTestOwner, getLibraryTest, hideLibraryTest, listLibraryTests, setLibraryTestVisibility} from '../exam';
+import {
+  copyLibrarySet,
+  findLatestCopy,
+  findSetOwner,
+  getLibrarySet,
+  hideLibrarySet,
+  listLibrarySets,
+  setLibrarySetVisibility,
+} from '../flashcard';
 import {prismaReportRepository} from './library.repository';
 import {createLibraryRouter} from './library.routes';
 import {createLibraryService, type LibrarySources} from './library.service';
 import './library.openapi';
 
 const sources: LibrarySources = {
-  sets: {setLibrarySetVisibility, listLibrarySets, getLibrarySet, findLatestCopy, copyLibrarySet},
-  tests: {setLibraryTestVisibility, listLibraryTests, getLibraryTest},
+  sets: {
+    setLibrarySetVisibility,
+    listLibrarySets,
+    getLibrarySet,
+    findLatestCopy,
+    copyLibrarySet,
+    findSetOwner,
+    hideLibrarySet,
+  },
+  tests: {setLibraryTestVisibility, listLibraryTests, getLibraryTest, findTestOwner, hideLibraryTest},
   reports: prismaReportRepository,
 };
 
 /**
- * Library module (PLAN C5): publish, browse, preview and copy; reports follow. It owns only `Report`; visibility and
+ * Library module (PLAN C5): publish, browse, preview, copy and report. It owns only `Report`; visibility and
  * counters change through the public API of flashcard and exam. Public tests are taken with `POST /attempts`.
  */
 export function createLibraryModule(jwtSecret: string, deps: LibrarySources = sources): ApiModule {

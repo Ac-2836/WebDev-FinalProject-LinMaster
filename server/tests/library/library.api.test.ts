@@ -40,6 +40,9 @@ describe('library API', () => {
   const browse = async (query: string) =>
     LibraryListResponseSchema.parse((await as(others[0]).get(`/library?${query}`).expect(200)).body);
 
+  const report = (userId: string, targetType: 'set' | 'test', targetId: string) =>
+    as(userId).post('/library/reports', {targetType, targetId, reason: 'wrong_content'});
+
   beforeAll(async () => {
     const users = await Promise.all(
       emails.map(email => db.user.create({data: {email, passwordHash: 'x', displayName: 'Library'}})),
@@ -71,6 +74,7 @@ describe('library API', () => {
     await as(others[0]).get(`/library/sets/${setId}`).expect(404);
     await as(owner).get(`/library/tests/${readingId}`).expect(404);
     await as(others[0]).post(`/library/sets/${setId}/copy`).expect(404);
+    await report(others[0], 'set', setId).expect(404);
   });
 
   it('lets only the owner publish, and a test needs a source', async () => {
@@ -151,6 +155,33 @@ describe('library API', () => {
 
     const own = await as(owner).post(`/library/sets/${setId}/copy`).expect(409);
     expect(own.body.error.status).toBe('OWN_CONTENT');
+  });
+
+  it('hides content after three reports until the owner unpublishes it', async () => {
+    expect((await report(owner, 'set', setId).expect(409)).body.error.status).toBe('OWN_CONTENT');
+    await report(others[0], 'set', setId).expect(201, {reported: true});
+    expect((await report(others[0], 'set', setId).expect(409)).body.error.status).toBe('ALREADY_REPORTED');
+    await report(others[1], 'set', setId).expect(201);
+    expect((await browse(`q=${run}`)).items).toHaveLength(1);
+    const viewer = (await as(others[0]).get(`/library/sets/${setId}`).expect(200)).body.viewer;
+    expect(viewer).toMatchObject({reported: true});
+    await report(others[2], 'set', setId).expect(201);
+
+    expect((await browse(`q=${run}`)).items).toEqual([]);
+    await as(others[0]).get(`/library/sets/${setId}`).expect(404);
+    await report(others[0], 'set', setId).expect(404);
+    const hidden = await as(owner).post(`/library/sets/${setId}/publish`).expect(409);
+    expect(hidden.body.error.status).toBe('CONTENT_HIDDEN');
+
+    await as(owner).post(`/library/sets/${setId}/unpublish`).expect(200);
+    expect(await db.report.count({where: {targetId: setId, status: 'open'}})).toBe(0);
+    await as(owner).post(`/library/sets/${setId}/publish`).expect(200);
+    expect((await browse(`q=${run}`)).items).toHaveLength(1);
+  });
+
+  it('counts reports of tests the same way', async () => {
+    await report(others[0], 'test', readingId).expect(201);
+    expect((await as(others[0]).get(`/library/tests/${readingId}`).expect(200)).body.viewer.reported).toBe(true);
   });
 
   it('takes an unpublished test out of the library', async () => {
