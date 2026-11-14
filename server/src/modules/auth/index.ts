@@ -13,3 +13,8 @@ export function createAuthModule(jwtSecret: string, repository: AuthRepository =
 export {createAuthService, DUMMY_PASSWORD_HASH} from './auth.service';
 export type {AuthCrypto} from './auth.service';
 export type {AuthRepository, AuthUser} from './auth.repository';
+
+/** Public API for the stats module: the band the user aims for, or null. */
+export async function getTargetBand(userId: string): Promise<number | null> {
+  return (await prismaAuthRepository.findById(userId))?.targetBand ?? null;
+}

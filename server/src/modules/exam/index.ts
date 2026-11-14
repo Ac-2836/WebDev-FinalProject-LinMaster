@@ -73,3 +73,4 @@ export type {AttemptRepository, AttemptRow, NewAttempt} from './attempts.reposit
 export type {PageLabeler} from './imports.service';
 export type {TestContentRow, TestRepository, TestRow} from './tests.repository';
 export {getPassageText, type PassageText} from './passage-text';
+export {getExamStats, type ExamStats} from './exam.stats';

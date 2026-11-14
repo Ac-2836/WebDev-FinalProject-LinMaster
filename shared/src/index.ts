@@ -5,3 +5,4 @@ export * from './auth/auth';
 export * from './vocab';
 export * from './flashcard';
 export * from './exam';
+export * from './stats';
