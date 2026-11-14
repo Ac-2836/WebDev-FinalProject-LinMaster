@@ -175,9 +175,67 @@
     },
     "home": {
       "title": "Home",
-      "emptyTitle": "Nothing here yet",
-      "emptyBody": "Home widgets (unfinished test, cards due, recent documents) will appear here.",
-      "emptyAction": "Open the reader"
+      "greeting": {
+        "morning": "Good morning, {name}",
+        "afternoon": "Good afternoon, {name}",
+        "evening": "Good evening, {name}"
+      },
+      "today": "Today you have <b>{cards, plural, =0 {no cards} one {# card} other {# cards}}</b> to review{running, select, yes { and a test in progress} other {}}.",
+      "startHint": "Start with one of the three steps below.",
+      "review": "Review {count, plural, one {# card} other {# cards}}",
+      "readNew": "Read a new text",
+      "loading": "Loading your home page",
+      "loadError": "Could not load your home page",
+      "retry": "Try again",
+      "onboarding": {
+        "label": "Get started",
+        "read": {
+          "title": "Read an English text",
+          "body": "Paste an article and select the words you do not know; AI explains them in their sentence."
+        },
+        "upload": {
+          "title": "Upload a test",
+          "body": "Drop the test, answer key and audio; AI reads them and makes an exam room for you."
+        },
+        "library": {
+          "title": "Take a ready-made card set",
+          "body": "Copy a community card set and start studying."
+        }
+      },
+      "continue": {
+        "eyebrow": "In progress",
+        "left": "{minutes} min left · the clock keeps running",
+        "timeUsed": "Time used",
+        "action": "Continue the test"
+      },
+      "streak": {
+        "title": "Study streak",
+        "days": "{count, plural, one {day} other {days}}",
+        "week": "Last 7 days: studied on {count}",
+        "active": "studied",
+        "idle": "no study",
+        "longest": "Longest: {count, plural, one {# day} other {# days}}"
+      },
+      "due": {
+        "title": "Cards due today",
+        "all": "All card sets",
+        "none": "Nothing due today. Well done.",
+        "count": "{count, plural, one {# card due} other {# cards due}}",
+        "study": "Review",
+        "studySet": "Review {title}"
+      },
+      "shortcuts": {
+        "title": "Shortcuts",
+        "read": "Read a new text",
+        "upload": "Upload a test",
+        "library": "Go to the library"
+      },
+      "recent": {
+        "title": "Recent reading",
+        "all": "See all",
+        "none": "No texts yet.",
+        "words": "{count} words"
+      }
     },
     "errors": {
       "INVALID_ARGUMENT": "Some details are not valid. Check them and try again.",
