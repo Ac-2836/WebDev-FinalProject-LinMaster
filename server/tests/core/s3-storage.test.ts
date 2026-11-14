@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {createR2Storage} from '../../src/core/storage';
+import {createS3Storage} from '../../src/core/storage';
 
 const pdf = Buffer.from('%PDF-1.4 sample');
 
@@ -28,18 +28,27 @@ function fakeS3() {
   return {objects, requests, fetch};
 }
 
-const options = {accountId: 'acc', accessKeyId: 'id', secretAccessKey: 'secret', bucket: 'linmaster'};
+// Backblaze B2 style: custom endpoint (trailing slash on purpose) and a real region instead of R2's auto.
+const options = {
+  endpoint: 'https://s3.us-west-004.backblazeb2.com/',
+  region: 'us-west-004',
+  accessKeyId: 'id',
+  secretAccessKey: 'secret',
+  bucket: 'linmaster',
+};
 
-describe('createR2Storage', () => {
+describe('createS3Storage', () => {
   it('stores, reads, reads a byte range and deletes a file through the signed S3 API', async () => {
     const s3 = fakeS3();
-    const storage = createR2Storage({...options, fetch: s3.fetch, cacheBytes: 0});
+    const storage = createS3Storage({...options, fetch: s3.fetch, cacheBytes: 0});
 
     const stored = await storage.put({mimeType: 'application/pdf', originalName: 'test.pdf', data: pdf});
     expect(stored).toMatchObject({mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: pdf.length});
     const put = s3.requests[0];
-    expect(put.url).toBe(`https://acc.r2.cloudflarestorage.com/linmaster/${stored.key}`);
-    expect(put.headers.get('authorization')).toMatch(/^AWS4-HMAC-SHA256 Credential=id\//);
+    expect(put.url).toBe(`https://s3.us-west-004.backblazeb2.com/linmaster/${stored.key}`);
+    expect(put.headers.get('authorization')).toMatch(
+      /^AWS4-HMAC-SHA256 Credential=id\/\d{8}\/us-west-004\/s3\/aws4_request,/,
+    );
     expect(put.headers.get('content-type')).toBe('application/pdf');
 
     expect(await storage.get(stored.key)).toEqual(pdf);
@@ -53,7 +62,7 @@ describe('createR2Storage', () => {
 
   it('keeps read files in memory, and forgets deleted ones', async () => {
     const s3 = fakeS3();
-    const storage = createR2Storage({...options, fetch: s3.fetch});
+    const storage = createS3Storage({...options, fetch: s3.fetch});
     const {key} = await storage.put({mimeType: 'application/pdf', originalName: 'a.pdf', data: pdf});
 
     await storage.get(key);
@@ -67,7 +76,7 @@ describe('createR2Storage', () => {
 
   it('validates like the local driver and rejects bad keys without calling R2', async () => {
     const s3 = fakeS3();
-    const storage = createR2Storage({...options, fetch: s3.fetch});
+    const storage = createS3Storage({...options, fetch: s3.fetch});
     await expect(
       storage.put({mimeType: 'application/pdf', originalName: 'x.pdf', data: Buffer.from('not a pdf')}),
     ).rejects.toMatchObject({statusCode: 415});
@@ -76,7 +85,7 @@ describe('createR2Storage', () => {
   });
 
   it('throws on an R2 error instead of reporting a missing file', async () => {
-    const storage = createR2Storage({...options, fetch: async () => new Response('denied', {status: 403})});
+    const storage = createS3Storage({...options, fetch: async () => new Response('denied', {status: 403})});
     await expect(storage.get('123e4567-e89b-42d3-a456-426614174000')).rejects.toThrow(/HTTP 403/);
   });
 });

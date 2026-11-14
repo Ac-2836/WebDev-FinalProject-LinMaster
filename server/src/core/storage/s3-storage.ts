@@ -6,8 +6,11 @@ import {AppError} from '../app-error';
 import {validateInput} from './local-storage';
 import type {Storage} from './storage';
 
-export interface R2StorageOptions {
-  accountId: string;
+export interface S3StorageOptions {
+  /** Service URL without the bucket, e.g. https://s3.us-west-004.backblazeb2.com or https://<account>.r2.cloudflarestorage.com. */
+  endpoint: string;
+  /** Signing region: the provider region (Backblaze `us-west-004`), `auto` for R2. */
+  region: string;
   accessKeyId: string;
   secretAccessKey: string;
   bucket: string;
@@ -17,7 +20,7 @@ export interface R2StorageOptions {
   cacheBytes?: number;
 }
 
-export interface R2Storage extends Storage {
+export interface S3Storage extends Storage {
   /** Bytes `start..end` (inclusive) of a file, read with an HTTP Range request; null when the file is missing. */
   getRange(key: string, start: number, end: number): Promise<Buffer | null>;
 }
@@ -25,19 +28,21 @@ export interface R2Storage extends Storage {
 const KEY_PATTERN = /^[0-9a-f-]{36}$/i;
 
 /**
- * Cloudflare R2 driver (S3 API, signed with aws4fetch). Same keys and validation as the local driver.
+ * Driver for any S3-compatible service (Backblaze B2, Cloudflare R2...), path-style URLs signed with aws4fetch.
+ * Same keys and validation as the local driver.
  * Keys are random UUIDs and files are never overwritten, so a read file can be cached safely.
  */
-export function createR2Storage({
-  accountId,
+export function createS3Storage({
+  endpoint,
+  region,
   accessKeyId,
   secretAccessKey,
   bucket,
   fetch: send = request => fetch(request),
   cacheBytes = 64 * 1024 * 1024,
-}: R2StorageOptions): R2Storage {
-  const client = new AwsClient({accessKeyId, secretAccessKey, service: 's3', region: 'auto'});
-  const bucketUrl = `https://${accountId}.r2.cloudflarestorage.com/${encodeURIComponent(bucket)}`;
+}: S3StorageOptions): S3Storage {
+  const client = new AwsClient({accessKeyId, secretAccessKey, service: 's3', region});
+  const bucketUrl = `${endpoint.replace(/\/+$/, '')}/${encodeURIComponent(bucket)}`;
   // shortcut: Storage.get returns the whole file and the audio endpoint calls it on every Range request, so recent
   // files stay in memory; add getRange to the Storage interface if many large files are played at once.
   const cache = new Map<string, Buffer>();
@@ -64,7 +69,7 @@ export function createR2Storage({
     if (!KEY_PATTERN.test(key)) throw new AppError('Invalid storage key.', 400);
     const response = await send(await client.sign(`${bucketUrl}/${key}`, init));
     if (!response.ok && response.status !== 404) {
-      throw new Error(`R2 ${init.method ?? 'GET'} failed with HTTP ${response.status}.`);
+      throw new Error(`S3 ${init.method ?? 'GET'} failed with HTTP ${response.status}.`);
     }
     return response;
   }

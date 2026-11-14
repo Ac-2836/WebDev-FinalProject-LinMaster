@@ -15,17 +15,22 @@ describe('parseEnv', () => {
       JWT_SECRET,
       CORS_ORIGINS: ['http://localhost:3000'],
       STORAGE_DRIVER: 'local',
+      S3_REGION: 'auto',
     });
   });
 
-  it('requires every R2 variable only when STORAGE_DRIVER is r2', () => {
-    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: '', R2_BUCKET: ''})).not.toThrow();
-    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'r2', R2_BUCKET: 'files'})).toThrow(
-      /R2_ACCOUNT_ID[\s\S]*R2_ACCESS_KEY_ID[\s\S]*R2_SECRET_ACCESS_KEY/,
+  it('requires the S3 variables only when STORAGE_DRIVER is s3 or r2', () => {
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: '', S3_BUCKET: ''})).not.toThrow();
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 's3', S3_BUCKET: 'files'})).toThrow(
+      /S3_ACCESS_KEY_ID[\s\S]*S3_SECRET_ACCESS_KEY[\s\S]*S3_ENDPOINT/,
     );
-    const r2 = {R2_ACCOUNT_ID: 'a', R2_ACCESS_KEY_ID: 'b', R2_SECRET_ACCESS_KEY: 'c', R2_BUCKET: 'd'};
-    expect(parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'r2', ...r2})).toMatchObject(r2);
-    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 's3'})).toThrow(/STORAGE_DRIVER/);
+    const keys = {S3_ACCESS_KEY_ID: 'b', S3_SECRET_ACCESS_KEY: 'c', S3_BUCKET: 'd'};
+    const b2 = {...keys, S3_ENDPOINT: 'https://s3.us-west-004.backblazeb2.com', S3_REGION: 'us-west-004'};
+    expect(parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 's3', ...b2})).toMatchObject(b2);
+    // R2 by account id: no endpoint needed, the region defaults to auto.
+    const r2 = parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'r2', R2_ACCOUNT_ID: 'a', ...keys});
+    expect(r2.S3_REGION).toBe('auto');
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'gcs'})).toThrow(/STORAGE_DRIVER/);
   });
 
   it('treats empty Gemini variables as unset', () => {

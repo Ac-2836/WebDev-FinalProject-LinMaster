@@ -8,19 +8,28 @@ const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
 
 const optionalText = z.preprocess(emptyToUndefined, z.string().optional());
 
-/** File storage: local disk by default, Cloudflare R2 (STORAGE_DRIVER=r2) needs all four R2 variables. */
+/**
+ * File storage: local disk by default, or any S3-compatible service (STORAGE_DRIVER=s3; r2 is the same driver).
+ * S3_ENDPOINT may be left empty for Cloudflare R2 when R2_ACCOUNT_ID is set.
+ */
 export const storageEnvSchema = z
   .object({
-    STORAGE_DRIVER: z.preprocess(emptyToUndefined, z.enum(['local', 'r2']).default('local')),
+    STORAGE_DRIVER: z.preprocess(emptyToUndefined, z.enum(['local', 's3', 'r2']).default('local')),
+    S3_ENDPOINT: z.preprocess(emptyToUndefined, z.url({protocol: /^https?$/}).optional()),
+    S3_REGION: z.preprocess(emptyToUndefined, z.string().default('auto')),
+    S3_ACCESS_KEY_ID: optionalText,
+    S3_SECRET_ACCESS_KEY: optionalText,
+    S3_BUCKET: optionalText,
     R2_ACCOUNT_ID: optionalText,
-    R2_ACCESS_KEY_ID: optionalText,
-    R2_SECRET_ACCESS_KEY: optionalText,
-    R2_BUCKET: optionalText,
   })
   .superRefine((env, ctx) => {
-    if (env.STORAGE_DRIVER !== 'r2') return;
-    for (const key of ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET'] as const) {
-      if (!env[key]) ctx.addIssue({code: 'custom', path: [key], message: 'Required when STORAGE_DRIVER=r2'});
+    if (env.STORAGE_DRIVER === 'local') return;
+    const required = ['S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET'] as const;
+    for (const key of required) {
+      if (!env[key]) ctx.addIssue({code: 'custom', path: [key], message: 'Required when STORAGE_DRIVER is s3 or r2'});
+    }
+    if (!env.S3_ENDPOINT && !env.R2_ACCOUNT_ID) {
+      ctx.addIssue({code: 'custom', path: ['S3_ENDPOINT'], message: 'Required unless R2_ACCOUNT_ID is set'});
     }
   });
 
