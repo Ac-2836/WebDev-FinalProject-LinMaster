@@ -29,3 +29,4 @@ export {createFlashcardService} from './flashcard.service';
 export {createStudyService} from './study.service';
 export type {FlashcardRepository} from './flashcard.repository';
 export type {StudyRepository} from './study.repository';
+export {getStudyStats, type StudyStats} from './flashcard.stats';

@@ -34,3 +34,4 @@ export {createVocabService} from './vocab.service';
 export {createVocabDocumentService} from './documents.service';
 export type {VocabRepository} from './vocab.repository';
 export type {VocabDocumentRepository} from './documents.repository';
+export {getVocabStats, type VocabStats} from './vocab.stats';
