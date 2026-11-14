@@ -175,9 +175,67 @@
     },
     "home": {
       "title": "Trang chủ",
-      "emptyTitle": "Chưa có gì ở đây",
-      "emptyBody": "Các widget của trang chủ (bài thi dở, thẻ đến hạn, tài liệu gần đây) sẽ hiện ở đây.",
-      "emptyAction": "Mở trình đọc"
+      "greeting": {
+        "morning": "Chào buổi sáng, {name}",
+        "afternoon": "Chào buổi chiều, {name}",
+        "evening": "Chào buổi tối, {name}"
+      },
+      "today": "Hôm nay bạn có <b>{cards} thẻ</b> cần ôn{running, select, yes { và một bài thi đang làm dở} other {}}.",
+      "startHint": "Bắt đầu bằng một trong ba việc dưới đây.",
+      "review": "Ôn {count} thẻ",
+      "readNew": "Đọc tài liệu mới",
+      "loading": "Đang tải trang chủ",
+      "loadError": "Không tải được trang chủ",
+      "retry": "Thử lại",
+      "onboarding": {
+        "label": "Bắt đầu",
+        "read": {
+          "title": "Đọc một bài tiếng Anh",
+          "body": "Dán bài báo, bôi chọn từ lạ để AI giải thích theo câu."
+        },
+        "upload": {
+          "title": "Tải đề thi lên",
+          "body": "Thả file đề, đáp án, audio; AI tự nhận diện và tạo phòng thi cho bạn."
+        },
+        "library": {
+          "title": "Lấy bộ thẻ có sẵn",
+          "body": "Chép bộ thẻ cộng đồng về và học ngay."
+        }
+      },
+      "continue": {
+        "eyebrow": "Đang làm dở",
+        "left": "Còn {minutes} phút · đồng hồ vẫn chạy",
+        "timeUsed": "Thời gian đã dùng",
+        "action": "Tiếp tục làm bài"
+      },
+      "streak": {
+        "title": "Chuỗi ngày học",
+        "days": "ngày",
+        "week": "7 ngày gần nhất: có học {count} ngày",
+        "active": "có học",
+        "idle": "không học",
+        "longest": "Kỷ lục: {count} ngày"
+      },
+      "due": {
+        "title": "Thẻ đến hạn hôm nay",
+        "all": "Tất cả bộ thẻ",
+        "none": "Hôm nay không có thẻ đến hạn.",
+        "count": "{count} thẻ đến hạn",
+        "study": "Ôn",
+        "studySet": "Ôn bộ {title}"
+      },
+      "shortcuts": {
+        "title": "Lối tắt",
+        "read": "Đọc tài liệu mới",
+        "upload": "Tải đề lên",
+        "library": "Vào thư viện"
+      },
+      "recent": {
+        "title": "Tài liệu đọc gần đây",
+        "all": "Xem tất cả",
+        "none": "Chưa có tài liệu nào.",
+        "words": "{count} từ"
+      }
     },
     "errors": {
       "INVALID_ARGUMENT": "Dữ liệu chưa hợp lệ. Hãy kiểm tra lại rồi thử lại.",
