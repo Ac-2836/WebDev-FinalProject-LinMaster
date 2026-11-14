@@ -1,5 +1,6 @@
 import {
   ApiErrorBody,
+  LibraryCopyResponseSchema,
   LibraryIdParamsSchema,
   LibraryListResponseSchema,
   LibraryQuerySchema,
@@ -162,6 +163,25 @@ openApiRegistry.registerPath({
     },
     400: error('Invalid id.'),
     404: error('The test is missing, private or hidden.'),
+    ...common,
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/library/sets/{id}/copy',
+  summary: 'Copy a public set into my library',
+  description:
+    'Deep copy into a new private set with `copiedFromId`; the original gets `copyCount + 1`. Editing the copy never ' +
+    'changes the original. Copying again makes another copy.',
+  tags: ['Library'],
+  security,
+  request: params,
+  responses: {
+    201: {description: 'The new set.', ...json(LibraryCopyResponseSchema, {setId: ID})},
+    400: error('Invalid id.'),
+    404: error('The set is missing, private or hidden.'),
+    409: error('`OWN_CONTENT`: the set is already yours.'),
     ...common,
   },
 });

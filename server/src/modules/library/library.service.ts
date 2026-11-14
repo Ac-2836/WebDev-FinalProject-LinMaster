@@ -1,4 +1,5 @@
 import {
+  type LibraryCopyResponse,
   type LibraryListResponse,
   type LibraryQuery,
   type LibrarySetPreviewResponse,
@@ -14,7 +15,10 @@ import type {ReportRepository} from './library.repository';
 
 /** Public APIs of flashcard and exam; the library never reads their tables itself (PLAN B2). */
 export interface LibrarySources {
-  sets: Pick<typeof flashcard, 'setLibrarySetVisibility' | 'listLibrarySets' | 'getLibrarySet' | 'findLatestCopy'>;
+  sets: Pick<
+    typeof flashcard,
+    'setLibrarySetVisibility' | 'listLibrarySets' | 'getLibrarySet' | 'findLatestCopy' | 'copyLibrarySet'
+  >;
   tests: Pick<typeof exam, 'setLibraryTestVisibility' | 'listLibraryTests' | 'getLibraryTest'>;
   reports: ReportRepository;
 }
@@ -67,6 +71,13 @@ export function createLibraryService({sets, tests, reports}: LibrarySources) {
       const {ownerId, ...preview} = test;
       const reported = await reports.hasReported(userId, 'test', testId);
       return {test: preview, viewer: {isOwner: ownerId === userId, reported}};
+    },
+
+    async copySet(userId: string, setId: string): Promise<LibraryCopyResponse> {
+      const outcome = await sets.copyLibrarySet(userId, setId);
+      if (outcome.status === 'not_found') throw notFound();
+      if (outcome.status !== 'ok') throw conflict('This set is already yours.', 'OWN_CONTENT');
+      return {setId: outcome.setId};
     },
   };
 }
