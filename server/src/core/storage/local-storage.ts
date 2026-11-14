@@ -43,7 +43,8 @@ function normalizeMimeType(mimeType: string): string {
   return Object.hasOwn(MIME_ALIASES, baseMimeType) ? MIME_ALIASES[baseMimeType] : baseMimeType;
 }
 
-function validateInput(input: StorageInput): string {
+/** Checks name, type (by content) and size; returns the detected MIME type. Shared by every driver. */
+export function validateInput(input: StorageInput): string {
   if (!Buffer.isBuffer(input.data)) throw new AppError('File content must be binary data.', 400);
   if (!input.originalName.trim() || input.originalName.length > 255) {
     throw new AppError('File name must contain between 1 and 255 characters.', 400);

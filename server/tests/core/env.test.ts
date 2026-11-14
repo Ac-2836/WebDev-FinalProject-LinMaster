@@ -14,7 +14,18 @@ describe('parseEnv', () => {
       GEMINI_MODEL: 'gemini-3.1-flash-lite',
       JWT_SECRET,
       CORS_ORIGINS: ['http://localhost:3000'],
+      STORAGE_DRIVER: 'local',
     });
+  });
+
+  it('requires every R2 variable only when STORAGE_DRIVER is r2', () => {
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: '', R2_BUCKET: ''})).not.toThrow();
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'r2', R2_BUCKET: 'files'})).toThrow(
+      /R2_ACCOUNT_ID[\s\S]*R2_ACCESS_KEY_ID[\s\S]*R2_SECRET_ACCESS_KEY/,
+    );
+    const r2 = {R2_ACCOUNT_ID: 'a', R2_ACCESS_KEY_ID: 'b', R2_SECRET_ACCESS_KEY: 'c', R2_BUCKET: 'd'};
+    expect(parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 'r2', ...r2})).toMatchObject(r2);
+    expect(() => parseEnv({DATABASE_URL, JWT_SECRET, STORAGE_DRIVER: 's3'})).toThrow(/STORAGE_DRIVER/);
   });
 
   it('treats empty Gemini variables as unset', () => {

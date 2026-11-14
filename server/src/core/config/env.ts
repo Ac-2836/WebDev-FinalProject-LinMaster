@@ -6,7 +6,25 @@ const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
 // Treats `KEY=` in .env as unset so defaults apply.
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
 
-const envSchema = z.object({
+const optionalText = z.preprocess(emptyToUndefined, z.string().optional());
+
+/** File storage: local disk by default, Cloudflare R2 (STORAGE_DRIVER=r2) needs all four R2 variables. */
+export const storageEnvSchema = z
+  .object({
+    STORAGE_DRIVER: z.preprocess(emptyToUndefined, z.enum(['local', 'r2']).default('local')),
+    R2_ACCOUNT_ID: optionalText,
+    R2_ACCESS_KEY_ID: optionalText,
+    R2_SECRET_ACCESS_KEY: optionalText,
+    R2_BUCKET: optionalText,
+  })
+  .superRefine((env, ctx) => {
+    if (env.STORAGE_DRIVER !== 'r2') return;
+    for (const key of ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET'] as const) {
+      if (!env[key]) ctx.addIssue({code: 'custom', path: [key], message: 'Required when STORAGE_DRIVER=r2'});
+    }
+  });
+
+const baseEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   DATABASE_URL: z.url({protocol: /^postgres(ql)?$/}),
@@ -26,6 +44,8 @@ const envSchema = z.object({
       ),
     ]),
 });
+
+const envSchema = baseEnvSchema.and(storageEnvSchema);
 
 export type Env = z.infer<typeof envSchema>;
 
