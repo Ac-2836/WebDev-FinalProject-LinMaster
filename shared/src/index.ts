@@ -6,3 +6,4 @@ export * from './vocab';
 export * from './flashcard';
 export * from './exam';
 export * from './stats';
+export * from './library';
