@@ -6,6 +6,7 @@ import {PrismaPg} from '@prisma/adapter-pg';
 import {hash} from 'bcryptjs';
 
 import {PrismaClient} from '../src/generated/prisma/client';
+import {seedHistory} from './seed-history';
 import {seedSampleTests} from './seed-tests';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
@@ -300,7 +301,9 @@ async function seedDemo(db: PrismaClient): Promise<string> {
 async function main() {
   const db = new PrismaClient({adapter: new PrismaPg({connectionString: process.env.DATABASE_URL})});
   try {
-    await seedSampleTests(db, await seedDemo(db));
+    const demoId = await seedDemo(db);
+    await seedSampleTests(db, demoId);
+    await seedHistory(db, demoId);
   } finally {
     await db.$disconnect();
   }
