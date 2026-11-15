@@ -109,3 +109,13 @@ export async function getLibraryTest(testId: string): Promise<LibraryTestDetail 
     questionKinds: kinds.map(group => group.kind),
   };
 }
+
+/** Owner of a test, whatever its visibility; null when missing. */
+export async function findTestOwner(testId: string): Promise<{ownerId: string; visibility: TestVisibility} | null> {
+  return getDb().test.findUnique({where: {id: testId}, select: {ownerId: true, visibility: true}});
+}
+
+/** Takes a public test out of the library after enough reports (C5). */
+export async function hideLibraryTest(testId: string): Promise<void> {
+  await getDb().test.updateMany({where: {id: testId, visibility: 'public'}, data: {visibility: 'hidden'}});
+}

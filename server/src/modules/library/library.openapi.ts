@@ -1,5 +1,7 @@
 import {
   ApiErrorBody,
+  CreateReportRequestSchema,
+  CreateReportResponseSchema,
   LibraryCopyResponseSchema,
   LibraryIdParamsSchema,
   LibraryListResponseSchema,
@@ -104,7 +106,7 @@ for (const [path, name] of [
     path: `/api/v1/library/${path}/{id}/unpublish`,
     summary: `Take a ${name} out of the library`,
     description:
-      'Owner only; the content becomes private, hidden content included. ' +
+      'Owner only; the content becomes private. Unpublishing hidden content closes its open reports. ' +
       (name === 'set' ? 'Copies made by others are not touched.' : 'Submitted attempts keep their results.'),
     tags: ['Library'],
     security,
@@ -182,6 +184,25 @@ openApiRegistry.registerPath({
     400: error('Invalid id.'),
     404: error('The set is missing, private or hidden.'),
     409: error('`OWN_CONTENT`: the set is already yours.'),
+    ...common,
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/library/reports',
+  summary: 'Report public content',
+  description: 'One report per person per content. The third open report hides the content from the library.',
+  tags: ['Library'],
+  security,
+  request: {
+    body: json(CreateReportRequestSchema, {targetType: 'test', targetId: ID, reason: 'copyright', detail: null}),
+  },
+  responses: {
+    201: {description: 'Report saved.', ...json(CreateReportResponseSchema, {reported: true})},
+    400: error('Invalid body.'),
+    404: error('The content is missing, private or hidden.'),
+    409: error('`OWN_CONTENT`: your own content. `ALREADY_REPORTED`: you reported it before.'),
     ...common,
   },
 });

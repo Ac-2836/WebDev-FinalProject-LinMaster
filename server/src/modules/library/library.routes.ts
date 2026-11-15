@@ -1,4 +1,11 @@
-import {LibraryIdParamsSchema, type LibraryQuery, LibraryQuerySchema, type LibraryType} from '@linmaster/shared';
+import {
+  type CreateReportRequest,
+  CreateReportRequestSchema,
+  LibraryIdParamsSchema,
+  type LibraryQuery,
+  LibraryQuerySchema,
+  type LibraryType,
+} from '@linmaster/shared';
 import {Router} from 'express';
 import {z} from 'zod';
 
@@ -9,6 +16,7 @@ import type {LibraryService} from './library.service';
 
 const browseRequest = z.object({query: LibraryQuerySchema});
 const idRequest = z.object({params: LibraryIdParamsSchema});
+const reportRequest = z.object({body: CreateReportRequestSchema});
 const PATHS: Record<LibraryType, string> = {set: 'sets', test: 'tests'};
 
 const idOf = (params: unknown) => (params as z.infer<typeof LibraryIdParamsSchema>).id;
@@ -53,6 +61,15 @@ export function createLibraryRouter(service: LibraryService, jwtSecret: string):
     auth,
     validate(idRequest),
     catchAsync(async (req, res) => res.status(201).json(await service.copySet(req.user!.userId, idOf(req.params)))),
+  );
+  router.post(
+    '/library/reports',
+    auth,
+    validate(reportRequest),
+    catchAsync(async (req, res) => {
+      await service.report(req.user!.userId, req.body as CreateReportRequest);
+      res.status(201).json({reported: true});
+    }),
   );
   return router;
 }

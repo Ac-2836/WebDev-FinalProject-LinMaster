@@ -156,3 +156,13 @@ export async function copyLibrarySet(userId: string, setId: string): Promise<Cop
     return {status: 'ok', setId: copy.id};
   });
 }
+
+/** Owner of a set, whatever its visibility; null when missing. */
+export async function findSetOwner(setId: string): Promise<{ownerId: string; visibility: TestVisibility} | null> {
+  return getDb().flashcardSet.findUnique({where: {id: setId}, select: {ownerId: true, visibility: true}});
+}
+
+/** Takes a public set out of the library after enough reports (C5). */
+export async function hideLibrarySet(setId: string): Promise<void> {
+  await getDb().flashcardSet.updateMany({where: {id: setId, visibility: 'public'}, data: {visibility: 'hidden'}});
+}
