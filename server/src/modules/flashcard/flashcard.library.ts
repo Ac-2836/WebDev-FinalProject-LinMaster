@@ -18,6 +18,7 @@ export interface LibraryPage {
 }
 
 export type LibrarySetDetail = LibrarySetItem & {ownerId: string; cards: LibraryCard[]};
+export type CopyOutcome = {status: 'ok'; setId: string} | {status: 'not_found' | 'own'};
 
 const ITEM = {
   id: true,
@@ -117,4 +118,41 @@ export async function findLatestCopy(userId: string, setId: string): Promise<str
     select: {id: true},
   });
   return copy?.id ?? null;
+}
+
+/**
+ * Deep copy of a public set of someone else into a new private set (seq-09). Cards lose their link to the
+ * original owner's vocabulary; the copy keeps no tie to the original except `copiedFromId`.
+ */
+export async function copyLibrarySet(userId: string, setId: string): Promise<CopyOutcome> {
+  return getDb().$transaction(async tx => {
+    const source = await tx.flashcardSet.findFirst({
+      where: {id: setId, visibility: 'public'},
+      select: {
+        ownerId: true,
+        title: true,
+        description: true,
+        termLang: true,
+        definitionLang: true,
+        cards: {orderBy: {position: 'asc'}, select: {position: true, term: true, definition: true, example: true}},
+      },
+    });
+    if (!source) return {status: 'not_found'};
+    if (source.ownerId === userId) return {status: 'own'};
+    const {title, description, termLang, definitionLang, cards} = source;
+    const copy = await tx.flashcardSet.create({
+      data: {
+        title,
+        description,
+        termLang,
+        definitionLang,
+        ownerId: userId,
+        copiedFromId: setId,
+        cards: {createMany: {data: cards}},
+      },
+      select: {id: true},
+    });
+    await tx.flashcardSet.update({where: {id: setId}, data: {copyCount: {increment: 1}}});
+    return {status: 'ok', setId: copy.id};
+  });
 }

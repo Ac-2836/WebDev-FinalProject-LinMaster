@@ -70,6 +70,7 @@ describe('library API', () => {
     expect((await browse(`type=test&q=${run}`)).items).toEqual([]);
     await as(others[0]).get(`/library/sets/${setId}`).expect(404);
     await as(owner).get(`/library/tests/${readingId}`).expect(404);
+    await as(others[0]).post(`/library/sets/${setId}/copy`).expect(404);
   });
 
   it('lets only the owner publish, and a test needs a source', async () => {
@@ -131,6 +132,25 @@ describe('library API', () => {
     await as(owner).post(`/library/sets/${setId}/unpublish`).expect(200);
     await as(owner).post(`/library/sets/${setId}/publish`).expect(200);
     expect((await browse(`q=${run}`)).items).toHaveLength(1);
+  });
+
+  it('copies a set into an independent private set', async () => {
+    const copied = await as(others[0]).post(`/library/sets/${setId}/copy`).expect(201);
+    const copy = await db.flashcardSet.findUniqueOrThrow({where: {id: copied.body.setId}, include: {cards: true}});
+    expect(copy).toMatchObject({ownerId: others[0], visibility: 'private', copiedFromId: setId});
+    expect(copy.cards.map(card => card.term).sort()).toEqual(['term 0', 'term 1']);
+
+    await db.card.updateMany({where: {setId: copy.id}, data: {term: 'changed'}});
+    await db.flashcardSet.update({where: {id: copy.id}, data: {title: 'Mine'}});
+    const preview = LibrarySetPreviewResponseSchema.parse(
+      (await as(others[0]).get(`/library/sets/${setId}`).expect(200)).body,
+    );
+    expect(preview.set).toMatchObject({title: `Environment ${run}`, copyCount: 1});
+    expect(preview.set.cards.map(card => card.term)).toEqual(['term 0', 'term 1']);
+    expect(preview.viewer).toEqual({isOwner: false, reported: false, copiedSetId: copy.id});
+
+    const own = await as(owner).post(`/library/sets/${setId}/copy`).expect(409);
+    expect(own.body.error.status).toBe('OWN_CONTENT');
   });
 
   it('takes an unpublished test out of the library', async () => {
