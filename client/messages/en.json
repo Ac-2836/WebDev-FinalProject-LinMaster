@@ -1003,6 +1003,13 @@
       "topics": {
         "title": "Most studied topics",
         "empty": "No data yet."
+      },
+      "community": {
+        "title": "Community",
+        "sets": "{copies, plural, one {card set shared · # copy} other {card sets shared · # copies}}",
+        "tests": "{attempts, plural, one {tests shared · # attempt} other {tests shared · # attempts}}",
+        "empty": "You have not shared anything yet",
+        "emptyAction": "Share a card set"
       }
     }
   },
