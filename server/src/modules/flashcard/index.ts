@@ -30,3 +30,4 @@ export {createStudyService} from './study.service';
 export type {FlashcardRepository} from './flashcard.repository';
 export type {StudyRepository} from './study.repository';
 export {getStudyStats, type StudyStats} from './flashcard.stats';
+export {findLatestCopy, getLibrarySet, listLibrarySets, setLibrarySetVisibility} from './flashcard.library';

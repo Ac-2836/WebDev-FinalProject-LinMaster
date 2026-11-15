@@ -3,6 +3,7 @@ import {healthModule} from '../core/health.route';
 import {createAuthModule} from './auth';
 import {createExamModule} from './exam';
 import {createFlashcardModule} from './flashcard';
+import {createLibraryModule} from './library';
 import {createStatsModule} from './stats';
 import {createVocabModule} from './vocab';
 
@@ -16,6 +17,7 @@ export function createApiModules(jwtSecret: string) {
   registry.register(createFlashcardModule(jwtSecret));
   registry.register(createExamModule(jwtSecret));
   registry.register(createStatsModule(jwtSecret));
+  registry.register(createLibraryModule(jwtSecret));
 
   return registry.getAll();
 }
