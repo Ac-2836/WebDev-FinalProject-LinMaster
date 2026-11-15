@@ -11,6 +11,7 @@ import type {
 import {AppError} from '../../core/app-error';
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {uploadRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import {parseDocumentUpload} from './document-upload.middleware';
 import type {createVocabDocumentService} from './documents.service';
@@ -44,6 +45,7 @@ export function createVocabRouter(
   router.post(
     '/vocab/documents',
     requireAuth(jwtSecret),
+    uploadRateLimit(),
     parseDocumentUpload,
     validate(createVocabDocumentSchema),
     catchAsync(async (req, res) => {
