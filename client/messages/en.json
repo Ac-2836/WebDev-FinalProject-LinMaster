@@ -175,9 +175,67 @@
     },
     "home": {
       "title": "Home",
-      "emptyTitle": "Nothing here yet",
-      "emptyBody": "Home widgets (unfinished test, cards due, recent documents) will appear here.",
-      "emptyAction": "Open the reader"
+      "greeting": {
+        "morning": "Good morning, {name}",
+        "afternoon": "Good afternoon, {name}",
+        "evening": "Good evening, {name}"
+      },
+      "today": "Today you have <b>{cards, plural, =0 {no cards} one {# card} other {# cards}}</b> to review{running, select, yes { and a test in progress} other {}}.",
+      "startHint": "Start with one of the three steps below.",
+      "review": "Review {count, plural, one {# card} other {# cards}}",
+      "readNew": "Read a new text",
+      "loading": "Loading your home page",
+      "loadError": "Could not load your home page",
+      "retry": "Try again",
+      "onboarding": {
+        "label": "Get started",
+        "read": {
+          "title": "Read an English text",
+          "body": "Paste an article and select the words you do not know; AI explains them in their sentence."
+        },
+        "upload": {
+          "title": "Upload a test",
+          "body": "Drop the test, answer key and audio; AI reads them and makes an exam room for you."
+        },
+        "library": {
+          "title": "Take a ready-made card set",
+          "body": "Copy a community card set and start studying."
+        }
+      },
+      "continue": {
+        "eyebrow": "In progress",
+        "left": "{minutes} min left · the clock keeps running",
+        "timeUsed": "Time used",
+        "action": "Continue the test"
+      },
+      "streak": {
+        "title": "Study streak",
+        "days": "{count, plural, one {day} other {days}}",
+        "week": "Last 7 days: studied on {count}",
+        "active": "studied",
+        "idle": "no study",
+        "longest": "Longest: {count, plural, one {# day} other {# days}}"
+      },
+      "due": {
+        "title": "Cards due today",
+        "all": "All card sets",
+        "none": "Nothing due today. Well done.",
+        "count": "{count, plural, one {# card due} other {# cards due}}",
+        "study": "Review",
+        "studySet": "Review {title}"
+      },
+      "shortcuts": {
+        "title": "Shortcuts",
+        "read": "Read a new text",
+        "upload": "Upload a test",
+        "library": "Go to the library"
+      },
+      "recent": {
+        "title": "Recent reading",
+        "all": "See all",
+        "none": "No texts yet.",
+        "words": "{count} words"
+      }
     },
     "errors": {
       "INVALID_ARGUMENT": "Some details are not valid. Check them and try again.",
@@ -853,6 +911,98 @@
         "completion": "Completion",
         "short_answer": "Short answer",
         "diagram_label": "Diagram labelling"
+      }
+    }
+  },
+  "stats": {
+    "dashboard": {
+      "eyebrow": "Dashboard",
+      "since": "Learning since {date}",
+      "target": "target band {band}",
+      "loading": "Loading",
+      "loadError": "Could not load this part",
+      "retry": "Try again",
+      "showTable": "Show the numbers",
+      "activity": {
+        "heading": "Activity",
+        "title": "{count, plural, one {# activity} other {# activities}} in the past year",
+        "streak": "Current streak <b>{current, plural, one {# day} other {# days}}</b> · longest <b>{longest, plural, one {# day} other {# days}}</b>",
+        "label": "Activity calendar of the past 52 weeks. Busiest day: {date} with {count} activities",
+        "tableCaption": "Activity per day, newest first",
+        "date": "Day",
+        "lookups": "Lookups",
+        "saved": "Words saved",
+        "reviews": "Card reviews",
+        "attempts": "Tests",
+        "less": "Less",
+        "more": "More",
+        "empty": "No activity yet",
+        "emptyAction": "Read your first text"
+      },
+      "overview": {
+        "title": "Numbers",
+        "tests": "Tests taken",
+        "reading": "Reading band",
+        "listening": "Listening band",
+        "best": "best {band}",
+        "words": "Words saved",
+        "mastered": "{count} mastered",
+        "cards": "Cards reviewed",
+        "time": "Study time",
+        "hours": "{count, plural, one {# hour} other {# hours}}",
+        "minutes": "{count} min",
+        "empty": "No numbers yet",
+        "emptyAction": "Read your first text"
+      },
+      "bands": {
+        "title": "Band trend",
+        "reading": "Reading",
+        "listening": "Listening",
+        "target": "Target",
+        "label": "Band over {count, plural, one {# test} other {# tests}}",
+        "change": "{skill} from {first} to {last}",
+        "targetLabel": "target {band}",
+        "tableCaption": "Band of each submitted test",
+        "date": "Date",
+        "test": "Test",
+        "empty": "No tests taken yet",
+        "emptyAction": "Take your first test"
+      },
+      "vocab": {
+        "title": "Vocabulary",
+        "total": "{count} words",
+        "weekly": "New words per week",
+        "weeklyLabel": "New words per week, last {count} weeks: {values}",
+        "tableCaption": "New words per week",
+        "week": "Week of",
+        "added": "New words",
+        "statesLabel": "Words: {new}% new, {learning}% learning, {mastered}% mastered",
+        "new": "New",
+        "learning": "Learning",
+        "mastered": "Mastered",
+        "empty": "No words saved yet",
+        "emptyAction": "Open the Reader"
+      },
+      "weaknesses": {
+        "title": "Weak points by question type",
+        "weakest": "<b>{kind}</b> ({skill}) is {percent}% correct.",
+        "answers": "{correct} of {answered} correct",
+        "empty": "Take at least one test to see this.",
+        "emptyAction": "Go to mock tests",
+        "tips": {
+          "single_choice": "Tip: find the part of the text the question is about before reading the options.",
+          "multi_choice": "Tip: check every option against the text; wrong options often repeat its words.",
+          "tfng": "Tip: review the wrong answers and tell FALSE (the text says the opposite) from NOT GIVEN (the text does not say).",
+          "ynng": "Tip: look for the writer's opinion, and tell NO (they disagree) from NOT GIVEN (they do not say).",
+          "matching": "Tip: read each paragraph's main idea first, then match.",
+          "completion": "Tip: check the word limit and the grammar of the gap before you write.",
+          "short_answer": "Tip: keep to the word limit and copy the words exactly from the text.",
+          "diagram_label": "Tip: follow the order of the process in the text while you label."
+        }
+      },
+      "topics": {
+        "title": "Most studied topics",
+        "empty": "No data yet."
       }
     }
   }
