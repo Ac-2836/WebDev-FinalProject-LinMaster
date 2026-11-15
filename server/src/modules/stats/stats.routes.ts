@@ -35,6 +35,11 @@ export function createStatsRouter(service: StatsService, jwtSecret: string): Rou
     catchAsync(async (req, res) => res.json(await service.vocab(req.user!.userId))),
   );
   router.get(
+    '/stats/community',
+    auth,
+    catchAsync(async (req, res) => res.json(await service.community(req.user!.userId))),
+  );
+  router.get(
     '/stats/weaknesses',
     auth,
     catchAsync(async (req, res) => res.json(await service.weaknesses(req.user!.userId))),

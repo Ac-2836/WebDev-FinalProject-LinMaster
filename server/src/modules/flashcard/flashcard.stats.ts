@@ -29,3 +29,13 @@ export async function getStudyStats(userId: string): Promise<StudyStats> {
     entryIntervals: progress.map(row => ({vocabEntryId: row.card.vocabEntryId!, intervalDays: row.intervalDays})),
   };
 }
+
+/** Public API for the stats module: the user's public sets and how many times others copied any of their sets. */
+export async function getSetCommunityStats(userId: string): Promise<{published: number; copies: number}> {
+  const db = getDb();
+  const [published, copies] = await Promise.all([
+    db.flashcardSet.count({where: {ownerId: userId, visibility: 'public'}}),
+    db.flashcardSet.aggregate({where: {ownerId: userId}, _sum: {copyCount: true}}),
+  ]);
+  return {published, copies: copies._sum.copyCount ?? 0};
+}
