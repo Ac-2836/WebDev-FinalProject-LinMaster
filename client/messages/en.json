@@ -232,7 +232,6 @@
       },
       "recent": {
         "title": "Recent reading",
-        "all": "See all",
         "none": "No texts yet.",
         "words": "{count} words"
       }

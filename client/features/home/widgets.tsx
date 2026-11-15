@@ -42,8 +42,8 @@ export interface HomeData {
 
 export type HomeWidget = {
   id: string;
-  /** Columns taken in the three-column grid on large screens. */
-  span: 1 | 2 | 3;
+  /** `main`: the wide left column. `side`: the narrow right column. Each column stacks on its own, so no gaps. */
+  place: 'main' | 'side';
   /** Renders null when it has nothing to show (no test in progress). */
   Component: ComponentType<{data: HomeData}>;
 };
@@ -201,33 +201,30 @@ function RecentWidget({data: {documents}}: {data: HomeData}) {
   const t = useTranslations('core.home.recent');
   const source = useTranslations('vocab.documents.source');
   return (
-    <section aria-labelledby="home-recent" className={cn(card, 'flex flex-col gap-4 p-5')}>
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="home-recent" className="text-xl font-bold">
-          {t('title')}
-        </h2>
-        <Link href="/read" className={linkClass}>
-          {t('all')}
-        </Link>
-      </div>
+    <section aria-labelledby="home-recent" className={cn(card, 'flex flex-col gap-2 p-5')}>
+      <h2 id="home-recent" className="text-xl font-bold">
+        {t('title')}
+      </h2>
       {documents.length === 0 ? (
         <p className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">{t('none')}</p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-3">
-          {documents.slice(0, 3).map(d => {
+        // Scrolls on its own when there are many documents; the links inside take keyboard focus.
+        <ul className="-mx-2 max-h-80 overflow-y-auto px-2">
+          {documents.map(d => {
             const Icon = SOURCE_ICON[d.source];
             return (
-              <li key={d.id} className="min-w-0">
+              <li key={d.id} className="min-w-0 border-b last:border-b-0">
                 <Link
                   href={`/read/${d.id}`}
-                  className="flex h-full items-start gap-3 rounded-xl border p-4 outline-none hover:border-primary focus-visible:ring-[3px] focus-visible:ring-ring"
+                  className="my-1 flex items-center gap-3 rounded-lg px-2 py-2 outline-none hover:bg-muted/60 focus-visible:ring-[3px] focus-visible:ring-ring"
                 >
                   <span className={cn(tile, 'size-9')}>
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
-                  <span className="min-w-0">
-                    <span className="block truncate font-semibold">{d.title}</span>
-                    <span className="text-sm text-muted-foreground">
+                  {/* One line from sm up; on a phone the details go under the title. */}
+                  <span className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
+                    <span className="block truncate font-semibold sm:flex-1">{d.title}</span>
+                    <span className="block shrink-0 text-sm text-muted-foreground">
                       {source(d.source)} · {t('words', {count: d.wordCount})}
                     </span>
                   </span>
@@ -245,11 +242,11 @@ function RecentWidget({data: {documents}}: {data: HomeData}) {
  * Home widget registry (PLAN B4, C7). A widget is added here instead of editing the page; order is display order.
  */
 export const homeWidgets: HomeWidget[] = [
-  {id: 'continue', span: 2, Component: ContinueWidget},
-  {id: 'streak', span: 1, Component: StreakWidget},
-  {id: 'due', span: 2, Component: DueWidget},
-  {id: 'shortcuts', span: 1, Component: ShortcutsWidget},
-  {id: 'recent', span: 3, Component: RecentWidget},
+  {id: 'continue', place: 'main', Component: ContinueWidget},
+  {id: 'due', place: 'main', Component: DueWidget},
+  {id: 'recent', place: 'main', Component: RecentWidget},
+  {id: 'streak', place: 'side', Component: StreakWidget},
+  {id: 'shortcuts', place: 'side', Component: ShortcutsWidget},
 ];
 
 /** First steps for a new account, shown instead of the widgets. */
