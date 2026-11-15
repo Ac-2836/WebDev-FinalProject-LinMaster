@@ -19,6 +19,7 @@ import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {type LearnQueue, rate, RATING_KEYS, startQueue} from './learn-queue';
+import {SpeakButton, speak} from './speak-button';
 import {StudyShell} from './study-shell';
 import {useStudyKeys, useStudySession} from './study-session';
 
@@ -104,7 +105,8 @@ export function LearnMode({set}: {set: FlashcardSet}) {
 
   useStudyKeys((key, e) => {
     if (!card) return;
-    if (!showAnswer && (key === ' ' || key === 'Enter')) {
+    if (key === 's' || key === 'S') speak(card.term);
+    else if (!showAnswer && (key === ' ' || key === 'Enter')) {
       e.preventDefault();
       setShowAnswer(true);
     } else if (showAnswer && RATING_KEYS[key]) {
@@ -235,7 +237,10 @@ export function LearnMode({set}: {set: FlashcardSet}) {
 
   return shell(
     <>
-      <div className="flex min-h-72 flex-1 flex-col items-center justify-center gap-4 rounded-[20px] border bg-card p-6 text-center shadow-lg sm:min-h-80 sm:p-8">
+      <div className="relative flex min-h-72 flex-1 flex-col items-center justify-center gap-4 rounded-[20px] border bg-card p-6 text-center shadow-lg sm:min-h-80 sm:p-8">
+        <div className="absolute top-3 right-3">
+          <SpeakButton text={card!.term} />
+        </div>
         <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold', STATE_STYLE[card!.state])}>
           {t(`state.${card!.state}`)}
         </span>

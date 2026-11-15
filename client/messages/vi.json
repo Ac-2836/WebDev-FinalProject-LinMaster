@@ -615,7 +615,7 @@
       "position": "{n} / {total}",
       "flipToBack": "Lật thẻ. Đang hiện mặt trước",
       "flipToFront": "Lật thẻ. Đang hiện mặt sau",
-      "flipHelp": "Bấm vào thẻ hoặc nhấn <kbd>Space</kbd> để lật, <kbd>←</kbd> <kbd>→</kbd> để chuyển thẻ.",
+      "flipHelp": "Bấm vào thẻ hoặc nhấn <kbd>Space</kbd> để lật, <kbd>←</kbd> <kbd>→</kbd> để chuyển thẻ, <kbd>S</kbd> để nghe.",
       "previous": "Thẻ trước",
       "next": "Thẻ sau",
       "shuffle": "Trộn thẻ",
@@ -634,9 +634,9 @@
         "mastered": "Ôn lại"
       },
       "showAnswer": "Hiện đáp án",
-      "showAnswerHelp": "hoặc nhấn <kbd>Space</kbd>",
+      "showAnswerHelp": "hoặc nhấn <kbd>Space</kbd> · <kbd>S</kbd> để nghe",
       "rateQuestion": "Bạn nhớ từ này thế nào?",
-      "rateHelp": "Nhấn phím 1–4 để chấm. Lịch ôn tiếp theo do SM-2 tính.",
+      "rateHelp": "Nhấn phím 1–4 để chấm, S để nghe. Lịch ôn tiếp theo do SM-2 tính.",
       "rating": {
         "again": "Quên",
         "hard": "Khó",
@@ -648,7 +648,9 @@
       "emptyBody": "Bạn đã ôn hết thẻ đến hạn và đủ số thẻ mới trong ngày. Quay lại vào ngày mai nhé.",
       "toFlip": "Lật thẻ để xem lại",
       "summaryTitle": "Xong phiên học!",
-      "summaryBody": "{count} thẻ trong {minutes} phút"
+      "summaryBody": "{count} thẻ trong {minutes} phút",
+      "speak": "Nghe phát âm {word}",
+      "speakHint": "Nghe phát âm (phím S)"
     }
   },
   "exam": {
