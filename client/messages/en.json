@@ -615,7 +615,7 @@
       "position": "{n} / {total}",
       "flipToBack": "Flip card. Showing the front",
       "flipToFront": "Flip card. Showing the back",
-      "flipHelp": "Click the card or press <kbd>Space</kbd> to flip, <kbd>←</kbd> <kbd>→</kbd> to move.",
+      "flipHelp": "Click the card or press <kbd>Space</kbd> to flip, <kbd>←</kbd> <kbd>→</kbd> to move, <kbd>S</kbd> to hear it.",
       "previous": "Previous card",
       "next": "Next card",
       "shuffle": "Shuffle cards",
@@ -634,9 +634,9 @@
         "mastered": "Review"
       },
       "showAnswer": "Show answer",
-      "showAnswerHelp": "or press <kbd>Space</kbd>",
+      "showAnswerHelp": "or press <kbd>Space</kbd> · <kbd>S</kbd> to hear it",
       "rateQuestion": "How well did you remember it?",
-      "rateHelp": "Press 1–4 to rate. SM-2 works out the next review.",
+      "rateHelp": "Press 1–4 to rate, S to hear it. SM-2 works out the next review.",
       "rating": {
         "again": "Again",
         "hard": "Hard",
@@ -648,7 +648,9 @@
       "emptyBody": "You have reviewed every due card and today’s new cards. Come back tomorrow.",
       "toFlip": "Flip through the cards",
       "summaryTitle": "Session complete!",
-      "summaryBody": "{count} cards in {minutes} min"
+      "summaryBody": "{count} cards in {minutes} min",
+      "speak": "Hear {word}",
+      "speakHint": "Hear it (S key)"
     }
   },
   "exam": {

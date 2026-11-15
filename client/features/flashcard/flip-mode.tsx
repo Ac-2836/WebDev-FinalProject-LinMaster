@@ -10,6 +10,7 @@ import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 
+import {SpeakButton, speak} from './speak-button';
 import {StudyShell} from './study-shell';
 import {useStudyKeys, useStudySession} from './study-session';
 
@@ -68,6 +69,7 @@ export function FlipMode({set}: {set: FlashcardSet}) {
       setFlipped(f => !f);
     } else if (key === 'ArrowRight') go(1);
     else if (key === 'ArrowLeft') go(-1);
+    else if (key === 's' || key === 'S') speak(cards[order[index]].term);
   });
 
   const shell = (children: React.ReactNode, progress?: React.ReactNode, actions?: React.ReactNode) => (
@@ -127,9 +129,13 @@ export function FlipMode({set}: {set: FlashcardSet}) {
   const current = cards[order[index]];
   return shell(
     <div className="my-auto flex flex-col items-center gap-6">
-      <p className="text-sm font-semibold text-muted-foreground" aria-live="polite">
-        {t('position', {n: index + 1, total: cards.length})}
-      </p>
+      <div className="flex w-full items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-muted-foreground" aria-live="polite">
+          {t('position', {n: index + 1, total: cards.length})}
+        </p>
+        {/* Outside the card button: a button cannot hold another button. */}
+        <SpeakButton text={current.term} />
+      </div>
       <button
         ref={cardButton}
         type="button"
