@@ -925,9 +925,9 @@
       "showTable": "Show the numbers",
       "activity": {
         "heading": "Activity",
-        "title": "{count, plural, one {# activity} other {# activities}} in the past year",
+        "title": "{count, plural, one {# activity} other {# activities}} in the past {months, select, 12 {year} other {{months} months}}",
         "streak": "Current streak <b>{current, plural, one {# day} other {# days}}</b> · longest <b>{longest, plural, one {# day} other {# days}}</b>",
-        "label": "Activity calendar of the past 52 weeks. Busiest day: {date} with {count} activities",
+        "label": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. Busiest day: {date} with {count} activities",
         "tableCaption": "Activity per day, newest first",
         "date": "Day",
         "lookups": "Lookups",
@@ -937,7 +937,11 @@
         "less": "Less",
         "more": "More",
         "empty": "No activity yet",
-        "emptyAction": "Read your first text"
+        "emptyAction": "Read your first text",
+        "labelNone": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. No activity",
+        "range": "Time range",
+        "months": "{months, select, 12 {1 year} other {{months} months}}",
+        "activeDays": "Active days"
       },
       "overview": {
         "title": "Numbers",
