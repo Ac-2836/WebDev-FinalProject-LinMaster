@@ -274,7 +274,10 @@
     "errors": {
       "email": "Nhập một địa chỉ email hợp lệ.",
       "password": "Mật khẩu cần tối thiểu 8 ký tự.",
-      "displayName": "Nhập tên hiển thị, tối đa 80 ký tự."
+      "displayName": "Nhập tên hiển thị, tối đa 80 ký tự.",
+      "wrongPassword": "Mật khẩu hiện tại không đúng.",
+      "emailTaken": "Email này đã có người dùng.",
+      "currentPassword": "Nhập mật khẩu hiện tại."
     },
     "login": {
       "title": "Chào mừng quay lại",
@@ -291,7 +294,8 @@
         "streak": "ngày liên tiếp",
         "band": "band gần nhất",
         "tagline": "Từ nào gặp trong bài hôm nay, tối nay đã thành flashcard."
-      }
+      },
+      "forgot": "Quên mật khẩu?"
     },
     "register": {
       "title": "Tạo tài khoản miễn phí",
@@ -327,12 +331,40 @@
       "loadError": "Không tải được hồ sơ",
       "retry": "Thử lại",
       "memberSince": "Thành viên từ {date}",
-      "emailFixed": "Email không đổi được.",
       "preferences": "Tùy chọn học",
       "bandHint": "Vạch mục tiêu trên biểu đồ band.",
       "saved": "Đã lưu thay đổi",
       "save": "Lưu thay đổi",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "info": "Thông tin",
+      "stats": {
+        "streak": "ngày liên tiếp",
+        "words": "từ đã lưu",
+        "cards": "lượt ôn thẻ",
+        "tests": "bài đã thi"
+      }
+    },
+    "security": {
+      "title": "Bảo mật",
+      "emailTitle": "Đổi email",
+      "emailNow": "Email hiện tại: {email}",
+      "newEmail": "Email mới",
+      "currentPassword": "Mật khẩu hiện tại",
+      "emailSubmit": "Đổi email",
+      "emailDone": "Đã đổi email thành {email}.",
+      "passwordTitle": "Đổi mật khẩu",
+      "passwordHint": "Tối thiểu 8 ký tự. Bạn vẫn đăng nhập sau khi đổi.",
+      "newPassword": "Mật khẩu mới",
+      "passwordSubmit": "Đổi mật khẩu",
+      "passwordDone": "Đã đổi mật khẩu."
+    },
+    "forgot": {
+      "title": "Quên mật khẩu",
+      "subtitle": "Cách lấy lại quyền vào tài khoản.",
+      "notReady": "Chức năng gửi email đặt lại mật khẩu chưa có, nên LinMaster chưa gửi được email cho bạn.",
+      "remember": "Nếu còn nhớ mật khẩu cũ: đăng nhập, mở Hồ sơ rồi đổi mật khẩu ở mục Bảo mật.",
+      "forgotten": "Nếu quên hẳn: liên hệ nhóm phát triển LinMaster để được hỗ trợ, hoặc tạo tài khoản mới.",
+      "back": "Quay lại đăng nhập"
     }
   },
   "vocab": {

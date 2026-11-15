@@ -90,7 +90,15 @@ export function LoginPage({next}: LoginPageProps) {
             />
           )}
         </FormField>
-        <FormField label={t('fields.password')} error={invalid.has('password') && t('errors.password')}>
+        <FormField
+          label={t('fields.password')}
+          error={invalid.has('password') && t('errors.password')}
+          hint={
+            <Link href="/forgot-password" className="font-semibold text-primary hover:underline">
+              {t('login.forgot')}
+            </Link>
+          }
+        >
           {({id, describedBy, invalid: bad}) => (
             <PasswordInput
               id={id}
