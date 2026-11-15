@@ -43,7 +43,7 @@ describe('isAuthPath', () => {
 
 describe('isPublicPath', () => {
   it('only lets the landing and auth pages through', () => {
-    expect(['/', '/login', '/register'].every(isPublicPath)).toBe(true);
+    expect(['/', '/login', '/register', '/forgot-password'].every(isPublicPath)).toBe(true);
     expect(['/home', '/read', '/login/extra'].some(isPublicPath)).toBe(false);
   });
 });

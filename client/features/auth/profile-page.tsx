@@ -1,7 +1,23 @@
 'use client';
 
-import {AuthUserResponseSchema, UpdateProfileRequestSchema, type AuthPublicUser} from '@linmaster/shared';
-import {CircleCheck, CloudOff, LoaderCircle, LogOut, RotateCw} from 'lucide-react';
+import {
+  AuthUserResponseSchema,
+  StatsOverviewResponseSchema,
+  UpdateProfileRequestSchema,
+  type AuthPublicUser,
+  type StatsOverviewResponse,
+} from '@linmaster/shared';
+import {
+  BookMarked,
+  CircleCheck,
+  ClipboardCheck,
+  CloudOff,
+  Flame,
+  Layers,
+  LoaderCircle,
+  LogOut,
+  RotateCw,
+} from 'lucide-react';
 import {useFormatter, useTranslations} from 'next-intl';
 import {useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
@@ -17,6 +33,7 @@ import {setLocale} from '@/core/i18n/actions';
 import {locales} from '@/core/i18n/config';
 import {initials} from '@/core/nav/account-menu';
 
+import {AccountSecurity} from './account-security';
 import {Notice} from './auth-shell';
 import {BANDS, FormField, invalidFields} from './form-field';
 
@@ -28,12 +45,15 @@ export function ProfilePage() {
   const {status, user, reload} = useSession();
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <p className="eyebrow text-muted-foreground">{t('eyebrow')}</p>
-      <h1 className="mt-1 text-[28px] leading-tight font-semibold tracking-[-0.03em] sm:text-[34px]">{t('title')}</h1>
-      <p className="mt-1 text-muted-foreground">{t('subtitle')}</p>
+    <div className="mx-auto max-w-3xl">
+      <h1 className="sr-only">{t('title')}</h1>
       {status === 'ready' && user ? (
-        <ProfileForm key={user.id} user={user} />
+        <div className="flex flex-col gap-6">
+          <ProfileHeader user={user} />
+          <ProfileForm key={user.id} user={user} />
+          <AccountSecurity />
+          <SignOut />
+        </div>
       ) : status === 'error' ? (
         <div role="alert" className={cn(card, 'mt-6 items-center p-8 text-center')}>
           <span className="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive">
@@ -66,10 +86,9 @@ export function ProfilePage() {
 function ProfileForm({user}: {user: AuthPublicUser}) {
   const t = useTranslations('auth');
   const tLocale = useTranslations('core.localeSwitcher');
-  const format = useFormatter();
   const router = useRouter();
   const errorMessage = useErrorMessage();
-  const {setUser, signOut} = useSession();
+  const {setUser} = useSession();
   const [displayName, setDisplayName] = useState(user.displayName);
   const [locale, setLocaleChoice] = useState(user.locale);
   const [band, setBand] = useState(user.targetBand === null ? '' : String(user.targetBand));
@@ -116,25 +135,12 @@ function ProfileForm({user}: {user: AuthPublicUser}) {
   }
 
   return (
-    <form className="mt-6 flex flex-col gap-6" noValidate onSubmit={onSubmit} onChange={() => setSaved(false)}>
+    <form className="flex flex-col gap-6" noValidate onSubmit={onSubmit} onChange={() => setSaved(false)}>
       {error && <Notice tone="error">{error}</Notice>}
-      <section className={card}>
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-secondary text-xl font-bold text-primary"
-            aria-hidden="true"
-          >
-            {initials(user.displayName)}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-lg font-bold">{user.displayName}</p>
-            <p className="text-[13px] text-muted-foreground">
-              {t('profile.memberSince', {
-                date: format.dateTime(new Date(user.createdAt), {day: '2-digit', month: '2-digit', year: 'numeric'}),
-              })}
-            </p>
-          </div>
-        </div>
+      <section className={card} aria-labelledby="profile-info">
+        <h2 id="profile-info" className="text-lg font-semibold">
+          {t('profile.info')}
+        </h2>
         <FormField label={t('fields.displayName')} error={nameInvalid && t('errors.displayName')}>
           {({id, describedBy, invalid}) => (
             <Input
@@ -147,9 +153,6 @@ function ProfileForm({user}: {user: AuthPublicUser}) {
               aria-describedby={describedBy}
             />
           )}
-        </FormField>
-        <FormField label={t('fields.email')} hint={t('profile.emailFixed')}>
-          {({id, describedBy}) => <Input id={id} value={user.email} readOnly aria-describedby={describedBy} />}
         </FormField>
       </section>
 
@@ -204,15 +207,6 @@ function ProfileForm({user}: {user: AuthPublicUser}) {
       </section>
 
       <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={signOut}
-          className="h-11 rounded-full text-destructive hover:bg-danger-soft hover:text-destructive sm:mr-auto"
-        >
-          <LogOut aria-hidden="true" />
-          {t('profile.logout')}
-        </Button>
         <p role="status" className="flex items-center justify-center gap-1.5 text-sm text-success">
           {saved && (
             <>
@@ -227,5 +221,82 @@ function ProfileForm({user}: {user: AuthPublicUser}) {
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Top of the profile (UX-2): who you are, since when, and a few numbers from `GET /stats/overview`. */
+function ProfileHeader({user}: {user: AuthPublicUser}) {
+  const t = useTranslations('auth.profile');
+  const format = useFormatter();
+  const [stats, setStats] = useState<StatsOverviewResponse | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    api('/stats/overview')
+      .then(res => setStats(StatsOverviewResponseSchema.parse(res)))
+      // The numbers are extra; the profile still works without them.
+      .catch(() => setFailed(true));
+  }, []);
+
+  const tiles = stats && [
+    {icon: Flame, value: stats.streak.current, label: t('stats.streak'), tone: 'text-orange-500'},
+    {icon: BookMarked, value: stats.words, label: t('stats.words'), tone: 'text-primary'},
+    {icon: Layers, value: stats.cardsReviewed, label: t('stats.cards'), tone: 'text-violet'},
+    {icon: ClipboardCheck, value: stats.testsTaken, label: t('stats.tests'), tone: 'text-success'},
+  ];
+
+  return (
+    <section className="glow overflow-hidden rounded-[28px] border px-6 py-7 sm:px-8" aria-labelledby="profile-name">
+      <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+        <span
+          className="inline-flex size-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-violet text-2xl font-bold text-white shadow-lift"
+          aria-hidden="true"
+        >
+          {initials(user.displayName)}
+        </span>
+        <div className="min-w-0 max-w-full">
+          <p className="eyebrow text-muted-foreground">{t('eyebrow')}</p>
+          <h2 id="profile-name" className="truncate text-2xl font-bold sm:text-3xl">
+            {user.displayName}
+          </h2>
+          <p className="truncate text-sm text-muted-foreground">{user.email}</p>
+          <p className="text-[13px] text-muted-foreground">
+            {t('memberSince', {
+              date: format.dateTime(new Date(user.createdAt), {day: '2-digit', month: '2-digit', year: 'numeric'}),
+            })}
+          </p>
+        </div>
+      </div>
+      {!failed && (
+        <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-busy={!stats}>
+          {tiles
+            ? tiles.map(({icon: Icon, value, label, tone}) => (
+                <div key={label} className="flex flex-col-reverse gap-1 rounded-2xl bg-white/80 p-4 shadow-soft">
+                  <dt className="text-[13px] text-muted-foreground">{label}</dt>
+                  <dd className="flex items-center gap-2 text-2xl font-bold">
+                    <Icon className={cn('size-5', tone)} aria-hidden="true" />
+                    {format.number(value)}
+                  </dd>
+                </div>
+              ))
+            : Array.from({length: 4}, (_, i) => <Skeleton key={i} className="h-[76px] rounded-2xl" />)}
+        </dl>
+      )}
+    </section>
+  );
+}
+
+function SignOut() {
+  const t = useTranslations('auth.profile');
+  const {signOut} = useSession();
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={signOut}
+      className="h-11 self-start rounded-full text-destructive hover:bg-danger-soft hover:text-destructive"
+    >
+      <LogOut aria-hidden="true" />
+      {t('logout')}
+    </Button>
   );
 }

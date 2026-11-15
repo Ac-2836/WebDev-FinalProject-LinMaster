@@ -274,7 +274,10 @@
     "errors": {
       "email": "Enter a valid email address.",
       "password": "Password must be at least 8 characters.",
-      "displayName": "Enter a display name of up to 80 characters."
+      "displayName": "Enter a display name of up to 80 characters.",
+      "wrongPassword": "The current password is wrong.",
+      "emailTaken": "This email is already in use.",
+      "currentPassword": "Enter your current password."
     },
     "login": {
       "title": "Welcome back",
@@ -291,7 +294,8 @@
         "streak": "day streak",
         "band": "latest band",
         "tagline": "The words you meet in today’s reading are flashcards by tonight."
-      }
+      },
+      "forgot": "Forgot password?"
     },
     "register": {
       "title": "Create a free account",
@@ -327,12 +331,40 @@
       "loadError": "Could not load your profile",
       "retry": "Try again",
       "memberSince": "Member since {date}",
-      "emailFixed": "Your email cannot be changed.",
       "preferences": "Learning preferences",
       "bandHint": "The target line on your band chart.",
       "saved": "Changes saved",
       "save": "Save changes",
-      "logout": "Log out"
+      "logout": "Log out",
+      "info": "Details",
+      "stats": {
+        "streak": "day streak",
+        "words": "words saved",
+        "cards": "card reviews",
+        "tests": "tests taken"
+      }
+    },
+    "security": {
+      "title": "Security",
+      "emailTitle": "Change email",
+      "emailNow": "Current email: {email}",
+      "newEmail": "New email",
+      "currentPassword": "Current password",
+      "emailSubmit": "Change email",
+      "emailDone": "Your email is now {email}.",
+      "passwordTitle": "Change password",
+      "passwordHint": "At least 8 characters. You stay signed in after the change.",
+      "newPassword": "New password",
+      "passwordSubmit": "Change password",
+      "passwordDone": "Your password has been changed."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "subtitle": "How to get back into your account.",
+      "notReady": "Password reset by email is not available yet, so LinMaster cannot send you an email.",
+      "remember": "If you still know your old password: sign in, open Profile and change it under Security.",
+      "forgotten": "If you have lost it: contact the LinMaster team for help, or create a new account.",
+      "back": "Back to sign in"
     }
   },
   "vocab": {
