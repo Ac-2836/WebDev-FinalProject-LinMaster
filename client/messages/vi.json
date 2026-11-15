@@ -232,7 +232,6 @@
       },
       "recent": {
         "title": "Tài liệu đọc gần đây",
-        "all": "Xem tất cả",
         "none": "Chưa có tài liệu nào.",
         "words": "{count} từ"
       }

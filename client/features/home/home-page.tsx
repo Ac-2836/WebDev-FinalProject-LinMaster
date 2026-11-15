@@ -22,8 +22,6 @@ import {useSession} from '@/core/auth/session-provider';
 import {greeting, runningAttempt, vnDay} from './home-logic';
 import {card, homeWidgets, ONBOARDING, type HomeData} from './widgets';
 
-const SPAN = {1: '', 2: 'lg:col-span-2', 3: 'lg:col-span-3'};
-
 /** `/home` (PLAN C7, wireframe 02-app/home): what to do today, from the home widget registry. */
 export function HomePage() {
   const t = useTranslations('core.home');
@@ -147,11 +145,21 @@ export function HomePage() {
           ))}
         </ul>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
-          {homeWidgets.map(({id, span, Component}) => (
-            // empty:hidden drops the cell of a widget that renders nothing (no test in progress).
-            <div key={id} className={cn('flex flex-col empty:hidden [&>section]:flex-1', SPAN[span])}>
-              <Component data={data} />
+        <div className="grid gap-4 lg:grid-cols-3">
+          {(['main', 'side'] as const).map(place => (
+            <div
+              key={place}
+              // The last widget of a column stretches, so both columns end on the same line.
+              className={cn(
+                'flex min-w-0 flex-col gap-4 [&>section:last-child]:flex-1',
+                place === 'main' && 'lg:col-span-2',
+              )}
+            >
+              {homeWidgets
+                .filter(w => w.place === place)
+                .map(({id, Component}) => (
+                  <Component key={id} data={data} />
+                ))}
             </div>
           ))}
         </div>
