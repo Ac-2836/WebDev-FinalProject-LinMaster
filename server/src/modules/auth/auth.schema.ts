@@ -1,9 +1,17 @@
-import {LoginRequestSchema, RegisterRequestSchema, UpdateProfileRequestSchema} from '@linmaster/shared';
+import {
+  ChangeEmailRequestSchema,
+  ChangePasswordRequestSchema,
+  LoginRequestSchema,
+  RegisterRequestSchema,
+  UpdateProfileRequestSchema,
+} from '@linmaster/shared';
 import {z} from 'zod';
 
 export const registerSchema = z.object({body: RegisterRequestSchema});
 export const loginSchema = z.object({body: LoginRequestSchema});
 export const updateProfileSchema = z.object({body: UpdateProfileRequestSchema});
+export const changeEmailSchema = z.object({body: ChangeEmailRequestSchema});
+export const changePasswordSchema = z.object({body: ChangePasswordRequestSchema});
 
 export type RegisterInput = z.infer<typeof RegisterRequestSchema>;
 export type LoginInput = z.infer<typeof LoginRequestSchema>;

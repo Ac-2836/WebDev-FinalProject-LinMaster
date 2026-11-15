@@ -2,6 +2,8 @@ import {
   ApiErrorBody,
   AuthResponseSchema,
   AuthUserResponseSchema,
+  ChangeEmailRequestSchema,
+  ChangePasswordRequestSchema,
   LoginRequestSchema,
   RegisterRequestSchema,
   UpdateProfileRequestSchema,
@@ -112,4 +114,56 @@ openApiRegistry.registerPath({
     401: {description: 'Authentication required.', content: {'application/json': {schema: ApiErrorBody}}},
     404: {description: 'User not found.', content: {'application/json': {schema: ApiErrorBody}}},
   },
+});
+
+const errorResponse = (description: string) => ({description, content: {'application/json': {schema: ApiErrorBody}}});
+const accountErrors = {
+  400: errorResponse('Invalid request.'),
+  401: errorResponse('Authentication required.'),
+  403: errorResponse('`WRONG_PASSWORD`: the current password is incorrect.'),
+  404: errorResponse('User not found.'),
+  429: errorResponse('Too many attempts (10 per 15 minutes, like login).'),
+};
+
+openApiRegistry.registerPath({
+  method: 'patch',
+  path: '/api/v1/auth/me/email',
+  summary: 'Change the email of the current user',
+  description:
+    'Needs the current password. The email is stored lower-case; an email already used by another account answers 409.',
+  tags: ['Auth'],
+  security: [{bearerAuth: []}],
+  request: {
+    body: requestBody(ChangeEmailRequestSchema, 'changeEmail', {
+      email: 'new.address@example.com',
+      currentPassword: 'safe-password-123',
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Updated profile.',
+      content: {
+        'application/json': {schema: AuthUserResponseSchema, examples: {success: {value: userResponseExample}}},
+      },
+    },
+    ...accountErrors,
+    409: errorResponse('`ALREADY_EXISTS`: another account uses this email.'),
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'patch',
+  path: '/api/v1/auth/me/password',
+  summary: 'Change the password of the current user',
+  description:
+    'Needs the current password. The new password follows the registration rules (8 characters to 72 bytes).',
+  tags: ['Auth'],
+  security: [{bearerAuth: []}],
+  request: {
+    body: requestBody(ChangePasswordRequestSchema, 'changePassword', {
+      currentPassword: 'safe-password-123',
+      newPassword: 'another-safe-password-456',
+    }),
+  },
+  responses: {204: {description: 'Password changed.'}, ...accountErrors},
 });
