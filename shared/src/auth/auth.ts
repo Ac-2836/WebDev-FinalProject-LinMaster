@@ -40,6 +40,20 @@ export const UpdateProfileRequestSchema = z
   .strict()
   .refine(value => Object.keys(value).length > 0, 'At least one profile field is required.');
 
+/** The password the user types to confirm an account change; only compared, so any non-empty string. */
+const currentPasswordSchema = z.string().min(1).max(200);
+
+/** `PATCH /auth/me/email`. */
+export const ChangeEmailRequestSchema = z.object({email: emailSchema, currentPassword: currentPasswordSchema}).strict();
+
+/** `PATCH /auth/me/password`: the new password follows the registration rules. */
+export const ChangePasswordRequestSchema = z
+  .object({currentPassword: currentPasswordSchema, newPassword: passwordSchema})
+  .strict();
+
+/** `WRONG_PASSWORD` (403): the current password typed to confirm an email or password change is wrong. */
+export const AuthErrorStatusSchema = z.enum(['WRONG_PASSWORD']);
+
 export const AuthPublicUserSchema = z.object({
   id: z.string(),
   email: z.email(),
@@ -55,4 +69,6 @@ export const AuthUserResponseSchema = z.object({user: AuthPublicUserSchema});
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
+export type ChangeEmailRequest = z.infer<typeof ChangeEmailRequestSchema>;
+export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>;
 export type AuthPublicUser = z.infer<typeof AuthPublicUserSchema>;

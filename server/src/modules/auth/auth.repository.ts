@@ -25,7 +25,13 @@ export interface AuthRepository {
   create(input: NewAuthUser): Promise<AuthUser>;
   update(
     id: string,
-    input: {displayName?: string; locale?: 'vi' | 'en'; targetBand?: number | null},
+    input: {
+      displayName?: string;
+      locale?: 'vi' | 'en';
+      targetBand?: number | null;
+      email?: string;
+      passwordHash?: string;
+    },
   ): Promise<AuthUser | null>;
 }
 
@@ -75,6 +81,7 @@ export const prismaAuthRepository: AuthRepository = {
       return mapPrismaUser(await getDb().user.update({where: {id}, data: input}));
     } catch (error) {
       if (hasPrismaCode(error, 'P2025')) return null;
+      if (hasPrismaCode(error, 'P2002')) throw new AuthEmailAlreadyExistsError();
       throw error;
     }
   },

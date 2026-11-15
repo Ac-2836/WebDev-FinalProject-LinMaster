@@ -1,11 +1,17 @@
 import {Router} from 'express';
 import type {Request, Response} from 'express';
 import {rateLimit} from 'express-rate-limit';
-import type {LoginRequest, RegisterRequest, UpdateProfileRequest} from '@linmaster/shared';
+import type {
+  ChangeEmailRequest,
+  ChangePasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  UpdateProfileRequest,
+} from '@linmaster/shared';
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
 import {validate} from '../../core/validate.middleware';
-import {loginSchema, registerSchema, updateProfileSchema} from './auth.schema';
+import {changeEmailSchema, changePasswordSchema, loginSchema, registerSchema, updateProfileSchema} from './auth.schema';
 import type {createAuthService} from './auth.service';
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -67,6 +73,34 @@ export function createAuthRouter(service: AuthService, jwtSecret: string): Route
     validate(updateProfileSchema),
     catchAsync(async (req, res) => {
       res.json({user: await service.updateProfile(req.user!.userId, req.body as UpdateProfileRequest)});
+    }),
+  );
+
+  // Password checks are limited like login, so the current password cannot be guessed through these routes.
+  const accountRateLimit = rateLimit({
+    windowMs: RATE_LIMIT_WINDOW_MS,
+    limit: LOGIN_ATTEMPTS,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    handler: rateLimitHandler,
+  });
+  router.patch(
+    '/auth/me/email',
+    requireAuth(jwtSecret),
+    accountRateLimit,
+    validate(changeEmailSchema),
+    catchAsync(async (req, res) => {
+      res.json({user: await service.changeEmail(req.user!.userId, req.body as ChangeEmailRequest)});
+    }),
+  );
+  router.patch(
+    '/auth/me/password',
+    requireAuth(jwtSecret),
+    accountRateLimit,
+    validate(changePasswordSchema),
+    catchAsync(async (req, res) => {
+      await service.changePassword(req.user!.userId, req.body as ChangePasswordRequest);
+      res.status(204).end();
     }),
   );
 
