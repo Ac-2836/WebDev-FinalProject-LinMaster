@@ -70,17 +70,14 @@ test('exam loop: upload by template, take the test, submit and see the result', 
     await expect(result.or(page.getByText(/\/40 correct/u).first())).toBeVisible();
     if (await result.isVisible()) await result.click();
     await expect(page).toHaveURL(/\/attempts\/[0-9a-f-]{36}\/result$/u);
-    // shortcut: the exact score is not asserted while the first-click bug below is open; then expect 2/40.
-    await expect(page.getByText(/\d+\/40 correct/u).first()).toBeVisible();
+    await expect(page.getByText('2/40 correct').first()).toBeVisible();
     await page.getByRole('checkbox', {name: /Wrong only/u}).check();
     await expect(page.getByText(/Wrong only \(\d+\)/u)).toBeVisible();
   });
 });
 
-// [LỖI] QA 15/11: in the Reading room a choice is recorded one interaction late, so the last answer is lost after
-// a reload or a submit. Expected to fail until it is fixed; Playwright then reports it and test.fail can go.
+// Regression (QA 15/11): a choice must be recorded on the first click, not one interaction late.
 test('exam room keeps an answer chosen with one click', async ({page}) => {
-  test.fail();
   test.setTimeout(150_000);
   await uploadAndStart(page, 'answer');
 
