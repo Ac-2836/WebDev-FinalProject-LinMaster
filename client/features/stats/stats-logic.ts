@@ -28,6 +28,17 @@ export function calendarCells(from: string, to: string, days: ActivityDay[]): (C
   return cells;
 }
 
+/** Ranges of the activity calendar, in months, and the days each covers, ending today. */
+export const ACTIVITY_RANGES = {1: 30, 3: 13 * 7, 6: 26 * 7, 12: 52 * 7} as const;
+export type ActivityRange = keyof typeof ACTIVITY_RANGES;
+
+/** First day (Vietnam time, `YYYY-MM-DD`) of a range of `days` days ending today. */
+export function rangeFrom(now: Date, days: number) {
+  return new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Ho_Chi_Minh'}).format(
+    new Date(now.getTime() - (days - 1) * DAY_MS),
+  );
+}
+
 export function busiestDay(days: ActivityDay[]) {
   return days.reduce<ActivityDay | null>((best, d) => (!best || d.total > best.total ? d : best), null);
 }

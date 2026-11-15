@@ -1,7 +1,7 @@
 import type {ActivityDay, BandPoint} from '@linmaster/shared';
 import {describe, expect, it} from 'vitest';
 
-import {bandChange, bandRange, busiestDay, calendarCells} from './stats-logic';
+import {bandChange, bandRange, busiestDay, calendarCells, rangeFrom} from './stats-logic';
 
 const day = (date: string, total: number) => ({date, total}) as ActivityDay;
 const point = (reading: number | null, listening: number | null) => ({reading, listening}) as BandPoint;
@@ -19,6 +19,12 @@ describe('stats', () => {
     ]);
     expect(busiestDay([day('2026-11-12', 2), day('2026-11-14', 8)])?.date).toBe('2026-11-14');
     expect(busiestDay([])).toBeNull();
+  });
+
+  it('starts a range in Vietnam time', () => {
+    // 20:00 UTC on 14/11 is already 15/11 in Vietnam.
+    expect(rangeFrom(new Date('2026-11-14T20:00:00Z'), 1)).toBe('2026-11-15');
+    expect(rangeFrom(new Date('2026-11-14T20:00:00Z'), 91)).toBe('2026-08-17');
   });
 
   it('fits the band axis around the bands and the target', () => {

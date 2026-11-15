@@ -10,13 +10,26 @@ import {
 } from '@linmaster/shared';
 import {Flame, Target} from 'lucide-react';
 import {useFormatter, useTranslations} from 'next-intl';
+import {useState} from 'react';
 
 import {cn} from 'cn';
 
-import {bandChange, bandRange, busiestDay, calendarCells, type BandSkill} from './stats-logic';
+import {
+  ACTIVITY_RANGES,
+  bandChange,
+  bandRange,
+  busiestDay,
+  calendarCells,
+  rangeFrom,
+  type ActivityRange,
+  type BandSkill,
+} from './stats-logic';
 import {DataTable, useStat, Widget, WidgetEmpty} from './widget';
 
 const LEVEL = ['bg-muted', 'bg-primary/25', 'bg-primary/50', 'bg-primary/75', 'bg-primary'];
+/** Cell size in px per range: a short range gets bigger cells. */
+const CELL: Record<ActivityRange, number> = {1: 28, 3: 22, 6: 16, 12: 13};
+const RANGES = Object.keys(ACTIVITY_RANGES).map(Number) as ActivityRange[];
 const band = (b: number | null) => (b === null ? '–' : b.toFixed(1));
 /** Dates from the server are Vietnam days (`YYYY-MM-DD`); read them as UTC so no time zone shifts them. */
 const day = (date: string) => new Date(`${date}T00:00:00Z`);
@@ -29,45 +42,100 @@ function useDay() {
 export function ActivityWidget() {
   const t = useTranslations('stats.dashboard.activity');
   const showDay = useDay();
-  const stat = useStat('/stats/activity', StatsActivityResponseSchema);
+  const [months, setMonths] = useState<ActivityRange>(3);
+  const now = new Date();
+  const range = `from=${rangeFrom(now, ACTIVITY_RANGES[months])}&to=${rangeFrom(now, 1)}`;
+  const stat = useStat(`/stats/activity?${range}`, StatsActivityResponseSchema);
   const total = stat.data?.days.reduce((n, d) => n + d.total, 0) ?? 0;
 
   return (
     <Widget
-      title={total ? t('title', {count: total}) : t('heading')}
+      title={total ? t('title', {count: total, months}) : t('heading')}
       stat={stat}
-      isEmpty={d => d.days.length === 0}
+      // A range with no activity still shows the calendar, so the range can be changed; only a new account is empty.
+      isEmpty={d => d.streak.longest === 0}
       empty={<WidgetEmpty title={t('empty')} href="/read" action={t('emptyAction')} />}
       aside={({streak}) => (
-        <p className="flex items-center gap-1.5 text-sm">
-          <Flame className="size-4 text-orange-500" aria-hidden="true" />
-          {t.rich('streak', {current: streak.current, longest: streak.longest, b: s => <strong>{s}</strong>})}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="flex items-center gap-1.5 text-sm">
+            <Flame className="size-4 text-orange-500" aria-hidden="true" />
+            <span>
+              {t.rich('streak', {current: streak.current, longest: streak.longest, b: s => <strong>{s}</strong>})}
+            </span>
+          </p>
+          <div role="group" aria-label={t('range')} className="flex rounded-lg border p-0.5 text-xs">
+            {RANGES.map(m => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={m === months}
+                onClick={() => setMonths(m)}
+                className={cn(
+                  'rounded-md px-2 py-1 font-medium text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none',
+                  m === months && 'bg-primary text-primary-foreground',
+                )}
+              >
+                {t('months', {months: m})}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     >
       {({from, to, days}) => {
-        const busiest = busiestDay(days)!;
+        const busiest = busiestDay(days);
+        const cells = calendarCells(from, to, days);
         return (
           <>
-            {/* Starts scrolled to today on narrow screens; focusable so the keyboard can scroll it. */}
-            <div
-              ref={el => {
-                if (el) el.scrollLeft = el.scrollWidth;
-              }}
-              tabIndex={0}
-              role="img"
-              aria-label={t('label', {date: showDay(busiest.date), count: busiest.total})}
-              className="overflow-x-auto rounded focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none"
-            >
-              <div className="grid w-max grid-flow-col grid-rows-7 gap-[3px]">
-                {calendarCells(from, to, days).map((c, i) => (
-                  <span
-                    key={c?.date ?? `pad${i}`}
-                    title={c ? `${showDay(c.date)}: ${c.total}` : undefined}
-                    className={cn('size-[11px] rounded-[2px]', c ? LEVEL[c.level] : 'invisible')}
-                  />
-                ))}
+            <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+              {/* Starts scrolled to today on narrow screens; focusable so the keyboard can scroll it. */}
+              <div
+                ref={el => {
+                  if (el) el.scrollLeft = el.scrollWidth;
+                }}
+                tabIndex={0}
+                role="img"
+                aria-label={
+                  busiest
+                    ? t('label', {months, date: showDay(busiest.date), count: busiest.total})
+                    : t('labelNone', {months})
+                }
+                className="max-w-full overflow-x-auto rounded focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none"
+              >
+                <div
+                  className="grid w-max grid-flow-col gap-[3px]"
+                  style={{gridTemplateRows: `repeat(7, ${CELL[months]}px)`, gridAutoColumns: CELL[months]}}
+                >
+                  {cells.map((c, i) => (
+                    <span
+                      key={c?.date ?? `pad${i}`}
+                      title={c ? `${showDay(c.date)}: ${c.total}` : undefined}
+                      className={cn('rounded-[3px]', c ? LEVEL[c.level] : 'invisible')}
+                    />
+                  ))}
+                </div>
               </div>
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                <div className="col-span-2">
+                  <dt className="text-muted-foreground">{t('activeDays')}</dt>
+                  <dd className="font-bold">
+                    {days.length} / {cells.filter(Boolean).length}
+                  </dd>
+                </div>
+                {(
+                  [
+                    ['lookups', 'lookups'],
+                    ['saved', 'savedWords'],
+                    ['reviews', 'reviews'],
+                    ['attempts', 'attempts'],
+                  ] as const
+                ).map(([label, key]) => (
+                  <div key={key}>
+                    <dt className="text-muted-foreground">{t(label)}</dt>
+                    <dd className="font-bold">{days.reduce((n, d) => n + d[key], 0)}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
             <div className="flex flex-wrap items-start justify-between gap-2 text-xs text-muted-foreground">
               <DataTable

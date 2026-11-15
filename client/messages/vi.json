@@ -925,9 +925,9 @@
       "showTable": "Xem bảng số liệu",
       "activity": {
         "heading": "Hoạt động",
-        "title": "{count} hoạt động trong năm qua",
+        "title": "{count} hoạt động trong {months, select, 12 {năm qua} other {{months} tháng qua}}",
         "streak": "Chuỗi hiện tại <b>{current} ngày</b> · dài nhất <b>{longest} ngày</b>",
-        "label": "Lịch hoạt động 52 tuần. Ngày nhiều nhất: {date} với {count} hoạt động",
+        "label": "Lịch hoạt động {months, select, 12 {năm qua} other {{months} tháng qua}}. Ngày nhiều nhất: {date} với {count} hoạt động",
         "tableCaption": "Hoạt động từng ngày, mới nhất trước",
         "date": "Ngày",
         "lookups": "Tra từ",
@@ -937,7 +937,11 @@
         "less": "Ít",
         "more": "Nhiều",
         "empty": "Chưa có hoạt động nào",
-        "emptyAction": "Đọc bài đầu tiên"
+        "emptyAction": "Đọc bài đầu tiên",
+        "labelNone": "Lịch hoạt động {months, select, 12 {năm qua} other {{months} tháng qua}}. Chưa có hoạt động",
+        "range": "Khoảng thời gian",
+        "months": "{months, select, 12 {1 năm} other {{months} tháng}}",
+        "activeDays": "Ngày có hoạt động"
       },
       "overview": {
         "title": "Số liệu",
