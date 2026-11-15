@@ -26,6 +26,8 @@ interface ApiOptions {
   signal?: AbortSignal;
   /** Extra request headers, e.g. `Range` for the exam audio. */
   headers?: Record<string, string>;
+  /** Lets the request finish after the page unloads (the exam room's last autosave). */
+  keepalive?: boolean;
 }
 
 /**
@@ -34,7 +36,7 @@ interface ApiOptions {
  */
 export async function apiResponse(
   path: string,
-  {method = 'GET', body, signal, headers: extra}: ApiOptions = {},
+  {method = 'GET', body, signal, headers: extra, keepalive}: ApiOptions = {},
 ): Promise<Response> {
   const token = getToken();
   const isForm = body instanceof FormData;
@@ -49,6 +51,7 @@ export async function apiResponse(
       headers,
       body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       signal,
+      keepalive,
     });
   } catch (error) {
     if (signal?.aborted) throw error;
