@@ -29,10 +29,12 @@ const badge =
 
 export interface SetPageProps {
   id: string;
+  /** Publish / Unpublish from the library, given by the route (a feature does not import another). */
+  publish?: React.ReactNode;
 }
 
 /** `/flashcards/[id]` (C3, wireframe 04-flashcard/set): set preview, study modes and the card list. */
-export function SetPage({id}: SetPageProps) {
+export function SetPage({id, publish}: SetPageProps) {
   const t = useTranslations('flashcard.set');
   const router = useRouter();
   const errorMessage = useErrorMessage();
@@ -172,6 +174,7 @@ export function SetPage({id}: SetPageProps) {
           </div>
         </div>
       </header>
+      {publish}
 
       {cards.length === 0 ? (
         <EmptyState

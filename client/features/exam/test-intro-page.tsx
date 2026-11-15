@@ -33,8 +33,11 @@ interface Loaded {
   loadedAt: number;
 }
 
-/** `/tests/[id]` (wireframe 05-exam/test-intro): what the test holds, then Start, or Continue an attempt in progress. */
-export function TestIntroPage({id}: {id: string}) {
+/**
+ * `/tests/[id]` (wireframe 05-exam/test-intro): what the test holds, then Start, or Continue an attempt in progress.
+ * `publish`: Publish / Unpublish from the library, given by the route (a feature does not import another).
+ */
+export function TestIntroPage({id, publish}: {id: string; publish?: React.ReactNode}) {
   const t = useTranslations('exam.intro');
   const format = useFormatter();
   const [data, setData] = useState<Loaded | null>(null);
@@ -135,6 +138,7 @@ export function TestIntroPage({id}: {id: string}) {
         </h1>
         {test.source && <p className="text-muted-foreground">{t('source', {source: test.source})}</p>}
       </header>
+      {publish}
 
       <section aria-label={t('info')} className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map(s => (
