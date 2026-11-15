@@ -1,6 +1,14 @@
 import type {ComponentType} from 'react';
 
-import {ActivityWidget, BandsWidget, OverviewWidget, TopicsWidget, VocabWidget, WeaknessesWidget} from './widgets';
+import {
+  ActivityWidget,
+  BandsWidget,
+  CommunityWidget,
+  OverviewWidget,
+  TopicsWidget,
+  VocabWidget,
+  WeaknessesWidget,
+} from './widgets';
 
 export type DashboardWidget = {
   id: string;
@@ -11,7 +19,7 @@ export type DashboardWidget = {
 
 /**
  * Dashboard widget registry (PLAN B4, C6). A widget is added here instead of editing the page.
- * Order is display order within its place. Community joins `side` after P4-02 (`GET /stats/community`).
+ * Order is display order within its place.
  */
 export const dashboardWidgets: DashboardWidget[] = [
   {id: 'activity', place: 'wide', Component: ActivityWidget},
@@ -20,4 +28,5 @@ export const dashboardWidgets: DashboardWidget[] = [
   {id: 'vocab', place: 'main', Component: VocabWidget},
   {id: 'weaknesses', place: 'main', Component: WeaknessesWidget},
   {id: 'topics', place: 'side', Component: TopicsWidget},
+  {id: 'community', place: 'side', Component: CommunityWidget},
 ];

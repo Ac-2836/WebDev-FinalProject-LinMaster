@@ -1003,6 +1003,13 @@
       "topics": {
         "title": "Chủ đề học nhiều nhất",
         "empty": "Chưa có dữ liệu."
+      },
+      "community": {
+        "title": "Cộng đồng",
+        "sets": "bộ thẻ đã đăng · {copies} lượt chép",
+        "tests": "đề đã đăng · {attempts} lượt làm",
+        "empty": "Bạn chưa đăng gì",
+        "emptyAction": "Chia sẻ một bộ thẻ"
       }
     }
   },

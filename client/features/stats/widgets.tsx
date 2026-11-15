@@ -3,6 +3,7 @@
 import {
   StatsActivityResponseSchema,
   StatsBandsResponseSchema,
+  StatsCommunityResponseSchema,
   StatsOverviewResponseSchema,
   StatsVocabResponseSchema,
   StatsWeaknessesResponseSchema,
@@ -394,6 +395,33 @@ export function TopicsWidget() {
             </li>
           ))}
         </ul>
+      )}
+    </Widget>
+  );
+}
+
+export function CommunityWidget() {
+  const t = useTranslations('stats.dashboard.community');
+  const stat = useStat('/stats/community', StatsCommunityResponseSchema);
+  return (
+    <Widget
+      title={t('title')}
+      stat={stat}
+      isEmpty={d => d.publishedSets + d.setCopies + d.publishedTests + d.testAttempts === 0}
+      empty={<WidgetEmpty title={t('empty')} href="/flashcards" action={t('emptyAction')} />}
+    >
+      {d => (
+        <dl className="grid grid-cols-2 gap-3 text-center">
+          {[
+            [d.publishedSets, t('sets', {copies: d.setCopies})],
+            [d.publishedTests, t('tests', {attempts: d.testAttempts})],
+          ].map(([value, label]) => (
+            <div key={label} className="flex flex-col rounded-lg bg-muted/50 p-3">
+              <dt className="order-last text-xs text-muted-foreground">{label}</dt>
+              <dd className="text-xl font-bold">{value}</dd>
+            </div>
+          ))}
+        </dl>
       )}
     </Widget>
   );
