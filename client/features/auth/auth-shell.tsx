@@ -6,6 +6,8 @@ import {cn} from 'cn';
 import {Logo} from '@/components/logo';
 import {LocaleToggle} from '@/core/i18n/locale-switcher';
 
+import {CardDrift} from './auth-motion';
+
 interface AuthShellProps {
   title: string;
   subtitle: string;
@@ -19,7 +21,9 @@ export function AuthShell({title, subtitle, aside, children}: AuthShellProps) {
   const t = useTranslations('auth');
   return (
     <div className="grid min-h-dvh bg-white lg:grid-cols-[1fr_1.05fr]">
-      <main id="main" className="flex flex-col px-4 py-6 sm:px-10">
+      <main id="main" className="relative isolate flex flex-col px-4 py-6 sm:px-10">
+        {/* Faint behind the form on small screens, where the side panel is hidden. */}
+        <CardDrift className="-z-10 opacity-15 lg:hidden" />
         <div className="flex items-center justify-between">
           <Link href="/" className="inline-flex h-11 items-center rounded-xl" aria-label={t('homeLink')}>
             <Logo />
@@ -36,9 +40,10 @@ export function AuthShell({title, subtitle, aside, children}: AuthShellProps) {
         <p className="text-center text-[13px] text-muted-foreground">© 2026 LinMaster</p>
       </main>
       <aside
-        className="relative hidden items-center justify-center overflow-hidden p-12 glow-strong lg:flex"
+        className="relative isolate hidden items-center justify-center overflow-hidden p-12 glow-strong lg:flex"
         aria-hidden="true"
       >
+        <CardDrift className="-z-10 opacity-50" />
         {aside}
       </aside>
     </div>

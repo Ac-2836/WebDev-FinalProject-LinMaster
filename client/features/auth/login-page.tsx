@@ -12,6 +12,7 @@ import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
+import {BookLoader, prefersReducedMotion, type BookPhase} from './auth-motion';
 import {AuthShell, Notice} from './auth-shell';
 import {FormField, invalidFields} from './form-field';
 import {PasswordInput} from './password-input';
@@ -28,6 +29,7 @@ export function LoginPage({next}: LoginPageProps) {
   const {signIn} = useSession();
   const [pending, setPending] = useState(false);
   const [invalid, setInvalid] = useState(new Set<string>());
+  const [book, setBook] = useState<BookPhase | null>(null);
   const [notice, setNotice] = useState<{tone: 'error' | 'warning'; text: string} | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -43,11 +45,21 @@ export function LoginPage({next}: LoginPageProps) {
     setInvalid(new Set());
     setNotice(null);
     setPending(true);
+    const motion = !prefersReducedMotion();
+    if (motion) setBook('closed');
     try {
-      const {token, user} = AuthResponseSchema.parse(await api('/auth/login', {method: 'POST', body: parsed.data}));
+      const request = api('/auth/login', {method: 'POST', body: parsed.data});
+      // Let the logo fly in and fold before it opens again, however fast the server answers.
+      const [res] = await Promise.all([request, motion && wait(1100)]);
+      const {token, user} = AuthResponseSchema.parse(res);
+      if (motion) {
+        setBook('open');
+        await wait(550);
+      }
       await signIn(token, user, next);
     } catch (error) {
       setPending(false);
+      setBook(null);
       const status = error instanceof ApiError ? error.httpStatus : 0;
       // The server does not say whether the email exists (C1), so neither do we.
       if (status === 401) setNotice({tone: 'error', text: t('login.invalidCredentials')});
@@ -58,6 +70,7 @@ export function LoginPage({next}: LoginPageProps) {
 
   return (
     <AuthShell title={t('login.title')} subtitle={t('login.subtitle')} aside={<LoginAside />}>
+      {book && <BookLoader phase={book} />}
       {notice ? (
         <Notice tone={notice.tone}>{notice.text}</Notice>
       ) : (
@@ -108,6 +121,8 @@ export function LoginPage({next}: LoginPageProps) {
     </AuthShell>
   );
 }
+
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 function LoginAside() {
   const t = useTranslations('auth.login.aside');
