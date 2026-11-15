@@ -3,6 +3,7 @@ import {
   StatsActivityQuerySchema,
   StatsActivityResponseSchema,
   StatsBandsResponseSchema,
+  StatsCommunityResponseSchema,
   StatsOverviewResponseSchema,
   StatsVocabResponseSchema,
   StatsWeaknessesResponseSchema,
@@ -122,4 +123,12 @@ register(
     kinds: [{skill: 'reading', kind: 'tfng', answered: 6, correct: 3, accuracy: 0.5}],
     weakest: {skill: 'reading', kind: 'tfng'},
   },
+);
+
+register(
+  'community',
+  'Get community numbers',
+  'Public sets and tests of the user, how many times others copied their sets (all of them, also unpublished later) and how many attempts others made at their tests.',
+  StatsCommunityResponseSchema,
+  {publishedSets: 1, setCopies: 2, publishedTests: 1, testAttempts: 2},
 );

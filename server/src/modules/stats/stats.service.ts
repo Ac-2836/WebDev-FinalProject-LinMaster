@@ -8,6 +8,7 @@ import {
   type StatsActivityQuery,
   type StatsActivityResponse,
   type StatsBandsResponse,
+  type StatsCommunityResponse,
   type StatsOverviewResponse,
   type StatsVocabResponse,
   type StatsWeaknessesResponse,
@@ -25,6 +26,8 @@ export interface StatsSources {
   study(userId: string): Promise<StudyStats>;
   exam(userId: string): Promise<ExamStats>;
   targetBand(userId: string): Promise<number | null>;
+  sets(userId: string): Promise<{published: number; copies: number}>;
+  tests(userId: string): Promise<{published: number; attempts: number}>;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -187,6 +190,16 @@ export function createStatsService(sources: StatsSources, now: () => Date = () =
           .sort(([a, x], [b, y]) => y - x || a.localeCompare(b))
           .slice(0, TOP_TOPICS)
           .map(([topic, words]) => ({topic, words})),
+      };
+    },
+
+    async community(userId: string): Promise<StatsCommunityResponse> {
+      const [sets, tests] = await Promise.all([sources.sets(userId), sources.tests(userId)]);
+      return {
+        publishedSets: sets.published,
+        setCopies: sets.copies,
+        publishedTests: tests.published,
+        testAttempts: tests.attempts,
       };
     },
 

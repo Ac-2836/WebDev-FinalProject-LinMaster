@@ -17,6 +17,8 @@ function service(data: {vocab?: Partial<VocabStats>; study?: Partial<StudyStats>
       study: async () => ({reviewTimes: [], sessions: [], entryIntervals: [], ...data.study}),
       exam: async () => ({attempts: [], kinds: [], ...data.exam}),
       targetBand: async () => 7.5,
+      sets: async () => ({published: 2, copies: 5}),
+      tests: async () => ({published: 1, attempts: 3}),
     },
     () => NOW,
   );
@@ -137,6 +139,15 @@ describe('stats service', () => {
       ['completion', 0.9],
     ]);
     expect(result.weakest).toEqual({skill: 'reading', kind: 'tfng'});
+  });
+
+  it('maps the community numbers', async () => {
+    expect(await service({}).community('u')).toEqual({
+      publishedSets: 2,
+      setCopies: 5,
+      publishedTests: 1,
+      testAttempts: 3,
+    });
   });
 
   it('gives a new account zeros and empty lists', async () => {

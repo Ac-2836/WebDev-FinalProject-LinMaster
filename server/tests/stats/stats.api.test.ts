@@ -1,6 +1,7 @@
 import {
   StatsActivityResponseSchema,
   StatsBandsResponseSchema,
+  StatsCommunityResponseSchema,
   StatsOverviewResponseSchema,
   StatsVocabResponseSchema,
   StatsWeaknessesResponseSchema,
@@ -25,6 +26,7 @@ const ENDPOINTS: Array<[string, ZodType]> = [
   ['bands', StatsBandsResponseSchema],
   ['vocab', StatsVocabResponseSchema],
   ['weaknesses', StatsWeaknessesResponseSchema],
+  ['community', StatsCommunityResponseSchema],
 ];
 
 // Real database and the real public APIs of vocab, flashcard, exam and auth.
@@ -59,7 +61,11 @@ describe('stats API', () => {
       ),
     );
     await db.vocabLookup.create({data: {ownerId, text: 'mitigate', sentence: 'Trees mitigate heat.', saved: true}});
-    const set = await db.flashcardSet.create({data: {ownerId, title: 'Words'}});
+    // Published and copied twice by others (library P4-02 keeps copyCount on the set).
+    const set = await db.flashcardSet.create({
+      data: {ownerId, title: 'Words', visibility: 'public', publishedAt: new Date(), copyCount: 2},
+    });
+    await db.flashcardSet.create({data: {ownerId, title: 'Private'}});
     const card = await db.card.create({
       data: {setId: set.id, position: 0, term: 'mitigate', definition: '-', vocabEntryId: words[0].id},
     });
@@ -73,7 +79,10 @@ describe('stats API', () => {
     });
 
     await seedSampleTests(db, ownerId);
-    const test = await db.test.findFirstOrThrow({where: {ownerId, kind: 'reading'}});
+    const test = await db.test.update({
+      where: {id: (await db.test.findFirstOrThrow({where: {ownerId, kind: 'reading'}})).id},
+      data: {visibility: 'public', publishedAt: new Date(), attemptCount: 3},
+    });
     const answers = [true, false, false, true, false].map((isCorrect, index) => ({
       questionNumber: index + 1,
       skill: 'reading' as const,
@@ -126,6 +135,13 @@ describe('stats API', () => {
     const vocab = (await get('vocab', ownerId).expect(200)).body;
     expect(vocab).toMatchObject({total: 2, states: {new: 1, learning: 0, mastered: 1}});
     expect(vocab.topics[0]).toEqual({topic: 'environment', words: 2});
+
+    expect((await get('community', ownerId).expect(200)).body).toEqual({
+      publishedSets: 1,
+      setCopies: 2,
+      publishedTests: 1,
+      testAttempts: 3,
+    });
 
     const weaknesses = (await get('weaknesses', ownerId).expect(200)).body;
     expect(weaknesses).toEqual({

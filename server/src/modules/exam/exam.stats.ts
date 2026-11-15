@@ -60,3 +60,13 @@ export async function getExamStats(userId: string): Promise<ExamStats> {
     kinds: [...kinds.values()],
   };
 }
+
+/** Public API for the stats module: the user's public tests and how many attempts others made at any of their tests. */
+export async function getTestCommunityStats(userId: string): Promise<{published: number; attempts: number}> {
+  const db = getDb();
+  const [published, attempts] = await Promise.all([
+    db.test.count({where: {ownerId: userId, visibility: 'public'}}),
+    db.test.aggregate({where: {ownerId: userId}, _sum: {attemptCount: true}}),
+  ]);
+  return {published, attempts: attempts._sum.attemptCount ?? 0};
+}
