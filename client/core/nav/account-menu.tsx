@@ -8,9 +8,12 @@ import {DropdownMenu} from 'radix-ui';
 import {Skeleton} from '@/components/ui/skeleton';
 import {useSession} from '@/core/auth/session-provider';
 
-/** Up to two initials for the avatar: "Khải Hưng" → "KH". */
+/** Up to two initials for the avatar: "Khải Hưng" → "KH", "Lan (sample)" → "L". Words without a letter are skipped. */
 export function initials(name: string) {
-  const words = name.trim().split(/\s+/).filter(Boolean);
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .filter(w => /^[\p{L}\p{N}]/u.test(w));
   return words
     .slice(0, 2)
     .map(w => w[0])
