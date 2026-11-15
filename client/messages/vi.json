@@ -175,9 +175,67 @@
     },
     "home": {
       "title": "Trang chủ",
-      "emptyTitle": "Chưa có gì ở đây",
-      "emptyBody": "Các widget của trang chủ (bài thi dở, thẻ đến hạn, tài liệu gần đây) sẽ hiện ở đây.",
-      "emptyAction": "Mở trình đọc"
+      "greeting": {
+        "morning": "Chào buổi sáng, {name}",
+        "afternoon": "Chào buổi chiều, {name}",
+        "evening": "Chào buổi tối, {name}"
+      },
+      "today": "Hôm nay bạn có <b>{cards} thẻ</b> cần ôn{running, select, yes { và một bài thi đang làm dở} other {}}.",
+      "startHint": "Bắt đầu bằng một trong ba việc dưới đây.",
+      "review": "Ôn {count} thẻ",
+      "readNew": "Đọc tài liệu mới",
+      "loading": "Đang tải trang chủ",
+      "loadError": "Không tải được trang chủ",
+      "retry": "Thử lại",
+      "onboarding": {
+        "label": "Bắt đầu",
+        "read": {
+          "title": "Đọc một bài tiếng Anh",
+          "body": "Dán bài báo, bôi chọn từ lạ để AI giải thích theo câu."
+        },
+        "upload": {
+          "title": "Tải đề thi lên",
+          "body": "Thả file đề, đáp án, audio; AI tự nhận diện và tạo phòng thi cho bạn."
+        },
+        "library": {
+          "title": "Lấy bộ thẻ có sẵn",
+          "body": "Chép bộ thẻ cộng đồng về và học ngay."
+        }
+      },
+      "continue": {
+        "eyebrow": "Đang làm dở",
+        "left": "Còn {minutes} phút · đồng hồ vẫn chạy",
+        "timeUsed": "Thời gian đã dùng",
+        "action": "Tiếp tục làm bài"
+      },
+      "streak": {
+        "title": "Chuỗi ngày học",
+        "days": "ngày",
+        "week": "7 ngày gần nhất: có học {count} ngày",
+        "active": "có học",
+        "idle": "không học",
+        "longest": "Kỷ lục: {count} ngày"
+      },
+      "due": {
+        "title": "Thẻ đến hạn hôm nay",
+        "all": "Tất cả bộ thẻ",
+        "none": "Hôm nay không có thẻ đến hạn.",
+        "count": "{count} thẻ đến hạn",
+        "study": "Ôn",
+        "studySet": "Ôn bộ {title}"
+      },
+      "shortcuts": {
+        "title": "Lối tắt",
+        "read": "Đọc tài liệu mới",
+        "upload": "Tải đề lên",
+        "library": "Vào thư viện"
+      },
+      "recent": {
+        "title": "Tài liệu đọc gần đây",
+        "all": "Xem tất cả",
+        "none": "Chưa có tài liệu nào.",
+        "words": "{count} từ"
+      }
     },
     "errors": {
       "INVALID_ARGUMENT": "Dữ liệu chưa hợp lệ. Hãy kiểm tra lại rồi thử lại.",
@@ -853,6 +911,98 @@
         "completion": "Điền chỗ trống",
         "short_answer": "Trả lời ngắn",
         "diagram_label": "Điền nhãn sơ đồ"
+      }
+    }
+  },
+  "stats": {
+    "dashboard": {
+      "eyebrow": "Dashboard",
+      "since": "Học từ {date}",
+      "target": "mục tiêu band {band}",
+      "loading": "Đang tải",
+      "loadError": "Không tải được phần này",
+      "retry": "Thử lại",
+      "showTable": "Xem bảng số liệu",
+      "activity": {
+        "heading": "Hoạt động",
+        "title": "{count} hoạt động trong năm qua",
+        "streak": "Chuỗi hiện tại <b>{current} ngày</b> · dài nhất <b>{longest} ngày</b>",
+        "label": "Lịch hoạt động 52 tuần. Ngày nhiều nhất: {date} với {count} hoạt động",
+        "tableCaption": "Hoạt động từng ngày, mới nhất trước",
+        "date": "Ngày",
+        "lookups": "Tra từ",
+        "saved": "Lưu từ",
+        "reviews": "Ôn thẻ",
+        "attempts": "Làm bài",
+        "less": "Ít",
+        "more": "Nhiều",
+        "empty": "Chưa có hoạt động nào",
+        "emptyAction": "Đọc bài đầu tiên"
+      },
+      "overview": {
+        "title": "Số liệu",
+        "tests": "Bài đã thi",
+        "reading": "Band Reading",
+        "listening": "Band Listening",
+        "best": "cao nhất {band}",
+        "words": "Từ đã lưu",
+        "mastered": "{count} đã thuộc",
+        "cards": "Thẻ đã ôn",
+        "time": "Thời gian học",
+        "hours": "{count} giờ",
+        "minutes": "{count} phút",
+        "empty": "Chưa có số liệu",
+        "emptyAction": "Đọc bài đầu tiên"
+      },
+      "bands": {
+        "title": "Xu hướng band",
+        "reading": "Reading",
+        "listening": "Listening",
+        "target": "Mục tiêu",
+        "label": "Band qua {count} bài",
+        "change": "{skill} từ {first} lên {last}",
+        "targetLabel": "mục tiêu {band}",
+        "tableCaption": "Band của từng bài đã nộp",
+        "date": "Ngày",
+        "test": "Đề",
+        "empty": "Chưa có bài thi nào",
+        "emptyAction": "Làm bài thi đầu tiên"
+      },
+      "vocab": {
+        "title": "Vốn từ",
+        "total": "{count} từ",
+        "weekly": "Số từ mới theo tuần",
+        "weeklyLabel": "Số từ mới theo tuần, {count} tuần gần nhất: {values}",
+        "tableCaption": "Số từ mới theo tuần",
+        "week": "Tuần từ",
+        "added": "Từ mới",
+        "statesLabel": "Tỉ lệ từ: {new}% mới, {learning}% đang học, {mastered}% đã thuộc",
+        "new": "Mới",
+        "learning": "Đang học",
+        "mastered": "Đã thuộc",
+        "empty": "Chưa lưu từ nào",
+        "emptyAction": "Mở trình đọc"
+      },
+      "weaknesses": {
+        "title": "Điểm yếu theo dạng câu",
+        "weakest": "<b>{kind}</b> ({skill}) đúng {percent}%.",
+        "answers": "đúng {correct} trên {answered} câu",
+        "empty": "Cần ít nhất một bài thi để phân tích.",
+        "emptyAction": "Vào thi thử",
+        "tips": {
+          "single_choice": "Gợi ý: tìm đoạn văn mà câu hỏi nhắc tới trước khi đọc các lựa chọn.",
+          "multi_choice": "Gợi ý: đối chiếu từng lựa chọn với bài; lựa chọn sai thường lặp lại đúng chữ trong bài.",
+          "tfng": "Gợi ý: đọc lại các câu sai và chú ý phân biệt FALSE (bài nói ngược lại) với NOT GIVEN (bài không nói).",
+          "ynng": "Gợi ý: tìm ý kiến của tác giả, phân biệt NO (tác giả không đồng ý) với NOT GIVEN (tác giả không nói).",
+          "matching": "Gợi ý: nắm ý chính của từng đoạn trước rồi mới nối.",
+          "completion": "Gợi ý: xem giới hạn số từ và ngữ pháp của chỗ trống trước khi điền.",
+          "short_answer": "Gợi ý: giữ đúng giới hạn số từ và chép đúng chữ trong bài.",
+          "diagram_label": "Gợi ý: đi theo thứ tự quy trình trong bài khi điền nhãn."
+        }
+      },
+      "topics": {
+        "title": "Chủ đề học nhiều nhất",
+        "empty": "Chưa có dữ liệu."
       }
     }
   }

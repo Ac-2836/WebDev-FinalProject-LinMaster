@@ -3,7 +3,7 @@
 import type {AttemptState} from '@linmaster/shared';
 import {useCallback, useEffect, useRef, useState, useSyncExternalStore} from 'react';
 
-import {ApiError, api} from '@/core/api/client';
+import {ApiError, api, apiResponse} from '@/core/api/client';
 
 import type {SaveState} from './exam-room';
 import {clockOffset, crossedWarning, remainingMs, type WarningMinute} from './room-logic';
@@ -169,6 +169,21 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
     const id = setTimeout(flush, SAVE_DELAY_MS);
     return () => clearTimeout(id);
   }, [state, online, flush]);
+
+  // A reload or a closed tab inside the save delay would lose the last answer: send it as the page goes away.
+  useEffect(() => {
+    const onPageHide = () => {
+      if (latest.current === saved.current) return;
+      // shortcut: keepalive bodies are capped at 64 KB, enough for answers and notes; move to sendBeacon if notes grow.
+      void apiResponse(`/attempts/${attemptId}/state`, {
+        method: 'PUT',
+        body: {state: latest.current},
+        keepalive: true,
+      }).catch(() => {});
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [attemptId]);
 
   useEffect(() => {
     if (saveState !== 'error' || !online) return;

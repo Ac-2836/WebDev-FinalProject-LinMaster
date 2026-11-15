@@ -78,6 +78,8 @@ export function QuestionNav({
                 {part.questions.map(n => {
                   const state = questionState(n, current, answered);
                   const isFlagged = flagged.has(n);
+                  // The current question is answered too once chosen: show it now, not after moving on.
+                  const isAnswered = answered.has(n);
                   return (
                     <button
                       key={n}
@@ -85,11 +87,12 @@ export function QuestionNav({
                       type="button"
                       onClick={() => onNavigate(n)}
                       aria-current={state === 'current' ? 'step' : undefined}
-                      aria-label={`Question ${n}${state === 'answered' ? ', answered' : ''}${isFlagged ? ', marked for review' : ''}`}
+                      aria-label={`Question ${n}${isAnswered ? ', answered' : ''}${isFlagged ? ', marked for review' : ''}`}
                       className={cn(
                         'relative inline-flex size-11 items-center justify-center rounded text-sm font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:size-9',
+                        isAnswered && 'underline decoration-2 underline-offset-4',
                         state === 'current' && 'bg-primary text-white',
-                        state === 'answered' && 'bg-white text-foreground underline decoration-2 underline-offset-4',
+                        state === 'answered' && 'bg-white text-foreground',
                         state === 'unanswered' && 'bg-white text-muted-foreground',
                         isFlagged && 'ring-2 ring-warning',
                       )}
