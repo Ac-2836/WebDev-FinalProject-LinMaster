@@ -77,6 +77,7 @@ openApiRegistry.registerPath({
     401: error('Authentication required.'),
     413: error('The file is too large.'),
     415: error('Only PDF, MP3 and M4A files are accepted.'),
+    429: error('More than 30 uploads in an hour by this user.'),
     500: error('Unexpected server error.'),
   },
 });

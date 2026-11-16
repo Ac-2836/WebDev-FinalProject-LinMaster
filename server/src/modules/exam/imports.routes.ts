@@ -12,6 +12,7 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {uploadRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import type {createImportService} from './imports.service';
 
@@ -49,6 +50,7 @@ export function addImportRoutes(router: Router, service: ImportService, jwtSecre
   router.post(
     '/tests/imports/files',
     requireAuth(jwtSecret),
+    uploadRateLimit(),
     parseImportFile,
     catchAsync(async (req, res) => {
       const file = req.file!;
