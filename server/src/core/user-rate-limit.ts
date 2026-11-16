@@ -33,3 +33,15 @@ export const uploadRateLimit = () =>
     limit: UPLOADS_PER_HOUR,
     message: 'Too many uploads. Please try again later.',
   });
+
+/**
+ * AI calls per user per minute (lookups, scans, test imports), on top of the daily AI quota: stops a script from
+ * spending the whole quota, and the shared Gemini free tier, in a few seconds.
+ */
+export const AI_CALLS_PER_MINUTE = 20;
+export const aiRateLimit = () =>
+  userRateLimit({
+    windowMs: 60 * 1000,
+    limit: AI_CALLS_PER_MINUTE,
+    message: 'Too many AI requests. Please wait a minute.',
+  });

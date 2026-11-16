@@ -178,4 +178,54 @@ describe('ownership on every route', () => {
     await call(ids.owner, 'get', `/attempts/${ids.attempt}`).expect(200);
     await call(ids.owner, 'get', `/attempts/${ids.submitted}/result`).expect(200);
   });
+
+  it('counts only the own data in stats', async () => {
+    expect((await call(ids.owner, 'get', '/stats/overview').expect(200)).body.testsTaken).toBe(1);
+    expect((await call(ids.intruder, 'get', '/stats/overview').expect(200)).body.testsTaken).toBe(0);
+    await db.flashcardSet.update({where: {id: ids.set}, data: {visibility: 'public', copyCount: 3}});
+    expect((await call(ids.intruder, 'get', '/stats/community').expect(200)).body).toMatchObject({
+      publishedSets: 0,
+      setCopies: 0,
+    });
+  });
+
+  it('never sends answers, explanations, transcripts or storage keys of a public test before submitting', async () => {
+    // A Listening test with everything a leak could carry: answers with explanations, a transcript and audio.
+    await db.test.update({where: {id: ids.test}, data: {visibility: 'public', source: 'Cambridge'}});
+    await db.passage.updateMany({
+      where: {section: {testId: ids.test}},
+      data: {paragraphs: [{label: 'A', text: 'SECRET TRANSCRIPT'}]},
+    });
+    await db.question.updateMany({
+      where: {group: {passage: {section: {testId: ids.test}}}},
+      data: {answer: {accepted: ['SECRET ANSWER'], explanation: 'SECRET EXPLANATION'}},
+    });
+    await db.testSection.updateMany({where: {testId: ids.test}, data: {audioFileId: ids.file}});
+
+    const started = await call(ids.intruder, 'post', '/attempts', {testId: ids.test}).expect(201);
+    const responses = [
+      (await call(ids.intruder, 'get', `/tests/${ids.test}`).expect(200)).body,
+      (await call(ids.intruder, 'get', `/library/tests/${ids.test}`).expect(200)).body,
+      started.body,
+      (await call(ids.intruder, 'get', `/attempts/${started.body.attempt.id}`).expect(200)).body,
+    ];
+    for (const body of responses) {
+      const keys = new Set<string>();
+      const walk = (value: unknown): void => {
+        if (Array.isArray(value)) value.forEach(walk);
+        else if (value && typeof value === 'object') {
+          for (const [key, child] of Object.entries(value)) {
+            keys.add(key);
+            if (key === 'paragraphs') expect(child).toBeNull();
+            walk(child);
+          }
+        }
+      };
+      walk(body);
+      for (const key of ['answer', 'accepted', 'explanation', 'storageKey', 'transcripts']) {
+        expect(keys).not.toContain(key);
+      }
+      expect(JSON.stringify(body)).not.toMatch(/SECRET/u);
+    }
+  });
 });
