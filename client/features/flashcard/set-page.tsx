@@ -117,16 +117,20 @@ export function SetPage({id, publish}: SetPageProps) {
   }
 
   const cards = [...set.cards].sort((a, b) => a.position - b.position);
-  const modes = studyModes.map(({id: mode, icon}) => ({
+  const modes = studyModes.map(({id: mode, icon, minCards = 0}) => ({
     mode,
     icon,
+    locked: cards.length < minCards,
+    minCards,
     label: t(mode),
     hint:
-      mode === 'learn'
-        ? counts
-          ? t('learnHint', {due: counts.due, fresh: counts.fresh})
-          : t('learnFallback')
-        : t(`${mode}Hint`),
+      cards.length < minCards
+        ? t('needCards', {min: minCards})
+        : mode === 'learn'
+          ? counts
+            ? t('learnHint', {due: counts.due, fresh: counts.fresh})
+            : t('learnFallback')
+          : t(`${mode}Hint`),
   }));
 
   return (
@@ -194,21 +198,41 @@ export function SetPage({id, publish}: SetPageProps) {
               {t('modes')}
             </h2>
             <div className="grid grid-cols-2 gap-3 md:max-w-xl">
-              {modes.map(({mode, icon: Icon, label, hint}, i) => (
-                <Link
-                  key={mode}
-                  href={`/flashcards/${set.id}/study/${mode}`}
-                  className={cn(
-                    card,
-                    'flex flex-col gap-2 p-4 hover:border-primary',
-                    i === 0 && 'border-primary ring-1 ring-primary hover:bg-secondary',
-                  )}
-                >
-                  <Icon className="size-6 text-primary" aria-hidden="true" />
-                  <span className="font-bold">{label}</span>
-                  <span className="text-[13px] text-muted-foreground">{hint}</span>
-                </Link>
-              ))}
+              {modes.map(({mode, icon: Icon, label, hint, locked}, i) => {
+                const body = (
+                  <>
+                    <Icon
+                      className={cn('size-6', locked ? 'text-muted-foreground' : 'text-primary')}
+                      aria-hidden="true"
+                    />
+                    <span className="font-bold">{label}</span>
+                    <span className="text-[13px] text-muted-foreground">{hint}</span>
+                  </>
+                );
+                // Too few cards for this mode: say why instead of opening a page that cannot work.
+                return locked ? (
+                  <div
+                    key={mode}
+                    role="group"
+                    aria-disabled="true"
+                    className={cn(card, 'flex flex-col gap-2 p-4 opacity-70')}
+                  >
+                    {body}
+                  </div>
+                ) : (
+                  <Link
+                    key={mode}
+                    href={`/flashcards/${set.id}/study/${mode}`}
+                    className={cn(
+                      card,
+                      'flex flex-col gap-2 p-4 hover:border-primary',
+                      i === 0 && 'border-primary ring-1 ring-primary hover:bg-secondary',
+                    )}
+                  >
+                    {body}
+                  </Link>
+                );
+              })}
             </div>
           </section>
 
