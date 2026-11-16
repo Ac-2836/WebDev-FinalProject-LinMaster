@@ -75,7 +75,6 @@
   --animate-shimmer: shimmer 1.4s linear infinite;
   --animate-card-drift: card-drift 48s linear infinite;
   --animate-book-fly: book-fly 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --animate-book-breathe: book-breathe 900ms ease-in-out infinite alternate;
   @keyframes card-drift {
     to {
       transform: translateY(-50%);
@@ -85,11 +84,6 @@
   @keyframes book-fly {
     from {
       transform: translate(-42vw, -42vh) scale(0.35);
-    }
-  }
-  @keyframes book-breathe {
-    to {
-      transform: scale(0.94);
     }
   }
   @keyframes page-in {

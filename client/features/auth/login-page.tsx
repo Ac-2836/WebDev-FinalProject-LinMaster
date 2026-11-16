@@ -12,7 +12,14 @@ import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
-import {BookLoader, prefersReducedMotion, type BookPhase} from './auth-motion';
+import {
+  BOOK_FAIL_MS,
+  BOOK_MIN_WORK_MS,
+  BOOK_SUCCESS_MS,
+  BookLoader,
+  prefersReducedMotion,
+  type BookPhase,
+} from './auth-motion';
 import {AuthShell, Notice} from './auth-shell';
 import {focusFirstInvalid, FormField, invalidFields} from './form-field';
 import {PasswordInput} from './password-input';
@@ -46,18 +53,20 @@ export function LoginPage({next}: LoginPageProps) {
     setNotice(null);
     setPending(true);
     const motion = !prefersReducedMotion();
-    if (motion) setBook('closed');
+    setBook('working');
     try {
       const request = api('/auth/login', {method: 'POST', body: parsed.data});
-      // Let the logo fly in and fold before it opens again, however fast the server answers.
-      const [res] = await Promise.all([request, motion && wait(1100)]);
+      // Let the logo fly in and fold before it settles, however fast the server answers.
+      const [res] = await Promise.all([request, motion && wait(BOOK_MIN_WORK_MS)]);
       const {token, user} = AuthResponseSchema.parse(res);
-      if (motion) {
-        setBook('open');
-        await wait(550);
-      }
+      setBook('success');
+      if (motion) await wait(BOOK_SUCCESS_MS);
       await signIn(token, user, next);
     } catch (error) {
+      if (motion) {
+        setBook('fail');
+        await wait(BOOK_FAIL_MS);
+      }
       setPending(false);
       setBook(null);
       const status = error instanceof ApiError ? error.httpStatus : 0;
