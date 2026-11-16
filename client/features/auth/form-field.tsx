@@ -41,5 +41,18 @@ export function invalidFields(issues: {path: PropertyKey[]}[]) {
   return new Set(issues.map(issue => String(issue.path[0])));
 }
 
+/**
+ * Moves focus to the first invalid field in the order the form shows them, not the order of the schema (QA T5).
+ * Waits one frame so the error text is rendered and read with the field.
+ */
+export function focusFirstInvalid(form: HTMLFormElement, fields: Iterable<string>) {
+  const names = new Set(fields);
+  const first = Array.from(form.elements).find(
+    (element): element is HTMLElement =>
+      element instanceof HTMLElement && names.has(element.getAttribute('name') ?? ''),
+  );
+  requestAnimationFrame(() => first?.focus());
+}
+
 /** Target band choices allowed by the API (4.0–9.0, step 0.5). */
 export const BANDS = Array.from({length: 11}, (_, i) => 4 + i * 0.5);

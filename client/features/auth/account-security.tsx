@@ -12,7 +12,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
 import {Notice} from './auth-shell';
-import {FormField, invalidFields} from './form-field';
+import {focusFirstInvalid, FormField, invalidFields} from './form-field';
 import {PasswordInput} from './password-input';
 
 const card = 'flex flex-col gap-5 rounded-[20px] border bg-card p-6 shadow-soft';
@@ -35,9 +35,8 @@ function useSecurityForm() {
     setDone(null);
     setNotice(null);
     setErrors(invalid);
-    const first = Object.keys(invalid)[0];
-    if (first) {
-      form.querySelector<HTMLInputElement>(`[name="${first}"]`)?.focus();
+    if (Object.keys(invalid).length > 0) {
+      focusFirstInvalid(form, Object.keys(invalid));
       return;
     }
     setPending(true);

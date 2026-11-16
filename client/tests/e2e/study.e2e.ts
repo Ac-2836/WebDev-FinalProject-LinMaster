@@ -41,15 +41,21 @@ test('study loop: read, look up, save, make a set and study it', async ({page}) 
   await test.step('create a set from the word bank', async () => {
     await page.goto('/vocab');
     await expect(page.getByText('mitigate', {exact: true})).toBeVisible();
+    // Closing the word's detail panel with Esc gives focus back to its row (QA T6).
+    const row = page.getByRole('button', {name: /^mitigate/u});
+    await row.click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(row).toBeFocused();
     await page.getByRole('checkbox', {name: 'Select all words on this page'}).check();
     await page.getByRole('button', {name: 'Create set'}).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByPlaceholder('For example: IELTS Environment').fill('E2E coastal words');
     await dialog.getByRole('button', {name: 'Create set'}).click();
-    await page.goto('/flashcards');
-    await page.getByRole('link', {name: 'Open set'}).click();
+    // The new set opens right away (QA T7).
+    await expect(page).toHaveURL(/\/flashcards\/[0-9a-f-]{36}$/u);
     await expect(page.getByRole('heading', {name: 'E2E coastal words'})).toBeVisible();
-    await expect(page.getByText('3 cards')).toBeVisible();
+    await expect(page.getByText('3 cards', {exact: true})).toBeVisible();
   });
 
   const setUrl = page.url();
