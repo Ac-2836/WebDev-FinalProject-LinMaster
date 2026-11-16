@@ -33,6 +33,8 @@ model Document {
 
   contexts VocabContext[]
   lookups  VocabLookup[]
+
+  @@index([ownerId, updatedAt])
 }
 
 /// One word or phrase in a learner's word bank.
@@ -64,6 +66,7 @@ model VocabEntry {
 
   @@unique([ownerId, lemma, partOfSpeech])
   @@index([topics], type: Gin)
+  @@index([ownerId, updatedAt])
 }
 
 /// A sentence the word was saved from. One entry has many contexts.
@@ -81,6 +84,9 @@ model VocabContext {
   /// Lookups from the browser extension (future).
   sourceUrl   String?    @db.VarChar(2048)
   createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+
+  @@index([entryId])
+  @@index([documentId])
 }
 
 /// Every lookup, saved or not. Feeds the dashboard activity calendar.

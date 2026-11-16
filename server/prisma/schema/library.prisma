@@ -42,4 +42,5 @@ model Report {
 
   /// One report per person per content.
   @@unique([reporterId, targetType, targetId])
+  @@index([targetType, targetId])
 }
