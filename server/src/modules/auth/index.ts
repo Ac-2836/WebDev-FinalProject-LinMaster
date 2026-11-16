@@ -5,9 +5,13 @@ import {createAuthRouter} from './auth.routes';
 import {createAuthService} from './auth.service';
 import './auth.openapi';
 
-export function createAuthModule(jwtSecret: string, repository: AuthRepository = prismaAuthRepository): ApiModule {
+export function createAuthModule(
+  jwtSecret: string,
+  repository: AuthRepository = prismaAuthRepository,
+  registrationsPerHour?: number,
+): ApiModule {
   const service = createAuthService(repository, jwtSecret);
-  return {name: 'auth', basePath: '/api/v1', router: createAuthRouter(service, jwtSecret)};
+  return {name: 'auth', basePath: '/api/v1', router: createAuthRouter(service, jwtSecret, registrationsPerHour)};
 }
 
 export {createAuthService, DUMMY_PASSWORD_HASH} from './auth.service';

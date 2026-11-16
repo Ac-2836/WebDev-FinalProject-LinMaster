@@ -23,10 +23,10 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
   };
 }
 
-function createTestServer(repository: AuthRepository) {
+function createTestServer(repository: AuthRepository, registrationsPerHour?: number) {
   const app = express();
   app.use(express.json());
-  app.use(createAuthModule(JWT_SECRET, repository).router);
+  app.use(createAuthModule(JWT_SECRET, repository, registrationsPerHour).router);
   app.use(errorMiddleware);
   return app;
 }
@@ -217,5 +217,17 @@ describe('auth API', () => {
 
     expect(lastResponse?.status).toBe(429);
     expect(lastResponse?.body.error.status).toBe('RESOURCE_EXHAUSTED');
+  });
+
+  it('lets the Playwright API register more accounts per hour', async () => {
+    const e2eApp = createTestServer(makeRepository(), 8);
+    const statuses = [];
+    for (let attempt = 0; attempt < 9; attempt++) {
+      const res = await request(e2eApp)
+        .post('/auth/register')
+        .send({email: `e2e-${attempt}@example.com`, password: 'safe-password-123', displayName: 'E2E'});
+      statuses.push(res.status);
+    }
+    expect(statuses).toEqual([...Array<number>(8).fill(201), 429]);
   });
 });
