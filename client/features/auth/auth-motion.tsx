@@ -63,9 +63,9 @@ export function CardDrift({className}: {className?: string}) {
 export type BookPhase = 'working' | 'success' | 'fail';
 
 /** The animation needs this long before it can settle, so the login page waits this long even if the API is faster. */
-export const BOOK_MIN_WORK_MS = 900;
+export const BOOK_MIN_WORK_MS = 700;
 /** How long the settle, open, sparkle and fold back into the flat logo (success) and stop-shake-vanish (fail) take. */
-export const BOOK_SUCCESS_MS = 2600;
+export const BOOK_SUCCESS_MS = 1500;
 export const BOOK_FAIL_MS = 750;
 
 /* The book is the logo tile (S px square, rounded like the logo) with a thickness of T px: a back cover, a block of
@@ -139,7 +139,14 @@ function extrude(points: Point[], z0: number, z1: number, background: string, ke
 
 /** The spine wraps only the left corners, not the bottom and top edges, so those show the pages. */
 const SPINE_END = R * 0.45;
+/* Colours of the book. The logo itself already hard-codes its own (see components/logo.tsx and app/icon.svg). */
 const BLUE = '#2f55e8';
+const BACK_COVER = 'linear-gradient(135deg,#3a6dfb,#6a4cf0)';
+const INNER_COVER = 'linear-gradient(135deg,#e9eeff,#d6defc)';
+const PAGE_TOP = 'repeating-linear-gradient(0deg,#fffdf6 0 10px,#efe8d4 10px 11px)';
+const YELLOW_PAGE = 'linear-gradient(90deg,#ffd34d,#ffb820)';
+const STAR_GLOW = 'drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #9fb6ff)';
+const SPARK_COLORS = ['#9fb6ff', '#ffd25a'];
 const PAGES = 'repeating-linear-gradient(0deg,#fffaf0 0 1.4px,#e8dcbc 1.4px 2px)';
 const SPINE = 'linear-gradient(90deg,#1f43d0,#3a63ff 50%,#1f43d0)';
 const FACETS = (() => {
@@ -201,6 +208,8 @@ interface Parts {
   sparks: HTMLElement | null;
   root: HTMLElement | null;
   word: HTMLElement | null;
+  /** Natural width of the wordmark, measured once. */
+  wordWidth: number;
 }
 
 function paint(parts: Parts, pose: Pose) {
@@ -222,7 +231,8 @@ function paint(parts: Parts, pose: Pose) {
   });
   const text = word?.firstElementChild as HTMLElement | null;
   if (word && text) {
-    word.style.width = `${text.scrollWidth * pose.word}px`;
+    if (!parts.wordWidth) parts.wordWidth = text.scrollWidth;
+    word.style.width = `${parts.wordWidth * pose.word}px`;
     text.style.transform = `translateX(${-105 * (1 - pose.word)}%)`;
   }
   root.style.opacity = String(pose.fade);
@@ -234,10 +244,11 @@ function paint(parts: Parts, pose: Pose) {
  * slows to a stop, lies back, opens its cover, shoots the sparkle out, then closes and flattens into the logo. Fail:
  * it stops, shakes and vanishes.
  */
-function useBookTimeline(parts: React.RefObject<Parts>, phase: BookPhase) {
+function useBookTimeline(parts: React.RefObject<Parts>, phase: BookPhase, enabled: boolean) {
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   useLayoutEffect(() => {
+    if (!enabled) return;
     const start = performance.now();
     const pose = startPose();
     if (parts.current) paint(parts.current, pose);
@@ -256,7 +267,7 @@ function useBookTimeline(parts: React.RefObject<Parts>, phase: BookPhase) {
         from = {...pose, star: {...pose.star}};
         at = ms;
         // Success: run on to the next whole turn so the book ends facing us, reaching it at rest.
-        dist = Math.ceil((from.spin + from.omega * 0.8 * 0.6) / 360) * 360 - from.spin;
+        dist = Math.ceil((from.spin + from.omega * 0.5 * 0.6) / 360) * 360 - from.spin;
       }
       const t = ms - at;
       if (seen === 'working') {
@@ -272,26 +283,26 @@ function useBookTimeline(parts: React.RefObject<Parts>, phase: BookPhase) {
         pose.omega = MAX_SPIN * ease(range(ms, 0, 800));
         pose.spin += pose.omega * dt;
       } else if (seen === 'success') {
-        const u = range(t, 0, 800);
+        const u = range(t, 0, 500);
         // Hermite curve: leaves at the current speed, ends at rest on `dist`.
-        pose.spin = from.spin + dist * (3 * u * u - 2 * u ** 3) + from.omega * 0.8 * (u ** 3 - 2 * u * u + u);
+        pose.spin = from.spin + dist * (3 * u * u - 2 * u ** 3) + from.omega * 0.5 * (u ** 3 - 2 * u * u + u);
         pose.omega = 0;
-        const flat = ease(range(t, 1550, 1900));
-        pose.tilt = TILT * ease(range(t, 280, 800)) * (1 - flat);
-        pose.cover = ease(range(t, 650, 1200)) * (1 - flat);
-        pose.page = outBack(range(t, 850, 1300)) * (1 - flat);
+        const flat = ease(range(t, 1000, 1250));
+        pose.tilt = TILT * ease(range(t, 150, 500)) * (1 - flat);
+        pose.cover = ease(range(t, 400, 800)) * (1 - flat);
+        pose.page = outBack(range(t, 500, 850)) * (1 - flat);
         pose.depth = lerp(1, 0.02, flat);
-        const k = range(t, 1200, 1650);
+        const k = range(t, 750, 1050);
         const e = easeOut(k);
         pose.star = {
           x: lerp(S / 2, STAR_X, e),
           y: lerp(S / 2 - 6, STAR_Y, e) - Math.sin(k * Math.PI) * 45,
           scale: k < 0.7 ? lerp(0.2, 1.35, k / 0.7) : lerp(1.35, 1, (k - 0.7) / 0.3),
           rotate: lerp(-360, 0, e),
-          opacity: t < 1200 ? 0 : 1,
+          opacity: t < 750 ? 0 : 1,
         };
-        pose.burst = range(t, 1200, 1650);
-        pose.word = easeOut(range(t, 1850, 2500));
+        pose.burst = range(t, 750, 1050);
+        pose.word = easeOut(range(t, 1200, 1500));
       } else {
         pose.spin = from.spin + from.omega * 0.1 * (1 - (1 - range(t, 0, 200)) ** 2);
         pose.shake = t > 200 ? 7 * Math.exp(-(t - 200) / 130) * Math.sin((t - 200) * 0.07) : 0;
@@ -302,7 +313,7 @@ function useBookTimeline(parts: React.RefObject<Parts>, phase: BookPhase) {
     };
     handle = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(handle);
-  }, [parts]);
+  }, [parts, enabled]);
 }
 
 const fill: React.CSSProperties = {position: 'absolute', inset: 0};
@@ -323,7 +334,7 @@ function Facets({list}: {list: Facet[]}) {
 /** The 3D book itself. `paint` moves it through refs, so React renders it once. */
 function Book({parts}: {parts: React.RefObject<Parts>}) {
   const ref = useMemo(() => {
-    const set = (key: keyof Parts) => (el: HTMLElement | null) => {
+    const set = (key: Exclude<keyof Parts, 'wordWidth'>) => (el: HTMLElement | null) => {
       if (parts.current) parts.current[key] = el;
     };
     return {
@@ -343,7 +354,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
           <div style={group}>
             <div
               style={slab(-HALF, {
-                background: 'linear-gradient(135deg,#3a6dfb,#6a4cf0)',
+                background: BACK_COVER,
                 backfaceVisibility: 'hidden',
                 transform: `translateZ(${-HALF}px) rotateY(180deg)`,
               })}
@@ -357,7 +368,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
               style={slab(HALF - CV - 0.4, {
                 inset: 5,
                 borderRadius: R - 5,
-                background: 'repeating-linear-gradient(0deg,#fffdf6 0 10px,#efe8d4 10px 11px)',
+                background: PAGE_TOP,
               })}
             />
             <div
@@ -366,7 +377,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
                 inset: '8px 8px 8px 6px',
                 borderRadius: R - 8,
                 transformOrigin: '0 50%',
-                background: 'linear-gradient(90deg,#ffd34d,#ffb820)',
+                background: YELLOW_PAGE,
               })}
             />
             <Facets list={FACETS.spine} />
@@ -379,7 +390,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
             </div>
             <div
               style={slab(HALF - CV - 0.2, {
-                background: 'linear-gradient(135deg,#e9eeff,#d6defc)',
+                background: INNER_COVER,
                 backfaceVisibility: 'hidden',
                 transform: `translateZ(${HALF - CV - 0.2}px) rotateY(180deg)`,
               })}
@@ -397,7 +408,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
           left: 0,
           top: 0,
           pointerEvents: 'none',
-          filter: 'drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #9fb6ff)',
+          filter: STAR_GLOW,
         }}
       >
         <path d="M33.5 9.5l1.25 3.25L38 14l-3.25 1.25L33.5 18.5l-1.25-3.25L29 14l3.25-1.25z" fill="#fff" />
@@ -413,7 +424,7 @@ function Book({parts}: {parts: React.RefObject<Parts>}) {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: i % 2 ? '#ffd25a' : '#9fb6ff',
+              background: SPARK_COLORS[i % 2],
             }}
           />
         ))}
@@ -439,9 +450,10 @@ export function BookLoader({phase}: {phase: BookPhase}) {
     sparks: null,
     root: null,
     word: null,
+    wordWidth: 0,
   });
   const reduced = prefersReducedMotion();
-  useBookTimeline(parts, phase);
+  useBookTimeline(parts, phase, !reduced);
   // Portaled to <body>: the auth shell's columns are separate stacking contexts that would cover it.
   return createPortal(
     <div className="fixed inset-0 z-50 flex animate-page-in items-center justify-center bg-white/80 backdrop-blur-sm motion-reduce:animate-none">
