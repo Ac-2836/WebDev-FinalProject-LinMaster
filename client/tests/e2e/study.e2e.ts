@@ -1,6 +1,8 @@
 import {expect, test} from '@playwright/test';
 
-import {registerUser, selectWord} from './helpers';
+import {cspViolations, registerUser, selectWord} from './helpers';
+
+test.afterEach(({page}) => expect(cspViolations(page)).toEqual([]));
 
 const ARTICLE = [
   'Coastal cities face mounting pressure from rising seas.',

@@ -11,6 +11,7 @@ import {z} from 'zod';
 import {catchAsync} from '../../core/catch-async';
 import {openApiRegistry} from '../../core/openapi-registry';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {aiRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import {createScanService} from './scan.service';
 
@@ -19,6 +20,7 @@ export function addScanRoute(router: Router, jwtSecret: string, service = create
   router.post(
     '/vocab/documents/:id/scan',
     requireAuth(jwtSecret),
+    aiRateLimit(),
     validate(z.object({params: VocabDocumentIdParamsSchema, body: ScanDocumentRequestSchema})),
     catchAsync(async (req, res) => {
       const {id} = req.params as {id: string};
@@ -84,7 +86,9 @@ openApiRegistry.registerPath({
     400: error('Invalid document id or filters.'),
     401: error('Authentication required.'),
     404: error('Document not found or not owned by the current user.'),
-    429: error('Daily AI quota used up (status AI_QUOTA_EXCEEDED, details.retryAt).'),
+    429: error(
+      'Daily AI quota used up (status AI_QUOTA_EXCEEDED, details.retryAt), or more than 20 AI requests in a minute.',
+    ),
     502: error('The AI returned invalid output 3 times (status AI_INVALID_OUTPUT).'),
     503: error('The AI service is unavailable (status AI_UNAVAILABLE).'),
     500: error('Unexpected server error.'),

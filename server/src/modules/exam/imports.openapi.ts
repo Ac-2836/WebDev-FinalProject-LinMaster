@@ -77,6 +77,7 @@ openApiRegistry.registerPath({
     401: error('Authentication required.'),
     413: error('The file is too large.'),
     415: error('Only PDF, MP3 and M4A files are accepted.'),
+    429: error('More than 30 uploads in an hour by this user.'),
     500: error('Unexpected server error.'),
   },
 });
@@ -151,7 +152,7 @@ openApiRegistry.registerPath({
     409: error('`IMPORT_FILE_IN_USE`: a file already belongs to a test import.'),
     413: error('The merged PDF exceeds 20 MB.'),
     422: error('`IMPORT_INCOMPLETE`: a required part is missing; `error.details.checklist` is the table.'),
-    429: error('AI quota of the user reached while labelling a PDF.'),
+    429: error('AI quota of the user reached while labelling a PDF, or more than 20 AI requests in a minute.'),
     502: error('The AI answer could not be read.'),
     503: error('The AI is unavailable; the "Theo mẫu" tab still works.'),
     500: error('Unexpected server error.'),

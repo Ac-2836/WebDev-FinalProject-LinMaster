@@ -132,6 +132,10 @@ openApiRegistry.registerPath({
       content: {'application/json': {schema: ApiErrorBody}},
     },
     422: {description: 'No readable text was found.', content: {'application/json': {schema: ApiErrorBody}}},
+    429: {
+      description: 'More than 30 documents in an hour by this user.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
     500: internalError,
   },
 });
