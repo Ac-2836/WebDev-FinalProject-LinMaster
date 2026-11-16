@@ -10,6 +10,7 @@ import {z} from 'zod';
 import {catchAsync} from '../../core/catch-async';
 import {openApiRegistry} from '../../core/openapi-registry';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {aiRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import {createLookupService} from './lookup.service';
 
@@ -18,6 +19,7 @@ export function addLookupRoute(router: Router, jwtSecret: string, service = crea
   router.post(
     '/vocab/lookups',
     requireAuth(jwtSecret),
+    aiRateLimit(),
     validate(z.object({body: LookupWordRequestSchema})),
     catchAsync(async (req, res) => {
       res.json(await service.lookup(req.user!.userId, req.body as LookupWordRequest));
@@ -88,7 +90,9 @@ openApiRegistry.registerPath({
     400: error('Invalid request, e.g. more than 6 words or the sentence does not contain the text.'),
     401: error('Authentication required.'),
     404: error('documentId is not a document of the current user.'),
-    429: error('Daily AI quota used up (status AI_QUOTA_EXCEEDED, details.retryAt).'),
+    429: error(
+      'Daily AI quota used up (status AI_QUOTA_EXCEEDED, details.retryAt), or more than 20 AI requests in a minute.',
+    ),
     502: error('The AI returned invalid output 3 times (status AI_INVALID_OUTPUT).'),
     503: error('The AI service is unavailable (status AI_UNAVAILABLE).'),
     500: error('Unexpected server error.'),

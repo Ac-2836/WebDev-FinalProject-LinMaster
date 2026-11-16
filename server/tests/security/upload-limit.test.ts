@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest';
 
 import {createApp} from '../../src/app';
 import {signJwt} from '../../src/core/jwt';
-import {UPLOADS_PER_HOUR} from '../../src/core/user-rate-limit';
+import {AI_CALLS_PER_MINUTE, UPLOADS_PER_HOUR} from '../../src/core/user-rate-limit';
 
 const JWT_SECRET = 'upload-limit-secret-that-is-at-least-32-chars';
 const USER = '0192f7e0-0bcd-7000-8000-0000000000a1';
@@ -23,6 +23,26 @@ describe.each(['/api/v1/tests/imports/files', '/api/v1/vocab/documents'])('uploa
     const refused = await post(USER);
     expect(refused.status).toBe(429);
     expect(refused.body.error.status).toBe('RESOURCE_EXHAUSTED');
+    expect((await post(OTHER)).status).toBe(400);
+  });
+});
+
+// Empty bodies fail validation before any AI call, but still count towards the per-minute AI limit of the user.
+describe.each([
+  '/api/v1/vocab/lookups',
+  '/api/v1/vocab/documents/0192f7e0-0bcd-7000-8000-0000000000a3/scan',
+  '/api/v1/tests/imports',
+])('AI limit on %s', path => {
+  it('refuses a user after the per-minute limit, but not another user', async () => {
+    const app = createApp({NODE_ENV: 'test', JWT_SECRET, CORS_ORIGINS: []});
+    const post = (userId: string) =>
+      request(app)
+        .post(path)
+        .set('Authorization', `Bearer ${signJwt(userId, JWT_SECRET)}`)
+        .send({bad: true});
+
+    for (let call = 0; call < AI_CALLS_PER_MINUTE; call += 1) expect((await post(USER)).status).toBe(400);
+    expect((await post(USER)).status).toBe(429);
     expect((await post(OTHER)).status).toBe(400);
   });
 });

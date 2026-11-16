@@ -152,7 +152,7 @@ openApiRegistry.registerPath({
     409: error('`IMPORT_FILE_IN_USE`: a file already belongs to a test import.'),
     413: error('The merged PDF exceeds 20 MB.'),
     422: error('`IMPORT_INCOMPLETE`: a required part is missing; `error.details.checklist` is the table.'),
-    429: error('AI quota of the user reached while labelling a PDF.'),
+    429: error('AI quota of the user reached while labelling a PDF, or more than 20 AI requests in a minute.'),
     502: error('The AI answer could not be read.'),
     503: error('The AI is unavailable; the "Theo mẫu" tab still works.'),
     500: error('Unexpected server error.'),

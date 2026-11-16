@@ -1,9 +1,20 @@
 import {expect, type Page} from '@playwright/test';
 
 const WEB_URL = 'http://localhost:3100';
+const violations = new WeakMap<Page, string[]>();
+
+/** Content-Security-Policy violations the browser reported on the page since `registerUser` (P5-02). */
+export function cspViolations(page: Page): string[] {
+  return violations.get(page) ?? [];
+}
 
 /** Registers a new account (English interface) and lands on /home. */
 export async function registerUser(page: Page, name: string): Promise<string> {
+  const reported: string[] = [];
+  violations.set(page, reported);
+  page.on('console', message => {
+    if (message.text().includes('Content Security Policy')) reported.push(message.text());
+  });
   await page.context().addCookies([{name: 'NEXT_LOCALE', value: 'en', url: WEB_URL}]);
   const email = `e2e-${name}-${Date.now()}@example.test`;
   await page.goto('/register');

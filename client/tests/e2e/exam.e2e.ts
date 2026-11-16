@@ -1,7 +1,9 @@
 import {expect, type Page, test} from '@playwright/test';
 import {PDFDocument, StandardFonts} from 'pdf-lib';
 
-import {registerUser} from './helpers';
+import {cspViolations, registerUser} from './helpers';
+
+test.afterEach(({page}) => expect(cspViolations(page)).toEqual([]));
 
 /** A two-page test PDF: page 1 the passage and questions, page 2 the answer key (read by tests/e2e/mock-ai.mjs). */
 async function testPdf(): Promise<Buffer> {

@@ -12,7 +12,7 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
-import {uploadRateLimit} from '../../core/user-rate-limit';
+import {aiRateLimit, uploadRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import type {createImportService} from './imports.service';
 
@@ -73,6 +73,7 @@ export function addImportRoutes(router: Router, service: ImportService, jwtSecre
   router.post(
     '/tests/imports',
     requireAuth(jwtSecret),
+    aiRateLimit(),
     validate(createImportSchema),
     catchAsync(async (req, res) => {
       res.status(202).json(await service.createImport(req.user!.userId, req.body as CreateImportRequest));
