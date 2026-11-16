@@ -114,6 +114,9 @@ openApiRegistry.registerPath({
   method: 'patch',
   path: '/api/v1/tests/{id}',
   summary: 'Rename a test or change its source',
+  description:
+    'Owner only. Send `title` (1 to 200 characters), `source` (up to 300, or null to clear it) or both; at least ' +
+    'one is required. Questions and answers cannot be edited here: import the test again instead.',
   tags: ['Exam'],
   security,
   request: {

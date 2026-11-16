@@ -86,6 +86,9 @@ openApiRegistry.registerPath({
   method: 'delete',
   path: '/api/v1/tests/imports/files/{fileId}',
   summary: 'Remove an uploaded file that no import uses',
+  description:
+    'Deletes a file the user uploaded but has not sent in a test import yet (e.g. the wrong PDF was picked). ' +
+    'Once an import uses it, the file stays with that import.',
   tags: ['Exam'],
   security,
   request: {params: ImportFileIdParamsSchema},
@@ -152,9 +155,11 @@ openApiRegistry.registerPath({
     409: error('`IMPORT_FILE_IN_USE`: a file already belongs to a test import.'),
     413: error('The merged PDF exceeds 20 MB.'),
     422: error('`IMPORT_INCOMPLETE`: a required part is missing; `error.details.checklist` is the table.'),
-    429: error('AI quota of the user reached while labelling a PDF, or more than 20 AI requests in a minute.'),
-    502: error('The AI answer could not be read.'),
-    503: error('The AI is unavailable; the "Theo mẫu" tab still works.'),
+    429: error(
+      'More than 20 AI requests in a minute, or `AI_QUOTA_EXCEEDED`: the daily AI quota ran out while labelling a PDF.',
+    ),
+    502: error('`AI_INVALID_OUTPUT`: the AI answer could not be read.'),
+    503: error('`AI_UNAVAILABLE`: the AI is unavailable; the "Theo mẫu" tab still works.'),
     500: error('Unexpected server error.'),
   },
 });

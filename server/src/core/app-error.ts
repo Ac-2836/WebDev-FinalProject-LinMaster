@@ -1,4 +1,4 @@
-const STATUS_BY_CODE: Record<number, string> = {
+export const STATUS_BY_CODE: Record<number, string> = {
   400: 'INVALID_ARGUMENT',
   401: 'UNAUTHENTICATED',
   403: 'PERMISSION_DENIED',

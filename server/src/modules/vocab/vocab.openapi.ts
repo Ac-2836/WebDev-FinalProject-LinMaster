@@ -74,6 +74,21 @@ const documentExample = {
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
+const {id, title, source, wordCount, createdAt, updatedAt} = documentExample;
+const documentListItemExample = {id, title, source, wordCount, createdAt, updatedAt};
+const documentDetailExample = {
+  ...documentExample,
+  paragraphs: [{text: 'Governments must mitigate the effects of flooding.'}],
+  wordCount: 7,
+  entries: [
+    {
+      id: entryExample.id,
+      headword: 'mitigate',
+      lemma: 'mitigate',
+      contexts: [{sentence: 'Governments must mitigate the effects of flooding.', startOffset: 17, endOffset: 25}],
+    },
+  ],
+};
 const uploadDocumentSchema = z.object({
   title: z.string().optional(),
   file: z.string().openapi({type: 'string', format: 'binary'}),
@@ -177,7 +192,12 @@ openApiRegistry.registerPath({
   responses: {
     200: {
       description: 'The document already made from this passage.',
-      content: {'application/json': {schema: CreateVocabDocumentResponseSchema}},
+      content: {
+        'application/json': {
+          schema: CreateVocabDocumentResponseSchema,
+          examples: {existing: {value: {document: examDocumentExample}}},
+        },
+      },
     },
     201: {
       description: 'Document created from the passage.',
@@ -206,12 +226,18 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/vocab/documents',
   summary: 'List reading documents',
+  description: 'Documents of the current user, last edited first, without their text (open one for the paragraphs).',
   tags: ['Documents'],
   security: [{bearerAuth: []}],
   responses: {
     200: {
       description: 'Documents owned by the current user.',
-      content: {'application/json': {schema: ListVocabDocumentsResponseSchema}},
+      content: {
+        'application/json': {
+          schema: ListVocabDocumentsResponseSchema,
+          examples: {success: {value: {documents: [documentListItemExample]}}},
+        },
+      },
     },
     401: authError,
     500: internalError,
@@ -222,13 +248,21 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/vocab/documents/{id}',
   summary: 'Get a reading document and its saved vocabulary',
+  description:
+    'The paragraphs to read, plus each word of the word bank saved from this document with the sentences and ' +
+    'character offsets where it was met, so the reader can highlight them.',
   tags: ['Documents'],
   security: [{bearerAuth: []}],
   request: {params: VocabDocumentIdParamsSchema},
   responses: {
     200: {
       description: 'Document paragraphs and vocabulary saved from it.',
-      content: {'application/json': {schema: GetVocabDocumentResponseSchema}},
+      content: {
+        'application/json': {
+          schema: GetVocabDocumentResponseSchema,
+          examples: {success: {value: {document: documentDetailExample}}},
+        },
+      },
     },
     400: invalidError,
     401: authError,
@@ -306,6 +340,9 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/vocab/entries',
   summary: 'List and filter vocabulary entries',
+  description:
+    'The word bank, last edited first, 20 per page (`pageSize` up to 100). `q` searches the headword, lemma and ' +
+    'both meanings (any case); `topic`, `cefr` and `documentId` keep only matching words. Filters combine.',
   tags: ['Vocab'],
   security: [{bearerAuth: []}],
   request: {query: ListVocabEntriesQuerySchema},
@@ -331,11 +368,17 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/vocab/entries/{id}',
   summary: 'Get a vocabulary entry',
+  description: 'One word of the word bank with its meanings, note and every sentence it was saved from.',
   tags: ['Vocab'],
   security: [{bearerAuth: []}],
   request: {params: VocabEntryIdParamsSchema},
   responses: {
-    200: {description: 'Entry details.', content: {'application/json': {schema: VocabEntryResponseSchema}}},
+    200: {
+      description: 'Entry details.',
+      content: {
+        'application/json': {schema: VocabEntryResponseSchema, examples: {success: {value: {entry: entryExample}}}},
+      },
+    },
     400: invalidError,
     401: authError,
     404: notFoundError,
@@ -347,6 +390,7 @@ openApiRegistry.registerPath({
   method: 'patch',
   path: '/api/v1/vocab/entries/{id}',
   summary: 'Update a vocabulary entry note',
+  description: 'Sets the personal note of a word (up to 2,000 characters), or clears it with null. AI fields stay.',
   tags: ['Vocab'],
   security: [{bearerAuth: []}],
   request: {
@@ -354,7 +398,15 @@ openApiRegistry.registerPath({
     body: jsonBody(UpdateVocabEntryRequestSchema, 'updateNote', {note: 'Remember this in the next review.'}),
   },
   responses: {
-    200: {description: 'Entry note updated.', content: {'application/json': {schema: VocabEntryResponseSchema}}},
+    200: {
+      description: 'Entry note updated.',
+      content: {
+        'application/json': {
+          schema: VocabEntryResponseSchema,
+          examples: {success: {value: {entry: {...entryExample, note: 'Remember this in the next review.'}}}},
+        },
+      },
+    },
     400: invalidError,
     401: authError,
     404: notFoundError,
@@ -366,6 +418,8 @@ openApiRegistry.registerPath({
   method: 'delete',
   path: '/api/v1/vocab/entries/{id}',
   summary: 'Delete a vocabulary entry',
+  description:
+    'Removes the word and its saved sentences. Flashcards made from it stay in their sets, no longer linked to it.',
   tags: ['Vocab'],
   security: [{bearerAuth: []}],
   request: {params: VocabEntryIdParamsSchema},
@@ -376,6 +430,7 @@ openApiRegistry.registerPath({
         'application/json': {schema: DeleteVocabEntryResponseSchema, examples: {success: {value: {deleted: true}}}},
       },
     },
+    400: invalidError,
     401: authError,
     404: notFoundError,
     500: internalError,

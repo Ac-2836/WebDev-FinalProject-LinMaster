@@ -20,6 +20,7 @@ openApiRegistry.registerPath({
       content: {
         'application/json': {
           schema: HealthResponseSchema,
+          examples: {success: {value: {status: 'ok'}}},
         },
       },
     },

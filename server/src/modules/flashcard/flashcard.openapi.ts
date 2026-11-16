@@ -36,6 +36,17 @@ const exampleSet = {
   ],
 };
 
+const {id, title, description, termLang, definitionLang, createdAt, updatedAt} = exampleSet;
+const setFields = {id, title, description, termLang, definitionLang, createdAt, updatedAt};
+const emptySet = {...setFields, description: null, cards: []};
+const setSummary = {...setFields, cardCount: exampleSet.cards.length};
+const VOCAB_ID = '0192f7e0-0bcd-7000-8000-000000000003';
+const setFromVocab = {
+  ...exampleSet,
+  description: null,
+  cards: [{...exampleSet.cards[0], example: 'The new policy mitigated the impact.', vocabEntryId: VOCAB_ID}],
+};
+
 function requestBody(schema: ZodType, name: string, value: unknown) {
   return {content: {'application/json': {schema, examples: {[name]: {summary: 'Example request', value}}}}};
 }
@@ -53,11 +64,19 @@ openApiRegistry.registerPath({
   method: 'post',
   path: '/api/v1/flashcards/sets',
   summary: 'Create a flashcard set',
+  description:
+    'An empty set; add cards with `PUT /flashcards/sets/{id}/cards`. `termLang` and `definitionLang` default to ' +
+    '`en` and `vi` (they pick the voice that reads the card aloud).',
   tags: ['Flashcard'],
   security,
   request: {body: requestBody(CreateFlashcardSetSchema, 'createSet', {title: 'Environment vocabulary'})},
   responses: {
-    201: {description: 'Set created.', content: {'application/json': {schema: CreateFlashcardSetResponseSchema}}},
+    201: {
+      description: 'Set created.',
+      content: {
+        'application/json': {schema: CreateFlashcardSetResponseSchema, examples: {success: {value: {set: emptySet}}}},
+      },
+    },
     400: invalidError,
     401: authError,
     500: internalError,
@@ -68,12 +87,18 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/flashcards/sets',
   summary: 'List the current user flashcard sets',
+  description: 'Sets of the current user, last edited first, with the number of cards but not the cards themselves.',
   tags: ['Flashcard'],
   security,
   responses: {
     200: {
       description: 'Current user sets with card counts.',
-      content: {'application/json': {schema: ListFlashcardSetsResponseSchema}},
+      content: {
+        'application/json': {
+          schema: ListFlashcardSetsResponseSchema,
+          examples: {success: {value: {sets: [setSummary]}}},
+        },
+      },
     },
     401: authError,
     500: internalError,
@@ -84,11 +109,17 @@ openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/flashcards/sets/{id}',
   summary: 'Get a flashcard set and its cards',
+  description: 'One set of the current user with all its cards in study order (`position`).',
   tags: ['Flashcard'],
   security,
   request: {params: FlashcardSetIdParamsSchema},
   responses: {
-    200: {description: 'Set details.', content: {'application/json': {schema: GetFlashcardSetResponseSchema}}},
+    200: {
+      description: 'Set details.',
+      content: {
+        'application/json': {schema: GetFlashcardSetResponseSchema, examples: {success: {value: {set: exampleSet}}}},
+      },
+    },
     400: invalidError,
     401: authError,
     404: notFoundError,
@@ -100,6 +131,7 @@ openApiRegistry.registerPath({
   method: 'patch',
   path: '/api/v1/flashcards/sets/{id}',
   summary: 'Update flashcard set details',
+  description: 'Changes the title, description or languages of a set; send at least one. Cards are not touched.',
   tags: ['Flashcard'],
   security,
   request: {
@@ -107,7 +139,15 @@ openApiRegistry.registerPath({
     body: requestBody(UpdateFlashcardSetSchema, 'updateSet', {title: 'Updated title'}),
   },
   responses: {
-    200: {description: 'Set updated.', content: {'application/json': {schema: GetFlashcardSetResponseSchema}}},
+    200: {
+      description: 'Set updated.',
+      content: {
+        'application/json': {
+          schema: GetFlashcardSetResponseSchema,
+          examples: {success: {value: {set: {...exampleSet, title: 'Updated title'}}}},
+        },
+      },
+    },
     400: invalidError,
     401: authError,
     404: notFoundError,
@@ -119,6 +159,9 @@ openApiRegistry.registerPath({
   method: 'delete',
   path: '/api/v1/flashcards/sets/{id}',
   summary: 'Delete a flashcard set',
+  description:
+    'Deletes the set with its cards, study progress and sessions. Words of the word bank stay. Copies other ' +
+    'learners made from the library are theirs and stay too.',
   tags: ['Flashcard'],
   security,
   request: {params: FlashcardSetIdParamsSchema},
@@ -152,7 +195,12 @@ openApiRegistry.registerPath({
   responses: {
     200: {
       description: 'Cards replaced in the requested order.',
-      content: {'application/json': {schema: ReplaceFlashcardCardsResponseSchema}},
+      content: {
+        'application/json': {
+          schema: ReplaceFlashcardCardsResponseSchema,
+          examples: {success: {value: {cards: exampleSet.cards}}},
+        },
+      },
     },
     400: invalidError,
     401: authError,
@@ -165,18 +213,26 @@ openApiRegistry.registerPath({
   method: 'post',
   path: '/api/v1/flashcards/sets/from-vocab',
   summary: 'Create a flashcard set from vocabulary entries',
+  description:
+    'One card per word of the word bank (1 to 100): term = headword, definition = Vietnamese meaning, example = ' +
+    'the first saved sentence. Each card keeps `vocabEntryId`. 404 when a word is missing or not yours.',
   tags: ['Flashcard'],
   security,
   request: {
     body: requestBody(CreateFlashcardSetFromVocabSchema, 'createSetFromVocab', {
       title: 'Environment vocabulary',
-      vocabIds: ['0192f7e0-0bcd-7000-8000-000000000003'],
+      vocabIds: [VOCAB_ID],
     }),
   },
   responses: {
     201: {
       description: 'Set created from vocabulary.',
-      content: {'application/json': {schema: CreateFlashcardSetResponseSchema}},
+      content: {
+        'application/json': {
+          schema: CreateFlashcardSetResponseSchema,
+          examples: {success: {value: {set: setFromVocab}}},
+        },
+      },
     },
     400: invalidError,
     401: authError,
