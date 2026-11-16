@@ -7,6 +7,8 @@ import {
   FlashcardSetIdParamsSchema,
   GetFlashcardSetResponseSchema,
   ListFlashcardSetsResponseSchema,
+  QuizQuerySchema,
+  QuizResponseSchema,
   ReplaceFlashcardCardsRequestSchema,
   ReplaceFlashcardCardsResponseSchema,
   UpdateFlashcardSetSchema,
@@ -123,6 +125,50 @@ openApiRegistry.registerPath({
     400: invalidError,
     401: authError,
     404: notFoundError,
+    500: internalError,
+  },
+});
+
+const CARD_B = '0192f7e0-0bcd-7000-8000-000000000023';
+const quizExample = {
+  setId: exampleSet.id,
+  questions: [
+    {
+      kind: 'multiple-choice',
+      cardId: exampleSet.cards[0]!.id,
+      prompt: 'mitigate',
+      options: ['giảm nhẹ', 'lỗi thời', 'tăng cường', 'từ bỏ'],
+      answer: 'giảm nhẹ',
+    },
+    {kind: 'written', cardId: CARD_B, prompt: 'lỗi thời', answer: 'obsolete'},
+    {kind: 'true-false', cardId: CARD_B, prompt: 'obsolete', statement: 'giảm nhẹ', answer: false},
+  ],
+};
+
+openApiRegistry.registerPath({
+  method: 'get',
+  path: '/api/v1/flashcards/sets/{id}/quiz',
+  summary: 'Generate a quiz from a flashcard set',
+  description:
+    'Builds the Test mode questions from the cards of the set: one question per card, picked at random (`count`, ' +
+    'default 20, at most the number of cards). `kinds` is a comma-separated subset of `multiple-choice`, `written` ' +
+    'and `true-false` (default all); kinds are used in turn. Answers come with the questions, so the client grades. ' +
+    'Readable by the owner, or by anyone for a public set. Nothing is stored; every call draws a new quiz.',
+  tags: ['Flashcard'],
+  security,
+  request: {params: FlashcardSetIdParamsSchema, query: QuizQuerySchema},
+  responses: {
+    200: {
+      description: 'The questions.',
+      content: {'application/json': {schema: QuizResponseSchema, examples: {success: {value: quizExample}}}},
+    },
+    400: invalidError,
+    401: authError,
+    404: {
+      description: 'Set not found, or private or hidden and owned by someone else.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
+    422: {description: 'The set has fewer than 4 cards.', content: {'application/json': {schema: ApiErrorBody}}},
     500: internalError,
   },
 });

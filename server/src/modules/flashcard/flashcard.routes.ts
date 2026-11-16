@@ -4,6 +4,7 @@ import type {
   CreateFlashcardSetSchema,
   EndStudySessionRequestSchema,
   FlashcardSetIdParamsSchema,
+  QuizQuerySchema,
   ReplaceFlashcardCardsRequestSchema,
   ReviewCardRequestSchema,
   StartStudySessionRequestSchema,
@@ -21,6 +22,7 @@ import {
   dueSummarySchema,
   endStudySessionSchema,
   getFlashcardSetSchema,
+  getQuizSchema,
   getStudyCardsSchema,
   listFlashcardSetsSchema,
   replaceFlashcardCardsSchema,
@@ -39,6 +41,7 @@ type EndSessionInput = typeof EndStudySessionRequestSchema._output;
 type SetParams = typeof FlashcardSetIdParamsSchema._output;
 type CreateSetInput = typeof CreateFlashcardSetSchema._output;
 type CreateFromVocabInput = typeof CreateFlashcardSetFromVocabSchema._output;
+type QuizInput = typeof QuizQuerySchema._output;
 type UpdateSetInput = typeof UpdateFlashcardSetSchema._output;
 type ReplaceCardsInput = typeof ReplaceFlashcardCardsRequestSchema._output;
 
@@ -77,6 +80,14 @@ export function createFlashcardRouter(service: FlashcardService, study: StudySer
     validate(getFlashcardSetSchema),
     catchAsync(async (req, res) => {
       res.json(await service.getSet(req.user!.userId, (req.params as SetParams).id));
+    }),
+  );
+  router.get(
+    '/flashcards/sets/:id/quiz',
+    requireAuth(jwtSecret),
+    validate(getQuizSchema),
+    catchAsync(async (req, res) => {
+      res.json(await service.getQuiz(req.user!.userId, (req.params as SetParams).id, req.query as QuizInput));
     }),
   );
   router.patch(

@@ -23,6 +23,8 @@ export interface FlashcardRepository {
   createSet(ownerId: string, input: CreateFlashcardSet, cards?: ReplaceFlashcardCardInput[]): Promise<FlashcardSet>;
   listSets(ownerId: string): Promise<FlashcardSetSummary[]>;
   findSet(ownerId: string, id: string): Promise<FlashcardSet | null>;
+  /** A set of the user, or a public set of anyone (hidden and private sets of others stay unreadable). */
+  findReadableSet(userId: string, id: string): Promise<FlashcardSet | null>;
   updateSet(ownerId: string, id: string, input: UpdateFlashcardSet): Promise<FlashcardSet | null>;
   deleteSet(ownerId: string, id: string): Promise<boolean>;
   replaceCards(ownerId: string, setId: string, cards: ReplaceFlashcardCardInput[]): Promise<FlashcardCard[] | null>;
@@ -114,6 +116,14 @@ export const prismaFlashcardRepository: FlashcardRepository = {
 
   async findSet(ownerId, id) {
     const set = await getDb().flashcardSet.findFirst({where: {id, ownerId}, include: includeCards});
+    return set ? toSet(set) : null;
+  },
+
+  async findReadableSet(userId, id) {
+    const set = await getDb().flashcardSet.findFirst({
+      where: {id, OR: [{ownerId: userId}, {visibility: 'public'}]},
+      include: includeCards,
+    });
     return set ? toSet(set) : null;
   },
 

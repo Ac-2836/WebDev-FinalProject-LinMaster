@@ -150,4 +150,17 @@ describe('Prisma flashcard repository', () => {
     ]);
     expect(foreignResult.status).toBe(404);
   });
+  it('lets a user read their own sets and public sets only', async () => {
+    const make = (visibility: 'private' | 'public' | 'hidden') =>
+      db.flashcardSet.create({data: {ownerId: otherUserId, title: `Readable ${visibility} ${testRun}`, visibility}});
+    const [priv, pub, hidden] = [await make('private'), await make('public'), await make('hidden')];
+
+    const read = (userId: string, id: string) => prismaFlashcardRepository.findReadableSet(userId, id);
+
+    expect((await read(ownerId, pub.id))?.id).toBe(pub.id);
+    expect((await read(otherUserId, priv.id))?.id).toBe(priv.id);
+    expect((await read(otherUserId, hidden.id))?.id).toBe(hidden.id);
+    expect(await read(ownerId, priv.id)).toBeNull();
+    expect(await read(ownerId, hidden.id)).toBeNull();
+  });
 });

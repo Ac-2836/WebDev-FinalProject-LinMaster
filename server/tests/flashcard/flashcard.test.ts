@@ -26,6 +26,7 @@ const OTHER_USER_ID = '0192f7e0-0bcd-7000-8000-000000000032';
 const SET_ID = '0192f7e0-0bcd-7000-8000-000000000033';
 const OTHER_SET_ID = '0192f7e0-0bcd-7000-8000-000000000034';
 const CARD_ID = '0192f7e0-0bcd-7000-8000-000000000035';
+const PUBLIC_SET_ID = '0192f7e0-0bcd-7000-8000-000000000060';
 const OTHER_CARD_ID = '0192f7e0-0bcd-7000-8000-000000000036';
 const VOCAB_ID = '0192f7e0-0bcd-7000-8000-000000000037';
 const OTHER_VOCAB_ID = '0192f7e0-0bcd-7000-8000-000000000038';
@@ -84,6 +85,16 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
     [SET_ID, {ownerId: OWNER_ID, set: makeSet()}],
     [OTHER_SET_ID, {ownerId: OTHER_USER_ID, set: makeSet({id: OTHER_SET_ID, cards: [makeCard({id: OTHER_CARD_ID})]})}],
   ]);
+  const quizCards = ['a', 'b', 'c', 'd'].map((word, position) =>
+    makeCard({
+      id: `0192f7e0-0bcd-7000-8000-${String(70 + position).padStart(12, '0')}`,
+      term: word,
+      definition: `${word}-vi`,
+      position,
+    }),
+  );
+  sets.set(PUBLIC_SET_ID, {ownerId: OTHER_USER_ID, set: makeSet({id: PUBLIC_SET_ID, cards: quizCards})});
+  const publicIds = new Set([PUBLIC_SET_ID]);
   let createdSetNumber = 0;
   let createdCardNumber = 50;
 
@@ -127,6 +138,10 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
     async findSet(ownerId, id) {
       const record = sets.get(id);
       return record?.ownerId === ownerId ? record.set : null;
+    },
+    async findReadableSet(userId, id) {
+      const record = sets.get(id);
+      return record && (record.ownerId === userId || publicIds.has(id)) ? record.set : null;
     },
     async updateSet(ownerId, id, input) {
       const record = sets.get(id);
@@ -287,6 +302,41 @@ describe('flashcard API', () => {
     expect(forbiddenEntry.status).toBe(404);
   });
 
+  it('builds a quiz for the owner and for a public set, and hides the rest', async () => {
+    const anonymous = await request(app).get(`/flashcards/sets/${PUBLIC_SET_ID}/quiz`);
+    expect(anonymous.status).toBe(401);
+
+    const publicQuiz = await request(app)
+      .get(`/flashcards/sets/${PUBLIC_SET_ID}/quiz?count=3&kinds=written`)
+      .set('Authorization', authHeader());
+    expect(publicQuiz.status).toBe(200);
+    expect(publicQuiz.body.setId).toBe(PUBLIC_SET_ID);
+    expect(publicQuiz.body.questions).toHaveLength(3);
+    expect(publicQuiz.body.questions.every((q: {kind: string}) => q.kind === 'written')).toBe(true);
+
+    // OTHER_SET_ID is private and owned by someone else; SET_ID has one card for its owner.
+    const foreign = await request(app).get(`/flashcards/sets/${OTHER_SET_ID}/quiz`).set('Authorization', authHeader());
+    const missing = await request(app)
+      .get('/flashcards/sets/0192f7e0-0bcd-7000-8000-000000000099/quiz')
+      .set('Authorization', authHeader());
+    expect(foreign.status).toBe(404);
+    expect(missing.status).toBe(404);
+  });
+
+  it('needs four cards and a valid query for a quiz', async () => {
+    const tooSmall = await request(app).get(`/flashcards/sets/${SET_ID}/quiz`).set('Authorization', authHeader());
+    const badKind = await request(app)
+      .get(`/flashcards/sets/${PUBLIC_SET_ID}/quiz?kinds=essay`)
+      .set('Authorization', authHeader());
+    const badCount = await request(app)
+      .get(`/flashcards/sets/${PUBLIC_SET_ID}/quiz?count=51`)
+      .set('Authorization', authHeader());
+    const badId = await request(app).get('/flashcards/sets/not-a-uuid/quiz').set('Authorization', authHeader());
+
+    expect(tooSmall.status).toBe(422);
+    expect([badKind.status, badCount.status, badId.status]).toEqual([400, 400, 400]);
+  });
+
   it('documents all flashcard routes and requires bearer authentication', () => {
     const paths = generateOpenApiDocument().paths ?? {};
 
@@ -297,5 +347,6 @@ describe('flashcard API', () => {
     expect(paths['/api/v1/flashcards/sets/{id}']?.delete).toBeDefined();
     expect(paths['/api/v1/flashcards/sets/{id}/cards']?.put).toBeDefined();
     expect(paths['/api/v1/flashcards/sets/from-vocab']?.post).toBeDefined();
+    expect(paths['/api/v1/flashcards/sets/{id}/quiz']?.get).toMatchObject({security: [{bearerAuth: []}]});
   });
 });
