@@ -41,6 +41,7 @@ model FlashcardSet {
   sessions StudySession[]
 
   @@index([visibility, publishedAt])
+  @@index([ownerId])
 }
 
 /// Saving the editor updates cards with an id, inserts new ones and deletes removed ones, so progress is kept.
@@ -60,6 +61,8 @@ model Card {
 
   progress CardProgress[]
   reviews  ReviewLog[]
+
+  @@index([setId, position])
 }
 
 /// SM-2 state of one learner on one card. New / Learning / Mastered is derived from these columns (st-04).
@@ -80,6 +83,7 @@ model CardProgress {
 
   @@unique([userId, cardId])
   @@index([userId, dueAt])
+  @@index([cardId])
 }
 
 model StudySession {
@@ -96,6 +100,8 @@ model StudySession {
   correctCount Int          @default(0)
 
   reviews ReviewLog[]
+
+  @@index([userId])
 }
 
 model ReviewLog {
@@ -112,4 +118,6 @@ model ReviewLog {
   reviewedAt     DateTime      @default(now()) @db.Timestamptz(6)
 
   @@index([userId, reviewedAt])
+  @@index([sessionId])
+  @@index([cardId])
 }

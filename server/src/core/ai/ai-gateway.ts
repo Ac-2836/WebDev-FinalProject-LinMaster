@@ -6,13 +6,22 @@ import type {PrismaClient} from '../../generated/prisma/client';
 import {AppError} from '../app-error';
 import {getEnv} from '../config/env';
 import {getDb} from '../db';
-import {type AiModel, createGeminiModel} from './ai-model';
+import {type AiModel, type AiModelRequest, createGeminiModel} from './ai-model';
 import {type AiTask, aiTaskRegistry} from './ai-task';
 
 /** AI calls (cache misses) one user may make per day. */
 export const AI_DAILY_QUOTA = 50;
 /** First call plus two retries when the model returns JSON that fails the task schema (PLAN C0). */
 export const AI_MAX_ATTEMPTS = 3;
+/**
+ * Waits before each new try when the model cannot be reached (network error, timeout, 408, 429 or 5xx):
+ * two more tries, 0.5 s then 1.5 s later (QA C1). Any other 4xx is not retried.
+ */
+export const AI_RETRY_DELAYS_MS = [500, 1500];
+/** How long one model call may take: a word or a document answers well within 25 s. */
+export const AI_TIMEOUT_MS = 25_000;
+/** A whole test PDF took over 2 minutes in testing; it runs in the import job, so it may take up to 5 minutes. */
+export const AI_PDF_TIMEOUT_MS = 300_000;
 // Quota days start at midnight Vietnam time (UTC+7, no daylight saving).
 const VIETNAM_OFFSET_MS = 7 * 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -22,6 +31,8 @@ export interface AiGatewayDeps {
   model: AiModel;
   dailyQuota?: number;
   now?: () => Date;
+  /** Waits between tries; tests pass one that returns at once. */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export interface RunJsonTaskOptions {
@@ -49,11 +60,43 @@ function parseJson(text: string): unknown {
   }
 }
 
+/** A failure worth another try: no HTTP status (network error, timeout) or 408, 429, 5xx. */
+export function isTransientAiError(error: unknown): boolean {
+  const status = (error as {status?: unknown} | null)?.status;
+  if (typeof status !== 'number') return true;
+  return status === 408 || status === 429 || status >= 500;
+}
+
+const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
 /** Builds the gateway around a database and a model, so tests can pass the mock model. */
-export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = () => new Date()}: AiGatewayDeps) {
+export function createAiGateway({
+  db,
+  model,
+  dailyQuota = AI_DAILY_QUOTA,
+  now = () => new Date(),
+  sleep = wait,
+}: AiGatewayDeps) {
+  /** One model call, tried again after a short wait while the failure looks temporary. */
+  async function callModel(taskName: string, request: AiModelRequest) {
+    for (let retry = 0; ; retry++) {
+      try {
+        return await model.generateJson(request);
+      } catch (error) {
+        const delay = AI_RETRY_DELAYS_MS[retry];
+        if (delay === undefined || !isTransientAiError(error)) {
+          console.error(`AI task ${taskName} failed to reach the model:`, error);
+          throw new AppError('Dịch vụ AI tạm thời không phản hồi, hãy thử lại sau.', 503, undefined, 'AI_UNAVAILABLE');
+        }
+        console.warn(`AI task ${taskName}: model call failed, trying again in ${delay} ms.`);
+        await sleep(delay);
+      }
+    }
+  }
+
   /**
-   * Runs one registered AI task for a user: quota → cache → model with schema validation, content check
-   * (`task.isComplete`) and retry → AiUsage.
+   * Runs one registered AI task for a user: quota → cache → model (retried while unreachable) with schema
+   * validation, content check (`task.isComplete`) and retry → AiUsage.
    * Throws AppError 429 AI_QUOTA_EXCEEDED, 502 AI_INVALID_OUTPUT or 503 AI_UNAVAILABLE.
    */
   async function runJsonTask<Input, Output>(
@@ -81,17 +124,12 @@ export function createAiGateway({db, model, dailyQuota = AI_DAILY_QUOTA, now = (
     }
 
     const jsonSchema = z.toJSONSchema(task.output);
+    const timeoutMs = prompt.pdf ? AI_PDF_TIMEOUT_MS : AI_TIMEOUT_MS;
     let inputTokens = 0;
     let outputTokens = 0;
     let incomplete: {output: Output} | undefined;
     for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt++) {
-      let response;
-      try {
-        response = await model.generateJson({...prompt, jsonSchema});
-      } catch (error) {
-        console.error(`AI task ${task.name} failed to reach the model:`, error);
-        throw new AppError('Dịch vụ AI tạm thời không phản hồi, hãy thử lại sau.', 503, undefined, 'AI_UNAVAILABLE');
-      }
+      const response = await callModel(task.name, {...prompt, jsonSchema, timeoutMs});
       inputTokens += response.inputTokens ?? 0;
       outputTokens += response.outputTokens ?? 0;
 

@@ -61,6 +61,8 @@ model Test {
   sections TestSection[]
   imports  TestImport[]
   attempts Attempt[]
+
+  @@index([ownerId, createdAt])
 }
 
 model TestSection {
@@ -77,6 +79,8 @@ model TestSection {
   audioFile   StoredFile? @relation("SectionAudio", fields: [audioFileId], references: [id])
 
   passages Passage[]
+
+  @@index([testId])
 }
 
 /// A Reading passage or a Listening part.
@@ -92,6 +96,8 @@ model Passage {
   audioStartSec Int?
 
   groups QuestionGroup[]
+
+  @@index([sectionId])
 }
 
 /// Questions sharing one kind and instructions, e.g. questions 1–5.
@@ -113,6 +119,8 @@ model QuestionGroup {
   imageFile     StoredFile?  @relation("GroupImage", fields: [imageFileId], references: [id])
 
   questions Question[]
+
+  @@index([passageId])
 }
 
 model Question {
@@ -130,6 +138,8 @@ model Question {
   answer  Json
 
   attemptAnswers AttemptAnswer[]
+
+  @@index([groupId])
 }
 
 /// One upload of a test (state diagram st-02).
@@ -153,6 +163,8 @@ model TestImport {
   test           Test?        @relation(fields: [testId], references: [id], onDelete: SetNull)
   createdAt      DateTime     @default(now()) @db.Timestamptz(6)
   finishedAt     DateTime?    @db.Timestamptz(6)
+
+  @@index([ownerId])
 }
 
 /// One attempt of a learner at a test (state diagram st-01).
@@ -183,6 +195,7 @@ model Attempt {
   answers AttemptAnswer[]
 
   @@index([userId, testId])
+  @@index([testId])
 }
 
 /// Grading result of one question, written on submit.
@@ -201,4 +214,6 @@ model AttemptAnswer {
   /// Snapshot taken when grading.
   correctAnswer  Json
   isCorrect      Boolean
+
+  @@index([attemptId])
 }
