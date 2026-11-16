@@ -8,7 +8,7 @@ import {
   type VocabEntry,
 } from '@linmaster/shared';
 import {ArrowLeft, CloudOff, FileQuestion, MousePointerClick, RotateCw, Search, Sparkles} from 'lucide-react';
-import {useFormatter, useTranslations} from 'next-intl';
+import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {Dialog, Popover} from 'radix-ui';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -123,7 +123,6 @@ function useIsDesktop() {
 function Reader({document}: {document: VocabDocumentDetail}) {
   const t = useTranslations('vocab.reader');
   const tDocs = useTranslations('vocab.documents');
-  const format = useFormatter();
   const errorMessage = useErrorMessage();
   const desktop = useIsDesktop();
   const article = useRef<HTMLElement>(null);
@@ -354,7 +353,7 @@ function Reader({document}: {document: VocabDocumentDetail}) {
             {tDocs(`source.${document.source}`)}
           </span>
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground">
-            {tDocs('words', {count: format.number(document.wordCount)})}
+            {tDocs('words', {count: document.wordCount})}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-0.5 text-primary">
             <span className="inline-block size-2 rounded-sm bg-mark" aria-hidden="true" />

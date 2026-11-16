@@ -72,6 +72,8 @@ export function LocaleToggle() {
     <Button
       variant="ghost"
       size="sm"
+      // At least 44px to tap (WCAG 2.5.5), inside the 64px navbar.
+      className="h-11 min-w-11"
       disabled={pending}
       onClick={() => change(next)}
       aria-label={t('toggle', {current: t(current), next: t(next)})}

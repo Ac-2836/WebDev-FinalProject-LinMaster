@@ -148,7 +148,7 @@ export function NewDocumentDialog({open, onOpenChange}: NewDocumentDialogProps) 
                 <p id={`${ids}-text-hint`} className="flex justify-between gap-3 text-[13px] text-muted-foreground">
                   <span>{t('paragraphHint')}</span>
                   <span className={cn('shrink-0', words > MAX_WORDS && 'font-semibold text-destructive')}>
-                    {t('wordCount', {count: format.number(words), max: format.number(MAX_WORDS)})}
+                    {t('wordCount', {count: format.number(words), max: MAX_WORDS})}
                   </span>
                 </p>
               </Tabs.Content>

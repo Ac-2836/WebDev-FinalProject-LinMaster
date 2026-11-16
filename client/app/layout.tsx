@@ -18,7 +18,7 @@ const font = Be_Vietnam_Pro({
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('core.meta');
-  return {title: 'LinMaster', description: t('description')};
+  return {title: {default: 'LinMaster', template: '%s · LinMaster'}, description: t('description')};
 }
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {

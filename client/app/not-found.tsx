@@ -1,9 +1,12 @@
+import {pageTitle} from '@/core/i18n/page-title';
 import {SearchX} from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
 import Link from 'next/link';
 
 import {LogoMark} from '@/components/logo';
 import {Button} from '@/components/ui/button';
+
+export const generateMetadata = pageTitle('notFound');
 
 // Global 404. Also used for content the user may not see (the API answers 403/404 and the page calls notFound()).
 export default async function NotFound() {

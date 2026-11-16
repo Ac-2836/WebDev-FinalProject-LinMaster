@@ -190,9 +190,7 @@ export function DocumentsPage() {
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
                       <span className="rounded-full bg-muted px-2.5 py-0.5">{t(`source.${d.source}`)}</span>
-                      <span className="rounded-full bg-muted px-2.5 py-0.5">
-                        {t('words', {count: format.number(d.wordCount)})}
-                      </span>
+                      <span className="rounded-full bg-muted px-2.5 py-0.5">{t('words', {count: d.wordCount})}</span>
                     </div>
                     <p className="text-[13px] text-muted-foreground">
                       {t('created', {
