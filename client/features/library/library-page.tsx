@@ -238,7 +238,9 @@ function ItemCard({item}: {item: LibraryItem}) {
         </span>
         <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
           {isSet && <Copy className="size-3.5" aria-hidden="true" />}
-          {isSet ? t('copies', {count: compact(item.copyCount)}) : t('attempts', {count: compact(item.attemptCount)})}
+          {isSet
+            ? t('copies', {count: item.copyCount, display: compact(item.copyCount)})
+            : t('attempts', {count: item.attemptCount, display: compact(item.attemptCount)})}
         </span>
       </span>
       <span className="font-bold break-words">{item.title}</span>

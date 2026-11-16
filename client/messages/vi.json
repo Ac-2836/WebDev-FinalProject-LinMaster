@@ -1,7 +1,34 @@
 {
   "core": {
     "meta": {
-      "description": "Học ngoại ngữ bằng trình đọc có AI, flashcard và phòng thi mô phỏng thi máy."
+      "description": "Học ngoại ngữ bằng trình đọc có AI, flashcard và phòng thi mô phỏng thi máy.",
+      "titles": {
+        "home": "Trang chủ",
+        "dashboard": "Dashboard",
+        "documents": "Tài liệu đọc",
+        "reader": "Trình đọc",
+        "vocab": "Kho từ",
+        "sets": "Bộ thẻ",
+        "set": "Bộ thẻ",
+        "setNew": "Tạo bộ thẻ",
+        "setEdit": "Sửa bộ thẻ",
+        "study": "Học thẻ",
+        "tests": "Đề thi",
+        "test": "Đề thi",
+        "upload": "Tải đề lên",
+        "importStatus": "Đang xử lý đề",
+        "examStart": "Trước khi thi",
+        "exam": "Phòng thi",
+        "result": "Kết quả bài thi",
+        "library": "Thư viện",
+        "librarySet": "Xem trước bộ thẻ",
+        "libraryTest": "Xem trước đề thi",
+        "profile": "Hồ sơ",
+        "login": "Đăng nhập",
+        "register": "Đăng ký",
+        "forgotPassword": "Quên mật khẩu",
+        "notFound": "Không tìm thấy trang"
+      }
     },
     "localeSwitcher": {
       "label": "Ngôn ngữ giao diện",
@@ -1081,8 +1108,8 @@
       "prev": "Trước",
       "next": "Sau",
       "page": "Trang {page}/{total}",
-      "copies": "{count} lượt chép",
-      "attempts": "{count} lượt làm",
+      "copies": "{display} lượt chép",
+      "attempts": "{display} lượt làm",
       "cards": "{count} thẻ",
       "testInfo": "{questions} câu · {minutes} phút"
     },

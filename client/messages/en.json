@@ -1,7 +1,34 @@
 {
   "core": {
     "meta": {
-      "description": "Learn languages with an AI reader, flashcards and a computer-based exam room."
+      "description": "Learn languages with an AI reader, flashcards and a computer-based exam room.",
+      "titles": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "documents": "Reading documents",
+        "reader": "Reader",
+        "vocab": "Word bank",
+        "sets": "Card sets",
+        "set": "Card set",
+        "setNew": "New card set",
+        "setEdit": "Edit card set",
+        "study": "Study",
+        "tests": "Tests",
+        "test": "Test",
+        "upload": "Upload a test",
+        "importStatus": "Test import",
+        "examStart": "Before the test",
+        "exam": "Exam room",
+        "result": "Test result",
+        "library": "Library",
+        "librarySet": "Card set preview",
+        "libraryTest": "Test preview",
+        "profile": "Profile",
+        "login": "Log in",
+        "register": "Create account",
+        "forgotPassword": "Forgot password",
+        "notFound": "Page not found"
+      }
     },
     "localeSwitcher": {
       "label": "Interface language",
@@ -40,7 +67,7 @@
         "easy": "Easy",
         "correct": "{n}/{total} correct",
         "scan": "Quick filter · B2–C2 · Environment",
-        "saveSelected": "Save {n} selected words",
+        "saveSelected": "Save {n, plural, one {# selected word} other {# selected words}}",
         "learning": "Learning",
         "flipHint": "Press Space to flip"
       },
@@ -49,7 +76,7 @@
         "title": "Every word you meet finds its way into memory",
         "body": "No more copying words into a notebook and forgetting them. LinMaster links reading, looking up, reviewing and testing into one loop.",
         "cta": "Get started",
-        "due": "{n} cards due today",
+        "due": "{n, plural, one {# card} other {# cards}} due today",
         "steps": {
           "read": {
             "tag": "Read",
@@ -131,7 +158,7 @@
         "eyebrow": "Dashboard",
         "title": "See your progress at a glance",
         "body": "Activity calendar, study streak, band trend and the question types you are still weak at.",
-        "streak": "{days}-day streak · {count} activities this year"
+        "streak": "{days}-day streak · {count, plural, one {# activity} other {# activities}} this year"
       },
       "final": {
         "eyebrow": "Start now",
@@ -233,7 +260,7 @@
       "recent": {
         "title": "Recent reading",
         "none": "No texts yet.",
-        "words": "{count} words"
+        "words": "{count, plural, one {# word} other {# words}}"
       }
     },
     "errors": {
@@ -381,7 +408,7 @@
         "file": "File",
         "exam": "From a test"
       },
-      "words": "{count} words",
+      "words": "{count, plural, one {# word} other {# words}}",
       "created": "Created {date}",
       "options": "Options for {title}",
       "delete": "Delete",
@@ -408,7 +435,7 @@
       "content": "Content",
       "contentPlaceholder": "Paste English text here…",
       "paragraphHint": "Leave a blank line between paragraphs.",
-      "wordCount": "{count} / {max} words",
+      "wordCount": "{count} / {max, plural, one {# word} other {# words}}",
       "chooseFile": "Choose a file",
       "orDrop": "or drop it here",
       "fileHint": "PDF, DOCX, TXT · up to 5 MB · only the text is kept, not the file",
@@ -430,16 +457,16 @@
       "retry": "Try again",
       "notFoundTitle": "Document not found",
       "notFoundBody": "This document does not exist, was deleted, or is not yours.",
-      "savedCount": "{count} saved words",
-      "help": "Select a word or a phrase of up to {max} words, then press <kbd>T</kbd> or the <b>Look up</b> button. With the keyboard: Tab into the text, arrows to pick a word, Shift + arrows for a phrase, Enter to look up.",
+      "savedCount": "{count, plural, one {# saved word} other {# saved words}}",
+      "help": "Select a word or a phrase of up to {max, plural, one {# word} other {# words}}, then press <kbd>T</kbd> or the <b>Look up</b> button. With the keyboard: Tab into the text, arrows to pick a word, Shift + arrows for a phrase, Enter to look up.",
       "articleLabel": "Reading text",
       "oneParagraph": "Select within one paragraph.",
-      "tooManyWords": "Select at most {max} words.",
+      "tooManyWords": "Select at most {max, plural, one {# word} other {# words}}.",
       "selected": "Selected: {text}",
       "lookupButton": "Look up “{text}”",
       "lookupLabel": "Explanation of “{text}”",
       "panelLabel": "Quick filter and saved words",
-      "panelButton": "Quick filter · {count} words"
+      "panelButton": "Quick filter · {count, plural, one {# word} other {# words}}"
     },
     "lookup": {
       "loading": "AI is reading the sentence to explain “{text}”…",
@@ -465,14 +492,14 @@
       "optional": "(optional)",
       "customTopic": "Other topics, separated by commas",
       "scan": "Scan text",
-      "scanning": "Scanning {count} words…",
-      "resultCount": "{count} suggested words",
+      "scanning": "Scanning {count, plural, one {# word} other {# words}}…",
+      "resultCount": "{count, plural, one {# suggested word} other {# suggested words}}",
       "again": "Filter again",
       "none": "No words match the filter. Try more levels or fewer topics.",
       "selectAll": "Select all",
       "alreadySaved": "Already in your word bank",
-      "save": "Save {count} selected words",
-      "savedToast": "Saved {count} words to your word bank",
+      "save": "Save {count, plural, one {# selected word} other {# selected words}}",
+      "savedToast": "Saved {count, plural, one {# word} other {# words}} to your word bank",
       "noSaved": "No words saved from this text yet.",
       "openBank": "View in word bank"
     },
@@ -480,7 +507,7 @@
       "eyebrow": "Vocabulary",
       "title": "Word bank",
       "subtitle": "Saved words with the sentence where you met them.",
-      "subtitleCount": "{count} words · saved with the sentence where you met them.",
+      "subtitleCount": "{count, plural, one {# word} other {# words}} · saved with the sentence where you met them.",
       "search": "Search words, meanings, notes",
       "cefr": "Filter by CEFR",
       "allCefr": "All CEFR levels",
@@ -488,14 +515,14 @@
       "allTopics": "All topics",
       "document": "Filter by document",
       "allDocuments": "All documents",
-      "selectedCount": "{count} words selected",
+      "selectedCount": "{count, plural, one {# word} other {# words}} selected",
       "clearSelection": "Clear selection",
       "delete": "Delete",
       "deleteOne": "Delete word",
       "cancel": "Cancel",
-      "confirmTitle": "Delete {count} words?",
+      "confirmTitle": "Delete {count, plural, one {# word} other {# words}}?",
       "confirmBody": "These will be removed from your word bank: {words}. This cannot be undone.",
-      "deleted": "Deleted {count} words",
+      "deleted": "Deleted {count, plural, one {# word} other {# words}}",
       "loading": "Loading word bank",
       "loadError": "Could not load your word bank",
       "retry": "Try again",
@@ -510,7 +537,7 @@
       "colMeaning": "Meaning",
       "colTopics": "Topics",
       "colContexts": "Contexts",
-      "contextCount": "{count} sentences",
+      "contextCount": "{count, plural, one {# sentence} other {# sentences}}",
       "pagination": "Pagination",
       "range": "{from}–{to} of {total}",
       "prev": "Previous",
@@ -518,7 +545,7 @@
       "close": "Close",
       "usage": "Usage:",
       "collocations": "Collocations",
-      "contexts": "Seen in {count} sentences",
+      "contexts": "Seen in {count, plural, one {# sentence} other {# sentences}}",
       "openDocument": "Open document",
       "noDocument": "Document deleted",
       "note": "My note",
@@ -526,17 +553,17 @@
       "saveNote": "Save note",
       "noteSaved": "Note saved",
       "createSet": "Create set",
-      "setLimit": "A set can hold at most {max} words. Deselect some."
+      "setLimit": "A set can hold at most {max, plural, one {# word} other {# words}}. Deselect some."
     },
     "createSet": {
       "title": "Create a set from your word bank",
-      "description": "The new set will have the {count} selected words. Terms on the front, Vietnamese meanings on the back.",
+      "description": "The new set will have the {count, plural, one {# selected word} other {# selected words}}. Terms on the front, Vietnamese meanings on the back.",
       "setTitle": "Set name",
       "setTitlePlaceholder": "For example: IELTS Environment",
       "titleRequired": "Give the set a name.",
       "cancel": "Cancel",
       "submit": "Create set",
-      "created": "Created \"{title}\" with {count} cards",
+      "created": "Created \"{title}\" with {count, plural, one {# card} other {# cards}}",
       "open": "Open set"
     }
   },
@@ -545,10 +572,10 @@
       "eyebrow": "Flashcards",
       "title": "My sets",
       "subtitle": "Review words right before you forget them with spaced repetition.",
-      "dueToday": "{count} cards due today in {sets} sets.",
+      "dueToday": "{count, plural, one {# card} other {# cards}} due today in {sets, plural, one {# set} other {# sets}}.",
       "fromBank": "From word bank",
       "new": "New set",
-      "cardCount": "{count} cards",
+      "cardCount": "{count, plural, one {# card} other {# cards}}",
       "due": "{count} due",
       "studyNow": "Study now",
       "open": "Open set",
@@ -579,7 +606,7 @@
         "en": "English",
         "vi": "Tiếng Việt"
       },
-      "cardCount": "{count} cards",
+      "cardCount": "{count, plural, one {# card} other {# cards}}",
       "fromBank": "Add from word bank",
       "reorderHelp": "Drag to reorder, or hold Alt and press the up or down arrow.",
       "handle": "Reorder card {n}",
@@ -592,9 +619,9 @@
       "rowInvalid": "A card needs a term and a definition.",
       "addCard": "Add card",
       "tabTip": "Tip: press <kbd>Tab</kbd> in the example field of the last card to add a new one.",
-      "added": "{count} new cards",
-      "edited": "{count} edited cards",
-      "removed": "{count} deleted cards will lose their progress",
+      "added": "{count, plural, one {# new card} other {# new cards}}",
+      "edited": "{count, plural, one {# edited card} other {# edited cards}}",
+      "removed": "{count, plural, one {# deleted card} other {# deleted cards}} will lose their progress",
       "reordered": "reordered",
       "unsaved": "Unsaved changes",
       "saving": "Saving…",
@@ -610,13 +637,13 @@
       "retry": "Try again",
       "notFoundTitle": "Set not found",
       "notFoundBody": "This set does not exist, was deleted, or is not yours.",
-      "cardCount": "{count} cards",
+      "cardCount": "{count, plural, one {# card} other {# cards}}",
       "edit": "Edit",
       "more": "More options",
       "delete": "Delete set",
       "cancel": "Cancel",
       "confirmTitle": "Delete this set?",
-      "confirmBody": "\"{title}\" and its {count} cards, with their study progress, will be deleted. Words in your word bank stay.",
+      "confirmBody": "\"{title}\" and its {count, plural, one {# card} other {# cards}}, with their study progress, will be deleted. Words in your word bank stay.",
       "deleted": "Deleted \"{title}\"",
       "emptyTitle": "This set has no cards yet",
       "emptyBody": "Add cards in the editor to start studying.",
@@ -651,7 +678,7 @@
       "previous": "Previous card",
       "next": "Next card",
       "shuffle": "Shuffle cards",
-      "flipDone": "You went through all {count} cards",
+      "flipDone": "You went through all {count, plural, one {# card} other {# cards}}",
       "flipDoneBody": "Flashcards do not count towards your review schedule. To remember for longer, switch to Learn.",
       "toLearn": "Learn with SM-2 reviews",
       "again": "Start again",
@@ -659,7 +686,7 @@
       "countNew": "{count} new",
       "countLearning": "{count} learning",
       "countReview": "{count} review",
-      "progress": "{done} of {total} cards done",
+      "progress": "{done} of {total, plural, one {# card} other {# cards}} done",
       "state": {
         "new": "New",
         "learning": "Learning",
@@ -680,7 +707,7 @@
       "emptyBody": "You have reviewed every due card and today’s new cards. Come back tomorrow.",
       "toFlip": "Flip through the cards",
       "summaryTitle": "Session complete!",
-      "summaryBody": "{count} cards in {minutes} min",
+      "summaryBody": "{count, plural, one {# card} other {# cards}} in {minutes} min",
       "speak": "Hear {word}",
       "speakHint": "Hear it (S key)"
     }
@@ -735,7 +762,7 @@
         "full": "Full"
       },
       "public": "Public",
-      "meta": "{skills} · {questions} questions · {minutes} min",
+      "meta": "{skills} · {questions, plural, one {# question} other {# questions}} · {minutes} min",
       "progress": {
         "inProgress": "In progress",
         "new": "Not taken"
@@ -960,7 +987,7 @@
         "heading": "Activity",
         "title": "{count, plural, one {# activity} other {# activities}} in the past {months, select, 12 {year} other {{months} months}}",
         "streak": "Current streak <b>{current, plural, one {# day} other {# days}}</b> · longest <b>{longest, plural, one {# day} other {# days}}</b>",
-        "label": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. Busiest day: {date} with {count} activities",
+        "label": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. Busiest day: {date} with {count, plural, one {# activity} other {# activities}}",
         "tableCaption": "Activity per day, newest first",
         "date": "Day",
         "lookups": "Lookups",
@@ -1007,7 +1034,7 @@
       },
       "vocab": {
         "title": "Vocabulary",
-        "total": "{count} words",
+        "total": "{count, plural, one {# word} other {# words}}",
         "weekly": "New words per week",
         "weeklyLabel": "New words per week, last {count} weeks: {values}",
         "tableCaption": "New words per week",
@@ -1081,10 +1108,10 @@
       "prev": "Previous",
       "next": "Next",
       "page": "Page {page} of {total}",
-      "copies": "{count} copies",
-      "attempts": "{count} attempts",
+      "copies": "{count, plural, one {{display} copy} other {{display} copies}}",
+      "attempts": "{count, plural, one {{display} attempt} other {{display} attempts}}",
       "cards": "{count, plural, one {# card} other {# cards}}",
-      "testInfo": "{questions} questions · {minutes} min"
+      "testInfo": "{questions, plural, one {# question} other {# questions}} · {minutes} min"
     },
     "preview": {
       "back": "Library",
@@ -1100,7 +1127,7 @@
       "copy": "Copy to my library",
       "copiedOpen": "Copied · Open the set",
       "openMine": "Open my set",
-      "copiedBody": "Copied {count} cards to your card sets. The copy is yours: edit it freely.",
+      "copiedBody": "Copied {count, plural, one {# card} other {# cards}} to your card sets. The copy is yours: edit it freely.",
       "copiedBefore": "You copied this set before. The button opens your copy.",
       "cards": "{count, plural, one {# card} other {# cards}}",
       "reportSet": "Report",

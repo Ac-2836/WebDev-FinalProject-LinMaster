@@ -9,7 +9,7 @@ import {
   type VocabEntry,
 } from '@linmaster/shared';
 import {BookmarkPlus, CircleAlert, LoaderCircle, Sparkles} from 'lucide-react';
-import {useFormatter, useTranslations} from 'next-intl';
+import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {Tabs} from 'radix-ui';
 import {useId, useState} from 'react';
@@ -127,7 +127,6 @@ export interface QuickFilterPanelProps {
 /** Reader side panel (C2, wireframe 03-vocab/reader): "Lọc nhanh" scan + the words saved from this document. */
 export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFilterPanelProps) {
   const t = useTranslations('vocab.scan');
-  const format = useFormatter();
   const ids = useId();
   const {levels, setLevels, topics, setTopics, customTopic, setCustomTopic, status, setStatus} = filter;
   const {candidates, checked, setChecked, error, isSaved, open, toggle, scan, save} = filter;
@@ -211,7 +210,7 @@ export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFi
               ) : (
                 <Sparkles aria-hidden="true" />
               )}
-              {status === 'scanning' ? t('scanning', {count: format.number(wordCount)}) : t('scan')}
+              {status === 'scanning' ? t('scanning', {count: wordCount}) : t('scan')}
             </Button>
           </form>
         ) : (
