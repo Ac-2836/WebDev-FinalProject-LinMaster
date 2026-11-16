@@ -17,11 +17,13 @@ export interface AppOptions {
    * pages in a few seconds, from one IP, for the whole suite.
    */
   requestsPerMinute?: number;
+  /** Accounts per hour per IP (5 by default). The Playwright suite registers a new learner in most tests. */
+  registrationsPerHour?: number;
 }
 
 export function createApp(
   env: Pick<Env, 'NODE_ENV' | 'JWT_SECRET' | 'CORS_ORIGINS'>,
-  {requestsPerMinute = RATE_LIMIT_PER_WINDOW}: AppOptions = {},
+  {requestsPerMinute = RATE_LIMIT_PER_WINDOW, registrationsPerHour}: AppOptions = {},
 ) {
   const app = express();
 
@@ -58,7 +60,7 @@ export function createApp(
   );
   app.use(express.json({limit: '1mb'}));
 
-  for (const apiModule of createApiModules(env.JWT_SECRET)) {
+  for (const apiModule of createApiModules(env.JWT_SECRET, {registrationsPerHour})) {
     app.use(apiModule.basePath, apiModule.router);
   }
 

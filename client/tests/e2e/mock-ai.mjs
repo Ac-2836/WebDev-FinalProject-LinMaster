@@ -43,14 +43,21 @@ function scanDocument(text) {
   };
 }
 
-/** One Reading test in a PDF: the last page is the answer key, the other pages the passage and questions. */
+/** The e2e PDFs say their skill in their title (metadata): "E2E Listening test" is Listening, any other Reading. */
+async function skillOf(pdf) {
+  const title = (await PDFDocument.load(pdf, {updateMetadata: false})).getTitle() ?? '';
+  return title.includes('Listening') ? 'listening' : 'reading';
+}
+
+/** One test in a PDF: the last page is the answer key, the other pages the passage and questions. */
 async function classifyPages(pdf) {
   const count = (await PDFDocument.load(pdf)).getPageCount();
+  const skill = await skillOf(pdf);
   return {
     pages: Array.from({length: count}, (_, index) => ({
       page: index + 1,
       labels: count > 1 && index === count - 1 ? ['answers'] : ['passage', 'questions'],
-      skill: 'reading',
+      skill,
       questionRange: {from: 1, to: 40},
     })),
   };
@@ -59,6 +66,44 @@ async function classifyPages(pdf) {
 const NUMBERS = Array.from({length: 40}, (_, index) => index + 1);
 /** Answer of question n in the fake key: TRUE for odd numbers, FALSE for even ones. */
 export const answerOf = n => (n % 2 === 1 ? 'TRUE' : 'FALSE');
+
+/** Answer of Listening question n in the fake key: B for every question. */
+export const LISTENING_ANSWER = 'B';
+const OPTIONS = ['A', 'B', 'C'].map(key => ({key, text: `Option ${key}`}));
+
+/** Four Listening parts of ten multiple-choice questions, without a transcript. */
+function parseListening() {
+  return {
+    title: 'E2E Listening test',
+    hasTranscript: false,
+    sections: [
+      {
+        skill: 'listening',
+        passages: [1, 2, 3, 4].map(part => ({
+          title: `Part ${part}`,
+          paragraphs: null,
+          groups: [
+            {
+              kind: 'single_choice',
+              fromNo: part * 10 - 9,
+              toNo: part * 10,
+              instructions: 'Choose the correct letter, A, B or C.',
+              wordLimit: null,
+              optionsTitle: null,
+              options: null,
+              content: null,
+              questions: NUMBERS.slice(part * 10 - 10, part * 10).map(number => ({
+                number,
+                prompt: `Listening question ${number}.`,
+                options: OPTIONS,
+              })),
+            },
+          ],
+        })),
+      },
+    ],
+  };
+}
 
 function parseTest() {
   return {
@@ -94,12 +139,12 @@ function parseTest() {
   };
 }
 
-function parseAnswers() {
+function parseAnswers(skill) {
   return {
     answers: NUMBERS.map(number => ({
-      skill: 'reading',
+      skill,
       number,
-      answer: answerOf(number),
+      answer: skill === 'listening' ? LISTENING_ANSWER : answerOf(number),
       explanation: `Explanation of question ${number}.`,
     })),
   };
@@ -109,8 +154,11 @@ const REPLIES = [
   ['You are an English dictionary', ({text}) => explainWord(text)],
   ['You help Vietnamese learners', ({text}) => scanDocument(text)],
   ['You label the pages', ({pdf}) => classifyPages(pdf)],
-  ['You convert an IELTS-style test PDF', () => parseTest()],
-  ['You read the answer key', () => parseAnswers()],
+  [
+    'You convert an IELTS-style test PDF',
+    async ({pdf}) => ((await skillOf(pdf)) === 'listening' ? parseListening() : parseTest()),
+  ],
+  ['You read the answer key', async ({pdf}) => parseAnswers(await skillOf(pdf))],
   ['You read the transcript', () => ({parts: []})],
 ];
 

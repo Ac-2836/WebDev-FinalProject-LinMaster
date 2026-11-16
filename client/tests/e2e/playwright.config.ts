@@ -14,6 +14,8 @@ const serverEnv = path.join(serverDir, '.env');
 const localTestDb = existsSync(serverEnv) ? parseEnv(readFileSync(serverEnv, 'utf8')).TEST_DATABASE_URL : undefined;
 const databaseUrl = process.env.E2E_DATABASE_URL ?? localTestDb ?? process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error('Set E2E_DATABASE_URL, TEST_DATABASE_URL or DATABASE_URL for the e2e API.');
+// Tests that move an attempt's clock (tests/e2e/helpers.ts `endAttemptIn`) read it in the workers.
+process.env.E2E_DATABASE_URL = databaseUrl;
 
 const API_PORT = 4100;
 const WEB_PORT = 3100;

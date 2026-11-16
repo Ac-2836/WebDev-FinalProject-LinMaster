@@ -17,6 +17,7 @@ import type {createAuthService} from './auth.service';
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_ATTEMPTS = 10;
 const REGISTER_WINDOW_MS = 60 * 60 * 1000;
+/** Accounts one IP may register per hour. */
 const REGISTER_ATTEMPTS = 5;
 
 const rateLimitHandler = (_req: Request, res: Response) =>
@@ -26,7 +27,11 @@ const rateLimitHandler = (_req: Request, res: Response) =>
 
 type AuthService = ReturnType<typeof createAuthService>;
 
-export function createAuthRouter(service: AuthService, jwtSecret: string): Router {
+export function createAuthRouter(
+  service: AuthService,
+  jwtSecret: string,
+  registrationsPerHour = REGISTER_ATTEMPTS,
+): Router {
   const router = Router();
   const loginRateLimit = rateLimit({
     windowMs: RATE_LIMIT_WINDOW_MS,
@@ -37,7 +42,7 @@ export function createAuthRouter(service: AuthService, jwtSecret: string): Route
   });
   const registerRateLimit = rateLimit({
     windowMs: REGISTER_WINDOW_MS,
-    limit: REGISTER_ATTEMPTS,
+    limit: registrationsPerHour,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     handler: rateLimitHandler,
