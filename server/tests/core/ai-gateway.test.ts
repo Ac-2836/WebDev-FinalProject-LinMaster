@@ -1,7 +1,14 @@
 import {afterAll, beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {z} from 'zod';
 
-import {createAiGateway, vietnamDayBounds} from '../../src/core/ai/ai-gateway';
+import {
+  AI_PDF_TIMEOUT_MS,
+  AI_RETRY_DELAYS_MS,
+  AI_TIMEOUT_MS,
+  createAiGateway,
+  isTransientAiError,
+  vietnamDayBounds,
+} from '../../src/core/ai/ai-gateway';
 import {createMockAiModel} from '../../src/core/ai/ai-model';
 import {type AiTask, aiTaskRegistry, createAiTaskRegistry, wrapUserData} from '../../src/core/ai/ai-task';
 import {AppError} from '../../src/core/app-error';
@@ -44,6 +51,7 @@ describe('AI gateway', () => {
 
     expect(model.requests).toHaveLength(1);
     expect(model.requests[0].jsonSchema).toMatchObject({type: 'object', required: ['meaning']});
+    expect(model.requests[0].timeoutMs).toBe(AI_TIMEOUT_MS);
     const usage = await db.aiUsage.findMany({where: {userId}, orderBy: {createdAt: 'asc'}});
     expect(usage.map(row => row.cached)).toEqual([false, true]);
     expect(usage[0]).toMatchObject({inputTokens: 10, outputTokens: 5});
@@ -90,13 +98,59 @@ describe('AI gateway', () => {
     expect(model.requests).toHaveLength(2);
   });
 
-  it('maps a model failure to 503 AI_UNAVAILABLE', async () => {
-    const model = createMockAiModel([]);
-    const {runJsonTask} = createAiGateway({db, model});
+  describe('when the model cannot be reached (QA C1)', () => {
+    const apiError = (status: number) => Object.assign(new Error(`HTTP ${status}`), {status});
+    let waits: number[];
+    const sleep = async (ms: number) => {
+      waits.push(ms);
+    };
+    beforeEach(() => {
+      waits = [];
+    });
 
-    await expect(runJsonTask(echoTask, {word: 'down'}, {userId})).rejects.toMatchObject({
-      statusCode: 503,
-      status: 'AI_UNAVAILABLE',
+    it('tries twice more after 0.5 s and 1.5 s, then answers normally', async () => {
+      const model = createMockAiModel([new TypeError('fetch failed'), apiError(503), {meaning: 'ổn'}]);
+      const {runJsonTask} = createAiGateway({db, model, sleep});
+
+      expect(await runJsonTask(echoTask, {word: 'flaky'}, {userId})).toEqual({meaning: 'ổn'});
+      expect(model.requests).toHaveLength(3);
+      expect(waits).toEqual(AI_RETRY_DELAYS_MS);
+      expect(await db.aiUsage.count({where: {userId}})).toBe(1);
+    });
+
+    it('retries a 429 from the model but not another 4xx', async () => {
+      const busy = createMockAiModel([apiError(429), {meaning: 'ổn'}]);
+      const answer = await createAiGateway({db, model: busy, sleep}).runJsonTask(echoTask, {word: 'busy'}, {userId});
+      expect(answer).toEqual({meaning: 'ổn'});
+
+      const refused = createMockAiModel([apiError(400), {meaning: 'never'}]);
+      await expect(
+        createAiGateway({db, model: refused, sleep}).runJsonTask(echoTask, {word: 'bad'}, {userId}),
+      ).rejects.toMatchObject({statusCode: 503, status: 'AI_UNAVAILABLE'});
+      expect(refused.requests).toHaveLength(1);
+      expect(waits).toEqual([500]);
+    });
+
+    it('gives up with 503 AI_UNAVAILABLE after 3 failed calls, caching and counting nothing', async () => {
+      const model = createMockAiModel([]);
+      const {runJsonTask} = createAiGateway({db, model, sleep});
+
+      await expect(runJsonTask(echoTask, {word: 'down'}, {userId})).rejects.toMatchObject({
+        statusCode: 503,
+        status: 'AI_UNAVAILABLE',
+      });
+      expect(model.requests).toHaveLength(3);
+      expect(waits).toEqual([500, 1500]);
+      expect(await db.aiCache.count({where: {task: taskName}})).toBe(0);
+      expect(await db.aiUsage.count({where: {userId}})).toBe(0);
+    });
+
+    it('treats only network errors, timeouts, 408, 429 and 5xx as temporary', () => {
+      const temporary = [new TypeError('fetch failed'), new DOMException('timed out', 'AbortError')];
+      for (const status of [408, 429, 500, 503]) temporary.push(apiError(status));
+      expect(temporary.filter(error => !isTransientAiError(error))).toEqual([]);
+      const refused = [400, 401, 403, 404].map(apiError);
+      expect(refused.filter(isTransientAiError)).toEqual([]);
     });
   });
 
@@ -127,6 +181,8 @@ describe('AI gateway', () => {
 
     expect(model.requests).toHaveLength(2);
     expect(model.requests[0].pdf?.toString()).toBe('%PDF-1 a');
+    // A whole PDF may take minutes in the import job; a word must answer within the short timeout.
+    expect(model.requests[0].timeoutMs).toBe(AI_PDF_TIMEOUT_MS);
     await db.aiCache.deleteMany({where: {task: pdfTask.name}});
   });
 
