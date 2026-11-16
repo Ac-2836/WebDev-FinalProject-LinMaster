@@ -1,11 +1,15 @@
 import type {
   CreateFlashcardSet,
   CreateFlashcardSetFromVocab,
+  QuizQuery,
+  QuizResponse,
   ReplaceFlashcardCardInput,
   UpdateFlashcardSet,
   VocabEntry,
 } from '@linmaster/shared';
+import {QUIZ_MIN_CARDS} from '@linmaster/shared';
 import {AppError} from '../../core/app-error';
+import {buildQuiz} from './quiz';
 import type {FlashcardRepository} from './flashcard.repository';
 import {FlashcardCardNotFoundError, FlashcardVocabEntryNotFoundError} from './flashcard.repository';
 
@@ -51,6 +55,16 @@ export function createFlashcardService(repository: FlashcardRepository, vocabEnt
       const set = await repository.findSet(ownerId, id);
       if (!set) throw new AppError('Flashcard set not found.', 404);
       return {set};
+    },
+
+    /** Owner or anyone for a public set; the quiz carries its answers, like the cards the reader already sees. */
+    async getQuiz(userId: string, id: string, query: QuizQuery): Promise<QuizResponse> {
+      const set = await repository.findReadableSet(userId, id);
+      if (!set) throw new AppError('Flashcard set not found.', 404);
+      if (set.cards.length < QUIZ_MIN_CARDS) {
+        throw new AppError(`A quiz needs at least ${QUIZ_MIN_CARDS} cards in the set.`, 422);
+      }
+      return {setId: set.id, questions: buildQuiz(set.cards, query)};
     },
 
     async updateSet(ownerId: string, id: string, input: UpdateFlashcardSet) {
