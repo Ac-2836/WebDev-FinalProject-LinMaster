@@ -52,7 +52,7 @@ describe('buildQuiz', () => {
     expect(q).toEqual({kind: 'written', cardId: card.id, prompt: card.definition, answer: card.term});
   });
 
-  it('falls back to written when identical definitions leave too few distractors', () => {
+  it('falls back to another kind when identical definitions leave too few distractors', () => {
     const same = cards('x', 'X ', 'x', 'y');
     const quiz = buildQuiz(same, {kinds: 'multiple-choice'});
 
@@ -69,6 +69,41 @@ describe('buildQuiz', () => {
           expect(q.answer).toBe(q.statement === card.definition);
         }
       }
+    }
+  });
+
+  const sameTerm = [
+    {id: id(0), term: 'bank', definition: 'ngân hàng'},
+    {id: id(1), term: 'Bank ', definition: 'bờ sông'},
+    {id: id(2), term: 'cat', definition: 'mèo'},
+    {id: id(3), term: 'dog', definition: 'chó'},
+    {id: id(4), term: 'egg', definition: 'trứng'},
+  ];
+
+  it('never offers another meaning of the same term as a wrong option or false statement', () => {
+    for (let run = 0; run < 100; run++) {
+      for (const q of buildQuiz(sameTerm, {count: 5, kinds: 'multiple-choice,true-false'})) {
+        if (q.prompt.trim().toLowerCase() !== 'bank') continue;
+        if (q.kind === 'multiple-choice') {
+          expect(q.options).not.toContain(q.answer === 'ngân hàng' ? 'bờ sông' : 'ngân hàng');
+        } else if (q.kind === 'true-false') {
+          expect(q.answer).toBe(q.statement === sameTerm.find(c => c.id === q.cardId)!.definition);
+          expect(['ngân hàng', 'bờ sông']).not.toContain(q.answer ? '' : q.statement);
+        }
+      }
+    }
+  });
+
+  it('does not type-ask a definition that several terms share', () => {
+    const synonyms = [
+      {id: id(0), term: 'big', definition: 'lớn'},
+      {id: id(1), term: 'large', definition: 'lớn'},
+      {id: id(2), term: 'cat', definition: 'mèo'},
+      {id: id(3), term: 'dog', definition: 'chó'},
+    ];
+    for (let run = 0; run < 50; run++) {
+      const written = buildQuiz(synonyms, {kinds: 'written'}).filter(q => q.kind === 'written');
+      expect(written.map(q => q.prompt)).not.toContain('lớn');
     }
   });
 });
