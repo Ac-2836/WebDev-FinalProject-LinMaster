@@ -11,7 +11,18 @@ import {createApiModules} from './modules';
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_PER_WINDOW = 120;
 
-export function createApp(env: Pick<Env, 'NODE_ENV' | 'JWT_SECRET' | 'CORS_ORIGINS'>) {
+export interface AppOptions {
+  /**
+   * Requests per minute per IP on `/api/v1`. Only the Playwright API changes it: one browser there opens many
+   * pages in a few seconds, from one IP, for the whole suite.
+   */
+  requestsPerMinute?: number;
+}
+
+export function createApp(
+  env: Pick<Env, 'NODE_ENV' | 'JWT_SECRET' | 'CORS_ORIGINS'>,
+  {requestsPerMinute = RATE_LIMIT_PER_WINDOW}: AppOptions = {},
+) {
   const app = express();
 
   // Render puts one proxy in front of the app; without this every user shares the proxy IP.
@@ -30,7 +41,7 @@ export function createApp(env: Pick<Env, 'NODE_ENV' | 'JWT_SECRET' | 'CORS_ORIGI
     '/api/v1',
     rateLimit({
       windowMs: RATE_LIMIT_WINDOW_MS,
-      limit: RATE_LIMIT_PER_WINDOW,
+      limit: requestsPerMinute,
       standardHeaders: 'draft-8',
       legacyHeaders: false,
       skip: req => req.path === '/health',

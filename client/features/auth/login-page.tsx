@@ -14,7 +14,7 @@ import {useSession} from '@/core/auth/session-provider';
 
 import {BookLoader, prefersReducedMotion, type BookPhase} from './auth-motion';
 import {AuthShell, Notice} from './auth-shell';
-import {FormField, invalidFields} from './form-field';
+import {focusFirstInvalid, FormField, invalidFields} from './form-field';
 import {PasswordInput} from './password-input';
 
 export interface LoginPageProps {
@@ -39,7 +39,7 @@ export function LoginPage({next}: LoginPageProps) {
     if (!parsed.success) {
       const fields = invalidFields(parsed.error.issues);
       setInvalid(fields);
-      event.currentTarget.querySelector<HTMLInputElement>(`[name="${[...fields][0]}"]`)?.focus();
+      focusFirstInvalid(event.currentTarget, fields);
       return;
     }
     setInvalid(new Set());

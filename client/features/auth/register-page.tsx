@@ -14,7 +14,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
 import {AuthShell, Notice} from './auth-shell';
-import {BANDS, FormField, invalidFields} from './form-field';
+import {BANDS, focusFirstInvalid, FormField, invalidFields} from './form-field';
 import {PasswordInput} from './password-input';
 
 /** 0–3 filled bars: 8+ characters, 12+ characters, letters mixed with digits or symbols. */
@@ -51,7 +51,7 @@ export function RegisterPage() {
     if (!parsed.success) {
       const fields = invalidFields(parsed.error.issues);
       setInvalid(fields);
-      event.currentTarget.querySelector<HTMLElement>(`[name="${[...fields][0]}"]`)?.focus();
+      focusFirstInvalid(event.currentTarget, fields);
       return;
     }
     setInvalid(new Set());

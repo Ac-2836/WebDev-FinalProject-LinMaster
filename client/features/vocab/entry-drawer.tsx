@@ -10,6 +10,7 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {inputClass} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
@@ -26,11 +27,13 @@ export interface EntryDrawerProps {
 /** Word detail: side drawer on desktop, full sheet on mobile (wireframe 03-vocab/word-bank). */
 export function EntryDrawer({entry, onClose, onUpdated, onDelete}: EntryDrawerProps) {
   const t = useTranslations('vocab.bank');
+  const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={entry !== null} onOpenChange={open => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/30" />
         <Dialog.Content
+          {...returnFocus}
           aria-describedby={undefined}
           className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-card shadow-2xl outline-none"
         >

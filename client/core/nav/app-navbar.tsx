@@ -35,7 +35,11 @@ export function AppNavbar() {
 
       <header className="sticky top-0 z-30 border-b bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
-          <Link href="/home" className="mr-4 inline-flex rounded-xl" aria-label={t('homeLink')}>
+          <Link
+            href="/home"
+            className="mr-4 inline-flex h-11 min-w-11 items-center rounded-xl"
+            aria-label={t('homeLink')}
+          >
             <LogoMark size={32} className="sm:hidden" />
             <Logo className="hidden sm:inline-flex" />
           </Link>
@@ -59,14 +63,16 @@ export function AppNavbar() {
                   key={id}
                   href={href}
                   aria-current={active ? 'page' : undefined}
+                  title={t(id)}
                   className={cn(
-                    'relative inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-sm font-semibold transition-colors',
+                    'relative inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-3 text-sm font-semibold whitespace-nowrap transition-colors xl:px-3.5',
                     active ? 'text-primary' : 'text-foreground/75 hover:bg-muted hover:text-foreground',
                     active && !pill.box && 'bg-secondary',
                   )}
                 >
                   <Icon className="size-4" aria-hidden="true" />
-                  {t(id)}
+                  {/* Labels never wrap (QA T4); from 1024 to 1279px only the icons fit, the label stays for screen readers. */}
+                  <span className="sr-only xl:not-sr-only">{t(id)}</span>
                 </Link>
               );
             })}

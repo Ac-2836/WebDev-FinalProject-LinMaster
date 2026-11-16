@@ -43,11 +43,11 @@ export function CreateSetDialog({vocabIds, onOpenChange, onCreated}: CreateSetDi
       const {set} = CreateFlashcardSetResponseSchema.parse(
         await api('/flashcards/sets/from-vocab', {method: 'POST', body: parsed.data}),
       );
-      toast.success(t('created', {title: set.title, count: set.cards.length}), {
-        action: {label: t('open'), onClick: () => router.push(`/flashcards/${set.id}`)},
-      });
+      // Go straight to the new set (QA T7); the toast confirms what was created.
+      toast.success(t('created', {title: set.title, count: set.cards.length}));
       setTitle('');
       onCreated();
+      router.push(`/flashcards/${set.id}`);
     } catch (err) {
       setError(errorMessage(err));
     }

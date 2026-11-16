@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest';
 
 import {rate, startQueue} from './learn-queue';
 
-const card = (term: string) => ({id: term, term}) as unknown as StudyCard;
+const card = (term: string) => ({id: term, term, state: 'new'}) as unknown as StudyCard;
 
 describe('learn queue', () => {
   it('finishes a card on hard, good or easy', () => {
@@ -20,6 +20,8 @@ describe('learn queue', () => {
     let q = startQueue([card('a'), card('b')]);
     q = rate(q, 'again');
     expect(q.queue.map(c => c.term)).toEqual(['b', 'a']);
+    // A new card rated again is counted as learning from now on (QA T8).
+    expect(q.queue[1].state).toBe('learning');
     expect(q.done).toBe(0);
     q = rate(rate(q, 'good'), 'good');
     expect(q.queue).toEqual([]);

@@ -15,14 +15,15 @@ export const startQueue = (cards: StudyCard[]): LearnQueue => ({
 
 /**
  * After rating the front card: "again" sends it to the back to be seen once more this session
- * (like the learning step of SM-2 apps); any other rating finishes it.
+ * (like the learning step of SM-2 apps); any other rating finishes it. A card rated "again" is no longer new or
+ * mastered: it comes back as learning (st-04, QA T8).
  */
 export function rate({queue, done, tally}: LearnQueue, rating: Rating): LearnQueue {
   const [card, ...rest] = queue;
   if (!card) return {queue, done, tally};
   const again = rating === 'again';
   return {
-    queue: again ? [...rest, card] : rest,
+    queue: again ? [...rest, {...card, state: 'learning'}] : rest,
     done: again ? done : done + 1,
     tally: {...tally, [rating]: tally[rating] + 1},
   };
