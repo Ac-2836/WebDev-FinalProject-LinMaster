@@ -30,6 +30,7 @@ export function setupAttemptsApi(name: string, deps: ExamModuleDeps = {}) {
     app,
     run,
     MISSING_ID: '0192f7e0-0bcd-7000-8000-000000000999',
+    auth: as,
     otherId: () => users.other,
     /** Moves the server clock to `minutes` after START. */
     at(minutes: number) {

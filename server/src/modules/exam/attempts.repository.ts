@@ -58,6 +58,24 @@ export interface TranscriptRow {
   paragraphs: unknown;
 }
 
+/** One graded answer with the question it was for; `question` is null once the question was deleted. */
+export interface QuestionContextRow {
+  questionNumber: number;
+  skill: Skill;
+  kind: QuestionKind;
+  given: unknown;
+  correctAnswer: unknown;
+  question: {
+    prompt: string;
+    options: unknown;
+    group: {
+      instructions: string;
+      sharedOptions: unknown;
+      passage: {id: string; title: string; paragraphs: unknown};
+    };
+  } | null;
+}
+
 export interface SubmittedAttempt {
   submittedAt: Date;
   autoSubmitted: boolean;
@@ -79,6 +97,8 @@ export interface AttemptRepository {
   /** Attempts of the user, newest first. */
   listAttempts(userId: string): Promise<AttemptSummaryRow[]>;
   findTranscripts(testId: string): Promise<TranscriptRow[]>;
+  /** Graded answers with this number: two when a Full test has it in both skills and `skill` is not given. */
+  findQuestionContexts(attemptId: string, number: number, skill?: Skill): Promise<QuestionContextRow[]>;
   /** Length of a Listening audio file, null when unknown. */
   findAudioDurationSec(fileId: string): Promise<number | null>;
   findAudioFile(fileId: string): Promise<{storageKey: string; mimeType: string; durationSec: number | null} | null>;
@@ -237,6 +257,32 @@ export const prismaAttemptRepository: AttemptRepository = {
       select: {id: true, sectionId: true, title: true, paragraphs: true},
     });
     return passages.map(({id, ...passage}) => ({passageId: id, ...passage}));
+  },
+
+  async findQuestionContexts(attemptId, number, skill) {
+    return getDb().attemptAnswer.findMany({
+      where: {attemptId, questionNumber: number, ...(skill && {skill})},
+      select: {
+        questionNumber: true,
+        skill: true,
+        kind: true,
+        given: true,
+        correctAnswer: true,
+        question: {
+          select: {
+            prompt: true,
+            options: true,
+            group: {
+              select: {
+                instructions: true,
+                sharedOptions: true,
+                passage: {select: {id: true, title: true, paragraphs: true}},
+              },
+            },
+          },
+        },
+      },
+    });
   },
 
   async findAudioFile(fileId) {

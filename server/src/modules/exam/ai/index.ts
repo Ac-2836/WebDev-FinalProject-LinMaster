@@ -3,6 +3,7 @@ import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 import {runJsonTask} from '../../../core/ai/ai-gateway';
 import {AppError} from '../../../core/app-error';
+import {type ExplainAnswerInput, explainAnswerTask} from './explain-answer.v1';
 import {classifyPagesTask} from './classify-pages.v1';
 import {parseAnswersTask} from './parse-answers.v1';
 import {parseTestTask} from './parse-test.v2';
@@ -93,4 +94,10 @@ export function parseAnswers(pdf: Buffer, {pages, userId}: ParseOptions): Promis
   return runJsonTask(parseAnswersTask, {pdf, pages: checkPages(pages)}, {userId});
 }
 
+/** Why the answer key is right, with quotes from the text (`explain-answer.v1`, P4-12). Gateway errors: 429, 502, 503. */
+export function explainAnswer(input: ExplainAnswerInput, {userId}: {userId: string}) {
+  return runJsonTask(explainAnswerTask, input, {userId});
+}
+
+export type {ExplainAnswerInput} from './explain-answer.v1';
 export {buildParsedTest, toQuestionAnswer} from './build-parsed-test';

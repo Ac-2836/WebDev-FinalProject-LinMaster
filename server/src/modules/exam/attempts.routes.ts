@@ -2,6 +2,9 @@ import {
   AttemptIdParamsSchema,
   type CreateAttemptRequest,
   CreateAttemptRequestSchema,
+  type ExplainQuestionQuery,
+  ExplainQuestionQuerySchema,
+  ExplainQuestionParamsSchema,
   type SaveAttemptStateRequest,
   SaveAttemptStateRequestSchema,
 } from '@linmaster/shared';
@@ -10,6 +13,7 @@ import {z} from 'zod';
 
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {aiRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import type {AttemptService} from './attempts.service';
 
@@ -17,6 +21,7 @@ type AttemptParams = typeof AttemptIdParamsSchema._output;
 
 const createSchema = z.object({body: CreateAttemptRequestSchema});
 const attemptIdSchema = z.object({params: AttemptIdParamsSchema});
+const explainSchema = z.object({params: ExplainQuestionParamsSchema, query: ExplainQuestionQuerySchema});
 const saveStateSchema = z.object({params: AttemptIdParamsSchema, body: SaveAttemptStateRequestSchema});
 
 /** Routes of the attempts of a user (PLAN C4 "API khác"). */
@@ -57,6 +62,16 @@ export function addAttemptRoutes(router: Router, service: AttemptService, jwtSec
     validate(attemptIdSchema),
     catchAsync(async (req, res) => {
       res.json(await service.submitAttempt(req.user!.userId, attemptId(req.params)));
+    }),
+  );
+  router.post(
+    '/attempts/:id/questions/:no/explain',
+    auth,
+    aiRateLimit(),
+    validate(explainSchema),
+    catchAsync(async (req, res) => {
+      const {id, no} = req.params as unknown as {id: string; no: number};
+      res.json(await service.explainQuestion(req.user!.userId, id, no, (req.query as ExplainQuestionQuery).skill));
     }),
   );
   router.get(

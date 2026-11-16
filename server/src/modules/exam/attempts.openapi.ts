@@ -3,6 +3,9 @@ import {
   AttemptIdParamsSchema,
   CreateAttemptRequestSchema,
   CreateAttemptResponseSchema,
+  ExplainQuestionParamsSchema,
+  ExplainQuestionQuerySchema,
+  ExplainQuestionResponseSchema,
   GetAttemptResponseSchema,
   GetAttemptResultResponseSchema,
   ListAttemptsResponseSchema,
@@ -234,5 +237,65 @@ openApiRegistry.registerPath({
     ...ATTEMPT_ERRORS,
     409: error('`AUDIO_NOT_AVAILABLE`: no Listening audio is playing in the attempt now.'),
     416: audioBytes('The asked range starts after the bytes played so far.'),
+  },
+});
+
+const EXPLAIN_EXAMPLES = {
+  ai: {
+    summary: 'No explanation in the file: explained by the AI',
+    value: {
+      explanation: {
+        number: 1,
+        skill: 'reading',
+        source: 'ai',
+        text: 'Đoạn A nói nông trại được trồng trên mái nhà, nên đáp án là A.',
+        evidence: [{passageId: ID(74), paragraph: 0, start: 0, end: 20, quote: 'Farms grow on roofs.'}],
+      },
+    },
+  },
+  file: {
+    summary: 'Explanation written in the answer file: the AI is not called',
+    value: {
+      explanation: {
+        number: 1,
+        skill: 'listening',
+        source: 'file',
+        text: 'The woman says they will meet "outside the library".',
+        evidence: [],
+      },
+    },
+  },
+};
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/attempts/{id}/questions/{no}/explain',
+  summary: 'Explain the answer of one question',
+  description:
+    'Owner only, once the attempt is submitted. When the answer file has an explanation for the question it is ' +
+    'returned as it is (`source: "file"`, no AI call, no quota). Otherwise the AI task `explain-answer.v1` explains ' +
+    'the key from the passage (Reading) or transcript (Listening) of the question (`source: "ai"`; the client shows ' +
+    '"Do AI tạo, có thể chưa chính xác"). `evidence` holds quotes the server found in that text, with `passageId`, ' +
+    '`paragraph` and `start`/`end` character offsets to highlight; quotes the model invented are dropped. Results are ' +
+    'cached per question and answer given, and a cached call does not use the daily AI quota. `no` is the number ' +
+    'inside its skill: a Full test has the same number in Listening and Reading, so add `?skill=`.',
+  tags: ['Exam'],
+  security,
+  request: {params: ExplainQuestionParamsSchema, query: ExplainQuestionQuerySchema},
+  responses: {
+    200: {
+      description: 'The explanation.',
+      content: {'application/json': {schema: ExplainQuestionResponseSchema, examples: EXPLAIN_EXAMPLES}},
+    },
+    400: error('Invalid id or number, or the number exists in both skills and `skill` is missing.'),
+    401: error('Authentication required.'),
+    403: error('The attempt belongs to another user.'),
+    404: error('Attempt or question not found.'),
+    409: error('`ATTEMPT_NOT_SUBMITTED`: the attempt is still in progress.'),
+    422: error('`EXPLAIN_NO_TEXT`: the question has no passage or transcript text to explain from.'),
+    429: error('`AI_QUOTA_EXCEEDED` (daily quota) or too many AI requests in a minute.'),
+    502: error('`AI_INVALID_OUTPUT`: the model answered with an invalid result three times.'),
+    503: error('`AI_UNAVAILABLE`: the model could not be reached.'),
+    500: error('Unexpected server error.'),
   },
 });
