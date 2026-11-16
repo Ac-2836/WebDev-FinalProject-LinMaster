@@ -41,10 +41,15 @@ function requestBody(schema: ZodType, exampleName: string, example: unknown) {
   };
 }
 
+const errorResponse = (description: string) => ({description, content: {'application/json': {schema: ApiErrorBody}}});
+
 openApiRegistry.registerPath({
   method: 'post',
   path: '/api/v1/auth/register',
   summary: 'Register an account',
+  description:
+    'Creates the account and signs it in: `token` is a JWT valid for 1 hour. The password needs 8 characters ' +
+    '(at most 72 bytes); the email is stored in lower case. 5 registrations per hour per IP.',
   tags: ['Auth'],
   request: {body: requestBody(RegisterRequestSchema, 'register', registerRequestExample)},
   responses: {
@@ -53,14 +58,17 @@ openApiRegistry.registerPath({
       content: {'application/json': {schema: AuthResponseSchema, examples: {success: {value: authResponseExample}}}},
     },
     400: {description: 'Invalid request.', content: {'application/json': {schema: ApiErrorBody}}},
-    409: {description: 'Email is already registered.', content: {'application/json': {schema: ApiErrorBody}}},
-    429: {description: 'Registration rate limit exceeded.', content: {'application/json': {schema: ApiErrorBody}}},
+    409: errorResponse('`ALREADY_EXISTS`: the email is already registered.'),
+    429: errorResponse('More than 5 registrations in an hour from this IP.'),
   },
 });
 openApiRegistry.registerPath({
   method: 'post',
   path: '/api/v1/auth/login',
   summary: 'Sign in',
+  description:
+    'Returns a new `token` (JWT, 1 hour). A wrong email and a wrong password give the same 401, so the answer ' +
+    'does not tell which accounts exist. 10 tries per 15 minutes per IP.',
   tags: ['Auth'],
   request: {body: requestBody(LoginRequestSchema, 'login', loginRequestExample)},
   responses: {
@@ -69,14 +77,15 @@ openApiRegistry.registerPath({
       content: {'application/json': {schema: AuthResponseSchema, examples: {success: {value: authResponseExample}}}},
     },
     400: {description: 'Invalid request.', content: {'application/json': {schema: ApiErrorBody}}},
-    401: {description: 'Invalid email or password.', content: {'application/json': {schema: ApiErrorBody}}},
-    429: {description: 'Login rate limit exceeded.', content: {'application/json': {schema: ApiErrorBody}}},
+    401: errorResponse('Email or password is incorrect.'),
+    429: errorResponse('More than 10 sign-in tries in 15 minutes from this IP.'),
   },
 });
 openApiRegistry.registerPath({
   method: 'get',
   path: '/api/v1/auth/me',
   summary: 'Get current user profile',
+  description: 'The account of the token: email, display name, interface language and target IELTS band.',
   tags: ['Auth'],
   security: [{bearerAuth: []}],
   responses: {
@@ -94,6 +103,9 @@ openApiRegistry.registerPath({
   method: 'patch',
   path: '/api/v1/auth/me',
   summary: 'Update current user profile',
+  description:
+    'Changes any of `displayName`, `locale` (`vi` or `en`) and `targetBand` (4 to 9 in steps of 0.5, or null). ' +
+    'Fields left out stay as they are. Email and password have their own routes, which ask for the password.',
   tags: ['Auth'],
   security: [{bearerAuth: []}],
   request: {
@@ -116,7 +128,6 @@ openApiRegistry.registerPath({
   },
 });
 
-const errorResponse = (description: string) => ({description, content: {'application/json': {schema: ApiErrorBody}}});
 const accountErrors = {
   400: errorResponse('Invalid request.'),
   401: errorResponse('Authentication required.'),

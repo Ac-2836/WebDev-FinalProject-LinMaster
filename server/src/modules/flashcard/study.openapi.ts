@@ -113,6 +113,9 @@ openApiRegistry.registerPath({
   method: 'post',
   path: '/api/v1/flashcards/sessions',
   summary: 'Start a study session',
+  description:
+    'Opens a session of one mode (`flip`, `learn`, `test`, `match` or `exercise`) on a set of the user. Ratings ' +
+    'sent with `POST /flashcards/reviews` and this `sessionId` count toward it; end it with `PATCH .../{id}`.',
   tags: ['Flashcard'],
   security,
   request: {body: json(StartStudySessionRequestSchema, {setId: SET_ID, mode: 'learn'})},

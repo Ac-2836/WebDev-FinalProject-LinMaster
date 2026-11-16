@@ -87,10 +87,10 @@ openApiRegistry.registerPath({
     401: error('Authentication required.'),
     404: error('Document not found or not owned by the current user.'),
     429: error(
-      'Daily AI quota used up (status AI_QUOTA_EXCEEDED, details.retryAt), or more than 20 AI requests in a minute.',
+      'More than 20 AI requests in a minute, or `AI_QUOTA_EXCEEDED`: the daily AI quota is used up (details.retryAt).',
     ),
-    502: error('The AI returned invalid output 3 times (status AI_INVALID_OUTPUT).'),
-    503: error('The AI service is unavailable (status AI_UNAVAILABLE).'),
+    502: error('`AI_INVALID_OUTPUT`: the AI returned invalid output 3 times.'),
+    503: error('`AI_UNAVAILABLE`: the AI service is unavailable.'),
     500: error('Unexpected server error.'),
   },
 });
