@@ -121,6 +121,61 @@ export function useRoomSettings() {
 }
 
 const SAVE_DELAY_MS = 800;
+const TAKEOVER_WAIT_MS = 1500;
+
+type TabMessage =
+  | {type: 'hello'; from: string; since: number}
+  | {type: 'busy' | 'released'; from: string; to: string}
+  | {type: 'takeover'; from: string};
+
+/**
+ * One tab edits an attempt at a time (QA Q-04): a second tab would save its own copy of the answers over the first
+ * one's. Tabs of the same browser talk through a BroadcastChannel: a tab that opens asks whether another one is
+ * editing; the older one answers and the newer one is `blocked` (it does not save and the room tells why).
+ * `takeOver()` makes this tab the editing one: the other saves what it has, steps aside, and this tab reloads to start
+ * from what the server holds. `beforeYield` saves the unsaved answers of the tab that steps aside.
+ */
+export function useSingleTab(attemptId: string, beforeYield: () => Promise<unknown>) {
+  const [blocked, setBlocked] = useState(false);
+  const blockedRef = useRef(false);
+  const takeOverRef = useRef<() => void>(() => {});
+  const yieldRef = useRef(beforeYield);
+  useEffect(() => {
+    yieldRef.current = beforeYield;
+  });
+
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel(`lm-attempt-${attemptId}`);
+    const me = Math.random().toString(36).slice(2);
+    const since = Date.now() + Math.random();
+    const send = (message: TabMessage) => channel.postMessage(message);
+    const block = (value: boolean) => {
+      blockedRef.current = value;
+      setBlocked(value);
+    };
+    channel.onmessage = async (event: MessageEvent<TabMessage>) => {
+      const m = event.data;
+      if (m.from === me) return;
+      if (m.type === 'hello' && !blockedRef.current && since < m.since) send({type: 'busy', from: me, to: m.from});
+      else if (m.type === 'busy' && m.to === me) block(true);
+      else if (m.type === 'takeover' && !blockedRef.current) {
+        await yieldRef.current();
+        block(true);
+        send({type: 'released', from: me, to: m.from});
+      } else if (m.type === 'released' && m.to === me) window.location.reload();
+    };
+    takeOverRef.current = () => {
+      send({type: 'takeover', from: me});
+      // Nobody answers when the other tab was closed meanwhile: carry on anyway.
+      setTimeout(() => window.location.reload(), TAKEOVER_WAIT_MS);
+    };
+    send({type: 'hello', from: me, since});
+    return () => channel.close();
+  }, [attemptId]);
+
+  return {blocked, blockedRef, takeOver: () => takeOverRef.current()};
+}
 
 /**
  * Autosave of the attempt state (`PUT /attempts/:id/state`): a short pause after each change, again when the
@@ -139,12 +194,16 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
   const saved = useRef(state);
   const inFlight = useRef<Promise<void> | null>(null);
   const closed = useRef(onClosed);
+  const flushRef = useRef<() => Promise<boolean>>(async () => true);
+  const {blocked, blockedRef, takeOver} = useSingleTab(attemptId, () => flushRef.current());
   useEffect(() => {
     latest.current = state;
     closed.current = onClosed;
   });
 
   const flush = useCallback(async () => {
+    // A blocked tab saves nothing: its copy of the answers is older than the other tab's.
+    if (blockedRef.current) return false;
     while (inFlight.current) await inFlight.current;
     const next = latest.current;
     if (next === saved.current) return true;
@@ -166,7 +225,10 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
       .finally(() => (inFlight.current = null));
     await inFlight.current;
     return saved.current === next;
-  }, [attemptId]);
+  }, [attemptId, blockedRef]);
+  useEffect(() => {
+    flushRef.current = flush;
+  }, [flush]);
 
   useEffect(() => {
     if (state === saved.current) return;
@@ -179,7 +241,7 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
   // A reload or a closed tab inside the save delay would lose the last answer: send it as the page goes away.
   useEffect(() => {
     const onPageHide = () => {
-      if (latest.current === saved.current) return;
+      if (blockedRef.current || latest.current === saved.current) return;
       // shortcut: keepalive bodies are capped at 64 KB, enough for answers and notes; move to sendBeacon if notes grow.
       void apiResponse(`/attempts/${attemptId}/state`, {
         method: 'PUT',
@@ -189,7 +251,7 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
     };
     window.addEventListener('pagehide', onPageHide);
     return () => window.removeEventListener('pagehide', onPageHide);
-  }, [attemptId]);
+  }, [attemptId, blockedRef]);
 
   useEffect(() => {
     if (saveState !== 'error' || !online) return;
@@ -210,5 +272,5 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
     };
   }, [flush]);
 
-  return {saveState, flush};
+  return {saveState, flush, blocked, takeOver};
 }

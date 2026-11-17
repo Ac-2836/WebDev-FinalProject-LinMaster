@@ -391,14 +391,16 @@ function TemplateTab() {
 
   async function pick(slot: ImportSlot, file: File | undefined) {
     if (!file) return;
+    // The slot says what it takes: refuse a PDF in the audio slot before it is sent, not after (QA Q-06).
+    const type = isAudio(file) ? 'audio' : isPdf(file) ? 'pdf' : null;
+    if (type !== slotAccepts(slot)) {
+      toast.error(t(type ? 'errors.slotType' : 'errors.type', {name: file.name}));
+      return;
+    }
     setBusy(slot);
     const uploaded = await upload(file);
     setBusy(null);
     if (!uploaded) return;
-    if (uploaded.type !== slotAccepts(slot)) {
-      toast.error(t('errors.slotType', {name: file.name}));
-      return;
-    }
     setChosen(c => ({...c, [slot]: uploaded}));
   }
 

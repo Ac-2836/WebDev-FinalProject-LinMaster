@@ -30,6 +30,7 @@ import {ExamRoom} from './exam-room';
 import {ListeningRoom} from './listening/listening-room';
 import {toggleStruck, type Struck} from './reading/reading-logic';
 import {ReadingRoom} from './reading/reading-room';
+import {OtherTabDialog} from './room-dialogs';
 import {useAutosave} from './room-hooks';
 import {partOf} from './room-logic';
 
@@ -107,7 +108,7 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
   const [state, setState] = useState(attempt.state);
   const [current, setCurrent] = useState(() => startQuestion(attempt.state, section, parts));
   const [submitting, setSubmitting] = useState(false);
-  const {saveState, flush} = useAutosave(attempt.id, state, reload);
+  const {saveState, flush, blocked, takeOver} = useAutosave(attempt.id, state, reload);
   // Crossed-out options are a reading aid, not part of the saved attempt: they stay on this device.
   const struckKey = `lm_struck_${attempt.id}_${section.id}`;
   const [struck, setStruck] = useState<Struck>(() => {
@@ -166,62 +167,65 @@ function RunningAttempt({attempt, reload}: {attempt: Attempt; reload: () => Prom
   const skill = section.skill === 'listening' ? 'Listening' : 'Reading';
 
   return (
-    <ExamRoom
-      candidateName={user?.displayName ?? ''}
-      testTitle={`${attempt.test.title} · ${skill}`}
-      deadlineAt={sectionTime?.endsAt ?? attempt.deadlineAt}
-      serverNow={attempt.serverNow}
-      onExpire={() => void expire()}
-      onSubmit={() => void submit()}
-      saveState={saveState}
-      submitted={submitting}
-      parts={parts}
-      current={current}
-      answered={answeredNumbers(state, numberOf)}
-      flagged={flaggedNumbers(state, numberOf)}
-      onNavigate={navigate}
-      onToggleReview={n => {
-        const id = idOf.get(n);
-        if (id) setState(s => toggleFlag(s, id));
-      }}
-      partBar={
-        part && (
-          <>
-            <strong>{part.title}</strong>&nbsp;{' '}
-            {section.skill === 'listening' ? 'Listen and answer' : 'Read the text and answer'} questions{' '}
-            {part.questions[0]}–{part.questions.at(-1)}.
-          </>
-        )
-      }
-    >
-      {section.skill === 'reading' && passage ? (
-        <ReadingRoom
-          passage={passage}
-          answers={answersByNumber(state, numberOf)}
-          onAnswer={patch => setState(s => setAnswers(s, patch, idOf))}
-          highlights={passageMarks(state, passage.id)}
-          onHighlightsChange={marks => setState(s => setPassageMarks(s, passage.id, marks))}
-          struck={struck}
-          onStrike={strike}
-          current={current}
-          onCurrentChange={navigate}
-        />
-      ) : (
-        passage && (
-          <ListeningRoom
-            audio={attempt.audio?.sectionId === section.id ? attempt.audio : null}
+    <>
+      {blocked && <OtherTabDialog onTakeOver={takeOver} />}
+      <ExamRoom
+        candidateName={user?.displayName ?? ''}
+        testTitle={`${attempt.test.title} · ${skill}`}
+        deadlineAt={sectionTime?.endsAt ?? attempt.deadlineAt}
+        serverNow={attempt.serverNow}
+        onExpire={() => void expire()}
+        onSubmit={() => void submit()}
+        saveState={saveState}
+        submitted={submitting}
+        parts={parts}
+        current={current}
+        answered={answeredNumbers(state, numberOf)}
+        flagged={flaggedNumbers(state, numberOf)}
+        onNavigate={navigate}
+        onToggleReview={n => {
+          const id = idOf.get(n);
+          if (id) setState(s => toggleFlag(s, id));
+        }}
+        partBar={
+          part && (
+            <>
+              <strong>{part.title}</strong>&nbsp;{' '}
+              {section.skill === 'listening' ? 'Listen and answer' : 'Read the text and answer'} questions{' '}
+              {part.questions[0]}–{part.questions.at(-1)}.
+            </>
+          )
+        }
+      >
+        {section.skill === 'reading' && passage ? (
+          <ReadingRoom
             passage={passage}
-            reviewMinutes={(certification?.sections.listening.reviewSec ?? 0) / 60}
             answers={answersByNumber(state, numberOf)}
             onAnswer={patch => setState(s => setAnswers(s, patch, idOf))}
+            highlights={passageMarks(state, passage.id)}
+            onHighlightsChange={marks => setState(s => setPassageMarks(s, passage.id, marks))}
             struck={struck}
             onStrike={strike}
             current={current}
             onCurrentChange={navigate}
           />
-        )
-      )}
-    </ExamRoom>
+        ) : (
+          passage && (
+            <ListeningRoom
+              audio={attempt.audio?.sectionId === section.id ? attempt.audio : null}
+              passage={passage}
+              reviewMinutes={(certification?.sections.listening.reviewSec ?? 0) / 60}
+              answers={answersByNumber(state, numberOf)}
+              onAnswer={patch => setState(s => setAnswers(s, patch, idOf))}
+              struck={struck}
+              onStrike={strike}
+              current={current}
+              onCurrentChange={navigate}
+            />
+          )
+        )}
+      </ExamRoom>
+    </>
   );
 }
 
