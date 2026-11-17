@@ -171,10 +171,10 @@ describe('import processor', () => {
 
   describe('Listening transcript from the audio (P3-18)', () => {
     const heard: Awaited<ReturnType<ParseAudio>> = {
-      parts: [{part: 1, startSec: 12, lines: [{label: 'Woman', text: 'Shall we meet at the library?'}]}],
+      parts: [{part: 1, lines: [{label: 'Woman', text: 'Shall we meet at the library?'}]}],
     };
 
-    it('writes the transcript and the part start when the files have none, and says so', async () => {
+    it('writes the transcript when the files have none, says so, and leaves the part start empty', async () => {
       const {state, parseAudio, run} = await setup(['listening'], {
         audio: true,
         transcript: false,
@@ -183,12 +183,7 @@ describe('import processor', () => {
 
       const outcome = await run();
 
-      expect(parseAudio).toHaveBeenCalledWith(PDF, {
-        mimeType: 'audio/mpeg',
-        parts: 1,
-        durationSec: 1680,
-        userId: 'owner',
-      });
+      expect(parseAudio).toHaveBeenCalledWith(PDF, {mimeType: 'audio/mpeg', parts: 1, userId: 'owner'});
       expect(outcome.status).toBe('done');
       const codes = outcome.issues.map(issue => issue.code);
       expect(codes).toContain('TRANSCRIPT_BY_AI');
@@ -196,25 +191,8 @@ describe('import processor', () => {
       const passage = state.savedTests.get((outcome as {testId: string}).testId)!.test.sections[0].passages[0];
       expect(passage).toMatchObject({
         paragraphs: [{label: 'Woman', text: 'Shall we meet at the library?'}],
-        audioStartSec: 12,
+        audioStartSec: null,
       });
-    });
-
-    it('keeps the transcript but not a start that lies outside the recording', async () => {
-      const {state, run} = await setup(['listening'], {
-        audio: true,
-        transcript: false,
-        parseAudio: async () => ({
-          parts: [{part: 1, startSec: 1680, lines: [{label: null, text: 'Shall we meet at the library?'}]}],
-        }),
-      });
-
-      const outcome = await run();
-
-      expect(outcome.status).toBe('done');
-      const passage = state.savedTests.get((outcome as {testId: string}).testId)!.test.sections[0].passages[0];
-      expect(passage.paragraphs).toEqual([{text: 'Shall we meet at the library?'}]);
-      expect(passage.audioStartSec).toBeNull();
     });
 
     it('does not listen when the files already have a transcript', async () => {
