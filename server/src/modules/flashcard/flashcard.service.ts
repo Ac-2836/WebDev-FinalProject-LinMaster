@@ -12,6 +12,8 @@ import type {
 } from '@linmaster/shared';
 import {EXERCISE_MAX_CARDS, EXERCISE_MIN_CARDS, QUIZ_MIN_CARDS} from '@linmaster/shared';
 import {AppError} from '../../core/app-error';
+import {createHash} from 'node:crypto';
+
 import {buildExercise, enough, type ExerciseCard} from './exercise';
 import {buildQuiz} from './quiz';
 import type {FlashcardRepository} from './flashcard.repository';
@@ -27,11 +29,25 @@ export type ExerciseGenerator = (
   userId: string,
 ) => Promise<GeneratedExercise>;
 
+/**
+ * A practice request that just failed (the model never gave enough valid questions) fails again at once for this
+ * long, so pressing the button again does not spend three more Gemini calls.
+ */
+export const EXERCISE_FAILURE_COOLDOWN_MS = 60_000;
+const MAX_REMEMBERED_FAILURES = 500;
+
 export function createFlashcardService(
   repository: FlashcardRepository,
   vocabEntries: VocabEntryProvider,
   generateExercise: ExerciseGenerator,
+  nowMs: () => number = Date.now,
 ) {
+  // shortcut: kept in this process, so a restart or a second server instance forgets it; move to the AiCache table if
+  // that matters.
+  const failedExercises = new Map<string, number>();
+  const invalidOutput = () =>
+    new AppError('AI trả về kết quả không hợp lệ, hãy thử lại sau ít phút.', 502, undefined, 'AI_INVALID_OUTPUT');
+
   return {
     async createSet(ownerId: string, input: CreateFlashcardSet) {
       return {set: await repository.createSet(ownerId, input)};
@@ -96,11 +112,23 @@ export function createFlashcardService(
         throw new AppError(`Practice needs at least ${EXERCISE_MIN_CARDS} cards in the set.`, 422);
       }
       const cards = set.cards.slice(0, EXERCISE_MAX_CARDS).map(({id, term, definition}) => ({id, term, definition}));
-      const generated = await generateExercise({cards, ...request}, userId);
-      const questions = buildExercise(generated, cards, request);
-      if (!enough(questions.length, request.count)) {
-        throw new AppError('AI trả về kết quả không hợp lệ, hãy thử lại.', 502, undefined, 'AI_INVALID_OUTPUT');
+      const key = createHash('sha256')
+        .update(JSON.stringify([userId, [...request.kinds].sort(), request.count, cards]))
+        .digest('hex');
+      if ((failedExercises.get(key) ?? 0) > nowMs()) throw invalidOutput();
+
+      const failed = () => {
+        if (failedExercises.size >= MAX_REMEMBERED_FAILURES) failedExercises.clear();
+        failedExercises.set(key, nowMs() + EXERCISE_FAILURE_COOLDOWN_MS);
+        return invalidOutput();
+      };
+      let questions;
+      try {
+        questions = buildExercise(await generateExercise({cards, ...request}, userId), cards, request);
+      } catch (error) {
+        throw error instanceof AppError && error.status === 'AI_INVALID_OUTPUT' ? failed() : error;
       }
+      if (!enough(questions.length, request.count, cards.length)) throw failed();
       return {setId: set.id, questions};
     },
 
