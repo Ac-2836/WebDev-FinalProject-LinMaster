@@ -12,7 +12,11 @@ import {signJwt} from '../../src/core/jwt';
 const JWT_SECRET = 'lookups-test-secret-that-is-at-least-32-characters';
 const app = createApp({NODE_ENV: 'test', JWT_SECRET, CORS_ORIGINS: ['http://localhost:3000']});
 const stamp = Date.now();
-const emails = [`lookup-a-${stamp}@linmaster.test`, `lookup-b-${stamp}@linmaster.test`];
+const emails = [
+  `lookup-a-${stamp}@linmaster.test`,
+  `lookup-b-${stamp}@linmaster.test`,
+  `lookup-c-${stamp}@linmaster.test`,
+];
 
 function explanation(overrides: Partial<WordExplanation>): WordExplanation {
   return {
@@ -37,19 +41,23 @@ describe('POST /api/v1/vocab/lookups', () => {
   const db = getDb();
   let userId: string;
   let otherUserId: string;
+  let contextAuth: string;
   let auth: string;
 
   beforeAll(async () => {
-    [userId, otherUserId] = await Promise.all(
+    let contextUserId: string;
+    [userId, otherUserId, contextUserId] = await Promise.all(
       emails.map(async email => (await db.user.create({data: {email, passwordHash: 'x', displayName: 'Lookup'}})).id),
     );
     auth = `Bearer ${signJwt(userId, JWT_SECRET)}`;
+    // The AI rate limit is 20 a minute per user, so the contextual tests use another user.
+    contextAuth = `Bearer ${signJwt(contextUserId, JWT_SECRET)}`;
   });
   beforeEach(async () => {
     await db.vocabLookup.deleteMany({where: {ownerId: userId}});
   });
   afterAll(async () => {
-    await db.aiCache.deleteMany({where: {task: 'explain-word.v1', output: {path: ['usageNote'], equals: 'test'}}});
+    await db.aiCache.deleteMany({where: {task: 'explain-word.v2', output: {path: ['usageNote'], equals: 'test'}}});
     await db.user.deleteMany({where: {email: {in: emails}}});
     await db.$disconnect();
   });
@@ -84,7 +92,13 @@ describe('POST /api/v1/vocab/lookups', () => {
 
   it('serves a repeated lookup from the cache and points to the saved entry', async () => {
     const model = createMockAiModel([
-      explanation({lemma: 'Mitigate', partOfSpeech: 'Verb', topics: ['Environment'], usageNote: 'test'}),
+      explanation({
+        headword: 'mitigated',
+        lemma: 'Mitigate',
+        partOfSpeech: 'Verb',
+        topics: ['Environment'],
+        usageNote: 'test',
+      }),
     ]);
     setAiModel(model);
     const entry = await db.vocabEntry.create({
@@ -154,5 +168,169 @@ describe('POST /api/v1/vocab/lookups', () => {
     expect(res.status).toBe(502);
     expect(res.body.error).toMatchObject({code: 502, status: 'AI_INVALID_OUTPUT'});
     expect(await db.vocabLookup.count({where: {ownerId: userId}})).toBe(0);
+  });
+
+  describe('contextual lookup (explain-word.v2)', () => {
+    const post = (body: object) =>
+      request(app).post('/api/v1/vocab/lookups').set('Authorization', contextAuth).send(body);
+    const at = (text: string, sentenceText: string, nth = 0) => {
+      let from = -1;
+      for (let i = 0; i <= nth; i++) from = sentenceText.indexOf(text, from + 1);
+      return from;
+    };
+
+    it('A: explains one word, and sends the title and paragraph to the AI', async () => {
+      const model = createMockAiModel([explanation({headword: 'regression', meaningVi: 'hồi quy', usageNote: 'test'})]);
+      setAiModel(model);
+      const text = sentence('The regression shows a trend');
+      const res = await post({
+        text: 'regression',
+        sentence: text,
+        context: {title: 'Statistics basics', paragraph: 'Para about models. ' + text},
+      });
+
+      expect(res.status).toBe(200);
+      expect(LookupWordResponseSchema.parse(res.body).match).toEqual({
+        text: 'regression',
+        start: 4,
+        end: 14,
+        adjusted: false,
+      });
+      expect(model.requests[0].text).toContain('Statistics basics');
+      expect(model.requests[0].text).toContain('Para about models.');
+    });
+
+    it('B: keeps a meaningful phrase whole', async () => {
+      const model = createMockAiModel([explanation({headword: 'frequent feedback', usageNote: 'test'})]);
+      setAiModel(model);
+      const text = sentence('Teachers who give frequent feedback help students');
+      const start = at('frequent', text);
+      const res = await post({text: 'frequent feedback', sentence: text});
+
+      expect(res.body.match).toEqual({text: 'frequent feedback', start, end: start + 17, adjusted: false});
+      expect(res.body.explanation.headword).toBe('frequent feedback');
+      expect(model.requests).toHaveLength(1);
+    });
+
+    it('C: moves a meaningless selection to the nearest meaningful phrase', async () => {
+      setAiModel(createMockAiModel([explanation({headword: 'give frequent feedback', usageNote: 'test'})]));
+      const text = sentence('Teachers who give frequent feedback help students');
+      const res = await post({text: 'Teachers who give frequent', sentence: text});
+
+      expect(res.body.match).toEqual({text: 'give frequent feedback', start: 13, end: 35, adjusted: true});
+      expect(text.slice(res.body.match.start, res.body.match.end)).toBe('give frequent feedback');
+    });
+
+    it('accepts one word when the rest of the selection is only function words', async () => {
+      const model = createMockAiModel([explanation({headword: 'regression', usageNote: 'test'})]);
+      setAiModel(model);
+      const text = sentence('We plot the regression line');
+      const res = await post({text: 'the regression', sentence: text});
+
+      expect(model.requests).toHaveLength(1);
+      expect(res.body.match).toMatchObject({text: 'regression', adjusted: true});
+    });
+
+    it('asks again when the AI cuts a meaningful phrase down to one word', async () => {
+      const model = createMockAiModel([
+        explanation({headword: 'courses', usageNote: 'test'}),
+        explanation({headword: 'online courses', usageNote: 'test'}),
+      ]);
+      setAiModel(model);
+      const text = sentence('Many online courses are free');
+      const res = await post({text: 'online courses', sentence: text});
+
+      expect(model.requests).toHaveLength(2);
+      expect(model.requests[1].text).toContain('cut the selection down to one word');
+      expect(res.body.match).toMatchObject({text: 'online courses', adjusted: false});
+    });
+
+    it('explains the exact selection when the AI keeps cutting it down', async () => {
+      const model = createMockAiModel([
+        explanation({headword: 'courses', usageNote: 'test'}),
+        explanation({headword: 'Courses', usageNote: 'test'}),
+      ]);
+      setAiModel(model);
+      const text = sentence('Several remote courses are free');
+      const start = at('remote', text);
+      const res = await post({text: 'remote courses', sentence: text});
+
+      expect(model.requests).toHaveLength(2);
+      expect(res.body.match).toEqual({text: 'remote courses', start, end: start + 14, adjusted: false});
+      expect(res.body.explanation.headword).toBe('remote courses');
+    });
+
+    it('gives an AI error, not another phrase meaning, when the AI invents a phrase twice', async () => {
+      const model = createMockAiModel([
+        explanation({headword: 'regression analysis', usageNote: 'test'}),
+        explanation({headword: 'give feedback', usageNote: 'test'}),
+      ]);
+      setAiModel(model);
+      const text = sentence('Researchers fit a regression to the data');
+      const res = await post({text: 'a regression', sentence: text});
+
+      expect(model.requests).toHaveLength(2);
+      expect(model.requests[1].text).toContain('not an exact, unbroken part of the sentence');
+      expect(res.status).toBe(502);
+      expect(res.body.error).toMatchObject({code: 502, status: 'AI_INVALID_OUTPUT'});
+      expect(res.body.explanation).toBeUndefined();
+      expect(await db.vocabLookup.count({where: {ownerId: userId}})).toBe(0);
+    });
+
+    it('refuses an AI phrase that does not touch the selection', async () => {
+      setAiModel(
+        createMockAiModel([
+          explanation({headword: 'students', usageNote: 'test'}),
+          explanation({headword: 'students', usageNote: 'test'}),
+        ]),
+      );
+      const text = sentence('Teachers praise students daily');
+      const res = await post({text: 'praise', sentence: text});
+
+      expect(res.status).toBe(502);
+    });
+
+    it('uses textStart to pick the occurrence when the text appears twice', async () => {
+      const model = createMockAiModel([explanation({headword: 'bank', usageNote: 'test'})]);
+      setAiModel(model);
+      const text = sentence('The bank is near the river bank');
+      const second = at('bank', text, 1);
+      const res = await post({text: 'bank', sentence: text, textStart: second});
+
+      expect(res.body.match).toEqual({text: 'bank', start: second, end: second + 4, adjusted: false});
+      expect(model.requests[0].text).toContain('second occurrence');
+    });
+
+    it('does not reuse an answer for a different title or paragraph', async () => {
+      const model = createMockAiModel([
+        explanation({headword: 'regression', meaningVi: 'hồi quy', usageNote: 'test'}),
+        explanation({headword: 'regression', meaningVi: 'sự thoái lui', usageNote: 'test'}),
+      ]);
+      setAiModel(model);
+      const text = sentence('The regression was clear');
+      const stats = await post({text: 'regression', sentence: text, context: {title: 'Statistics'}});
+      const mind = await post({text: 'regression', sentence: text, context: {title: 'Psychology'}});
+
+      expect(model.requests).toHaveLength(2);
+      expect(stats.body.explanation.meaningVi).toBe('hồi quy');
+      expect(mind.body.explanation.meaningVi).toBe('sự thoái lui');
+    });
+
+    it('is still compatible with a client that sends no context', async () => {
+      setAiModel(createMockAiModel([explanation({usageNote: 'test'})]));
+      const res = await post({text: 'bank', sentence: sentence('The bank was closed')});
+
+      expect(res.status).toBe(200);
+      expect(res.body.match).toMatchObject({text: 'bank', adjusted: false});
+    });
+
+    it('rejects a textStart that does not point at the text', async () => {
+      const model = createMockAiModel([]);
+      setAiModel(model);
+      const res = await post({text: 'bank', sentence: 'The bank was closed', textStart: 0});
+
+      expect(res.status).toBe(400);
+      expect(model.requests).toHaveLength(0);
+    });
   });
 });
