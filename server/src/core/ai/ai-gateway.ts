@@ -84,8 +84,19 @@ export function createAiGateway({
       try {
         return await model.generateJson(request);
       } catch (error) {
+        // The model refused the request itself (400, 401, 403, 404...): a bug in our schema, prompt or key, not a
+        // temporary outage, so it is a 500 for the team to see, and trying again will not help (Q-26).
+        if (!isTransientAiError(error)) {
+          console.error(`AI task ${taskName} was rejected by the model:`, error);
+          throw new AppError(
+            'Yêu cầu gửi tới AI bị từ chối do lỗi hệ thống, hãy báo cho nhóm phát triển.',
+            500,
+            undefined,
+            'AI_REQUEST_REJECTED',
+          );
+        }
         const delay = AI_RETRY_DELAYS_MS[retry];
-        if (delay === undefined || !isTransientAiError(error)) {
+        if (delay === undefined) {
           console.error(`AI task ${taskName} failed to reach the model:`, error);
           throw new AppError('Dịch vụ AI tạm thời không phản hồi, hãy thử lại sau.', 503, undefined, 'AI_UNAVAILABLE');
         }
@@ -98,7 +109,7 @@ export function createAiGateway({
   /**
    * Runs one registered AI task for a user: quota → cache → model (retried while unreachable) with schema
    * validation, content check (`task.isComplete`) and retry → AiUsage.
-   * Throws AppError 429 AI_QUOTA_EXCEEDED, 502 AI_INVALID_OUTPUT or 503 AI_UNAVAILABLE.
+   * Throws AppError 429 AI_QUOTA_EXCEEDED, 502 AI_INVALID_OUTPUT, 503 AI_UNAVAILABLE or 500 AI_REQUEST_REJECTED.
    */
   async function runJsonTask<Input, Output>(
     task: AiTask<Input, Output>,

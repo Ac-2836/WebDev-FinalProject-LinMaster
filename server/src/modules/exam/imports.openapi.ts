@@ -160,7 +160,9 @@ openApiRegistry.registerPath({
     ),
     502: error('`AI_INVALID_OUTPUT`: the AI answer could not be read.'),
     503: error('`AI_UNAVAILABLE`: the AI is unavailable; the "Theo mẫu" tab still works.'),
-    500: error('Unexpected server error.'),
+    500: error(
+      'Unexpected server error. `AI_REQUEST_REJECTED`: the AI refused the request (a bug in our schema, prompt or key), so trying again will not help.',
+    ),
   },
 });
 

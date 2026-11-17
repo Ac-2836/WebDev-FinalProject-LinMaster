@@ -1,5 +1,6 @@
 import type {ListVocabEntriesQuery, SaveVocabEntry, VocabEntry} from '@linmaster/shared';
 import {Prisma} from '../../generated/prisma/client';
+import {escapeLike} from '../../core/like';
 import {getDb} from '../../core/db';
 
 export interface VocabRepository {
@@ -85,11 +86,12 @@ function entryData(ownerId: string, input: SaveVocabEntry): Prisma.VocabEntryUnc
 function entryWhere(ownerId: string, query: ListVocabEntriesQuery): Prisma.VocabEntryWhereInput {
   const where: Prisma.VocabEntryWhereInput = {ownerId};
   if (query.q) {
+    const q = escapeLike(query.q);
     where.OR = [
-      {headword: {contains: query.q, mode: 'insensitive'}},
-      {lemma: {contains: query.q, mode: 'insensitive'}},
-      {meaningVi: {contains: query.q, mode: 'insensitive'}},
-      {definitionEn: {contains: query.q, mode: 'insensitive'}},
+      {headword: {contains: q, mode: 'insensitive'}},
+      {lemma: {contains: q, mode: 'insensitive'}},
+      {meaningVi: {contains: q, mode: 'insensitive'}},
+      {definitionEn: {contains: q, mode: 'insensitive'}},
     ];
   }
   if (query.topic) where.topics = {has: query.topic};

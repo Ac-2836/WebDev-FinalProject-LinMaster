@@ -23,7 +23,7 @@ export interface VocabEntryProvider {
   getEntriesForUser(ownerId: string, ids: string[]): Promise<VocabEntry[]>;
 }
 
-/** Runs `generate-exercise.v1`. */
+/** Runs `generate-exercise.v2`. */
 export type ExerciseGenerator = (
   input: {cards: ExerciseCard[]; kinds: GenerateExerciseRequest['kinds']; count: number},
   userId: string,

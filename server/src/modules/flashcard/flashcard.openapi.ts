@@ -24,6 +24,7 @@ const exampleSet = {
   description: 'Words from the reading list.',
   termLang: 'en',
   definitionLang: 'vi',
+  visibility: 'private',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   cards: [
@@ -40,8 +41,8 @@ const exampleSet = {
   ],
 };
 
-const {id, title, description, termLang, definitionLang, createdAt, updatedAt} = exampleSet;
-const setFields = {id, title, description, termLang, definitionLang, createdAt, updatedAt};
+const {id, title, description, termLang, definitionLang, visibility, createdAt, updatedAt} = exampleSet;
+const setFields = {id, title, description, termLang, definitionLang, visibility, createdAt, updatedAt};
 const emptySet = {...setFields, description: null, cards: []};
 const setSummary = {...setFields, cardCount: exampleSet.cards.length};
 const VOCAB_ID = '0192f7e0-0bcd-7000-8000-000000000003';
@@ -209,7 +210,7 @@ openApiRegistry.registerPath({
   path: '/api/v1/flashcards/sets/{id}/exercises',
   summary: 'Generate AI practice from a flashcard set',
   description:
-    'Runs the AI task `generate-exercise.v1`: exam-style questions (`single_choice`, `completion`, `matching`, as ' +
+    'Runs the AI task `generate-exercise.v2`: exam-style questions (`single_choice`, `completion`, `matching`, as ' +
     'asked in `kinds`) that use only the terms of the set; `count` is 10 or 20 sentences in all: a matching question (3 to 5 sentences) counts one per sentence, and each card is asked once. Every sentence has one `{{blank}}`; ' +
     'every answer and option is a term of the set as written in it (the first 100 cards are used). The server drops ' +
     'questions that fail these checks, so fewer than `count` may come back; fewer than half is a 502. Answers come ' +
@@ -245,7 +246,11 @@ openApiRegistry.registerPath({
       description: '`AI_UNAVAILABLE`: the model could not be reached.',
       content: {'application/json': {schema: ApiErrorBody}},
     },
-    500: internalError,
+    500: {
+      description:
+        'Unexpected server error. `AI_REQUEST_REJECTED`: the AI refused the request (a bug in our schema, prompt or key), so trying again will not help.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
   },
 });
 

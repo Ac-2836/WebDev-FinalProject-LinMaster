@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {ExerciseQuestionSchema, type GeneratedExercise} from '@linmaster/shared';
 import {buildExercise, enough, exerciseSize} from '../../src/modules/flashcard/exercise';
-import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v1';
+import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v2';
 
 const id = (n: number) => `0192f7e0-0bcd-7000-8000-${String(n).padStart(12, '0')}`;
 const CARDS = ['mitigate', 'obsolete', 'reluctant', 'ambiguous', 'Take place'].map((term, n) => ({
@@ -264,7 +264,7 @@ describe('buildExercise: whole words and one question per card', () => {
   });
 });
 
-describe('generate-exercise.v1', () => {
+describe('generate-exercise.v2', () => {
   const input = {cards: CARDS, kinds: ['completion' as const], count: 10};
   const valid = (n: number) => ({
     questions: Array.from({length: n}, (_, index) =>

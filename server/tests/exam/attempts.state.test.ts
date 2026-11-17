@@ -81,6 +81,45 @@ describe('attempts API: read and autosave', () => {
     expect((await db.attempt.findUnique({where: {id: attempt.id}}))?.state).toEqual(state);
   });
 
+  it('drops answers, flags, highlights, notes and a position that are not of the test', async () => {
+    const test = await createTest('Foreign keys');
+    const attempt = (await start(test.id)).body.attempt;
+    const section = attempt.test.sections[0];
+    const passage = section.passages[0];
+    const questionId = passage.groups[0].questions[0].id;
+    const foreign = api.MISSING_ID;
+    const range = (passageId: string) => ({passageId, paragraph: 0, start: 0, end: 4});
+
+    at(5);
+    const saved = await save(attempt.id, {
+      answers: {[questionId]: 'library', [foreign]: 'smuggled'},
+      highlights: [range(passage.id), range(foreign)],
+      notes: [
+        {...range(passage.id), text: 'mine'},
+        {...range(foreign), text: 'theirs'},
+      ],
+      flags: [questionId, foreign],
+      position: {sectionId: section.sectionId ?? section.id, questionId: foreign},
+    });
+
+    expect(saved.status).toBe(200);
+    const kept = (await db.attempt.findUnique({where: {id: attempt.id}}))?.state;
+    expect(JSON.stringify(kept)).not.toContain('smuggled');
+    expect(JSON.stringify(kept)).not.toContain(foreign);
+    expect(kept).toMatchObject({
+      answers: {[questionId]: 'library'},
+      highlights: [range(passage.id)],
+      notes: [{...range(passage.id), text: 'mine'}],
+      flags: [questionId],
+      position: {questionId: null},
+    });
+    const lost = await save(attempt.id, {...EMPTY_ATTEMPT_STATE, position: {sectionId: foreign, questionId}});
+    expect(lost.status).toBe(200);
+    expect(
+      ((await db.attempt.findUnique({where: {id: attempt.id}}))?.state as {position: unknown}).position,
+    ).toBeNull();
+  });
+
   it('refuses to save a submitted attempt', async () => {
     const test = await createTest('Submitted');
     const {id} = (await start(test.id)).body.attempt;

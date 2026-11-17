@@ -100,17 +100,18 @@ describe('attempts API: explain an answer', () => {
     expect(model.requests).toHaveLength(3);
   });
 
-  it('answers 502 when the model never returns a valid result, and 503 when it is unreachable', async () => {
+  it('answers 502 when the model never returns a valid result, and 500 when it refuses the request', async () => {
     setAiModel(createMockAiModel(['not json', 'not json', 'not json']));
     const id = await attemptOn('Invalid output');
     const invalid = await explain(id, 2);
 
     setAiModel(createMockAiModel([Object.assign(new Error('bad request'), {status: 400})]));
-    const unreachable = await explain(id, 2);
+    const refused = await explain(id, 2);
 
     expect(invalid.status).toBe(502);
     expect(invalid.body.error.status).toBe('AI_INVALID_OUTPUT');
-    expect(unreachable.status).toBe(503);
+    expect(refused.status).toBe(500);
+    expect(refused.body.error.status).toBe('AI_REQUEST_REJECTED');
   });
 
   it('refuses an attempt that is not submitted, not yours or not found, without calling the AI', async () => {

@@ -16,6 +16,7 @@ const DOMAIN_MESSAGES: Record<string, string> = {
   AI_QUOTA_EXCEEDED: 'Bạn đã dùng hết lượt AI hôm nay.',
   AI_INVALID_OUTPUT: 'AI trả về kết quả không hợp lệ, hãy thử lại.',
   AI_UNAVAILABLE: 'Dịch vụ AI tạm thời không phản hồi, hãy thử lại sau.',
+  AI_REQUEST_REJECTED: 'Yêu cầu gửi tới AI bị từ chối do lỗi hệ thống, hãy báo cho nhóm phát triển.',
 };
 
 // A domain status written in backticks in a response description, e.g. "`ATTEMPT_EXPIRED`: the deadline passed."

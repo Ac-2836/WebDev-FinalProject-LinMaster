@@ -60,7 +60,10 @@ export function createLibraryRouter(service: LibraryService, jwtSecret: string):
     '/library/sets/:id/copy',
     auth,
     validate(idRequest),
-    catchAsync(async (req, res) => res.status(201).json(await service.copySet(req.user!.userId, idOf(req.params)))),
+    catchAsync(async (req, res) => {
+      const {created, ...copy} = await service.copySet(req.user!.userId, idOf(req.params));
+      res.status(created ? 201 : 200).json(copy);
+    }),
   );
   router.post(
     '/library/reports',

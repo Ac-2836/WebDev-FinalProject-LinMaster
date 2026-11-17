@@ -17,6 +17,7 @@ import {z} from 'zod';
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
+import {stateOfTest} from './attempt-state';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
 import type {ExplainAnswerInput} from './ai';
 import {verifiedEvidence} from './answer-evidence';
@@ -220,7 +221,10 @@ export function createAttemptService({attempts, tests, storage, explain, now = (
       return {attempt: await toAttempt(await settle(attempt, test.certification), test)};
     },
 
-    /** `PUT /attempts/:id/state`: autosave, refused after the deadline or once submitted. */
+    /**
+     * `PUT /attempts/:id/state`: autosave, refused after the deadline or once submitted. Keys, ids and position that
+     * are not of the test are dropped before saving (Q-07).
+     */
     async saveState(userId: string, attemptId: string, state: AttemptState): Promise<SaveAttemptStateResponse> {
       const attempt = await ownAttempt(userId, attemptId);
       const at = now();
@@ -230,7 +234,8 @@ export function createAttemptService({attempts, tests, storage, explain, now = (
         throw new AppError('Time is over; the attempt can no longer be saved.', 409, undefined, 'ATTEMPT_EXPIRED');
       }
       // The deadline was checked above, so a refused write means the attempt was submitted in between.
-      if (!(await attempts.saveState(attemptId, state, at))) throw submitted;
+      const content = (await testOf(attempt.testId)).content;
+      if (!(await attempts.saveState(attemptId, stateOfTest(state, content), at))) throw submitted;
       const savedAt = at.toISOString();
       return {savedAt, serverNow: savedAt, remainingSec: remainingSec(attempt.deadlineAt, at)};
     },

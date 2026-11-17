@@ -2,13 +2,14 @@ import type {LibraryCard, LibrarySetItem, LibrarySort, TestVisibility} from '@li
 import type {Prisma} from '../../generated/prisma/client';
 
 import {getDb} from '../../core/db';
+import {escapeLike} from '../../core/like';
 
 // Public API of flashcard for the library (PLAN C5): only this file changes `visibility`, `publishedAt`, `copyCount`.
 
 export type VisibilityAction = 'publish' | 'unpublish';
 export type VisibilityOutcome =
   | {status: 'ok'; visibility: TestVisibility; publishedAt: Date | null; wasHidden: boolean}
-  | {status: 'not_found' | 'hidden'};
+  | {status: 'not_found' | 'hidden' | 'empty'};
 
 export interface LibraryPage {
   q?: string;
@@ -18,7 +19,7 @@ export interface LibraryPage {
 }
 
 export type LibrarySetDetail = LibrarySetItem & {ownerId: string; cards: LibraryCard[]};
-export type CopyOutcome = {status: 'ok'; setId: string} | {status: 'not_found' | 'own'};
+export type CopyOutcome = {status: 'ok'; setId: string; created: boolean} | {status: 'not_found' | 'own'};
 
 const ITEM = {
   id: true,
@@ -55,9 +56,14 @@ export async function setLibrarySetVisibility(
   action: VisibilityAction,
 ): Promise<VisibilityOutcome> {
   const db = getDb();
-  const set = await db.flashcardSet.findFirst({where: {id: setId, ownerId}, select: {visibility: true}});
+  const set = await db.flashcardSet.findFirst({
+    where: {id: setId, ownerId},
+    select: {visibility: true, _count: {select: {cards: true}}},
+  });
   if (!set) return {status: 'not_found'};
   if (action === 'publish' && set.visibility === 'hidden') return {status: 'hidden'};
+  // A set without cards is no use to anyone who copies it; one already public may stay (it can be emptied later).
+  if (action === 'publish' && set._count.cards === 0 && set.visibility !== 'public') return {status: 'empty'};
   const data: Prisma.FlashcardSetUpdateInput =
     action === 'unpublish'
       ? {visibility: 'private'}
@@ -77,7 +83,10 @@ export async function listLibrarySets({q, sort, skip, take}: LibraryPage) {
   const where: Prisma.FlashcardSetWhereInput = {
     visibility: 'public',
     ...(q && {
-      OR: [{title: {contains: q, mode: 'insensitive'}}, {description: {contains: q, mode: 'insensitive'}}],
+      OR: [
+        {title: {contains: escapeLike(q), mode: 'insensitive'}},
+        {description: {contains: escapeLike(q), mode: 'insensitive'}},
+      ],
     }),
   };
   const orderBy: Prisma.FlashcardSetOrderByWithRelationInput[] =
@@ -121,11 +130,14 @@ export async function findLatestCopy(userId: string, setId: string): Promise<str
 }
 
 /**
- * Deep copy of a public set of someone else into a new private set (seq-09). Cards lose their link to the
+ * Deep copy of a public set of someone else into a new private set (seq-09). Copying a set the user already copied
+ * gives back that copy (`created: false`) and does not count again; copy again after deleting it to get a fresh one. Cards lose their link to the
  * original owner's vocabulary; the copy keeps no tie to the original except `copiedFromId`.
  */
 export async function copyLibrarySet(userId: string, setId: string): Promise<CopyOutcome> {
   return getDb().$transaction(async tx => {
+    // Two copies of the same set at once wait for each other, so the second sees the first one's copy.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`copy:${userId}:${setId}`}))`;
     const source = await tx.flashcardSet.findFirst({
       where: {id: setId, visibility: 'public'},
       select: {
@@ -139,6 +151,12 @@ export async function copyLibrarySet(userId: string, setId: string): Promise<Cop
     });
     if (!source) return {status: 'not_found'};
     if (source.ownerId === userId) return {status: 'own'};
+    const existing = await tx.flashcardSet.findFirst({
+      where: {ownerId: userId, copiedFromId: setId},
+      orderBy: {createdAt: 'desc'},
+      select: {id: true},
+    });
+    if (existing) return {status: 'ok', setId: existing.id, created: false};
     const {title, description, termLang, definitionLang, cards} = source;
     const copy = await tx.flashcardSet.create({
       data: {
@@ -153,7 +171,7 @@ export async function copyLibrarySet(userId: string, setId: string): Promise<Cop
       select: {id: true},
     });
     await tx.flashcardSet.update({where: {id: setId}, data: {copyCount: {increment: 1}}});
-    return {status: 'ok', setId: copy.id};
+    return {status: 'ok', setId: copy.id, created: true};
   });
 }
 

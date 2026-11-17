@@ -150,6 +150,23 @@ describe('Prisma flashcard repository', () => {
     ]);
     expect(foreignResult.status).toBe(404);
   });
+  it('tells the owner whether a set is private, public or hidden after reports', async () => {
+    const make = (visibility: 'private' | 'public' | 'hidden') =>
+      db.flashcardSet.create({data: {ownerId, title: `Owner sees ${visibility} ${testRun}`, visibility}});
+    const sets = {private: await make('private'), public: await make('public'), hidden: await make('hidden')};
+
+    const listed = await prismaFlashcardRepository.listSets(ownerId);
+
+    for (const [visibility, set] of Object.entries(sets)) {
+      expect((await prismaFlashcardRepository.findSet(ownerId, set.id))?.visibility).toBe(visibility);
+      expect(listed.find(item => item.id === set.id)?.visibility).toBe(visibility);
+    }
+    expect(
+      (await prismaFlashcardRepository.createSet(ownerId, {title: 'New', termLang: 'en', definitionLang: 'vi'}))
+        .visibility,
+    ).toBe('private');
+  });
+
   it('lets a user read their own sets and public sets only', async () => {
     const make = (visibility: 'private' | 'public' | 'hidden') =>
       db.flashcardSet.create({data: {ownerId: otherUserId, title: `Readable ${visibility} ${testRun}`, visibility}});

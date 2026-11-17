@@ -40,6 +40,7 @@ const VISIBILITY_ERRORS = {
   not_found: notFound,
   hidden: () => conflict('Hidden after reports: unpublish it first, then publish it again.', 'CONTENT_HIDDEN'),
   source_required: () => conflict('Add the source of the test before publishing it.', 'TEST_SOURCE_REQUIRED'),
+  empty: () => new AppError('Add at least one card before publishing the set.', 422, undefined, 'SET_EMPTY'),
 };
 
 export function createLibraryService({sets, tests, reports}: LibrarySources) {
@@ -85,11 +86,11 @@ export function createLibraryService({sets, tests, reports}: LibrarySources) {
       return {test: preview, viewer: {isOwner: ownerId === userId, reported}};
     },
 
-    async copySet(userId: string, setId: string): Promise<LibraryCopyResponse> {
+    async copySet(userId: string, setId: string): Promise<LibraryCopyResponse & {created: boolean}> {
       const outcome = await sets.copyLibrarySet(userId, setId);
       if (outcome.status === 'not_found') throw notFound();
       if (outcome.status !== 'ok') throw conflict('This set is already yours.', 'OWN_CONTENT');
-      return {setId: outcome.setId};
+      return {setId: outcome.setId, created: outcome.created};
     },
 
     /** Reports public content of someone else; the third open report hides it (C5). */
