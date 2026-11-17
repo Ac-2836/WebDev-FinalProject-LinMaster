@@ -481,6 +481,7 @@
       "save": "Lưu vào kho từ",
       "saved": "Đã lưu kèm câu này",
       "openBank": "Mở kho từ",
+      "adjusted": "Đã tra cụm gần nhất: {text}",
       "alreadySaved": "Từ này đã có trong kho. Lưu sẽ thêm câu này vào từ đó."
     },
     "scan": {
