@@ -260,23 +260,24 @@ describe('POST /api/v1/vocab/lookups', () => {
       expect(res.body.explanation.headword).toBe('remote courses');
     });
 
-    it('never returns a match outside the sentence when the AI invents a phrase', async () => {
+    it('gives an AI error, not another phrase meaning, when the AI invents a phrase twice', async () => {
       const model = createMockAiModel([
         explanation({headword: 'regression analysis', usageNote: 'test'}),
         explanation({headword: 'give feedback', usageNote: 'test'}),
       ]);
       setAiModel(model);
       const text = sentence('Researchers fit a regression to the data');
-      const start = at('a regression', text);
       const res = await post({text: 'a regression', sentence: text});
 
       expect(model.requests).toHaveLength(2);
       expect(model.requests[1].text).toContain('not an exact, unbroken part of the sentence');
-      expect(res.body.match).toEqual({text: 'a regression', start, end: start + 12, adjusted: false});
-      expect(text.slice(res.body.match.start, res.body.match.end)).toBe(res.body.match.text);
+      expect(res.status).toBe(502);
+      expect(res.body.error).toMatchObject({code: 502, status: 'AI_INVALID_OUTPUT'});
+      expect(res.body.explanation).toBeUndefined();
+      expect(await db.vocabLookup.count({where: {ownerId: userId}})).toBe(0);
     });
 
-    it('rejects an AI phrase that does not touch the selection', async () => {
+    it('refuses an AI phrase that does not touch the selection', async () => {
       setAiModel(
         createMockAiModel([
           explanation({headword: 'students', usageNote: 'test'}),
@@ -286,7 +287,7 @@ describe('POST /api/v1/vocab/lookups', () => {
       const text = sentence('Teachers praise students daily');
       const res = await post({text: 'praise', sentence: text});
 
-      expect(res.body.match).toMatchObject({text: 'praise', adjusted: false});
+      expect(res.status).toBe(502);
     });
 
     it('uses textStart to pick the occurrence when the text appears twice', async () => {

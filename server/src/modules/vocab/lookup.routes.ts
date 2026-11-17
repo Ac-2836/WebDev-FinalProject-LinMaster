@@ -129,7 +129,9 @@ openApiRegistry.registerPath({
     429: error(
       'More than 20 AI requests in a minute, or `AI_QUOTA_EXCEEDED`: the daily AI quota is used up (details.retryAt).',
     ),
-    502: error('`AI_INVALID_OUTPUT`: the AI returned invalid output 3 times.'),
+    502: error(
+      '`AI_INVALID_OUTPUT`: the AI returned invalid output 3 times, or twice a phrase that is not in the sentence or does not touch the selection.',
+    ),
     503: error('`AI_UNAVAILABLE`: the AI service is unavailable.'),
     500: error(
       'Unexpected server error. `AI_REQUEST_REJECTED`: the AI refused the request (a bug in our schema, prompt or key), so trying again will not help.',

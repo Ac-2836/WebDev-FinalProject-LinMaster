@@ -10,7 +10,8 @@ function userData(text) {
 }
 
 function explainWord(text) {
-  const [selected] = userData(text);
+  // The document title and paragraph come first when the client sends context, so find the block by its label.
+  const selected = text.match(/Selected text \([^\n]*\n<<<USER_DATA>>>\n([\s\S]*?)\n<<<END_USER_DATA>>>/u)[1];
   return {
     headword: selected,
     lemma: selected.toLowerCase(),
@@ -151,7 +152,7 @@ function parseAnswers(skill) {
 }
 
 const REPLIES = [
-  ['You are an English dictionary', ({text}) => explainWord(text)],
+  ['You explain English words', ({text}) => explainWord(text)],
   ['You help Vietnamese learners', ({text}) => scanDocument(text)],
   ['You label the pages', ({pdf}) => classifyPages(pdf)],
   [

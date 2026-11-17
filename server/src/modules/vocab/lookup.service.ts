@@ -50,7 +50,7 @@ export function createLookupService(deps: LookupDeps = prismaLookupDeps) {
       };
 
       // The AI may answer with a phrase that is not in the sentence, or cut the selection down to one word. Ask once
-      // more with the reason; if it still fails, explain exactly what the user selected.
+      // more with the reason. Still a phrase from nowhere: 502. Still one word: its meaning stays, for the selection.
       let raw: WordExplanation | undefined;
       let found: {start: number; end: number; text: string} | null = null;
       let retry: ExplainWordRetry | undefined;
@@ -59,6 +59,10 @@ export function createLookupService(deps: LookupDeps = prismaLookupDeps) {
         found = locatePhrase(raw.headword, sentence, selection);
         if (!found) retry = 'not_in_sentence';
         else if (droppedMeaning({...selection, text}, found)) [found, retry] = [null, 'single_word'];
+      }
+      // Two phrases that are not in the sentence: their meaning would be for some other text, so it is not shown.
+      if (!found && retry === 'not_in_sentence') {
+        throw new AppError('AI trả về kết quả không hợp lệ, hãy thử lại.', 502, undefined, 'AI_INVALID_OUTPUT');
       }
       const range = found ?? {
         start: selection.start,
