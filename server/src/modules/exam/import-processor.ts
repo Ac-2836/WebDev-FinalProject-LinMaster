@@ -2,6 +2,7 @@ import {CERTIFICATIONS, type PageLabel, type PageLabels} from '@linmaster/shared
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
+import {trustedStarts} from './audio-starts';
 import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest} from './ai';
 import type {ImportProcessor} from './import-jobs';
 import {validateParsedTest} from './import-validator';
@@ -77,10 +78,11 @@ export function createImportProcessor({
               userId,
             })
           : {parts: []};
+        const marks = trustedStarts(parts, listening.passages.length, audio.durationSec);
         listening.passages.forEach((passage, index) => {
           const entry = parts.find(part => part.part === index + 1);
           if (!entry?.lines.length) return;
-          starts[index] = entry.startSec;
+          starts[index] = marks[index] ?? null;
           if (!passage.paragraphs?.length) {
             passage.paragraphs = entry.lines;
             transcriptByAi = true;

@@ -200,6 +200,23 @@ describe('import processor', () => {
       });
     });
 
+    it('keeps the transcript but not a start that lies outside the recording', async () => {
+      const {state, run} = await setup(['listening'], {
+        audio: true,
+        transcript: false,
+        parseAudio: async () => ({
+          parts: [{part: 1, startSec: 1680, lines: [{label: null, text: 'Shall we meet at the library?'}]}],
+        }),
+      });
+
+      const outcome = await run();
+
+      expect(outcome.status).toBe('done');
+      const passage = state.savedTests.get((outcome as {testId: string}).testId)!.test.sections[0].passages[0];
+      expect(passage.paragraphs).toEqual([{text: 'Shall we meet at the library?'}]);
+      expect(passage.audioStartSec).toBeNull();
+    });
+
     it('does not listen when the files already have a transcript', async () => {
       const {parseAudio, run} = await setup(['listening'], {audio: true, parseAudio: async () => heard});
 
