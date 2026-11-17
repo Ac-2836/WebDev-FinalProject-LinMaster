@@ -481,6 +481,7 @@
       "save": "Save to word bank",
       "saved": "Saved with this sentence",
       "openBank": "Open word bank",
+      "adjusted": "Looked up the nearest phrase: {text}",
       "alreadySaved": "This word is already in your word bank. Saving adds this sentence to it."
     },
     "scan": {

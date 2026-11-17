@@ -24,7 +24,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 import {lookupWord} from './lookup';
 import {LookupCard, type LookupState} from './lookup-card';
 import {QuickFilterPanel, type SavedWord, useQuickFilter} from './quick-filter-panel';
-import {layoutDocument, segmentParagraph, sentenceAround, tokenAt} from './reader-text';
+import {contextParagraph, layoutDocument, segmentParagraph, sentenceSpan, tokenAt} from './reader-text';
 
 export interface ReaderPageProps {
   id: string;
@@ -203,11 +203,38 @@ function Reader({document}: {document: VocabDocumentDetail}) {
     if (!range) return;
     const p = paragraphOf(range);
     const text = textOf(range);
-    const sentence = sentenceAround(p, range.start, range.end);
+    const span = sentenceSpan(p, range.start, range.end);
+    const sentence = span.text;
     setLookup({text, sentence, range, state: {status: 'loading'}});
     try {
-      const {explanation, savedEntryId} = await lookupWord({text, sentence, documentId: document.id});
-      setLookup(l => l && {...l, state: {status: 'ready', explanation, alreadySaved: savedEntryId !== null}});
+      const {explanation, savedEntryId, match} = await lookupWord({
+        text,
+        sentence,
+        textStart: range.start - span.start,
+        context: {title: document.title.slice(0, 200), paragraph: contextParagraph(p, span.start)},
+        documentId: document.id,
+      });
+      // The AI may have explained a nearby phrase instead: move the frame and the saved range there.
+      const from = span.start + match.start;
+      const to = span.start + match.end;
+      const moved =
+        p.text.slice(from - p.start, to - p.start) === match.text && (from !== range.start || to !== range.end);
+      if (moved) {
+        setSelection({i: tokenAt(tokens, from, 'start'), j: tokenAt(tokens, to, 'end')});
+      }
+      setLookup(
+        l =>
+          l && {
+            ...l,
+            ...(moved && {text: match.text, range: {start: from, end: to}}),
+            state: {
+              status: 'ready',
+              explanation,
+              alreadySaved: savedEntryId !== null,
+              adjustedTo: match.adjusted && moved ? match.text : null,
+            },
+          },
+      );
     } catch (err) {
       const quota = err instanceof ApiError && err.status === 'AI_QUOTA_EXCEEDED';
       setLookup(l => l && {...l, state: {status: 'error', message: errorMessage(err), quota}});
@@ -216,8 +243,8 @@ function Reader({document}: {document: VocabDocumentDetail}) {
 
   async function save() {
     if (!lookup || lookup.state.status !== 'ready') return;
-    const {explanation, alreadySaved} = lookup.state;
-    setLookup({...lookup, state: {status: 'saving', explanation, alreadySaved}});
+    const {explanation, alreadySaved, adjustedTo} = lookup.state;
+    setLookup({...lookup, state: {status: 'saving', explanation, alreadySaved, adjustedTo}});
     try {
       const {entries} = SaveVocabEntriesResponseSchema.parse(
         await api('/vocab/entries', {
@@ -238,10 +265,10 @@ function Reader({document}: {document: VocabDocumentDetail}) {
         }),
       );
       addSaved(entries, [lookup.range]);
-      setLookup({...lookup, state: {status: 'saved', explanation, alreadySaved}});
+      setLookup({...lookup, state: {status: 'saved', explanation, alreadySaved, adjustedTo}});
     } catch (err) {
       toast.error(errorMessage(err));
-      setLookup({...lookup, state: {status: 'ready', explanation, alreadySaved}});
+      setLookup({...lookup, state: {status: 'ready', explanation, alreadySaved, adjustedTo}});
     }
   }
 

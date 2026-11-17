@@ -1,6 +1,14 @@
 import {describe, expect, it} from 'vitest';
 
-import {layoutDocument, segmentParagraph, sentenceAround, tokenAt} from './reader-text';
+import {
+  contextParagraph,
+  layoutDocument,
+  MAX_CONTEXT_PARAGRAPH,
+  segmentParagraph,
+  sentenceAround,
+  sentenceSpan,
+  tokenAt,
+} from './reader-text';
 
 const doc = layoutDocument([
   'Governments are under pressure to mitigate the effects. Funding remains limited!',
@@ -39,6 +47,25 @@ describe('sentenceAround', () => {
     expect(sentenceAround(p, start, start + 8)).toBe('Governments are under pressure to mitigate the effects.');
     const f = p.text.indexOf('Funding');
     expect(sentenceAround(p, f, f + 7)).toBe('Funding remains limited!');
+  });
+
+  it('says where the sentence starts in the document', () => {
+    const second = doc.paragraphs[1];
+    const at = second.start + second.text.indexOf('low');
+    const span = sentenceSpan(second, at, at + 3);
+    expect(span.start).toBe(second.start);
+    const padded = layoutDocument(['One. Two words here.']).paragraphs[0];
+    const w = padded.text.indexOf('words');
+    const s = sentenceSpan(padded, w, w + 5);
+    expect(padded.text.slice(s.start, s.start + s.text.length)).toBe('Two words here.');
+  });
+});
+
+describe('contextParagraph', () => {
+  it('keeps a short paragraph and cuts a long one to the API limit', () => {
+    expect(contextParagraph(doc.paragraphs[0], 0)).toBe(doc.paragraphs[0].text);
+    const long = layoutDocument(['word '.repeat(2000)]).paragraphs[0];
+    expect(contextParagraph(long, 5000)).toHaveLength(MAX_CONTEXT_PARAGRAPH);
   });
 });
 

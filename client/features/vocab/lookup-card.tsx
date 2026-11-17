@@ -13,7 +13,13 @@ import {useVocabLabels} from './vocab-labels';
 export type LookupState =
   | {status: 'loading'}
   | {status: 'error'; message: string; quota: boolean}
-  | {status: 'ready' | 'saving' | 'saved'; explanation: WordExplanation; alreadySaved: boolean};
+  | {
+      status: 'ready' | 'saving' | 'saved';
+      explanation: WordExplanation;
+      alreadySaved: boolean;
+      /** The phrase the AI explained when it is not what the user selected. */
+      adjustedTo: string | null;
+    };
 
 export interface LookupCardProps {
   text: string;
@@ -80,6 +86,11 @@ export function LookupCard({text, state, onSave, onClose}: LookupCardProps) {
           {e.cefr && <span className={`${badge} bg-secondary text-primary`}>{e.cefr}</span>}
         </span>
       </div>
+      {state.adjustedTo && (
+        <p className="text-[13px] text-muted-foreground" role="status">
+          {t('adjusted', {text: state.adjustedTo})}
+        </p>
+      )}
       <p className="text-base font-semibold">{e.meaningVi}</p>
       {e.definitionEn && <p className="text-muted-foreground">{e.definitionEn}</p>}
       {e.usageNote && (

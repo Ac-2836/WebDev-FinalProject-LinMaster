@@ -43,18 +43,39 @@ export function tokenAt(tokens: Token[], offset: number, side: 'start' | 'end') 
   return 0;
 }
 
-/** The sentence around [start, end) inside one paragraph, used as the lookup context. */
-export function sentenceAround(paragraph: Paragraph, start: number, end: number) {
+/**
+ * The sentence around [start, end) inside one paragraph, used as the lookup context. `text` is trimmed (the server
+ * trims too, so offsets agree); `start` is where it begins in the whole document.
+ */
+export function sentenceSpan(paragraph: Paragraph, start: number, end: number) {
   const from = start - paragraph.start;
   const to = end - paragraph.start;
   const text = paragraph.text;
   let s = 0;
+  let e = text.length;
   for (const m of text.matchAll(/[.!?…]+["”’)\]]*\s+/gu)) {
     const boundary = m.index + m[0].length;
     if (boundary <= from) s = boundary;
-    else if (m.index >= to) return text.slice(s, m.index + m[0].trimEnd().length).trim();
+    else if (m.index >= to) {
+      e = m.index + m[0].trimEnd().length;
+      break;
+    }
   }
-  return text.slice(s).trim();
+  const raw = text.slice(s, e);
+  return {text: raw.trim(), start: paragraph.start + s + (raw.length - raw.trimStart().length)};
+}
+
+export const sentenceAround = (paragraph: Paragraph, start: number, end: number) =>
+  sentenceSpan(paragraph, start, end).text;
+
+/** Longest paragraph the lookup API accepts as context. */
+export const MAX_CONTEXT_PARAGRAPH = 3000;
+
+/** The paragraph for the lookup context, cut to the API limit around the sentence when it is longer. */
+export function contextParagraph(paragraph: Paragraph, sentenceStart: number) {
+  if (paragraph.text.length <= MAX_CONTEXT_PARAGRAPH) return paragraph.text;
+  const from = Math.max(0, sentenceStart - paragraph.start - MAX_CONTEXT_PARAGRAPH / 2);
+  return paragraph.text.slice(from, from + MAX_CONTEXT_PARAGRAPH);
 }
 
 export interface Segment {
