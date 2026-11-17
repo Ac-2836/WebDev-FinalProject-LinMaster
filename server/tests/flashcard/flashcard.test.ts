@@ -17,7 +17,7 @@ import {
   FlashcardCardNotFoundError,
   FlashcardVocabEntryNotFoundError,
 } from '../../src/modules/flashcard/flashcard.repository';
-import type {VocabEntryProvider} from '../../src/modules/flashcard/flashcard.service';
+import type {ExerciseGenerator, VocabEntryProvider} from '../../src/modules/flashcard/flashcard.service';
 import {createFlashcardModule} from '../../src/modules/flashcard';
 
 const JWT_SECRET = 'flashcard-test-secret-that-is-at-least-32-characters';
@@ -26,6 +26,7 @@ const OTHER_USER_ID = '0192f7e0-0bcd-7000-8000-000000000032';
 const SET_ID = '0192f7e0-0bcd-7000-8000-000000000033';
 const OTHER_SET_ID = '0192f7e0-0bcd-7000-8000-000000000034';
 const CARD_ID = '0192f7e0-0bcd-7000-8000-000000000035';
+const OWN_FOUR_SET_ID = '0192f7e0-0bcd-7000-8000-000000000061';
 const PUBLIC_SET_ID = '0192f7e0-0bcd-7000-8000-000000000060';
 const OTHER_CARD_ID = '0192f7e0-0bcd-7000-8000-000000000036';
 const VOCAB_ID = '0192f7e0-0bcd-7000-8000-000000000037';
@@ -85,7 +86,7 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
     [SET_ID, {ownerId: OWNER_ID, set: makeSet()}],
     [OTHER_SET_ID, {ownerId: OTHER_USER_ID, set: makeSet({id: OTHER_SET_ID, cards: [makeCard({id: OTHER_CARD_ID})]})}],
   ]);
-  const quizCards = ['a', 'b', 'c', 'd'].map((word, position) =>
+  const quizCards = ['apple', 'bread', 'cloud', 'dream'].map((word, position) =>
     makeCard({
       id: `0192f7e0-0bcd-7000-8000-${String(70 + position).padStart(12, '0')}`,
       term: word,
@@ -94,6 +95,7 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
     }),
   );
   sets.set(PUBLIC_SET_ID, {ownerId: OTHER_USER_ID, set: makeSet({id: PUBLIC_SET_ID, cards: quizCards})});
+  sets.set(OWN_FOUR_SET_ID, {ownerId: OWNER_ID, set: makeSet({id: OWN_FOUR_SET_ID, cards: quizCards})});
   const publicIds = new Set([PUBLIC_SET_ID]);
   let createdSetNumber = 0;
   let createdCardNumber = 50;
@@ -174,10 +176,14 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
   };
 }
 
-function createTestServer(repository: FlashcardRepository, vocabEntries: VocabEntryProvider) {
+function createTestServer(
+  repository: FlashcardRepository,
+  vocabEntries: VocabEntryProvider,
+  exercises?: ExerciseGenerator,
+) {
   const app = express();
   app.use(express.json());
-  app.use(createFlashcardModule(JWT_SECRET, repository, vocabEntries).router);
+  app.use(createFlashcardModule(JWT_SECRET, repository, vocabEntries, undefined, undefined, exercises).router);
   app.use(errorMiddleware);
   return app;
 }
@@ -189,6 +195,8 @@ function authHeader(userId = OWNER_ID) {
 describe('flashcard API', () => {
   let repository: ReturnType<typeof makeRepository>;
   let app: express.Express;
+  let generated: Awaited<ReturnType<ExerciseGenerator>>;
+  let generatorCalls: Parameters<ExerciseGenerator>[];
 
   beforeEach(() => {
     repository = makeRepository();
@@ -197,7 +205,29 @@ describe('flashcard API', () => {
         return ownerId === OWNER_ID && ids.includes(VOCAB_ID) ? [makeVocabEntry()] : [];
       },
     };
-    app = createTestServer(repository, vocabEntries);
+    generatorCalls = [];
+    const completion = (prompt: string, answer: string) => ({
+      kind: 'completion' as const,
+      prompt,
+      options: [],
+      answer,
+      items: [],
+    });
+    generated = {
+      questions: [
+        completion('We {{blank}} the plan.', 'zebra'),
+        completion('We eat bread.', 'bread'),
+        completion('We eat {{blank}} daily.', 'APPLE'),
+        completion('Then we bake {{blank}}.', 'bread'),
+        completion('The {{blank}} is grey today.', 'cloud'),
+        completion('I had a strange {{blank}}.', 'dream'),
+        completion('She ate an {{blank}} too.', 'apple'),
+      ],
+    };
+    app = createTestServer(repository, vocabEntries, async (...args) => {
+      generatorCalls.push(args);
+      return generated;
+    });
   });
 
   it('requires authentication and supports set CRUD for its owner', async () => {
@@ -337,6 +367,69 @@ describe('flashcard API', () => {
     expect([badKind.status, badCount.status, badId.status]).toEqual([400, 400, 400]);
   });
 
+  it('generates AI practice for the owner with only the questions that pass the checks', async () => {
+    const response = await request(app)
+      .post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`)
+      .set('Authorization', authHeader())
+      .send({kinds: ['completion'], count: 10});
+
+    expect(response.status).toBe(200);
+    expect(response.body.setId).toBe(OWN_FOUR_SET_ID);
+    // "APPLE" is written as in the set; a word outside the set and a sentence with no gap are dropped.
+    expect(response.body.questions.map((q: {answer: string}) => q.answer)).toEqual([
+      'apple',
+      'bread',
+      'cloud',
+      'dream',
+      'apple',
+    ]);
+    expect(generatorCalls).toHaveLength(1);
+    expect(generatorCalls[0]![0]).toMatchObject({kinds: ['completion'], count: 10});
+    expect(generatorCalls[0]![0].cards.map((card: {term: string}) => card.term)).toEqual([
+      'apple',
+      'bread',
+      'cloud',
+      'dream',
+    ]);
+    expect(generatorCalls[0]![1]).toBe(OWNER_ID);
+  });
+
+  it('answers 502 when under half of the practice questions are valid', async () => {
+    generated = {questions: generated.questions.slice(0, 4)};
+
+    const response = await request(app)
+      .post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`)
+      .set('Authorization', authHeader())
+      .send({kinds: ['completion'], count: 10});
+
+    expect(response.status).toBe(502);
+    expect(response.body.error.status).toBe('AI_INVALID_OUTPUT');
+  });
+
+  it('keeps AI practice to the owner, to sets of four cards and to valid requests, without calling the AI', async () => {
+    const send = (setId: string, body: object, userId = OWNER_ID) =>
+      request(app).post(`/flashcards/sets/${setId}/exercises`).set('Authorization', authHeader(userId)).send(body);
+    const valid = {kinds: ['completion'], count: 10};
+
+    const anonymous = await request(app).post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`).send(valid);
+    const foreign = await send(OWN_FOUR_SET_ID, valid, OTHER_USER_ID);
+    const publicSet = await send(PUBLIC_SET_ID, valid);
+    const tooSmall = await send(SET_ID, valid);
+    const bad = await Promise.all([
+      send(OWN_FOUR_SET_ID, {kinds: ['completion'], count: 15}),
+      send(OWN_FOUR_SET_ID, {kinds: [], count: 10}),
+      send(OWN_FOUR_SET_ID, {kinds: ['completion', 'completion'], count: 10}),
+      send(OWN_FOUR_SET_ID, {kinds: ['essay'], count: 10}),
+      send('not-a-uuid', valid),
+    ]);
+
+    expect(anonymous.status).toBe(401);
+    expect([foreign.status, publicSet.status]).toEqual([404, 404]);
+    expect(tooSmall.status).toBe(422);
+    expect(bad.map(r => r.status)).toEqual([400, 400, 400, 400, 400]);
+    expect(generatorCalls).toHaveLength(0);
+  });
+
   it('documents all flashcard routes and requires bearer authentication', () => {
     const paths = generateOpenApiDocument().paths ?? {};
 
@@ -347,6 +440,7 @@ describe('flashcard API', () => {
     expect(paths['/api/v1/flashcards/sets/{id}']?.delete).toBeDefined();
     expect(paths['/api/v1/flashcards/sets/{id}/cards']?.put).toBeDefined();
     expect(paths['/api/v1/flashcards/sets/from-vocab']?.post).toBeDefined();
+    expect(paths['/api/v1/flashcards/sets/{id}/exercises']?.post).toMatchObject({security: [{bearerAuth: []}]});
     expect(paths['/api/v1/flashcards/sets/{id}/quiz']?.get).toMatchObject({security: [{bearerAuth: []}]});
   });
 });

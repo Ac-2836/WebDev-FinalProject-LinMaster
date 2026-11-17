@@ -3,6 +3,7 @@ import {
   CreateFlashcardSetSchema,
   EndStudySessionRequestSchema,
   FlashcardSetIdParamsSchema,
+  GenerateExerciseRequestSchema,
   QuizQuerySchema,
   ReplaceFlashcardCardsRequestSchema,
   ReviewCardRequestSchema,
@@ -31,3 +32,7 @@ export const startStudySessionSchema = z.object({body: StartStudySessionRequestS
 export const endStudySessionSchema = z.object({params: StudySessionIdParamsSchema, body: EndStudySessionRequestSchema});
 export const dueSummarySchema = z.object({});
 export const getQuizSchema = z.object({params: FlashcardSetIdParamsSchema, query: QuizQuerySchema});
+export const generateExerciseSchema = z.object({
+  params: FlashcardSetIdParamsSchema,
+  body: GenerateExerciseRequestSchema,
+});

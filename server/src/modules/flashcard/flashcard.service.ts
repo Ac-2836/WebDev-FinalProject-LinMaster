@@ -1,14 +1,18 @@
 import type {
   CreateFlashcardSet,
   CreateFlashcardSetFromVocab,
+  GenerateExerciseRequest,
+  GenerateExerciseResponse,
+  GeneratedExercise,
   QuizQuery,
   QuizResponse,
   ReplaceFlashcardCardInput,
   UpdateFlashcardSet,
   VocabEntry,
 } from '@linmaster/shared';
-import {QUIZ_MIN_CARDS} from '@linmaster/shared';
+import {EXERCISE_MAX_CARDS, EXERCISE_MIN_CARDS, QUIZ_MIN_CARDS} from '@linmaster/shared';
 import {AppError} from '../../core/app-error';
+import {buildExercise, enough, type ExerciseCard} from './exercise';
 import {buildQuiz} from './quiz';
 import type {FlashcardRepository} from './flashcard.repository';
 import {FlashcardCardNotFoundError, FlashcardVocabEntryNotFoundError} from './flashcard.repository';
@@ -17,7 +21,17 @@ export interface VocabEntryProvider {
   getEntriesForUser(ownerId: string, ids: string[]): Promise<VocabEntry[]>;
 }
 
-export function createFlashcardService(repository: FlashcardRepository, vocabEntries: VocabEntryProvider) {
+/** Runs `generate-exercise.v1`. */
+export type ExerciseGenerator = (
+  input: {cards: ExerciseCard[]; kinds: GenerateExerciseRequest['kinds']; count: number},
+  userId: string,
+) => Promise<GeneratedExercise>;
+
+export function createFlashcardService(
+  repository: FlashcardRepository,
+  vocabEntries: VocabEntryProvider,
+  generateExercise: ExerciseGenerator,
+) {
   return {
     async createSet(ownerId: string, input: CreateFlashcardSet) {
       return {set: await repository.createSet(ownerId, input)};
@@ -65,6 +79,29 @@ export function createFlashcardService(repository: FlashcardRepository, vocabEnt
         throw new AppError(`A quiz needs at least ${QUIZ_MIN_CARDS} cards in the set.`, 422);
       }
       return {setId: set.id, questions: buildQuiz(set.cards, query)};
+    },
+
+    /**
+     * Owner only (it spends AI quota): AI practice questions that use only the terms of the set. Questions that fail
+     * the checks are dropped; fewer than half of those asked for is an error. Nothing is stored.
+     */
+    async generateExercise(
+      userId: string,
+      id: string,
+      request: GenerateExerciseRequest,
+    ): Promise<GenerateExerciseResponse> {
+      const set = await repository.findSet(userId, id);
+      if (!set) throw new AppError('Flashcard set not found.', 404);
+      if (set.cards.length < EXERCISE_MIN_CARDS) {
+        throw new AppError(`Practice needs at least ${EXERCISE_MIN_CARDS} cards in the set.`, 422);
+      }
+      const cards = set.cards.slice(0, EXERCISE_MAX_CARDS).map(({id, term, definition}) => ({id, term, definition}));
+      const generated = await generateExercise({cards, ...request}, userId);
+      const questions = buildExercise(generated, cards, request);
+      if (!enough(questions.length, request.count)) {
+        throw new AppError('AI trả về kết quả không hợp lệ, hãy thử lại.', 502, undefined, 'AI_INVALID_OUTPUT');
+      }
+      return {setId: set.id, questions};
     },
 
     async updateSet(ownerId: string, id: string, input: UpdateFlashcardSet) {

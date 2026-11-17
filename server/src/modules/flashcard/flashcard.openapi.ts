@@ -5,6 +5,8 @@ import {
   CreateFlashcardSetSchema,
   DeleteFlashcardSetResponseSchema,
   FlashcardSetIdParamsSchema,
+  GenerateExerciseRequestSchema,
+  GenerateExerciseResponseSchema,
   GetFlashcardSetResponseSchema,
   ListFlashcardSetsResponseSchema,
   QuizQuerySchema,
@@ -130,6 +132,7 @@ openApiRegistry.registerPath({
 });
 
 const CARD_B = '0192f7e0-0bcd-7000-8000-000000000023';
+const CARD_C = '0192f7e0-0bcd-7000-8000-000000000024';
 const quizExample = {
   setId: exampleSet.id,
   questions: [
@@ -169,6 +172,79 @@ openApiRegistry.registerPath({
       content: {'application/json': {schema: ApiErrorBody}},
     },
     422: {description: 'The set has fewer than 4 cards.', content: {'application/json': {schema: ApiErrorBody}}},
+    500: internalError,
+  },
+});
+
+const exerciseExample = {
+  setId: exampleSet.id,
+  questions: [
+    {
+      kind: 'single_choice',
+      cardId: exampleSet.cards[0]!.id,
+      prompt: 'Planting trees can {{blank}} the effects of climate change.',
+      options: ['mitigate', 'obsolete', 'ambiguous', 'reluctant'],
+      answer: 'mitigate',
+    },
+    {
+      kind: 'completion',
+      cardId: exampleSet.cards[0]!.id,
+      prompt: 'The council wants to {{blank}} the damage caused by the flood.',
+      answer: 'mitigate',
+    },
+    {
+      kind: 'matching',
+      items: [
+        {cardId: exampleSet.cards[0]!.id, prompt: 'New measures will {{blank}} the risk.', answer: 'mitigate'},
+        {cardId: CARD_B, prompt: 'The old software is now {{blank}}.', answer: 'obsolete'},
+        {cardId: CARD_C, prompt: 'She was {{blank}} to admit her mistake.', answer: 'reluctant'},
+      ],
+      options: ['reluctant', 'mitigate', 'obsolete', 'ambiguous'],
+    },
+  ],
+};
+
+openApiRegistry.registerPath({
+  method: 'post',
+  path: '/api/v1/flashcards/sets/{id}/exercises',
+  summary: 'Generate AI practice from a flashcard set',
+  description:
+    'Runs the AI task `generate-exercise.v1`: exam-style questions (`single_choice`, `completion`, `matching`, as ' +
+    'asked in `kinds`) that use only the terms of the set; `count` is 10 or 20. Every sentence has one `{{blank}}`; ' +
+    'every answer and option is a term of the set as written in it (the first 100 cards are used). The server drops ' +
+    'questions that fail these checks, so fewer than `count` may come back; fewer than half is a 502. Answers come ' +
+    'with the questions, so the client grades. Only for your own set with at least 4 cards. Nothing is stored; the ' +
+    'result is cached for an hour per set and request (a cached call does not use the daily AI quota).',
+  tags: ['Flashcard'],
+  security,
+  request: {
+    params: FlashcardSetIdParamsSchema,
+    body: requestBody(GenerateExerciseRequestSchema, 'exercise', {kinds: ['single_choice', 'completion'], count: 10}),
+  },
+  responses: {
+    200: {
+      description: 'The questions.',
+      content: {
+        'application/json': {schema: GenerateExerciseResponseSchema, examples: {success: {value: exerciseExample}}},
+      },
+    },
+    400: invalidError,
+    401: authError,
+    404: {description: 'Set not found or not yours.', content: {'application/json': {schema: ApiErrorBody}}},
+    422: {description: 'The set has fewer than 4 cards.', content: {'application/json': {schema: ApiErrorBody}}},
+    429: {
+      description: '`AI_QUOTA_EXCEEDED` (daily quota) or too many AI requests in a minute.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
+    502: {
+      description:
+        '`AI_INVALID_OUTPUT`: the model gave no valid result, or under half of the questions passed the checks.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
+    503: {
+      description: '`AI_UNAVAILABLE`: the model could not be reached.',
+      content: {'application/json': {schema: ApiErrorBody}},
+    },
     500: internalError,
   },
 });

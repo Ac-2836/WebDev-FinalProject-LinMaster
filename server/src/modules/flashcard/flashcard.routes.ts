@@ -4,6 +4,7 @@ import type {
   CreateFlashcardSetSchema,
   EndStudySessionRequestSchema,
   FlashcardSetIdParamsSchema,
+  GenerateExerciseRequestSchema,
   QuizQuerySchema,
   ReplaceFlashcardCardsRequestSchema,
   ReviewCardRequestSchema,
@@ -13,6 +14,7 @@ import type {
 } from '@linmaster/shared';
 import {catchAsync} from '../../core/catch-async';
 import {requireAuth} from '../../core/require-auth.middleware';
+import {aiRateLimit} from '../../core/user-rate-limit';
 import {validate} from '../../core/validate.middleware';
 import type {createFlashcardService} from './flashcard.service';
 import {
@@ -22,6 +24,7 @@ import {
   dueSummarySchema,
   endStudySessionSchema,
   getFlashcardSetSchema,
+  generateExerciseSchema,
   getQuizSchema,
   getStudyCardsSchema,
   listFlashcardSetsSchema,
@@ -41,6 +44,7 @@ type EndSessionInput = typeof EndStudySessionRequestSchema._output;
 type SetParams = typeof FlashcardSetIdParamsSchema._output;
 type CreateSetInput = typeof CreateFlashcardSetSchema._output;
 type CreateFromVocabInput = typeof CreateFlashcardSetFromVocabSchema._output;
+type ExerciseInput = typeof GenerateExerciseRequestSchema._output;
 type QuizInput = typeof QuizQuerySchema._output;
 type UpdateSetInput = typeof UpdateFlashcardSetSchema._output;
 type ReplaceCardsInput = typeof ReplaceFlashcardCardsRequestSchema._output;
@@ -88,6 +92,17 @@ export function createFlashcardRouter(service: FlashcardService, study: StudySer
     validate(getQuizSchema),
     catchAsync(async (req, res) => {
       res.json(await service.getQuiz(req.user!.userId, (req.params as SetParams).id, req.query as QuizInput));
+    }),
+  );
+  router.post(
+    '/flashcards/sets/:id/exercises',
+    requireAuth(jwtSecret),
+    aiRateLimit(),
+    validate(generateExerciseSchema),
+    catchAsync(async (req, res) => {
+      res.json(
+        await service.generateExercise(req.user!.userId, (req.params as SetParams).id, req.body as ExerciseInput),
+      );
     }),
   );
   router.patch(
