@@ -35,7 +35,10 @@ openApiRegistry.registerPath({
   path: '/api/v1/vocab/lookups',
   summary: 'Explain a word in its sentence',
   description:
-    'Runs the AI task explain-word.v1: the meaning of the selected text (at most 6 words) in this sentence. ' +
+    'Runs the AI task explain-word.v2: the meaning of the selected text (at most 6 words) in this sentence and, ' +
+    'when `context` is sent, in the topic of the document. The AI may explain the nearest meaningful phrase instead ' +
+    'of a meaningless selection (`match.adjusted`); `match` is always a range inside `sentence`, found by the server. ' +
+    '`context` and `textStart` are optional (offsets count in the trimmed sentence). ' +
     'Does not save anything to the word bank; save with POST /api/v1/vocab/entries. ' +
     'Independent of the web reader, so a browser extension can call it with sourceUrl.',
   tags: ['Vocab'],
@@ -51,6 +54,19 @@ openApiRegistry.registerPath({
               value: {
                 text: 'bank',
                 sentence: 'We sat on the river bank.',
+                documentId: '0192f7e0-0bcd-7000-8000-000000000010',
+              },
+            },
+            contextual: {
+              summary: 'Meaningless selection, with the topic of the document',
+              value: {
+                text: 'Teachers who give frequent',
+                textStart: 0,
+                sentence: 'Teachers who give frequent feedback help students improve faster.',
+                context: {
+                  title: 'Online learning',
+                  paragraph: 'Teachers who give frequent feedback help students improve faster. Online courses ...',
+                },
                 documentId: '0192f7e0-0bcd-7000-8000-000000000010',
               },
             },
@@ -80,6 +96,26 @@ openApiRegistry.registerPath({
                   cefr: 'B1',
                   topics: ['nature'],
                 },
+                match: {text: 'bank', start: 21, end: 25, adjusted: false},
+                savedEntryId: null,
+              },
+            },
+            adjusted: {
+              summary: 'The selection was moved to the nearest meaningful phrase',
+              value: {
+                explanation: {
+                  headword: 'give frequent feedback',
+                  lemma: 'give feedback',
+                  partOfSpeech: 'phrase',
+                  ipa: null,
+                  meaningVi: 'thường xuyên đưa ra nhận xét',
+                  definitionEn: 'to tell someone often how well they are doing',
+                  usageNote: null,
+                  collocations: ['give feedback', 'frequent feedback'],
+                  cefr: 'B1',
+                  topics: ['education'],
+                },
+                match: {text: 'give frequent feedback', start: 13, end: 35, adjusted: true},
                 savedEntryId: null,
               },
             },
