@@ -2,8 +2,9 @@ import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 
 import {Logo} from '@/components/logo';
-import {Button} from '@/components/ui/button';
 import {LocaleToggle} from '@/core/i18n/locale-switcher';
+
+import {LandingActions} from './landing-actions';
 
 const SECTIONS = ['loop', 'reader', 'flashcard', 'exam'] as const;
 
@@ -46,12 +47,7 @@ export function LandingHeader() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <LocaleToggle />
-            <Button asChild variant="outline" className="h-10 rounded-full">
-              <Link href="/login">{t('login')}</Link>
-            </Button>
-            <Button asChild className="hidden h-10 rounded-full sm:inline-flex">
-              <Link href="/register">{t('start')}</Link>
-            </Button>
+            <LandingActions />
           </div>
         </div>
       </header>

@@ -198,8 +198,8 @@ function Quiz({set}: {set: FlashcardSet}) {
             <ul className="divide-y rounded-[20px] border bg-card text-sm shadow-soft">
               {wrong.map(q => (
                 <li key={q.cardId + q.kind} className="flex flex-wrap justify-between gap-x-3 gap-y-1 p-3">
-                  <strong className="break-words">{q.prompt}</strong>
-                  <span className="break-words text-muted-foreground">
+                  <strong className="[overflow-wrap:anywhere]">{q.prompt}</strong>
+                  <span className="[overflow-wrap:anywhere] text-muted-foreground">
                     {q.kind === 'true-false' ? `${q.statement} · ${q.answer ? t('true') : t('false')}` : q.answer}
                   </span>
                 </li>
@@ -246,7 +246,7 @@ function Quiz({set}: {set: FlashcardSet}) {
         <>
           <div>
             <p className="text-[13px] text-muted-foreground">{t('testChoosePrompt')}</p>
-            <p className="mt-2 text-3xl font-bold break-words">{question.prompt}</p>
+            <p className="mt-2 text-3xl font-bold [overflow-wrap:anywhere]">{question.prompt}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {question.options.map((option, i) => {
@@ -275,7 +275,7 @@ function Quiz({set}: {set: FlashcardSet}) {
                       {i + 1}
                     </kbd>
                   )}
-                  <span className="break-words">{option}</span>
+                  <span className="[overflow-wrap:anywhere]">{option}</span>
                 </button>
               );
             })}
@@ -295,7 +295,7 @@ function Quiz({set}: {set: FlashcardSet}) {
         >
           <div>
             <p className="text-[13px] text-muted-foreground">{t('testTypePrompt')}</p>
-            <p className="mt-2 text-2xl font-bold break-words">{question.prompt}</p>
+            <p className="mt-2 text-2xl font-bold [overflow-wrap:anywhere]">{question.prompt}</p>
           </div>
           <label className="flex flex-col gap-1.5">
             <span className="sr-only">{t('testAnswerLabel')}</span>
@@ -344,8 +344,8 @@ function Quiz({set}: {set: FlashcardSet}) {
         <>
           <p className="text-[13px] text-muted-foreground">{t('testTrueFalsePrompt')}</p>
           <div className="grid gap-4 sm:grid-cols-2">
-            <p className="text-2xl font-bold break-words">{question.prompt}</p>
-            <p className="text-xl break-words">{question.statement}</p>
+            <p className="text-2xl font-bold [overflow-wrap:anywhere]">{question.prompt}</p>
+            <p className="text-xl [overflow-wrap:anywhere]">{question.statement}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[true, false].map((value, i) => {

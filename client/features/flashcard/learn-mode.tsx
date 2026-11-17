@@ -244,12 +244,14 @@ export function LearnMode({set}: {set: FlashcardSet}) {
         <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold', STATE_STYLE[card!.state])}>
           {t(`state.${card!.state}`)}
         </span>
-        <p className="text-3xl font-bold break-words sm:text-5xl">{card!.term}</p>
+        <p className="text-3xl font-bold [overflow-wrap:anywhere] sm:text-5xl">{card!.term}</p>
         {showAnswer && (
           <div className="flex w-full flex-col items-center gap-3 border-t pt-5" aria-live="polite">
-            <p className="text-2xl font-bold break-words">{card!.definition}</p>
+            <p className="text-2xl font-bold [overflow-wrap:anywhere]">{card!.definition}</p>
             {card!.example && (
-              <p className="max-w-lg font-serif break-words text-muted-foreground italic">“{card!.example}”</p>
+              <p className="max-w-lg font-serif [overflow-wrap:anywhere] text-muted-foreground italic">
+                “{card!.example}”
+              </p>
             )}
           </div>
         )}

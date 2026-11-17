@@ -20,6 +20,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
+import {useVocabLabels} from './vocab-labels';
 
 const LEVELS = CefrLevelSchema.options;
 const chip =
@@ -127,6 +128,7 @@ export interface QuickFilterPanelProps {
 /** Reader side panel (C2, wireframe 03-vocab/reader): "Lọc nhanh" scan + the words saved from this document. */
 export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFilterPanelProps) {
   const t = useTranslations('vocab.scan');
+  const labels = useVocabLabels();
   const ids = useId();
   const {levels, setLevels, topics, setTopics, customTopic, setCustomTopic, status, setStatus} = filter;
   const {candidates, checked, setChecked, error, isSaved, open, toggle, scan, save} = filter;
@@ -178,7 +180,9 @@ export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFi
                       checked={topics.includes(topic)}
                       onChange={() => setTopics(l => toggle(l, topic))}
                     />
-                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium capitalize')}>{topic}</span>
+                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium capitalize')}>
+                      {labels.topic(topic)}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -267,7 +271,7 @@ export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFi
                           <span className="min-w-0 flex-1 text-sm">
                             <span className="flex items-center gap-1.5">
                               <strong>{c.headword}</strong>
-                              <span className="text-muted-foreground">{c.partOfSpeech}</span>
+                              <span className="text-muted-foreground">{labels.pos(c.partOfSpeech)}</span>
                               <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-primary">
                                 {c.cefr}
                               </span>

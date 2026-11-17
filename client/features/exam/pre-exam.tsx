@@ -26,6 +26,9 @@ import {SKILL_NAME, preExamSteps, questionCount, type PreExamStep} from './intro
  * (Listening with audio), instructions. The attempt, and so the clock, starts only on "Start test".
  * Exam text stays in English like the real test.
  */
+/** "1 part", "2 parts": the exam screens are English only, so the plural is chosen here. */
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 export function PreExam({testId}: {testId: string}) {
   const router = useRouter();
   const errorMessage = useErrorMessage();
@@ -165,8 +168,8 @@ export function PreExam({testId}: {testId: string}) {
                       {certification?.name} {SKILL_NAME[section.skill]}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Time: {Math.round(section.durationSec / 60)} minutes · {questionCount(section)} questions ·{' '}
-                      {section.passages.length} parts
+                      Time: {count(Math.round(section.durationSec / 60), 'minute')} ·{' '}
+                      {count(questionCount(section), 'question')} · {count(section.passages.length, 'part')}
                     </p>
                     <ul className="flex list-disc flex-col gap-1.5 pl-5">
                       <li>Answer all the questions.</li>

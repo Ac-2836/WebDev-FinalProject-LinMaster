@@ -50,6 +50,7 @@
       },
       "login": "Đăng nhập",
       "start": "Bắt đầu miễn phí",
+      "enter": "Vào ứng dụng",
       "hero": {
         "eyebrow": "IELTS Reading · Listening · Từ vựng",
         "title": "Gặp từ nào lạ, <hl>nhớ luôn</hl> từ đó.",
@@ -565,6 +566,38 @@
       "submit": "Tạo bộ thẻ",
       "created": "Đã tạo \"{title}\" với {count} thẻ",
       "open": "Mở bộ thẻ"
+    },
+    "labels": {
+      "topic": {
+        "education": "Giáo dục",
+        "environment": "Môi trường",
+        "technology": "Công nghệ",
+        "health": "Sức khỏe",
+        "work": "Công việc",
+        "business": "Kinh doanh",
+        "economy": "Kinh tế",
+        "society": "Xã hội",
+        "culture": "Văn hóa",
+        "travel": "Du lịch",
+        "science": "Khoa học",
+        "media": "Truyền thông",
+        "government": "Chính phủ",
+        "crime": "Tội phạm",
+        "urban_life": "Đời sống đô thị"
+      },
+      "pos": {
+        "noun": "danh từ",
+        "verb": "động từ",
+        "adjective": "tính từ",
+        "adverb": "trạng từ",
+        "preposition": "giới từ",
+        "conjunction": "liên từ",
+        "pronoun": "đại từ",
+        "determiner": "từ hạn định",
+        "phrase": "cụm từ",
+        "idiom": "thành ngữ",
+        "phrasal_verb": "cụm động từ"
+      }
     }
   },
   "flashcard": {

@@ -320,7 +320,7 @@ function Item({
   if (unit.kind === 'completion') {
     return (
       <div className="flex flex-col gap-2">
-        <p className="font-serif text-[17px] leading-9 break-words">
+        <p className="font-serif text-[17px] leading-9 [overflow-wrap:anywhere]">
           <strong className="font-sans">({unit.number})</strong> {parts?.before}
           <input
             value={value}
@@ -340,7 +340,7 @@ function Item({
   }
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 break-words">
+      <legend className="mb-1 [overflow-wrap:anywhere]">
         <strong>{unit.number}.</strong> {parts ? `${parts.before}______${parts.after}` : unit.prompt}
       </legend>
       {unit.options.map((option, i) => (
@@ -360,7 +360,7 @@ function Item({
             disabled={!!checked}
             onChange={() => onAnswer(option)}
           />
-          <span className="break-words">
+          <span className="[overflow-wrap:anywhere]">
             {String.fromCharCode(65 + i)}. {option}
           </span>
         </label>
@@ -397,7 +397,7 @@ function MatchingGroup({
               </p>
             )}
             <label className="flex flex-col gap-1.5">
-              <span className="break-words">
+              <span className="[overflow-wrap:anywhere]">
                 <strong>{u.number}.</strong> {parts ? `${parts.before}______${parts.after}` : u.prompt}
               </span>
               <select

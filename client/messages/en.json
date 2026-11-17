@@ -50,6 +50,7 @@
       },
       "login": "Log in",
       "start": "Start for free",
+      "enter": "Open the app",
       "hero": {
         "eyebrow": "IELTS Reading · Listening · Vocabulary",
         "title": "Meet a new word, <hl>keep it</hl> for good.",
@@ -565,6 +566,38 @@
       "submit": "Create set",
       "created": "Created \"{title}\" with {count, plural, one {# card} other {# cards}}",
       "open": "Open set"
+    },
+    "labels": {
+      "topic": {
+        "education": "Education",
+        "environment": "Environment",
+        "technology": "Technology",
+        "health": "Health",
+        "work": "Work",
+        "business": "Business",
+        "economy": "Economy",
+        "society": "Society",
+        "culture": "Culture",
+        "travel": "Travel",
+        "science": "Science",
+        "media": "Media",
+        "government": "Government",
+        "crime": "Crime",
+        "urban_life": "Urban life"
+      },
+      "pos": {
+        "noun": "noun",
+        "verb": "verb",
+        "adjective": "adjective",
+        "adverb": "adverb",
+        "preposition": "preposition",
+        "conjunction": "conjunction",
+        "pronoun": "pronoun",
+        "determiner": "determiner",
+        "phrase": "phrase",
+        "idiom": "idiom",
+        "phrasal_verb": "phrasal verb"
+      }
     }
   },
   "flashcard": {
@@ -1093,9 +1126,9 @@
       "showTable": "Show the numbers",
       "activity": {
         "heading": "Activity",
-        "title": "{count, plural, one {# activity} other {# activities}} in the past {months, select, 12 {year} other {{months} months}}",
+        "title": "{count, plural, one {# activity} other {# activities}} in the past {months, select, 12 {year} 1 {month} other {{months} months}}",
         "streak": "Current streak <b>{current, plural, one {# day} other {# days}}</b> · longest <b>{longest, plural, one {# day} other {# days}}</b>",
-        "label": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. Busiest day: {date} with {count, plural, one {# activity} other {# activities}}",
+        "label": "Activity calendar of the past {months, select, 12 {year} 1 {month} other {{months} months}}. Busiest day: {date} with {count, plural, one {# activity} other {# activities}}",
         "tableCaption": "Activity per day, newest first",
         "date": "Day",
         "lookups": "Lookups",
@@ -1106,9 +1139,9 @@
         "more": "More",
         "empty": "No activity yet",
         "emptyAction": "Read your first text",
-        "labelNone": "Activity calendar of the past {months, select, 12 {year} other {{months} months}}. No activity",
+        "labelNone": "Activity calendar of the past {months, select, 12 {year} 1 {month} other {{months} months}}. No activity",
         "range": "Time range",
-        "months": "{months, select, 12 {1 year} other {{months} months}}",
+        "months": "{months, select, 12 {1 year} 1 {1 month} other {{months} months}}",
         "activeDays": "Active days"
       },
       "overview": {
@@ -1178,8 +1211,8 @@
       },
       "community": {
         "title": "Community",
-        "sets": "{copies, plural, one {card set shared · # copy} other {card sets shared · # copies}}",
-        "tests": "{attempts, plural, one {tests shared · # attempt} other {tests shared · # attempts}}",
+        "sets": "{sets, plural, one {card set shared} other {card sets shared}} · {copies, plural, one {# copy} other {# copies}}",
+        "tests": "{tests, plural, one {test shared} other {tests shared}} · {attempts, plural, one {# attempt} other {# attempts}}",
         "empty": "You have not shared anything yet",
         "emptyAction": "Share a card set"
       }

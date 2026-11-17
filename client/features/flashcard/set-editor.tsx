@@ -104,7 +104,9 @@ function Editor({set}: {set?: FlashcardSet}) {
   const [description, setDescription] = useState(set?.description ?? '');
   const [termLang, setTermLang] = useState(set?.termLang ?? 'en');
   const [definitionLang, setDefinitionLang] = useState(set?.definitionLang ?? 'vi');
-  const [rows, setRows] = useState<Row[]>(() => (set ? rowsFromCards(set.cards) : [newRow(), newRow()]));
+  const [rows, setRows] = useState<Row[]>(() =>
+    set ? rowsFromCards(set.cards) : [newRow('start-0'), newRow('start-1')],
+  );
   const [dirty, setDirty] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);

@@ -26,6 +26,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {CreateSetDialog, MAX_SET_WORDS} from './create-set-dialog';
 import {EntryDrawer} from './entry-drawer';
+import {useVocabLabels} from './vocab-labels';
 
 const PAGE_SIZE = 20;
 const card = 'rounded-[20px] border bg-card shadow-soft';
@@ -42,6 +43,7 @@ export interface WordBankPageProps {
 export function WordBankPage({documentId: initialDocument = ''}: WordBankPageProps) {
   const t = useTranslations('vocab.bank');
   const confirmFocus = useReturnFocus();
+  const labels = useVocabLabels();
   const errorMessage = useErrorMessage();
   const [q, setQ] = useState('');
   const [query, setQuery] = useState('');
@@ -175,7 +177,7 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
             <option value="">{t('allTopics')}</option>
             {VOCAB_TOPICS.map(topicName => (
               <option key={topicName} value={topicName}>
-                {topicName}
+                {labels.topic(topicName)}
               </option>
             ))}
           </select>
@@ -314,7 +316,7 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
                   className="min-w-0 rounded text-left hover:text-primary"
                 >
                   <span className="font-semibold break-words">{e.headword}</span>{' '}
-                  <span className="text-[13px] text-muted-foreground">{e.partOfSpeech}</span>
+                  <span className="text-[13px] text-muted-foreground">{labels.pos(e.partOfSpeech)}</span>
                   <span className="block text-[13px] text-muted-foreground md:hidden">{e.meaningVi}</span>
                   {e.ipa && <span className="hidden text-[13px] text-muted-foreground md:block">{e.ipa}</span>}
                 </button>
@@ -326,7 +328,9 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
                     </span>
                   )}
                 </span>
-                <span className="hidden text-sm text-muted-foreground capitalize md:block">{e.topics.join(', ')}</span>
+                <span className="hidden text-sm text-muted-foreground capitalize md:block">
+                  {e.topics.map(labels.topic).join(', ')}
+                </span>
                 <span className="hidden text-[13px] text-muted-foreground md:block">
                   {t('contextCount', {count: e.contexts.length})}
                 </span>
