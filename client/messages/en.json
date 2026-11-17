@@ -973,6 +973,7 @@
         "IMPORT_JOB_FAILED": "The files could not be read. Try again later.",
         "EXPLANATION_MISSING": "No explanations; you can ask the AI to explain answers later.",
         "TRANSCRIPT_MISSING": "No Listening transcript.",
+        "TRANSCRIPT_BY_AI": "The Listening transcript was written by the AI from the audio and may contain mistakes.",
         "SECTION_IGNORED": "A section outside the chosen test type was left out.",
         "unknown": "Another problem was found in the files."
       }

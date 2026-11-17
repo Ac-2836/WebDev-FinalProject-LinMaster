@@ -1,3 +1,4 @@
+import {ImportIssueCodeSchema} from '@linmaster/shared';
 import {IntlMessageFormat} from 'intl-messageformat';
 import {describe, expect, it} from 'vitest';
 
@@ -22,6 +23,14 @@ describe('interface messages', () => {
     const empty = Object.entries({...messages.vi, ...messages.en}).filter(([, value]) => !value.trim());
     expect(empty).toEqual([]);
   });
+
+  it.each(['en', 'vi'] as const)(
+    'words every import issue code in %s (the import page shows the key otherwise)',
+    locale => {
+      const missing = ImportIssueCodeSchema.options.filter(code => !messages[locale][`exam.import.issues.${code}`]);
+      expect(missing).toEqual([]);
+    },
+  );
 
   it.each(['en', 'vi'] as const)('parses every %s message as ICU', locale => {
     const broken = Object.entries(messages[locale]).filter(([, value]) => {

@@ -973,6 +973,7 @@
         "IMPORT_JOB_FAILED": "Không đọc được các file. Thử lại sau.",
         "EXPLANATION_MISSING": "Không có giải thích; sau này có thể nhờ AI giải thích đáp án.",
         "TRANSCRIPT_MISSING": "Không có transcript Listening.",
+        "TRANSCRIPT_BY_AI": "Transcript Listening do AI viết từ audio, có thể có lỗi.",
         "SECTION_IGNORED": "Đã bỏ qua một phần thi ngoài loại đề đã chọn.",
         "unknown": "Có lỗi khác trong các file."
       }
