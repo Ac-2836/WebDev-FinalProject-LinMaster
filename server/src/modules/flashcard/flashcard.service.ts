@@ -14,7 +14,7 @@ import {EXERCISE_MAX_CARDS, EXERCISE_MIN_CARDS, QUIZ_MIN_CARDS} from '@linmaster
 import {AppError} from '../../core/app-error';
 import {createHash} from 'node:crypto';
 
-import {buildExercise, enough, type ExerciseCard} from './exercise';
+import {buildExercise, enough, type ExerciseCard, exerciseSize} from './exercise';
 import {buildQuiz} from './quiz';
 import type {FlashcardRepository} from './flashcard.repository';
 import {FlashcardCardNotFoundError, FlashcardVocabEntryNotFoundError} from './flashcard.repository';
@@ -128,7 +128,7 @@ export function createFlashcardService(
       } catch (error) {
         throw error instanceof AppError && error.status === 'AI_INVALID_OUTPUT' ? failed() : error;
       }
-      if (!enough(questions.length, request.count, cards.length)) throw failed();
+      if (!enough(exerciseSize(questions), request.count, cards.length)) throw failed();
       return {setId: set.id, questions};
     },
 

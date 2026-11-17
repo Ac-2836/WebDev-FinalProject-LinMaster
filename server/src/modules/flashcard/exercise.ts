@@ -44,6 +44,26 @@ function goodSentence(prompt: string, answer: string): boolean {
   );
 }
 
+type GeneratedQuestion = GeneratedExercise['questions'][number];
+
+/**
+ * The model often writes one matching question with 6 or more sentences, or lists every word as an option. Splits a
+ * long one into questions of at most 5 sentences (about equal), and gives each the answers of its own sentences plus
+ * up to 2 spare words of the set, so those outputs are used instead of retried. Other kinds pass through.
+ */
+function repairMatching(question: GeneratedQuestion, byTerm: Map<string, ExerciseCard>): GeneratedQuestion[] {
+  if (question.kind !== 'matching') return [question];
+  const total = question.items.length;
+  const groups = Math.max(1, Math.ceil(total / EXERCISE_MAX_MATCHES));
+  let from = 0;
+  return Array.from({length: groups}, (_, index) => {
+    const items = question.items.slice(from, (from += Math.floor(total / groups) + (index < total % groups ? 1 : 0)));
+    const answers = new Set(items.map(item => norm(item.answer)));
+    const spare = [...new Set(question.options.map(norm))].filter(option => !answers.has(option) && byTerm.has(option));
+    return {...question, items, options: [...items.map(item => item.answer), ...spare.slice(0, MAX_SPARE_OPTIONS)]};
+  });
+}
+
 /**
  * Checks each generated question against the set (PLAN C3): right shape for its kind, one gap, the answer among the
  * options, and every answer and option a term of the set (written as in the set). A question that fails is
@@ -107,9 +127,11 @@ export function buildExercise(
   };
 
   const questions: ExerciseQuestion[] = [];
-  for (const item of generated.questions) {
-    const question = questions.length < count ? check(item) : null;
-    if (!question) continue;
+  let size = 0;
+  for (const item of generated.questions.flatMap(question => repairMatching(question, byTerm))) {
+    const question = size < count ? check(item) : null;
+    // A matching question that would go over the count is dropped (the model counts its sentences wrongly).
+    if (!question || size + exerciseSize([question]) > count) continue;
     const ids = question.kind === 'matching' ? question.items.map(entry => entry.cardId) : [question.cardId];
     if (ids.some(cardId => asked.has(cardId))) continue;
     // The same sentence twice is one question.
@@ -117,10 +139,15 @@ export function buildExercise(
     if (seen.has(key)) continue;
     seen.add(key);
     ids.forEach(cardId => asked.add(cardId));
+    size += exerciseSize([question]);
     questions.push(question);
   }
   return questions;
 }
+
+/** Numbered questions of an exercise: a matching question counts one per sentence, as in an exam. */
+export const exerciseSize = (questions: ExerciseQuestion[]) =>
+  questions.reduce((sum, question) => sum + (question.kind === 'matching' ? question.items.length : 1), 0);
 
 /**
  * Fewer than half of the questions asked for is too little to give back (PLAN C3). A card is asked once, so a set

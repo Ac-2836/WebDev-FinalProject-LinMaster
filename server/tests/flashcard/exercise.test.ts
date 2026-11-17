@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {ExerciseQuestionSchema, type GeneratedExercise} from '@linmaster/shared';
-import {buildExercise, enough} from '../../src/modules/flashcard/exercise';
+import {buildExercise, enough, exerciseSize} from '../../src/modules/flashcard/exercise';
 import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v1';
 
 const id = (n: number) => `0192f7e0-0bcd-7000-8000-${String(n).padStart(12, '0')}`;
@@ -91,7 +91,7 @@ describe('buildExercise', () => {
     expect(questions).toEqual([]);
   });
 
-  it('drops a matching question with too few, repeated or unmatched items', () => {
+  it('drops a matching question with too few or repeated items', () => {
     const three = [
       ['New rules {{blank}} the risk.', 'mitigate'],
       ['The tool is {{blank}}.', 'obsolete'],
@@ -101,9 +101,67 @@ describe('buildExercise', () => {
 
     expect(build([matching(three.slice(0, 2), options)])).toEqual([]);
     expect(build([matching([...three.slice(0, 2), ['A {{blank}} one.', 'mitigate']], options)])).toEqual([]);
-    expect(build([matching(three, ['mitigate', 'obsolete'])])).toEqual([]);
-    expect(build([matching(three, [...options, 'ambiguous', 'Take place', 'mitigate'])])).toEqual([]);
     expect(build([matching(three, options)])).toHaveLength(1);
+  });
+
+  it('gives a matching question the answers of its sentences and at most 2 spare words of the set', () => {
+    const three = [
+      ['New rules {{blank}} the risk.', 'mitigate'],
+      ['The tool is {{blank}}.', 'obsolete'],
+      ['He was {{blank}} to go.', 'reluctant'],
+    ] as [string, string][];
+    const optionsOf = (options: string[]) => {
+      const [question] = build([matching(three, options)]);
+      if (question?.kind !== 'matching') throw new Error('unexpected kind');
+      return [...question.options].sort();
+    };
+
+    // Options missing an answer, every word listed, and words outside the set: answers + 2 spare words of the set.
+    expect(optionsOf(['mitigate', 'obsolete'])).toEqual(['mitigate', 'obsolete', 'reluctant']);
+    expect(optionsOf(['mitigate', 'obsolete', 'reluctant', 'ambiguous', 'Take place', 'mitigate'])).toEqual([
+      'Take place',
+      'ambiguous',
+      'mitigate',
+      'obsolete',
+      'reluctant',
+    ]);
+    expect(optionsOf(['zebra', 'reluctant'])).toEqual(['mitigate', 'obsolete', 'reluctant']);
+  });
+
+  it('splits a matching question with more than 5 sentences into questions of 3 to 5', () => {
+    const words = ['mitigate', 'obsolete', 'reluctant', 'ambiguous', 'Take place'];
+    const sentences = words.map((word, n) => [`Sentence ${n} has a {{blank}}.`, word] as [string, string]);
+
+    const five = build([matching(sentences, words)]);
+    expect(five.map(question => question.kind === 'matching' && question.items.length)).toEqual([5]);
+
+    const six = buildExercise(
+      {questions: [matching([...sentences, ['Sentence 5 has a {{blank}}.', 'use']], [...words, 'use'])]},
+      [...CARDS, {id: id(30), term: 'use', definition: 'dùng'}],
+      {kinds: ['matching'], count: 10},
+    );
+    expect(six.map(question => question.kind === 'matching' && question.items.length)).toEqual([3, 3]);
+  });
+
+  it('counts a matching question once per sentence, so the total never goes over the count', () => {
+    const three = [
+      ['New rules {{blank}} the risk.', 'mitigate'],
+      ['The tool is {{blank}}.', 'obsolete'],
+      ['He was {{blank}} to go.', 'reluctant'],
+    ] as [string, string][];
+    const questions = build(
+      [
+        matching(three, ['mitigate', 'obsolete', 'reluctant']),
+        completion('The meeting will {{blank}} on Monday.', 'take place'),
+        completion('The rule is {{blank}}.', 'ambiguous'),
+      ],
+      ALL,
+      4,
+    );
+
+    expect(questions).toHaveLength(2);
+    expect(exerciseSize(questions)).toBe(4);
+    expect(exerciseSize([])).toBe(0);
   });
 
   it('drops kinds that were not asked for, repeated sentences, and stops at the count', () => {
@@ -225,7 +283,7 @@ describe('generate-exercise.v1', () => {
     const {system, text} = generateExerciseTask.buildPrompt({...input, kinds: ['completion', 'matching']});
 
     expect(text).toContain('Kinds: completion, matching.');
-    expect(text).toContain('Number of questions: 10.');
+    expect(text).toContain('Number of sentences to write in all: 10.');
     expect(text).toContain('mitigate = nghĩa 0');
     expect(text).toContain('<<<USER_DATA>>>');
     expect(system).toContain('{{blank}}');
