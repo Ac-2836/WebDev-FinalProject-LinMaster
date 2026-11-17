@@ -30,21 +30,19 @@ export const GenerateExerciseRequestSchema = z
 
 /** What the model returns: one flat shape for every kind (easier for the model); the server checks each question. */
 export const GeneratedExerciseSchema = z.object({
-  questions: z
-    .array(
-      z.object({
-        kind: ExerciseKindSchema,
-        /** Sentence with `{{blank}}` (single_choice, completion); empty for matching. */
-        prompt: z.string(),
-        /** single_choice: 4 terms. matching: the terms to choose from. Empty for completion. */
-        options: z.array(z.string()),
-        /** single_choice, completion: the term that fills the blank. Empty for matching. */
-        answer: z.string(),
-        /** matching: 3 to 5 sentences with `{{blank}}` and their terms. Empty for the other kinds. */
-        items: z.array(z.object({prompt: z.string(), answer: z.string()})),
-      }),
-    )
-    .max(40),
+  questions: z.array(
+    z.object({
+      kind: ExerciseKindSchema,
+      /** Sentence with `{{blank}}` (single_choice, completion); empty for matching. */
+      prompt: z.string(),
+      /** single_choice: 4 terms. matching: the terms to choose from. Empty for completion. */
+      options: z.array(z.string()),
+      /** single_choice, completion: the term that fills the blank. Empty for matching. */
+      answer: z.string(),
+      /** matching: 3 to 5 sentences with `{{blank}}` and their terms. Empty for the other kinds. */
+      items: z.array(z.object({prompt: z.string(), answer: z.string()})),
+    }),
+  ),
 });
 
 const cardId = z.string().uuid();

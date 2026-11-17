@@ -36,7 +36,7 @@ export const parseAudioTask: AiTask<ParseAudioInput, ParseAudioOutput> = aiTaskR
   name: 'parse-audio.v1',
   buildPrompt: ({audio, mimeType, parts}) => ({
     system: SYSTEM_PROMPT,
-    text: `The test has ${parts} Listening parts.`,
+    text: `Number of Listening parts in the recording: ${parts}.`,
     audio: {data: audio, mimeType},
   }),
   output: ParseAudioOutputSchema,

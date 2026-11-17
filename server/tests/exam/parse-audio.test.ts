@@ -15,7 +15,7 @@ describe('parse-audio.v1', () => {
 
     expect(prompt.audio).toEqual({data: input.audio, mimeType: 'audio/mpeg'});
     expect(prompt.pdf).toBeUndefined();
-    expect(prompt.text).toContain('2 Listening parts');
+    expect(prompt.text).toContain('Listening parts in the recording: 2');
   });
 
   it('is complete when every part has lines and the starts are in order inside the recording', () => {

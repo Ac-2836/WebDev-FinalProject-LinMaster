@@ -210,7 +210,7 @@ openApiRegistry.registerPath({
   summary: 'Generate AI practice from a flashcard set',
   description:
     'Runs the AI task `generate-exercise.v1`: exam-style questions (`single_choice`, `completion`, `matching`, as ' +
-    'asked in `kinds`) that use only the terms of the set; `count` is 10 or 20. Every sentence has one `{{blank}}`; ' +
+    'asked in `kinds`) that use only the terms of the set; `count` is 10 or 20 sentences in all: a matching question (3 to 5 sentences) counts one per sentence, and each card is asked once. Every sentence has one `{{blank}}`; ' +
     'every answer and option is a term of the set as written in it (the first 100 cards are used). The server drops ' +
     'questions that fail these checks, so fewer than `count` may come back; fewer than half is a 502. Answers come ' +
     'with the questions, so the client grades. Only for your own set with at least 4 cards. Nothing is stored; the ' +
