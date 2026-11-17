@@ -1,7 +1,7 @@
-import type {FlashcardCard} from '@linmaster/shared';
+import {MAX_CARDS_PER_SET, type FlashcardCard} from '@linmaster/shared';
 import {describe, expect, it} from 'vitest';
 
-import {changes, invalidKeys, move, newRow, rowsFromCards, toCards} from './editor-rows';
+import {appendPasted, changes, invalidKeys, move, newRow, rowsFromCards, toCards} from './editor-rows';
 
 const card = (id: string, position: number, term: string): FlashcardCard => ({
   id,
@@ -64,5 +64,23 @@ describe('changes', () => {
       reordered: true,
     });
     expect(changes(original, [alpha])).toEqual({added: 0, edited: 0, removed: 1, reordered: false});
+  });
+});
+
+describe('appendPasted', () => {
+  it('drops blank rows and appends the pasted cards after the real ones', () => {
+    const rows = [...rowsFromCards(original), newRow()];
+    const result = appendPasted(rows, [
+      {term: 'x', definition: 'ex'},
+      {term: 'y', definition: 'why'},
+    ]);
+    expect(result.rows.map(r => r.term)).toEqual(['alpha', 'beta', 'x', 'y']);
+    expect(result).toMatchObject({added: 2, dropped: 0});
+    expect(result.rows[2].id).toBeUndefined();
+  });
+
+  it('stops at the limit of cards per set', () => {
+    const full = Array.from({length: MAX_CARDS_PER_SET}, (_, i) => ({...newRow(), term: `t${i}`, definition: 'd'}));
+    expect(appendPasted(full, [{term: 'x', definition: 'y'}])).toMatchObject({added: 0, dropped: 1});
   });
 });

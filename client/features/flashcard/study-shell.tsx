@@ -39,7 +39,7 @@ export function StudyShell({setId, title, modeLabel, onExit, exitLabel, actions,
             <p className="truncate text-sm font-semibold">{title}</p>
             <p className="text-[13px] text-muted-foreground">{modeLabel}</p>
           </div>
-          <div className="flex w-11 justify-end">{actions}</div>
+          <div className="flex min-w-11 justify-end">{actions}</div>
         </div>
         {progress}
       </header>

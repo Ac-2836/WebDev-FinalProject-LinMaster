@@ -23,6 +23,7 @@ import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useCallback, useEffect, useRef, useState} from 'react';
+import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
@@ -31,7 +32,9 @@ import {Skeleton} from '@/components/ui/skeleton';
 import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
-import {changes, invalidKeys, move, newRow, type Row, rowsFromCards, toCards} from './editor-rows';
+import {appendPasted, changes, invalidKeys, move, newRow, type Row, rowsFromCards, toCards} from './editor-rows';
+import {PasteDialog} from './paste-dialog';
+import type {PastedCard} from './paste-cards';
 
 const LANGS = ['en', 'vi'] as const;
 const card = 'rounded-[20px] border bg-card shadow-soft';
@@ -140,6 +143,12 @@ function Editor({set}: {set?: FlashcardSet}) {
     const row = newRow();
     update([...rows, row]);
     setFocusKey(row.key);
+  }
+  function paste(cards: PastedCard[]) {
+    const result = appendPasted(rows, cards);
+    update(result.rows);
+    toast.success(t('paste.added', {count: result.added}));
+    if (result.dropped > 0) toast.warning(t('paste.tooMany', {count: result.dropped}));
   }
   function moveRow(from: number, to: number, focusHandle = false) {
     const next = move(rows, from, to);
@@ -293,6 +302,7 @@ function Editor({set}: {set?: FlashcardSet}) {
 
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="flex-1 text-xl font-semibold">{t('cardCount', {count})}</h2>
+        <PasteDialog onAdd={paste} />
         <Button asChild variant="outline" className="h-10 rounded-full">
           <Link href="/vocab">
             <NotebookPen aria-hidden="true" />

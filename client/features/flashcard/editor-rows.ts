@@ -1,4 +1,4 @@
-import type {FlashcardCard, ReplaceFlashcardCardInput} from '@linmaster/shared';
+import {MAX_CARDS_PER_SET, type FlashcardCard, type ReplaceFlashcardCardInput} from '@linmaster/shared';
 
 /** One editor row. `key` is local; `id` is set for cards that already exist (their SM-2 progress is kept). */
 export interface Row {
@@ -72,5 +72,20 @@ export function changes(original: FlashcardCard[], rows: Row[]) {
     edited,
     removed: original.filter(c => !keptIds.has(c.id)).length,
     reordered: order.some((id, i) => id !== originalOrder[i]),
+  };
+}
+
+/** Rows after pasting cards: fully blank rows are dropped, the pasted cards follow, and the set stays within the limit. */
+export function appendPasted(
+  rows: Row[],
+  pasted: {term: string; definition: string}[],
+): {rows: Row[]; added: number; dropped: number} {
+  const kept = rows.filter(r => !blank(r));
+  const room = Math.max(0, MAX_CARDS_PER_SET - kept.length);
+  const added = pasted.slice(0, room);
+  return {
+    rows: [...kept, ...added.map(c => ({...newRow(), term: c.term, definition: c.definition}))],
+    added: added.length,
+    dropped: pasted.length - added.length,
   };
 }
