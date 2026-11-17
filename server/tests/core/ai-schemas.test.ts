@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {classifyPagesTask} from '../../src/modules/exam/ai/classify-pages.v1';
 import {explainAnswerTask} from '../../src/modules/exam/ai/explain-answer.v1';
 import {parseAnswersTask} from '../../src/modules/exam/ai/parse-answers.v1';
-import {parseAudioTask} from '../../src/modules/exam/ai/parse-audio.v1';
+import {parseAudioTask} from '../../src/modules/exam/ai/parse-audio.v2';
 import {parseTestTask} from '../../src/modules/exam/ai/parse-test.v2';
 import {parseTranscriptTask} from '../../src/modules/exam/ai/parse-transcript.v1';
 import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v1';

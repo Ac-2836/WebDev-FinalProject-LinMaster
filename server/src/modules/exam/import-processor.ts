@@ -2,7 +2,6 @@ import {CERTIFICATIONS, type PageLabel, type PageLabels} from '@linmaster/shared
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
-import {trustedStarts} from './audio-starts';
 import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest} from './ai';
 import type {ImportProcessor} from './import-jobs';
 import {validateParsedTest} from './import-validator';
@@ -65,28 +64,18 @@ export function createImportProcessor({
 
     // A Listening part without transcript is written from the recording; a failure only leaves the warning.
     const listening = outline.sections.find(section => section.skill === 'listening');
-    const starts: (number | null)[] = [];
     let transcriptByAi = false;
     if (parseAudio && audio && listening?.passages.some(passage => !passage.paragraphs?.length)) {
       try {
         const recording = await storage.get(audio.storageKey);
         const {parts} = recording
-          ? await parseAudio(recording, {
-              mimeType: audio.mimeType,
-              parts: listening.passages.length,
-              durationSec: audio.durationSec,
-              userId,
-            })
+          ? await parseAudio(recording, {mimeType: audio.mimeType, parts: listening.passages.length, userId})
           : {parts: []};
-        const marks = trustedStarts(parts, listening.passages.length, audio.durationSec);
         listening.passages.forEach((passage, index) => {
-          const entry = parts.find(part => part.part === index + 1);
-          if (!entry?.lines.length) return;
-          starts[index] = marks[index] ?? null;
-          if (!passage.paragraphs?.length) {
-            passage.paragraphs = entry.lines;
-            transcriptByAi = true;
-          }
+          const lines = parts.find(part => part.part === index + 1)?.lines;
+          if (passage.paragraphs?.length || !lines?.length) return;
+          passage.paragraphs = lines;
+          transcriptByAi = true;
         });
       } catch (error) {
         if (!(error instanceof AppError)) throw error;
@@ -96,14 +85,8 @@ export function createImportProcessor({
 
     await progress.validating();
     const certification = CERTIFICATIONS.IELTS_ACADEMIC;
-    const parsed = buildParsedTest(outline, answerKey, job.kind);
-    parsed.sections
-      .find(section => section.skill === 'listening')
-      ?.passages.forEach((passage, index) => {
-        passage.audioStartSec = starts[index] ?? passage.audioStartSec;
-      });
     const {issues, test} = validateParsedTest({
-      test: parsed,
+      test: buildParsedTest(outline, answerKey, job.kind),
       kind: job.kind,
       certification,
       audio: audio && {durationSec: audio.durationSec},
