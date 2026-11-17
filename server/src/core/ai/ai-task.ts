@@ -6,6 +6,8 @@ export interface AiPrompt {
   text: string;
   /** Optional PDF file sent next to the text, e.g. a test file for classify-pages.v1. */
   pdf?: Buffer;
+  /** Optional audio file sent next to the text, e.g. a Listening recording for parse-audio.v1. */
+  audio?: {data: Buffer; mimeType: string};
 }
 
 /**

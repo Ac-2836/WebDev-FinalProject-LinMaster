@@ -2,7 +2,7 @@ import {Router} from 'express';
 
 import type {ApiModule} from '../../core/module-registry';
 import {storage as defaultStorage} from '../../core/storage';
-import {classifyPages, explainAnswer, parseAnswers, parseTest} from './ai';
+import {classifyPages, explainAnswer, parseAnswers, parseAudio, parseTest} from './ai';
 import {type AttemptRepository, prismaAttemptRepository} from './attempts.repository';
 import {addAttemptRoutes} from './attempts.routes';
 import {createAttemptService} from './attempts.service';
@@ -24,6 +24,7 @@ export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>>
   /** AI tasks of `./ai`; tests pass fakes. */
   parseTest?: typeof parseTest;
   parseAnswers?: typeof parseAnswers;
+  parseAudio?: typeof parseAudio;
   /** Built from the other dependencies when left out. */
   jobs?: ImportJobs;
   testRepository?: TestRepository;
@@ -50,6 +51,7 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
       labelPages,
       parseTest: deps.parseTest ?? parseTest,
       parseAnswers: deps.parseAnswers ?? parseAnswers,
+      parseAudio: deps.parseAudio ?? parseAudio,
     });
   const jobs = deps.jobs ?? createImportJobs({repository, storage, process});
   const imports = createImportService({repository, storage, labelPages, jobs});
