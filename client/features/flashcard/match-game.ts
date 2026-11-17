@@ -12,6 +12,8 @@ export interface Tile {
   cardId: string;
   side: 'term' | 'definition';
   text: string;
+  /** What the card says on both sides: two cards that say the same thing are interchangeable. */
+  content: string;
 }
 
 /** Fisher–Yates shuffle into a new array. */
@@ -24,20 +26,31 @@ export function shuffle<T>(items: readonly T[], random: () => number = Math.rand
   return copy;
 }
 
+const contentOf = (c: Pick<FlashcardCard, 'term' | 'definition'>) => `${c.term}\0${c.definition}`;
+
 /** A shuffled board: a term tile and a definition tile for each of up to `pairs` random cards. */
 export function buildTiles(cards: readonly FlashcardCard[], random = Math.random, pairs = MATCH_PAIRS): Tile[] {
   const picked = shuffle(cards, random).slice(0, pairs);
   return shuffle(
     picked.flatMap(c => [
-      {key: `${c.id}:term`, cardId: c.id, side: 'term' as const, text: c.term},
-      {key: `${c.id}:definition`, cardId: c.id, side: 'definition' as const, text: c.definition},
+      {key: `${c.id}:term`, cardId: c.id, side: 'term' as const, text: c.term, content: contentOf(c)},
+      {
+        key: `${c.id}:definition`,
+        cardId: c.id,
+        side: 'definition' as const,
+        text: c.definition,
+        content: contentOf(c),
+      },
     ]),
     random,
   );
 }
 
-/** Two tiles are a pair when they belong to the same card and are its two different sides. */
-export const isPair = (a: Tile, b: Tile) => a.cardId === b.cardId && a.side !== b.side;
+/**
+ * Two tiles are a pair when they are the two different sides of one card, or of two cards that say exactly the same
+ * (the pair looks right on screen, so it must count as right).
+ */
+export const isPair = (a: Tile, b: Tile) => a.side !== b.side && a.content === b.content;
 
 /** Total time shown: seconds played plus the penalty for each mistake. */
 export const matchSeconds = (playedMs: number, mistakes: number) => playedMs / 1000 + mistakes * MATCH_PENALTY_SECONDS;

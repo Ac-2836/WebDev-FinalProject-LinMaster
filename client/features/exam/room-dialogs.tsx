@@ -188,3 +188,31 @@ export function SubmitDialog({
     </AlertDialog.Root>
   );
 }
+
+/**
+ * Shown in a second tab of the same attempt (QA Q-04): this tab does not save, so it cannot overwrite the answers
+ * of the tab that is editing. It cannot be dismissed; "Use this tab" hands the attempt over to this tab.
+ */
+export function OtherTabDialog({onTakeOver}: {onTakeOver: () => void}) {
+  return (
+    <AlertDialog.Root open>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay className={overlay} />
+        <AlertDialog.Content className={panel} onEscapeKeyDown={e => e.preventDefault()}>
+          <AlertDialog.Title className="text-lg font-semibold">This test is open in another tab</AlertDialog.Title>
+          <AlertDialog.Description className="mt-2 text-sm text-muted-foreground">
+            Your answers are being saved in the other tab. This tab will not save anything, so the two cannot overwrite
+            each other. The timer keeps running.
+          </AlertDialog.Description>
+          <div className="mt-6 flex justify-end">
+            <AlertDialog.Action asChild>
+              <Button className="h-11" onClick={onTakeOver}>
+                Use this tab
+              </Button>
+            </AlertDialog.Action>
+          </div>
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
+  );
+}

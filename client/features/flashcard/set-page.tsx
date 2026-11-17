@@ -5,13 +5,14 @@ import {
   GetFlashcardSetResponseSchema,
   GetStudyCardsResponseSchema,
   type FlashcardSet,
+  type FlashcardVisibility,
 } from '@linmaster/shared';
 import {ArrowLeft, CloudOff, EllipsisVertical, Layers, Pencil, RotateCw, Trash2} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {AlertDialog, DropdownMenu} from 'radix-ui';
-import {useCallback, useEffect, useState} from 'react';
+import {cloneElement, useCallback, useEffect, useState} from 'react';
 import {toast} from 'sonner';
 
 import {cn} from 'cn';
@@ -30,8 +31,11 @@ const badge =
 
 export interface SetPageProps {
   id: string;
-  /** Publish / Unpublish from the library, given by the route (a feature does not import another). */
-  publish?: React.ReactNode;
+  /**
+   * Publish / Unpublish from the library, given by the route (a feature does not import another). The element gets
+   * the set's `visibility` as a prop once the set is loaded.
+   */
+  publish?: React.ReactElement<{visibility?: FlashcardVisibility}>;
 }
 
 /** `/flashcards/[id]` (C3, wireframe 04-flashcard/set): set preview, study modes and the card list. */
@@ -180,7 +184,7 @@ export function SetPage({id, publish}: SetPageProps) {
           </div>
         </div>
       </header>
-      {publish}
+      {publish && cloneElement(publish, {visibility: set.visibility})}
 
       {cards.length === 0 ? (
         <EmptyState

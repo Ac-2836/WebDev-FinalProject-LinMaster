@@ -52,6 +52,20 @@ describe('isPair', () => {
   });
 });
 
+describe('isPair with identical cards', () => {
+  it('counts the sides of two cards that say the same thing as a pair', () => {
+    const twins = cards(4).map((c, i) => (i < 2 ? {...c, term: 'same', definition: 'same def'} : c));
+    const tiles = buildTiles(twins, () => 0.5, 4);
+    const [termA] = tiles.filter(t => t.side === 'term' && t.text === 'same');
+    const defB = tiles
+      .filter(t => t.side === 'definition' && t.text === 'same def')
+      .find(t => t.cardId !== termA.cardId)!;
+    expect(isPair(termA, defB)).toBe(true);
+    const other = tiles.find(t => t.side === 'definition' && t.text !== 'same def')!;
+    expect(isPair(termA, other)).toBe(false);
+  });
+});
+
 describe('matchSeconds', () => {
   it('adds one second per mistake', () => {
     expect(matchSeconds(20400, 3)).toBeCloseTo(23.4);

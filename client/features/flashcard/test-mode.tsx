@@ -52,6 +52,8 @@ function Quiz({set}: {set: FlashcardSet}) {
   const next = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
+  // A double click on "Next" must not answer the question that comes up under the second click (QA Q-09).
+  const answerableAt = useRef(0);
   const session = useStudySession(set.id, 'test', true);
   const finished = load.status === 'ready' && index >= questions.length;
   const question = questions[index];
@@ -110,12 +112,14 @@ function Quiz({set}: {set: FlashcardSet}) {
   }, [finished]);
 
   function submit(correct: boolean, given: string) {
-    if (answer || !question) return;
+    if (answer || !question || Date.now() < answerableAt.current) return;
     setAnswer({correct, given});
     if (correct) setCorrectCount(c => c + 1);
     else setWrong(w => [...w, question]);
   }
   function advance() {
+    if (!answer) return;
+    answerableAt.current = Date.now() + 400;
     setAnswer(null);
     setTyped('');
     setIndex(i => i + 1);

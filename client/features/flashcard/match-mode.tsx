@@ -104,17 +104,18 @@ function Board({set}: {set: FlashcardSet}) {
   );
 
   function pick(tile: Tile) {
-    if (result || wrong.length > 0 || done.has(tile.cardId)) return;
+    if (result || wrong.length > 0 || done.has(tile.key)) return;
     if (!selected || selected.side === tile.side) {
       setSelected(selected?.key === tile.key ? null : tile);
       return;
     }
     if (isPair(selected, tile)) {
-      const next = new Set(done).add(tile.cardId);
+      const next = new Set(done).add(selected.key).add(tile.key);
+      const matched = next.size / 2;
       setDone(next);
       setSelected(null);
-      setAnnounce(t('matchPaired', {done: next.size, total: pairs}));
-      if (next.size === pairs) finish(pairs, mistakes);
+      setAnnounce(t('matchPaired', {done: matched, total: pairs}));
+      if (matched === pairs) finish(pairs, mistakes);
     } else {
       setMistakes(m => m + 1);
       setWrong([selected.key, tile.key]);
@@ -143,7 +144,9 @@ function Board({set}: {set: FlashcardSet}) {
       title={set.title}
       modeLabel={t('match')}
       onExit={() =>
-        result ? undefined : session.end({cardsStudied: done.size, correctCount: Math.max(0, done.size - mistakes)})
+        result
+          ? undefined
+          : session.end({cardsStudied: done.size / 2, correctCount: Math.max(0, done.size / 2 - mistakes)})
       }
       actions={
         !result && (
@@ -184,11 +187,11 @@ function Board({set}: {set: FlashcardSet}) {
       ) : (
         <>
           <p className="text-center text-sm text-muted-foreground">
-            {t('matchStatus', {done: done.size, total: pairs, mistakes, penalty: mistakes * MATCH_PENALTY_SECONDS})}
+            {t('matchStatus', {done: done.size / 2, total: pairs, mistakes, penalty: mistakes * MATCH_PENALTY_SECONDS})}
           </p>
           <div ref={grid} className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {tiles.map(tile =>
-              done.has(tile.cardId) ? (
+              done.has(tile.key) ? (
                 <div key={tile.key} className="min-h-24 rounded-xl" aria-hidden="true" />
               ) : (
                 <button

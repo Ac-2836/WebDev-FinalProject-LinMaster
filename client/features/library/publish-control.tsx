@@ -2,7 +2,6 @@
 
 import {
   GetTestResponseSchema,
-  LibrarySetPreviewResponseSchema,
   LibraryTestPreviewResponseSchema,
   LibraryVisibilityResponseSchema,
   type LibraryType,
@@ -19,7 +18,7 @@ import {toast} from 'sonner';
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {inputClass} from '@/components/ui/input';
-import {api, ApiError} from '@/core/api/client';
+import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {libraryStatus} from './library-logic';
@@ -163,18 +162,8 @@ export function PublishControl({
   );
 }
 
-/**
- * The owner's set page does not know the set's visibility: the flashcard API does not return it, so the library
- * preview tells. A preview means public; 404 means private, or hidden (then Publish answers CONTENT_HIDDEN).
- */
-// shortcut: one extra request per set page; drop it once FlashcardSetSchema carries `visibility`.
-export function SetPublishControl({id}: {id: string}) {
-  const [visibility, setVisibility] = useState<TestVisibility | null>(null);
-  useEffect(() => {
-    api(`/library/sets/${id}`)
-      .then(res => setVisibility(LibrarySetPreviewResponseSchema.parse(res).viewer.isOwner ? 'public' : null))
-      .catch(error => setVisibility(error instanceof ApiError && error.httpStatus === 404 ? 'private' : null));
-  }, [id]);
+/** On the owner's set page: the flashcard API tells the set's visibility, `SetPage` passes it in once the set is loaded. */
+export function SetPublishControl({id, visibility}: {id: string; visibility?: TestVisibility}) {
   return visibility && <PublishControl type="set" id={id} visibility={visibility} />;
 }
 
