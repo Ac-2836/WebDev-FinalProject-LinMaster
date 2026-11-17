@@ -4,7 +4,8 @@ import {prismaFlashcardRepository} from './flashcard.repository';
 import type {FlashcardRepository} from './flashcard.repository';
 import {createFlashcardRouter} from './flashcard.routes';
 import {createFlashcardService} from './flashcard.service';
-import type {VocabEntryProvider} from './flashcard.service';
+import type {ExerciseGenerator, VocabEntryProvider} from './flashcard.service';
+import {generateExercise} from './ai';
 import {prismaStudyRepository} from './study.repository';
 import type {StudyRepository} from './study.repository';
 import {createStudyService} from './study.service';
@@ -19,8 +20,9 @@ export function createFlashcardModule(
   vocabEntries: VocabEntryProvider = vocabEntryProvider,
   studyRepository: StudyRepository = prismaStudyRepository,
   now?: () => Date,
+  exercises: ExerciseGenerator = generateExercise,
 ): ApiModule {
-  const service = createFlashcardService(repository, vocabEntries);
+  const service = createFlashcardService(repository, vocabEntries, exercises);
   const study = createStudyService(studyRepository, now);
   return {name: 'flashcard', basePath: '/api/v1', router: createFlashcardRouter(service, study, jwtSecret)};
 }
