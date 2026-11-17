@@ -9,6 +9,7 @@ import {
   partProgress,
   questionState,
   remainingMs,
+  retryDelay,
   submitSummary,
   type RoomPart,
 } from './room-logic';
@@ -87,5 +88,15 @@ describe('question navigation', () => {
       unanswered: [2, 5],
       flagged: 2,
     });
+  });
+});
+
+describe('retryDelay', () => {
+  it('backs off from 2 s up to 30 s and stays there', () => {
+    expect([1, 2, 3, 4, 5, 6, 40].map(retryDelay)).toEqual([2000, 5000, 10_000, 20_000, 30_000, 30_000, 30_000]);
+  });
+
+  it('treats 0 failures like the first one', () => {
+    expect(retryDelay(0)).toBe(2000);
   });
 });

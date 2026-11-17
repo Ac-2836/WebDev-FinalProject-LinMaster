@@ -72,3 +72,8 @@ export function submitSummary(parts: RoomPart[], answered: ReadonlySet<number>, 
     flagged: all.filter(n => flagged.has(n)).length,
   };
 }
+
+/** Waits before the 1st, 2nd, 3rd… retry of a failed autosave; the last one repeats until a save goes through. */
+const RETRY_DELAYS_MS = [2000, 5000, 10_000, 20_000, 30_000] as const;
+export const retryDelay = (failures: number) =>
+  RETRY_DELAYS_MS[Math.min(Math.max(failures, 1), RETRY_DELAYS_MS.length) - 1];
