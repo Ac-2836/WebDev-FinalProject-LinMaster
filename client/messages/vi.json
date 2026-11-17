@@ -1027,7 +1027,17 @@
         "completion": "Điền chỗ trống",
         "short_answer": "Trả lời ngắn",
         "diagram_label": "Điền nhãn sơ đồ"
-      }
+      },
+      "explainAsk": "Giải thích bằng AI",
+      "explainLoading": "AI đang đọc bài…",
+      "explainRetry": "Thử lại",
+      "explainNone": "File đề không có giải thích cho câu này. Bạn có thể nhờ AI giải thích dựa trên bài đọc hoặc transcript.",
+      "explainEvidence": "Bằng chứng trong bài",
+      "evidenceFrom": "{title} · đoạn {label}",
+      "explainByAi": "Do AI tạo, có thể chưa chính xác.",
+      "explainNoText": "Phần này không có bài đọc hoặc transcript để AI giải thích.",
+      "explainQuota": "Bạn đã hết lượt AI hôm nay hoặc đang gửi quá nhiều yêu cầu. Thử lại sau.",
+      "explainAiFailed": "AI chưa trả lời được. Thử lại sau ít giây."
     }
   },
   "stats": {
