@@ -1,5 +1,6 @@
 import type {LibrarySort, LibraryTestItem, QuestionKind, Skill, TestVisibility} from '@linmaster/shared';
 
+import {escapeLike} from '../../core/like';
 import {getDb} from '../../core/db';
 import type {Prisma} from '../../generated/prisma/client';
 import {SUMMARY, withSectionSizes} from './tests.repository';
@@ -77,7 +78,12 @@ export async function listLibraryTests({q, skill, sort, skip, take}: LibraryTest
   const where: Prisma.TestWhereInput = {
     visibility: 'public',
     ...(skill && {sections: {some: {skill}}}),
-    ...(q && {OR: [{title: {contains: q, mode: 'insensitive'}}, {source: {contains: q, mode: 'insensitive'}}]}),
+    ...(q && {
+      OR: [
+        {title: {contains: escapeLike(q), mode: 'insensitive'}},
+        {source: {contains: escapeLike(q), mode: 'insensitive'}},
+      ],
+    }),
   };
   const orderBy: Prisma.TestOrderByWithRelationInput[] =
     sort === 'popular'

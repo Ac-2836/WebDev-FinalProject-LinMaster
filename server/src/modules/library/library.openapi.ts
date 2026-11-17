@@ -81,7 +81,7 @@ for (const [path, name] of [
     summary: `Publish a ${name} to the library`,
     description:
       'Owner only. Publishing again keeps the first `publishedAt`. ' +
-      (name === 'test' ? 'A test needs a source first. ' : '') +
+      (name === 'test' ? 'A test needs a source first. ' : 'A set needs at least one card. ') +
       'Content hidden after reports must be unpublished before it is published again.',
     tags: ['Library'],
     security,
@@ -98,6 +98,7 @@ for (const [path, name] of [
           ? '`TEST_SOURCE_REQUIRED`: the test has no source. `CONTENT_HIDDEN`: hidden after reports.'
           : '`CONTENT_HIDDEN`: hidden after reports.',
       ),
+      ...(name === 'set' ? {422: error('`SET_EMPTY`: the set has no cards.')} : {}),
       ...common,
     },
   });
@@ -175,11 +176,13 @@ openApiRegistry.registerPath({
   summary: 'Copy a public set into my library',
   description:
     'Deep copy into a new private set with `copiedFromId`; the original gets `copyCount + 1`. Editing the copy never ' +
-    'changes the original. Copying again makes another copy.',
+    'changes the original. Copying a set again while the copy still exists returns that copy with `200`: no new set, ' +
+    'no `copyCount` change (so a double click or a retry is safe).',
   tags: ['Library'],
   security,
   request: params,
   responses: {
+    200: {description: 'The copy the user already had.', ...json(LibraryCopyResponseSchema, {setId: ID})},
     201: {description: 'The new set.', ...json(LibraryCopyResponseSchema, {setId: ID})},
     400: error('Invalid id.'),
     404: error('The set is missing, private or hidden.'),

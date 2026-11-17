@@ -17,7 +17,8 @@ export interface GenerateExerciseInput {
   count: number;
 }
 
-// Version 1. Changing this prompt or GeneratedExerciseSchema means a new file generate-exercise.v2.ts.
+// Version 2 (v1 never ran on Gemini: its schema was refused; the prompt and the schema changed together). Changing this
+// prompt or GeneratedExerciseSchema means a new file generate-exercise.v3.ts.
 const SYSTEM_PROMPT = `You write IELTS-style vocabulary practice for Vietnamese learners, using only the words of the learner's flashcard set.
 Return JSON only, following the schema. The number asked for counts sentences: a single_choice or completion question counts 1, a matching question counts as many as it has sentences. Write that many in all, spread evenly over the requested kinds, each sentence about a different word. Every question is a natural English sentence with exactly one gap written ${EXERCISE_BLANK}.
 Kinds:
@@ -40,12 +41,12 @@ function describe({cards, kinds, count}: GenerateExerciseInput): string {
 }
 
 /**
- * `generate-exercise.v1`: practice questions from a flashcard set (PLAN C3). Cached per word list and request, for
+ * `generate-exercise.v2`: practice questions from a flashcard set (PLAN C3). Cached per word list and request, for
  * an hour, so asking again soon is free but a later practice gets new sentences. An output with fewer than half of
  * the questions passing `buildExercise` is retried and not cached.
  */
 export const generateExerciseTask: AiTask<GenerateExerciseInput, GeneratedExercise> = aiTaskRegistry.register({
-  name: 'generate-exercise.v1',
+  name: 'generate-exercise.v2',
   buildPrompt: input => ({system: SYSTEM_PROMPT, text: describe(input)}),
   output: GeneratedExerciseSchema,
   cacheTtlSeconds: 3600,

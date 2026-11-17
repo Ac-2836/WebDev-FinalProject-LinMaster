@@ -118,7 +118,7 @@ describe('AI gateway', () => {
       expect(await db.aiUsage.count({where: {userId}})).toBe(1);
     });
 
-    it('retries a 429 from the model but not another 4xx', async () => {
+    it('retries a 429 from the model but not another 4xx, which is a 500 for the team instead of a 503', async () => {
       const busy = createMockAiModel([apiError(429), {meaning: 'ổn'}]);
       const answer = await createAiGateway({db, model: busy, sleep}).runJsonTask(echoTask, {word: 'busy'}, {userId});
       expect(answer).toEqual({meaning: 'ổn'});
@@ -126,7 +126,7 @@ describe('AI gateway', () => {
       const refused = createMockAiModel([apiError(400), {meaning: 'never'}]);
       await expect(
         createAiGateway({db, model: refused, sleep}).runJsonTask(echoTask, {word: 'bad'}, {userId}),
-      ).rejects.toMatchObject({statusCode: 503, status: 'AI_UNAVAILABLE'});
+      ).rejects.toMatchObject({statusCode: 500, status: 'AI_REQUEST_REJECTED'});
       expect(refused.requests).toHaveLength(1);
       expect(waits).toEqual([500]);
     });

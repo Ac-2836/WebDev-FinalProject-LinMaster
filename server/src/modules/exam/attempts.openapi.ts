@@ -296,6 +296,8 @@ openApiRegistry.registerPath({
     429: error('`AI_QUOTA_EXCEEDED` (daily quota) or too many AI requests in a minute.'),
     502: error('`AI_INVALID_OUTPUT`: the model answered with an invalid result three times.'),
     503: error('`AI_UNAVAILABLE`: the model could not be reached.'),
-    500: error('Unexpected server error.'),
+    500: error(
+      'Unexpected server error. `AI_REQUEST_REJECTED`: the AI refused the request (a bug in our schema, prompt or key), so trying again will not help.',
+    ),
   },
 });

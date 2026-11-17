@@ -41,7 +41,7 @@ Every error has the same body; the client switches on \`error.status\`:
 | 413 / 415 | \`INVALID_ARGUMENT\` | File too large / type not accepted |
 | 422 | \`FAILED_PRECONDITION\` | The file was read but has no usable content |
 | 429 | \`RESOURCE_EXHAUSTED\`, \`AI_QUOTA_EXCEEDED\` | A rate limit or the daily AI quota (\`details.retryAt\`) |
-| 500 | \`INTERNAL\` | A bug on our side |
+| 500 | \`INTERNAL\`, \`AI_REQUEST_REJECTED\` | A bug on our side; the AI refused our request (schema, prompt or key), trying again will not help |
 | 502 / 503 | \`AI_INVALID_OUTPUT\` / \`AI_UNAVAILABLE\` | The AI answered badly / could not be reached |
 
 Routes add their own \`status\` for domain cases (e.g. \`ATTEMPT_EXPIRED\`, \`TEST_HAS_ATTEMPTS\`); each one is

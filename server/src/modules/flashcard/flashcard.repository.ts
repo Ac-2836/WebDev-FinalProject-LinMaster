@@ -2,6 +2,7 @@ import type {
   CreateFlashcardSet,
   FlashcardCard,
   FlashcardSet,
+  FlashcardVisibility,
   ReplaceFlashcardCardInput,
   UpdateFlashcardSet,
 } from '@linmaster/shared';
@@ -14,6 +15,7 @@ export type FlashcardSetSummary = {
   description: string | null;
   termLang: string;
   definitionLang: string;
+  visibility: FlashcardVisibility;
   createdAt: Date;
   updatedAt: Date;
   _count: {cards: number};
@@ -54,6 +56,7 @@ function toSet(set: SetWithCards): FlashcardSet {
     description: set.description,
     termLang: set.termLang,
     definitionLang: set.definitionLang,
+    visibility: set.visibility,
     createdAt: set.createdAt.toISOString(),
     updatedAt: set.updatedAt.toISOString(),
     cards: set.cards.map(toCard),
@@ -106,6 +109,7 @@ export const prismaFlashcardRepository: FlashcardRepository = {
         description: true,
         termLang: true,
         definitionLang: true,
+        visibility: true,
         createdAt: true,
         updatedAt: true,
         _count: {select: {cards: true}},

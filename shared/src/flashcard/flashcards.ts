@@ -18,12 +18,16 @@ export const FlashcardCardSchema = z.object({
   updatedAt: z.iso.datetime(),
 });
 
+/** Who can see the set: `private` (only the owner), `public` (in the library) or `hidden` (taken down after reports, until the owner unpublishes it). */
+export const FlashcardVisibilitySchema = z.enum(['private', 'public', 'hidden']);
+
 export const FlashcardSetSchema = z.object({
   id: z.string().uuid(),
   title: z.string(),
   description: z.string().nullable(),
   termLang: z.string(),
   definitionLang: z.string(),
+  visibility: FlashcardVisibilitySchema,
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   cards: z.array(FlashcardCardSchema),
@@ -87,6 +91,7 @@ export const GetFlashcardSetResponseSchema = z.object({set: FlashcardSetSchema})
 export const ReplaceFlashcardCardsResponseSchema = z.object({cards: z.array(FlashcardCardSchema)});
 export const DeleteFlashcardSetResponseSchema = z.object({deleted: z.literal(true)});
 
+export type FlashcardVisibility = z.infer<typeof FlashcardVisibilitySchema>;
 export type FlashcardSet = z.infer<typeof FlashcardSetSchema>;
 export type FlashcardCard = z.infer<typeof FlashcardCardSchema>;
 export type CreateFlashcardSet = z.infer<typeof CreateFlashcardSetSchema>;

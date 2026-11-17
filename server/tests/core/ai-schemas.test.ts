@@ -6,7 +6,7 @@ import {parseAnswersTask} from '../../src/modules/exam/ai/parse-answers.v1';
 import {parseAudioTask} from '../../src/modules/exam/ai/parse-audio.v2';
 import {parseTestTask} from '../../src/modules/exam/ai/parse-test.v2';
 import {parseTranscriptTask} from '../../src/modules/exam/ai/parse-transcript.v1';
-import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v1';
+import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v2';
 import {explainWordTask} from '../../src/modules/vocab/ai/explain-word.v1';
 import {scanDocumentTask} from '../../src/modules/vocab/ai/scan-document.v1';
 

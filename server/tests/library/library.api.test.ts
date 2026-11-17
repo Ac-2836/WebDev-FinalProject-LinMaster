@@ -15,6 +15,8 @@ import {createLibraryModule} from '../../src/modules/library';
 
 const JWT_SECRET = 'library-test-secret-that-is-at-least-32-characters';
 const run = `${Date.now()}`;
+// Another token for the sets of the later tests, so the searches of the earlier ones do not see them.
+const other = [...run].reverse().join('');
 const emails = ['owner', 'a', 'b', 'c'].map(name => `library-${name}-${run}@linmaster.test`);
 
 // Real database and the real public APIs of flashcard and exam.
@@ -155,6 +157,69 @@ describe('library API', () => {
 
     const own = await as(owner).post(`/library/sets/${setId}/copy`).expect(409);
     expect(own.body.error.status).toBe('OWN_CONTENT');
+  });
+
+  it('copies a set once: asking again returns the copy and does not count again, even at the same time', async () => {
+    const source = await db.flashcardSet.create({
+      data: {
+        ownerId: owner,
+        title: `Once ${other}`,
+        visibility: 'public',
+        publishedAt: new Date(),
+        cards: {createMany: {data: [{position: 0, term: 'one', definition: '-'}]}},
+      },
+    });
+    const copy = () => as(others[1]).post(`/library/sets/${source.id}/copy`);
+
+    const together = await Promise.all([copy(), copy(), copy()]);
+    const again = await copy();
+
+    expect(together.map(response => response.status).sort()).toEqual([200, 200, 201]);
+    expect(new Set([...together, again].map(response => response.body.setId)).size).toBe(1);
+    expect(again.status).toBe(200);
+    expect(await db.flashcardSet.count({where: {ownerId: others[1], copiedFromId: source.id}})).toBe(1);
+    expect((await db.flashcardSet.findUniqueOrThrow({where: {id: source.id}})).copyCount).toBe(1);
+
+    // After the copy is deleted, copying makes a new one.
+    await db.flashcardSet.deleteMany({where: {ownerId: others[1], copiedFromId: source.id}});
+    const fresh = await copy();
+    expect(fresh.status).toBe(201);
+    expect(fresh.body.setId).not.toBe(again.body.setId);
+    expect((await db.flashcardSet.findUniqueOrThrow({where: {id: source.id}})).copyCount).toBe(2);
+  });
+
+  it('refuses to publish a set without cards until it has one', async () => {
+    const empty = await db.flashcardSet.create({data: {ownerId: owner, title: `Empty ${other}`}});
+
+    const refused = await as(owner).post(`/library/sets/${empty.id}/publish`).expect(422);
+    expect(refused.body.error.status).toBe('SET_EMPTY');
+    expect((await db.flashcardSet.findUniqueOrThrow({where: {id: empty.id}})).visibility).toBe('private');
+
+    await db.card.create({data: {setId: empty.id, position: 0, term: 'one', definition: '-'}});
+    await as(owner).post(`/library/sets/${empty.id}/publish`).expect(200);
+  });
+
+  it('searches for % and _ as typed, not as wildcards', async () => {
+    const make = (title: string) =>
+      db.flashcardSet.create({
+        data: {
+          ownerId: owner,
+          title,
+          visibility: 'public',
+          publishedAt: new Date(),
+          cards: {createMany: {data: [{position: 0, term: 'one', definition: '-'}]}},
+        },
+      });
+    await make(`${other} wild_card 50% off`);
+    await make(`${other} wildxcard 50 percent`);
+    const titles = async (q: string) =>
+      (await browse(`q=${encodeURIComponent(q)}`)).items.map(item => item.title).sort();
+
+    expect(await titles(`${other} wild_card`)).toEqual([`${other} wild_card 50% off`]);
+    expect(await titles(`${other} wild`)).toHaveLength(2);
+    expect(await titles(`${other} wild_card 50%`)).toEqual([`${other} wild_card 50% off`]);
+    expect(await titles(`${other} %`)).toEqual([]);
+    expect(await titles(`${other} wild_`)).toEqual([`${other} wild_card 50% off`]);
   });
 
   it('hides content after three reports until the owner unpublishes it', async () => {
