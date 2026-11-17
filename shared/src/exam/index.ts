@@ -9,3 +9,4 @@ export * from './parsed-test';
 export * from './parsed-answers';
 export * from './tests';
 export * from './attempts';
+export * from './explain';

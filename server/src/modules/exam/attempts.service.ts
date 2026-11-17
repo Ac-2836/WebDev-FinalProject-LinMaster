@@ -3,11 +3,14 @@ import {
   type AttemptResult,
   type AttemptState,
   type AttemptSummary,
+  type ExplainAnswerOutput,
+  type QuestionExplanation,
   AttemptStateSchema,
   EMPTY_ATTEMPT_STATE,
   GivenAnswerSchema,
   ParsedParagraphSchema,
   type SaveAttemptStateResponse,
+  type Skill,
   type SkillScore,
 } from '@linmaster/shared';
 import {z} from 'zod';
@@ -15,6 +18,8 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
 import {audioPosition, clockSections, currentSection, deadlineOf, remainingSec, sectionTimes} from './attempt-clock';
+import type {ExplainAnswerInput} from './ai';
+import {verifiedEvidence} from './answer-evidence';
 import {correctTexts, explanationOf, gradeAttempt} from './attempt-grading';
 import type {AttemptRepository, AttemptRow, AttemptSummaryRow} from './attempts.repository';
 import type {TestContentRow, TestRepository} from './tests.repository';
@@ -24,6 +29,8 @@ export interface AttemptServiceDeps {
   attempts: AttemptRepository;
   tests: TestRepository;
   storage: Storage;
+  /** Runs `explain-answer.v1`. */
+  explain: (input: ExplainAnswerInput, options: {userId: string}) => Promise<ExplainAnswerOutput>;
   /** Server clock; tests pass a fixed one. */
   now?: () => Date;
 }
@@ -77,7 +84,7 @@ function toSummary(row: AttemptSummaryRow): AttemptSummary {
   };
 }
 
-export function createAttemptService({attempts, tests, storage, now = () => new Date()}: AttemptServiceDeps) {
+export function createAttemptService({attempts, tests, storage, explain, now = () => new Date()}: AttemptServiceDeps) {
   /** The attempt of the user; another user's attempt answers 403. */
   async function ownAttempt(userId: string, attemptId: string): Promise<AttemptRow> {
     const attempt = await attempts.findAttempt(attemptId);
@@ -279,6 +286,69 @@ export function createAttemptService({attempts, tests, storage, now = () => new 
         mimeType: file.mimeType,
         range: `bytes ${start}-${last}/${size}`,
         body: data.subarray(start, last + 1),
+      };
+    },
+
+    /**
+     * `POST /attempts/:id/questions/:no/explain`: owner only, once submitted. A question whose answer file has an
+     * explanation returns it without the AI; otherwise `explain-answer.v1` explains it from the passage or
+     * transcript, and only quotes found in that text are returned as evidence.
+     */
+    async explainQuestion(
+      userId: string,
+      attemptId: string,
+      number: number,
+      skill?: Skill,
+    ): Promise<{explanation: QuestionExplanation}> {
+      const owned = await ownAttempt(userId, attemptId);
+      const attempt = await settle(owned, (await testOf(owned.testId)).certification);
+      if (attempt.status !== 'submitted') {
+        throw new AppError('Submit the attempt to see explanations.', 409, undefined, 'ATTEMPT_NOT_SUBMITTED');
+      }
+      const rows = await attempts.findQuestionContexts(attemptId, number, skill);
+      if (rows.length === 0) throw new AppError('Question not found in this attempt.', 404);
+      if (rows.length > 1) throw new AppError('This number exists in both skills; add ?skill=.', 400);
+      const row = rows[0]!;
+
+      const fromFile = explanationOf(row.correctAnswer)?.trim();
+      if (fromFile) {
+        return {explanation: {number, skill: row.skill, source: 'file', text: fromFile, evidence: []}};
+      }
+      const passage = row.question?.group.passage;
+      const paragraphs = ParagraphsSchema.safeParse(passage?.paragraphs);
+      if (!row.question || !passage || !paragraphs.success || paragraphs.data.length === 0) {
+        throw new AppError(
+          'This question has no passage or transcript text to explain from.',
+          422,
+          undefined,
+          'EXPLAIN_NO_TEXT',
+        );
+      }
+
+      const {group} = row.question;
+      const given = GivenAnswerSchema.safeParse(row.given);
+      const options = [row.question.options, group.sharedOptions].filter(value => value !== null);
+      const output = await explain(
+        {
+          skill: row.skill,
+          kind: row.kind,
+          instructions: group.instructions,
+          prompt: row.question.prompt,
+          options: options.length > 0 ? JSON.stringify(options) : '',
+          correct: correctTexts(row.correctAnswer),
+          given: given.success ? given.data : null,
+          paragraphs: paragraphs.data,
+        },
+        {userId},
+      );
+      return {
+        explanation: {
+          number,
+          skill: row.skill,
+          source: 'ai',
+          text: output.explanation,
+          evidence: verifiedEvidence(passage.id, paragraphs.data, output.evidence),
+        },
       };
     },
 

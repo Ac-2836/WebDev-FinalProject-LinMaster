@@ -2,7 +2,7 @@ import {Router} from 'express';
 
 import type {ApiModule} from '../../core/module-registry';
 import {storage as defaultStorage} from '../../core/storage';
-import {classifyPages, parseAnswers, parseTest} from './ai';
+import {classifyPages, explainAnswer, parseAnswers, parseTest} from './ai';
 import {type AttemptRepository, prismaAttemptRepository} from './attempts.repository';
 import {addAttemptRoutes} from './attempts.routes';
 import {createAttemptService} from './attempts.service';
@@ -28,6 +28,8 @@ export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>>
   jobs?: ImportJobs;
   testRepository?: TestRepository;
   attemptRepository?: AttemptRepository;
+  /** AI task `explain-answer.v1`; tests pass a fake. */
+  explainAnswer?: typeof explainAnswer;
   /** Server clock of attempts; tests pass a fixed one. */
   now?: () => Date;
 }
@@ -57,6 +59,7 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
     attempts: deps.attemptRepository ?? prismaAttemptRepository,
     tests: testRepository,
     storage,
+    explain: deps.explainAnswer ?? explainAnswer,
     now: deps.now,
   });
   const router = addAttemptRoutes(
