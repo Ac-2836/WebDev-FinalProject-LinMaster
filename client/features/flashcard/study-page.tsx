@@ -9,7 +9,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 
 import {findStudyMode} from './study-modes';
 
@@ -29,7 +29,7 @@ export function StudyPage({id, mode}: StudyPageProps) {
     setError(null);
     api(`/flashcards/sets/${id}`)
       .then(res => setSet(GetFlashcardSetResponseSchema.parse(res).set))
-      .catch(err => setError(err instanceof ApiError && err.httpStatus === 404 ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
   }, [id]);
   useEffect(load, [load]);
 

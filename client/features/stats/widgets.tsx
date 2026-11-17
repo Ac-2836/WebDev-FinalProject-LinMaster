@@ -71,7 +71,7 @@ export function ActivityWidget() {
                 aria-pressed={m === months}
                 onClick={() => setMonths(m)}
                 className={cn(
-                  'rounded-md px-2 py-1 font-medium text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none',
+                  'min-h-11 rounded-md px-3 py-1 font-medium text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none',
                   m === months && 'bg-primary text-primary-foreground',
                 )}
               >

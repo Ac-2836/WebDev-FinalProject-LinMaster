@@ -18,7 +18,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 
 import {isRunning} from './upload-logic';
 
@@ -39,7 +39,7 @@ export function ImportStatusPage({id}: {id: string}) {
           setError(null);
           setData(GetImportResponseSchema.parse(res).import);
         })
-        .catch(err => setError(err instanceof ApiError && [403, 404].includes(err.httpStatus) ? 'notFound' : 'failed')),
+        .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed')),
     [id],
   );
   useEffect(() => {

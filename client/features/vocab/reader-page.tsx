@@ -18,7 +18,7 @@ import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, ApiError, isNotFound} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {lookupWord} from './lookup';
@@ -41,7 +41,7 @@ export function ReaderPage({id}: ReaderPageProps) {
     setDocument(null);
     api(`/vocab/documents/${id}`)
       .then(res => setDocument(GetVocabDocumentResponseSchema.parse(res).document))
-      .catch(err => setError(err instanceof ApiError && err.httpStatus === 404 ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
   }, [id]);
   useEffect(load, [load]);
 

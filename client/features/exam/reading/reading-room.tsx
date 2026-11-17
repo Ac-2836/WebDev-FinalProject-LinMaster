@@ -48,6 +48,8 @@ export function ReadingRoom({
   const dragging = useRef(false);
   const shownQuestion = useRef(current);
   const passageColumn = useRef<HTMLElement>(null);
+  // A question to scroll to once the questions pane has been shown (it is hidden on small screens until then).
+  const scrollAfterSwitch = useRef<number | null>(null);
 
   // A new Part starts at the top of its passage, not where the last one was scrolled to.
   useEffect(() => {
@@ -60,9 +62,19 @@ export function ReadingRoom({
     shownQuestion.current = current;
     const el = document.getElementById(`q-${current}`);
     if (!el) return;
-    if (!el.offsetParent) setPane('questions');
+    if (!el.offsetParent && pane !== 'questions') {
+      scrollAfterSwitch.current = current;
+      setPane('questions');
+      return;
+    }
     requestAnimationFrame(() => el.scrollIntoView({block: 'nearest'}));
   }, [current]);
+
+  useEffect(() => {
+    if (pane !== 'questions' || scrollAfterSwitch.current === null) return;
+    document.getElementById(`q-${scrollAfterSwitch.current}`)?.scrollIntoView({block: 'nearest'});
+    scrollAfterSwitch.current = null;
+  }, [pane]);
 
   const focusQuestion = (n: number) => {
     shownQuestion.current = n;

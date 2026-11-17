@@ -3,7 +3,7 @@
 import {ClipboardPaste, X} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {Dialog} from 'radix-ui';
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
@@ -20,6 +20,7 @@ export function PasteDialog({onAdd}: {onAdd: (cards: PastedCard[]) => void}) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const {cards, skipped} = parsePasted(text);
+  const field = useRef<HTMLTextAreaElement>(null);
 
   function add() {
     onAdd(cards);
@@ -37,7 +38,14 @@ export function PasteDialog({onAdd}: {onAdd: (cards: PastedCard[]) => void}) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-        <Dialog.Content className={dialogClass}>
+        <Dialog.Content
+          className={dialogClass}
+          onOpenAutoFocus={e => {
+            // The field to paste into, not the close button that comes first.
+            e.preventDefault();
+            field.current?.focus();
+          }}
+        >
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <Dialog.Title className="text-lg font-semibold">{t('title')}</Dialog.Title>
@@ -52,6 +60,7 @@ export function PasteDialog({onAdd}: {onAdd: (cards: PastedCard[]) => void}) {
           <label className="flex flex-col gap-1.5">
             <span className="sr-only">{t('label')}</span>
             <textarea
+              ref={field}
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder={t('placeholder')}

@@ -29,7 +29,7 @@ import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {Input, inputClass} from '@/components/ui/input';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {appendPasted, changes, invalidKeys, move, newRow, type Row, rowsFromCards, toCards} from './editor-rows';
@@ -56,7 +56,7 @@ export function SetEditor({id}: SetEditorProps) {
     setError(null);
     api(`/flashcards/sets/${id}`)
       .then(res => setSet(GetFlashcardSetResponseSchema.parse(res).set))
-      .catch(err => setError(err instanceof ApiError && err.httpStatus === 404 ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
   }, [id]);
   useEffect(load, [load]);
 
@@ -147,7 +147,8 @@ function Editor({set}: {set?: FlashcardSet}) {
   function paste(cards: PastedCard[]) {
     const result = appendPasted(rows, cards);
     update(result.rows);
-    toast.success(t('paste.added', {count: result.added}));
+    // At the limit nothing is added: say so once, not "Added 0 cards" as well.
+    if (result.added > 0) toast.success(t('paste.added', {count: result.added}));
     if (result.dropped > 0) toast.warning(t('paste.tooMany', {count: result.dropped}));
   }
   function moveRow(from: number, to: number, focusHandle = false) {

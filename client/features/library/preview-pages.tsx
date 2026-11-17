@@ -19,7 +19,7 @@ import {cn} from 'cn';
 import {Button, buttonVariants} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {libraryStatus} from './library-logic';
@@ -35,7 +35,7 @@ function usePreview<T>(path: string, schema: {parse: (res: unknown) => T}) {
     setData(null);
     api(path)
       .then(res => setData(schema.parse(res)))
-      .catch(err => setError(err instanceof ApiError && err.httpStatus === 404 ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
   }, [path, schema]);
   useEffect(load, [load]);
   return {data, setData, error, retry: load};
