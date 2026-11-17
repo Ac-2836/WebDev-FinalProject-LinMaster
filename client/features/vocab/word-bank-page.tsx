@@ -17,6 +17,7 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Input, inputClass} from '@/components/ui/input';
 import {Skeleton} from '@/components/ui/skeleton';
@@ -40,6 +41,7 @@ export interface WordBankPageProps {
 /** `/vocab` (C2, wireframe 03-vocab/word-bank): search, filter, delete and select saved words. */
 export function WordBankPage({documentId: initialDocument = ''}: WordBankPageProps) {
   const t = useTranslations('vocab.bank');
+  const confirmFocus = useReturnFocus();
   const errorMessage = useErrorMessage();
   const [q, setQ] = useState('');
   const [query, setQuery] = useState('');
@@ -382,7 +384,10 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
       <AlertDialog.Root open={confirm !== null} onOpenChange={o => !o && setConfirm(null)}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-50 bg-foreground/40" />
-          <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl">
+          <AlertDialog.Content
+            {...confirmFocus}
+            className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl"
+          >
             <AlertDialog.Title className="text-lg font-semibold">
               {t('confirmTitle', {count: confirm?.length ?? 0})}
             </AlertDialog.Title>

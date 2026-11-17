@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {api, ApiError} from './client';
+import {api, ApiError, isNotFound} from './client';
 
 const assign = vi.fn();
 let cookie = '';
@@ -78,5 +78,13 @@ describe('api', () => {
   it('reports NETWORK when no response comes back', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     await expect(api('/tests')).rejects.toMatchObject({status: 'NETWORK', httpStatus: 0});
+  });
+});
+
+describe('isNotFound', () => {
+  it('reads a missing, foreign or malformed id as not found, and nothing else', () => {
+    for (const http of [400, 403, 404]) expect(isNotFound(new ApiError('X', http))).toBe(true);
+    for (const http of [0, 401, 409, 500, 503]) expect(isNotFound(new ApiError('X', http))).toBe(false);
+    expect(isNotFound(new Error('boom'))).toBe(false);
   });
 });

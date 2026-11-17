@@ -43,7 +43,7 @@ const card = 'rounded-[20px] border bg-card shadow-soft';
 const PDF_ACCEPT = 'application/pdf,.pdf';
 const AUDIO_ACCEPT = 'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a';
 const tabClass =
-  'flex-1 rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
+  'flex min-h-11 flex-1 items-center justify-center rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
 
 const isAudio = (file: File) => /\.(mp3|m4a)$/i.test(file.name) || file.type.startsWith('audio/');
 const isPdf = (file: File) => /\.pdf$/i.test(file.name) || file.type === 'application/pdf';

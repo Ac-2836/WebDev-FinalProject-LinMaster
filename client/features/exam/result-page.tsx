@@ -23,7 +23,7 @@ import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, ApiError, isNotFound} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
@@ -35,7 +35,7 @@ import {givenText, kindAccuracy, minutesBetween, overallBand} from './result-log
 
 const card = 'rounded-[20px] border bg-card shadow-soft';
 const tabClass =
-  'flex-1 rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
+  'flex min-h-11 flex-1 items-center justify-center rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
 const drawerClass = 'fixed inset-y-0 right-0 z-50 flex w-[min(28rem,100vw)] flex-col bg-card shadow-2xl outline-none';
 
 interface Loaded {
@@ -75,7 +75,7 @@ export function ResultPage({attemptId}: {attemptId: string}) {
         setError(
           err instanceof ApiError && err.status === 'ATTEMPT_NOT_SUBMITTED'
             ? 'notSubmitted'
-            : err instanceof ApiError && [403, 404].includes(err.httpStatus)
+            : isNotFound(err)
               ? 'notFound'
               : 'failed',
         ),

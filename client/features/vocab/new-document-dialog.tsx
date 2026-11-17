@@ -9,6 +9,7 @@ import {useId, useRef, useState} from 'react';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {Input, inputClass} from '@/components/ui/input';
 import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
@@ -26,6 +27,7 @@ export interface NewDocumentDialogProps {
 /** "Tài liệu mới": paste text or upload a PDF/DOCX/TXT file (≤ 5 MB), then open it in the reader. */
 export function NewDocumentDialog({open, onOpenChange}: NewDocumentDialogProps) {
   const t = useTranslations('vocab.new');
+  const returnFocus = useReturnFocus();
   const format = useFormatter();
   const router = useRouter();
   const errorMessage = useErrorMessage();
@@ -83,13 +85,14 @@ export function NewDocumentDialog({open, onOpenChange}: NewDocumentDialogProps) 
   }
 
   const tabClass =
-    'flex-1 rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
+    'flex min-h-11 flex-1 items-center justify-center rounded-md px-4 py-1.5 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm';
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
         <Dialog.Content
+          {...returnFocus}
           aria-describedby={undefined}
           className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] flex-col rounded-t-2xl bg-card shadow-2xl outline-none sm:inset-auto sm:top-1/2 sm:left-1/2 sm:w-[min(42rem,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
         >

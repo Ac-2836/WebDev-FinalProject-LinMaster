@@ -104,7 +104,9 @@ export function DataTable({caption, head, rows}: {caption: string; head: string[
   const t = useTranslations('stats.dashboard');
   return (
     <details className="text-xs">
-      <summary className="cursor-pointer font-semibold text-primary">{t('showTable')}</summary>
+      <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-primary">
+        {t('showTable')}
+      </summary>
       <div className="mt-2 max-h-64 overflow-auto">
         <table className="w-full text-left">
           <caption className="sr-only">{caption}</caption>

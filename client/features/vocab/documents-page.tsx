@@ -25,6 +25,7 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Input, inputClass} from '@/components/ui/input';
 import {Skeleton} from '@/components/ui/skeleton';
@@ -42,6 +43,7 @@ const card = 'flex flex-col gap-3 rounded-[20px] border bg-card p-5 shadow-soft'
 /** `/read` (C2, wireframe 03-vocab/documents): the user's reading documents. */
 export function DocumentsPage() {
   const t = useTranslations('vocab.documents');
+  const deleteFocus = useReturnFocus();
   const format = useFormatter();
   const errorMessage = useErrorMessage();
   const [documents, setDocuments] = useState<DocumentItem[] | null>(null);
@@ -214,7 +216,10 @@ export function DocumentsPage() {
       <AlertDialog.Root open={deleting !== null} onOpenChange={open => !open && setDeleting(null)}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-          <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl">
+          <AlertDialog.Content
+            {...deleteFocus}
+            className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl"
+          >
             <AlertDialog.Title className="text-lg font-semibold">{t('confirmTitle')}</AlertDialog.Title>
             <AlertDialog.Description className="text-sm text-muted-foreground">
               {t('confirmBody', {title: deleting?.title ?? ''})}

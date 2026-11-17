@@ -9,6 +9,7 @@ import {useId, useState} from 'react';
 import {toast} from 'sonner';
 
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {Input} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
@@ -25,6 +26,7 @@ export interface CreateSetDialogProps {
 /** "Tạo bộ thẻ" from the selected words: `POST /flashcards/sets/from-vocab` (C2, C3). */
 export function CreateSetDialog({vocabIds, onOpenChange, onCreated}: CreateSetDialogProps) {
   const t = useTranslations('vocab.createSet');
+  const returnFocus = useReturnFocus();
   const router = useRouter();
   const errorMessage = useErrorMessage();
   const ids = useId();
@@ -58,7 +60,10 @@ export function CreateSetDialog({vocabIds, onOpenChange, onCreated}: CreateSetDi
     <Dialog.Root open={vocabIds !== null} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-        <Dialog.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-4 rounded-t-2xl bg-card p-6 shadow-2xl outline-none sm:inset-auto sm:top-1/2 sm:left-1/2 sm:w-[min(28rem,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
+        <Dialog.Content
+          {...returnFocus}
+          className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-4 rounded-t-2xl bg-card p-6 shadow-2xl outline-none sm:inset-auto sm:top-1/2 sm:left-1/2 sm:w-[min(28rem,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+        >
           <form onSubmit={submit} className="flex flex-col gap-4">
             <Dialog.Title className="text-lg font-semibold">{t('title')}</Dialog.Title>
             <Dialog.Description className="text-sm text-muted-foreground">

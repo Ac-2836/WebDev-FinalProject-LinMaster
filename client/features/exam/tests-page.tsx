@@ -26,6 +26,7 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
 import {api} from '@/core/api/client';
@@ -43,6 +44,7 @@ const dialogClass =
 /** `/tests` (wireframe 05-exam/tests): the learner's uploaded tests, with Start / Continue, rename and delete. */
 export function TestsPage() {
   const t = useTranslations('exam.tests');
+  const deleteFocus = useReturnFocus();
   const errorMessage = useErrorMessage();
   const [tests, setTests] = useState<TestSummary[] | null>(null);
   const [attempts, setAttempts] = useState<AttemptSummary[]>([]);
@@ -228,7 +230,7 @@ export function TestsPage() {
       <AlertDialog.Root open={!!deleting} onOpenChange={open => !open && setDeleting(null)}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-          <AlertDialog.Content className={dialogClass}>
+          <AlertDialog.Content {...deleteFocus} className={dialogClass}>
             <AlertDialog.Title className="text-lg font-bold">{t('confirmTitle')}</AlertDialog.Title>
             <AlertDialog.Description className="text-muted-foreground">
               {t('confirmBody', {title: deleting?.title ?? ''})}
@@ -266,6 +268,7 @@ function RenameDialog({
   onSave: (test: TestSummary, title: string) => Promise<void>;
 }) {
   const t = useTranslations('exam.tests');
+  const renameFocus = useReturnFocus();
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
   useEffect(() => {
@@ -276,7 +279,7 @@ function RenameDialog({
     <Dialog.Root open={!!test} onOpenChange={open => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-        <Dialog.Content className={dialogClass} aria-describedby={undefined}>
+        <Dialog.Content {...renameFocus} className={dialogClass} aria-describedby={undefined}>
           <Dialog.Title className="text-lg font-bold">{t('renameTitle')}</Dialog.Title>
           <form
             className="flex flex-col gap-4"

@@ -16,9 +16,10 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
+import {useReturnFocus} from '@/components/ui/return-focus';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {studyModes} from './study-modes';
@@ -36,6 +37,7 @@ export interface SetPageProps {
 /** `/flashcards/[id]` (C3, wireframe 04-flashcard/set): set preview, study modes and the card list. */
 export function SetPage({id, publish}: SetPageProps) {
   const t = useTranslations('flashcard.set');
+  const deleteFocus = useReturnFocus();
   const router = useRouter();
   const errorMessage = useErrorMessage();
   const [set, setSet] = useState<FlashcardSet | null>(null);
@@ -48,7 +50,7 @@ export function SetPage({id, publish}: SetPageProps) {
     setSet(null);
     api(`/flashcards/sets/${id}`)
       .then(res => setSet(GetFlashcardSetResponseSchema.parse(res).set))
-      .catch(err => setError(err instanceof ApiError && err.httpStatus === 404 ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
     // Counts are a hint on the Learn button; the page works without them.
     api(`/flashcards/sets/${id}/study`)
       .then(res => {
@@ -258,7 +260,10 @@ export function SetPage({id, publish}: SetPageProps) {
       <AlertDialog.Root open={confirming} onOpenChange={setConfirming}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-foreground/40" />
-          <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl">
+          <AlertDialog.Content
+            {...deleteFocus}
+            className="fixed top-1/2 left-1/2 z-50 flex w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl bg-card p-6 shadow-2xl"
+          >
             <AlertDialog.Title className="text-lg font-semibold">{t('confirmTitle')}</AlertDialog.Title>
             <AlertDialog.Description className="text-sm text-muted-foreground">
               {t('confirmBody', {title: set.title, count: cards.length})}

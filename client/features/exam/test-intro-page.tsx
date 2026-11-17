@@ -17,7 +17,7 @@ import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
-import {api, ApiError} from '@/core/api/client';
+import {api, isNotFound} from '@/core/api/client';
 
 import {SKILL_NAME, attemptsOf, formatScores, perSection, questionCount} from './intro-logic';
 
@@ -54,7 +54,7 @@ export function TestIntroPage({id, publish}: {id: string; publish?: React.ReactN
           loadedAt: Date.now(),
         }),
       )
-      .catch(err => setError(err instanceof ApiError && [403, 404].includes(err.httpStatus) ? 'notFound' : 'failed'));
+      .catch(err => setError(isNotFound(err) ? 'notFound' : 'failed'));
   }, [id]);
   useEffect(load, [load]);
 

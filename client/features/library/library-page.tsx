@@ -74,7 +74,10 @@ export function LibraryPage() {
           </Tabs.Trigger>
         </Tabs.List>
 
-        <Tabs.Content value={filters.type} className="mt-5 flex flex-col gap-5 outline-none">
+        <Tabs.Content
+          value={filters.type}
+          className="mt-5 flex flex-col gap-5 rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        >
           <div className="flex flex-col gap-3 md:flex-row">
             <form
               role="search"

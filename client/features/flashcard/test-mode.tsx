@@ -51,6 +51,7 @@ function Quiz({set}: {set: FlashcardSet}) {
   const [typed, setTyped] = useState('');
   const next = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const resultHeading = useRef<HTMLHeadingElement>(null);
   const session = useStudySession(set.id, 'test', true);
   const finished = load.status === 'ready' && index >= questions.length;
   const question = questions[index];
@@ -100,7 +101,11 @@ function Quiz({set}: {set: FlashcardSet}) {
   }, [answer, question]);
 
   useEffect(() => {
-    if (finished) void session.end({cardsStudied: questions.length, correctCount});
+    if (finished) {
+      // The "see results" button is gone: tell keyboard and screen reader users where they are.
+      resultHeading.current?.focus();
+      void session.end({cardsStudied: questions.length, correctCount});
+    }
     // The result screen is reached once per quiz.
   }, [finished]);
 
@@ -180,7 +185,11 @@ function Quiz({set}: {set: FlashcardSet}) {
             </span>
           </div>
         </div>
-        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em]">
+        <h1
+          ref={resultHeading}
+          tabIndex={-1}
+          className="text-[28px] leading-tight font-semibold tracking-[-0.03em] outline-none"
+        >
           {score >= 90 ? t('testGreat') : score >= 70 ? t('testGood') : t('testKeepGoing')}
         </h1>
         {wrong.length > 0 && (
