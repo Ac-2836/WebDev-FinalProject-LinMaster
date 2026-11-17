@@ -6,6 +6,7 @@ import {
   GetTestResponseSchema,
   type AttemptResult,
   type CandidateTest,
+  type QuestionExplanation,
   type ResultQuestion,
   type ResultTranscript,
   type Skill,
@@ -26,6 +27,8 @@ import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 import {useSession} from '@/core/auth/session-provider';
 
+import {explainKey} from './explain-logic';
+import {ExplainPanel} from './explain-panel';
 import {SKILL_NAME} from './intro-logic';
 import {useReturnFocus} from './room-dialogs';
 import {givenText, kindAccuracy, minutesBetween, overallBand} from './result-logic';
@@ -54,6 +57,8 @@ export function ResultPage({attemptId}: {attemptId: string}) {
   const [wrongOnly, setWrongOnly] = useState(false);
   const [explaining, setExplaining] = useState<ResultQuestion | null>(null);
   const [transcript, setTranscript] = useState<ResultTranscript | null>(null);
+  // AI explanations already fetched, so reopening a question (or clicking again) does not call the model again.
+  const [explained, setExplained] = useState<Record<string, QuestionExplanation>>({});
 
   const load = useCallback(() => {
     setError(null);
@@ -293,16 +298,14 @@ export function ResultPage({attemptId}: {attemptId: string}) {
         title={explaining ? t('explainTitle', {n: explaining.number}) : ''}
       >
         {explaining && (
-          <div className="flex flex-col gap-3">
-            <p>
-              {t('yourAnswer', {
-                given: givenText(explaining.given) ?? t('blank'),
-                correct: explaining.correct.join(' / '),
-              })}
-            </p>
-            <p className="whitespace-pre-line">{explaining.explanation}</p>
-            <p className="text-xs text-muted-foreground">{t('fromFile')}</p>
-          </div>
+          <ExplainPanel
+            attemptId={attemptId}
+            question={explaining}
+            test={test}
+            transcripts={result.transcripts}
+            cached={explained[explainKey(explaining.skill, explaining.number)]}
+            onExplained={e => setExplained(prev => ({...prev, [explainKey(e.skill, e.number)]: e}))}
+          />
         )}
       </Drawer>
 
@@ -365,11 +368,9 @@ function QuestionTable({questions, onExplain}: {questions: ResultQuestion[]; onE
               </td>
               <td className="text-muted-foreground sm:py-2 sm:pr-3">{t(`kinds.${q.kind}`)}</td>
               <td className="row-span-3 self-center sm:py-2">
-                {q.explanation && (
-                  <Button variant="ghost" className="h-11 rounded-full px-3" onClick={() => onExplain(q)}>
-                    {t('explain')}
-                  </Button>
-                )}
+                <Button variant="ghost" className="h-11 rounded-full px-3" onClick={() => onExplain(q)}>
+                  {t('explain')}
+                </Button>
               </td>
               <td className="col-start-2 sm:py-2 sm:pr-3">
                 <span className="sm:sr-only">{t('colGiven')}: </span>

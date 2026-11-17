@@ -1027,7 +1027,17 @@
         "completion": "Completion",
         "short_answer": "Short answer",
         "diagram_label": "Diagram labelling"
-      }
+      },
+      "explainAsk": "Explain with AI",
+      "explainLoading": "The AI is reading the passage…",
+      "explainRetry": "Try again",
+      "explainNone": "The test file has no explanation for this question. You can ask the AI to explain it from the passage or transcript.",
+      "explainEvidence": "Evidence in the passage",
+      "evidenceFrom": "{title} · paragraph {label}",
+      "explainByAi": "Written by AI, may not be accurate.",
+      "explainNoText": "This part has no passage or transcript for the AI to explain from.",
+      "explainQuota": "You have used today’s AI quota or are sending too many requests. Try again later.",
+      "explainAiFailed": "The AI could not answer. Try again in a few seconds."
     }
   },
   "stats": {
