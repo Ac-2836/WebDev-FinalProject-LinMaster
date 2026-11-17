@@ -4,6 +4,7 @@ import {
   contextParagraph,
   layoutDocument,
   MAX_CONTEXT_PARAGRAPH,
+  mergeRuns,
   segmentParagraph,
   sentenceAround,
   sentenceSpan,
@@ -80,5 +81,19 @@ describe('segmentParagraph', () => {
 
   it('ignores highlights in other paragraphs', () => {
     expect(segmentParagraph(doc.paragraphs[1], [{start: 0, end: 5}])).toHaveLength(1);
+  });
+});
+
+describe('mergeRuns', () => {
+  it('keeps the selection in one piece when a saved word overlaps it', () => {
+    const p = doc.paragraphs[0];
+    const a = p.text.indexOf('under');
+    const b = p.text.indexOf('mitigate');
+    const saved = {start: b, end: b + 8};
+    const active = {start: a, end: b + 14};
+    const merged = mergeRuns(segmentParagraph(p, [saved, active]), 1);
+    expect(merged.filter(s => s.mark === 1)).toHaveLength(1);
+    expect(merged.find(s => s.mark === 1)?.text).toBe(p.text.slice(a, b + 14));
+    expect(merged.map(s => s.text).join('')).toBe(p.text);
   });
 });
