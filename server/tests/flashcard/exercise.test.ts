@@ -37,11 +37,11 @@ describe('buildExercise', () => {
       completion('The meeting will {{blank}} on Monday.', 'take  place'),
       matching(
         [
-          ['New rules {{blank}} the risk.', 'mitigate'],
           ['The tool is {{blank}}.', 'obsolete'],
           ['He was {{blank}} to go.', 'reluctant'],
+          ['The rule is {{blank}}.', 'ambiguous'],
         ],
-        ['reluctant', 'mitigate', 'obsolete', 'ambiguous'],
+        ['reluctant', 'obsolete', 'ambiguous'],
       ),
     ]);
 
@@ -142,7 +142,67 @@ describe('buildExercise', () => {
   });
 
   it('asks for at least half of the questions', () => {
-    expect([enough(4, 10), enough(5, 10), enough(9, 20), enough(10, 20)]).toEqual([false, true, false, true]);
+    expect([enough(4, 10, 100), enough(5, 10, 100), enough(9, 20, 100), enough(10, 20, 100)]).toEqual([
+      false,
+      true,
+      false,
+      true,
+    ]);
+    // A card is asked once: 4 cards can give 4 questions, so 2 are enough.
+    expect([enough(1, 10, 4), enough(2, 10, 4)]).toEqual([false, true]);
+  });
+});
+
+describe('buildExercise: whole words and one question per card', () => {
+  const use = [
+    {id: id(20), term: 'use', definition: 'dùng'},
+    {id: id(21), term: 'rely on', definition: 'dựa vào'},
+    {id: id(22), term: 'mitigate', definition: 'giảm nhẹ'},
+    {id: id(23), term: 'obsolete', definition: 'lỗi thời'},
+  ];
+  const run = (questions: GeneratedExercise['questions']) =>
+    buildExercise({questions}, use, {kinds: ['completion', 'single_choice', 'matching'], count: 10});
+
+  it('looks for the answer as a whole word, so a short term is not found inside another word', () => {
+    expect(run([completion('Because of the rain we stayed in, so we {{blank}} an umbrella.', 'use')])).toHaveLength(1);
+    expect(run([completion('We {{blank}} it, and then we use it again.', 'use')])).toEqual([]);
+    expect(run([completion('We {{blank}} it, and then USE it.', 'use')])).toEqual([]);
+    expect(run([completion('Used {{blank}}.', 'use')])).toHaveLength(1);
+  });
+
+  it('finds a phrase answer with any whitespace between its words', () => {
+    expect(run([completion('You can {{blank}} us. Rely   on me.', 'rely on')])).toEqual([]);
+    expect(run([completion('You can {{blank}} us, I rely upon you.', 'rely on')])).toHaveLength(1);
+  });
+
+  it('asks each card once: a later question about the same card is dropped', () => {
+    const questions = run([
+      completion('Rules {{blank}} the risk.', 'mitigate'),
+      completion('Trees {{blank}} the damage.', 'mitigate'),
+      single('Plans {{blank}} the harm.', 'mitigate', ['mitigate', 'obsolete', 'use', 'rely on']),
+      completion('The tool is {{blank}}.', 'obsolete'),
+    ]);
+
+    expect(questions.map(question => question.kind === 'completion' && question.answer)).toEqual([
+      'mitigate',
+      'obsolete',
+    ]);
+  });
+
+  it('drops a matching question that reuses a card already asked', () => {
+    const questions = run([
+      completion('Rules {{blank}} the risk.', 'mitigate'),
+      matching(
+        [
+          ['New rules {{blank}} the risk.', 'mitigate'],
+          ['The tool is {{blank}}.', 'obsolete'],
+          ['You can {{blank}} it.', 'use'],
+        ],
+        ['mitigate', 'obsolete', 'use'],
+      ),
+    ]);
+
+    expect(questions).toHaveLength(1);
   });
 });
 
@@ -155,8 +215,9 @@ describe('generate-exercise.v1', () => {
   });
 
   it('is complete only when at least half of the questions pass the checks', () => {
-    expect(generateExerciseTask.isComplete?.(valid(5), input)).toBe(true);
-    expect(generateExerciseTask.isComplete?.(valid(4), input)).toBe(false);
+    // 5 cards: at most 5 questions, so 3 are enough.
+    expect(generateExerciseTask.isComplete?.(valid(3), input)).toBe(true);
+    expect(generateExerciseTask.isComplete?.(valid(2), input)).toBe(false);
     expect(generateExerciseTask.isComplete?.({questions: []}, input)).toBe(false);
   });
 

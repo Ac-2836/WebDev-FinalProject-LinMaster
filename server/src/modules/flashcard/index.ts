@@ -22,7 +22,7 @@ export function createFlashcardModule(
   now?: () => Date,
   exercises: ExerciseGenerator = generateExercise,
 ): ApiModule {
-  const service = createFlashcardService(repository, vocabEntries, exercises);
+  const service = createFlashcardService(repository, vocabEntries, exercises, now && (() => now().getTime()));
   const study = createStudyService(studyRepository, now);
   return {name: 'flashcard', basePath: '/api/v1', router: createFlashcardRouter(service, study, jwtSecret)};
 }

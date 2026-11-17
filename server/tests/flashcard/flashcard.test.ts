@@ -17,7 +17,9 @@ import {
   FlashcardCardNotFoundError,
   FlashcardVocabEntryNotFoundError,
 } from '../../src/modules/flashcard/flashcard.repository';
+import {EXERCISE_FAILURE_COOLDOWN_MS} from '../../src/modules/flashcard/flashcard.service';
 import type {ExerciseGenerator, VocabEntryProvider} from '../../src/modules/flashcard/flashcard.service';
+import {AppError} from '../../src/core/app-error';
 import {createFlashcardModule} from '../../src/modules/flashcard';
 
 const JWT_SECRET = 'flashcard-test-secret-that-is-at-least-32-characters';
@@ -176,6 +178,8 @@ function makeRepository(): FlashcardRepository & {sets: Map<string, {ownerId: st
   };
 }
 
+let clockMs = 0;
+
 function createTestServer(
   repository: FlashcardRepository,
   vocabEntries: VocabEntryProvider,
@@ -183,7 +187,8 @@ function createTestServer(
 ) {
   const app = express();
   app.use(express.json());
-  app.use(createFlashcardModule(JWT_SECRET, repository, vocabEntries, undefined, undefined, exercises).router);
+  const now = () => new Date(clockMs);
+  app.use(createFlashcardModule(JWT_SECRET, repository, vocabEntries, undefined, now, exercises).router);
   app.use(errorMiddleware);
   return app;
 }
@@ -206,6 +211,7 @@ describe('flashcard API', () => {
       },
     };
     generatorCalls = [];
+    clockMs = 0;
     const completion = (prompt: string, answer: string) => ({
       kind: 'completion' as const,
       prompt,
@@ -375,13 +381,13 @@ describe('flashcard API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.setId).toBe(OWN_FOUR_SET_ID);
-    // "APPLE" is written as in the set; a word outside the set and a sentence with no gap are dropped.
+    // "APPLE" is written as in the set; a word outside the set, a sentence with no gap and a second question about
+    // the same card are dropped.
     expect(response.body.questions.map((q: {answer: string}) => q.answer)).toEqual([
       'apple',
       'bread',
       'cloud',
       'dream',
-      'apple',
     ]);
     expect(generatorCalls).toHaveLength(1);
     expect(generatorCalls[0]![0]).toMatchObject({kinds: ['completion'], count: 10});
@@ -395,7 +401,7 @@ describe('flashcard API', () => {
   });
 
   it('answers 502 when under half of the practice questions are valid', async () => {
-    generated = {questions: generated.questions.slice(0, 4)};
+    generated = {questions: generated.questions.slice(0, 3)};
 
     const response = await request(app)
       .post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`)
@@ -404,6 +410,51 @@ describe('flashcard API', () => {
 
     expect(response.status).toBe(502);
     expect(response.body.error.status).toBe('AI_INVALID_OUTPUT');
+  });
+
+  it('does not call the AI again for a minute after a request that failed', async () => {
+    generated = {questions: generated.questions.slice(0, 3)};
+    const ask = (kinds = ['completion']) =>
+      request(app)
+        .post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`)
+        .set('Authorization', authHeader())
+        .send({kinds, count: 10});
+
+    const first = await ask();
+    const again = await ask();
+    const otherRequest = await ask(['completion', 'matching']);
+    clockMs += EXERCISE_FAILURE_COOLDOWN_MS + 1;
+    const later = await ask();
+
+    expect([first.status, again.status, otherRequest.status, later.status]).toEqual([502, 502, 502, 502]);
+    expect(again.body.error.status).toBe('AI_INVALID_OUTPUT');
+    // The same request is refused without the model; a different one and one after the minute call it.
+    expect(generatorCalls).toHaveLength(3);
+  });
+
+  it('remembers a failure that the AI gateway reports, but not an unreachable model', async () => {
+    let error: Error = new AppError('bad output', 502, undefined, 'AI_INVALID_OUTPUT');
+    let calls = 0;
+    app = createTestServer(repository, {getEntriesForUser: async () => []}, async () => {
+      calls += 1;
+      throw error;
+    });
+    const ask = () =>
+      request(app)
+        .post(`/flashcards/sets/${OWN_FOUR_SET_ID}/exercises`)
+        .set('Authorization', authHeader())
+        .send({kinds: ['completion'], count: 10});
+
+    await ask();
+    const remembered = await ask();
+    error = new AppError('down', 503, undefined, 'AI_UNAVAILABLE');
+    clockMs += EXERCISE_FAILURE_COOLDOWN_MS + 1;
+    const unavailable = await ask();
+    const unavailableAgain = await ask();
+
+    expect(remembered.body.error.status).toBe('AI_INVALID_OUTPUT');
+    expect([unavailable.status, unavailableAgain.status]).toEqual([503, 503]);
+    expect(calls).toBe(3);
   });
 
   it('keeps AI practice to the owner, to sets of four cards and to valid requests, without calling the AI', async () => {

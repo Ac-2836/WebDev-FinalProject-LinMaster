@@ -47,5 +47,6 @@ export const generateExerciseTask: AiTask<GenerateExerciseInput, GeneratedExerci
   buildPrompt: input => ({system: SYSTEM_PROMPT, text: describe(input)}),
   output: GeneratedExerciseSchema,
   cacheTtlSeconds: 3600,
-  isComplete: (output, {cards, kinds, count}) => enough(buildExercise(output, cards, {kinds, count}).length, count),
+  isComplete: (output, {cards, kinds, count}) =>
+    enough(buildExercise(output, cards, {kinds, count}).length, count, cards.length),
 });
