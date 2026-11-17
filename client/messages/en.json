@@ -673,7 +673,9 @@
       "matchHint": "Match 6 pairs, as fast as you can",
       "test": "Test",
       "testHint": "Multiple choice, typed, true/false",
-      "needCards": "{min, plural, one {Needs at least # card} other {Needs at least # cards}}"
+      "needCards": "{min, plural, one {Needs at least # card} other {Needs at least # cards}}",
+      "exercise": "AI practice",
+      "exerciseHint": "AI writes questions from the set"
     },
     "study": {
       "exit": "Leave study mode",
@@ -765,7 +767,46 @@
       "testKeepGoing": "Keep going, a little more review will do it!",
       "testWrongCount": "{count, plural, one {# wrong answer} other {# wrong answers}}",
       "testRedoWrong": "Redo the wrong ones",
-      "testNew": "New test"
+      "testNew": "New test",
+      "exercise": "AI practice",
+      "exerciseCount": "AI practice · {count, plural, one {# question} other {# questions}}",
+      "exerciseGenerating": "{count, plural, one {The AI is writing # question…} other {The AI is writing # questions…}}",
+      "exerciseGeneratingHint": "This usually takes 5–15 seconds.",
+      "exerciseQuotaTitle": "No AI left for today",
+      "exerciseQuotaBody": "You get more at 0:00. Meanwhile, try Test mode (it does not use the AI).",
+      "toTest": "Go to Test",
+      "exerciseBack": "Go back",
+      "exerciseTitle": "Make practice from this set",
+      "exerciseIntro": "The AI writes exam-style questions using the terms of this set. The set needs at least {min, plural, one {# card} other {# cards}}, and practice does not change your study progress.",
+      "exerciseKinds": "Question types",
+      "exerciseKind": {
+        "single_choice": "Multiple choice",
+        "completion": "Fill in the gap",
+        "matching": "Matching"
+      },
+      "exerciseKindsNone": "Pick at least one question type.",
+      "exerciseCountLabel": "Questions",
+      "exerciseWait": "Try again in {seconds}s",
+      "exerciseRetry": "Try again",
+      "exerciseCreate": "Create practice",
+      "exerciseByAi": "Written by AI, may not be accurate.",
+      "exerciseInvalid": "The AI could not write a valid set. Wait a minute and try again.",
+      "exerciseUnavailable": "The AI is busy. Try again in a few seconds.",
+      "exerciseGroup": "Questions {from}–{to} · {instruction}",
+      "exerciseInstruction": {
+        "single_choice": "Choose the right answer A, B, C or D",
+        "completion": "Fill each gap with the missing term",
+        "matching": "Match each sentence with its term"
+      },
+      "exerciseCheck": "Check answers",
+      "exerciseScore": "{correct} of {total} correct",
+      "exerciseAnother": "Make another",
+      "exerciseRight": "Correct.",
+      "exerciseAnswerIs": "Question {number}: the answer is \"{answer}\".",
+      "exerciseGap": "Gap {number}",
+      "exerciseTerms": "Terms:",
+      "exerciseChoose": "Choose a term…",
+      "exerciseGroupOne": "Question {from} · {instruction}"
     }
   },
   "exam": {
