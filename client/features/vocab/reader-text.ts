@@ -106,3 +106,14 @@ export function segmentParagraph(paragraph: Paragraph, ranges: {start: number; e
   }
   return segments;
 }
+
+/** Joins neighbouring segments of one mark, so the active selection is one frame even when saved words overlap it. */
+export function mergeRuns(segments: Segment[], mark: number): Segment[] {
+  const out: Segment[] = [];
+  for (const s of segments) {
+    const last = out.at(-1);
+    if (s.mark === mark && last?.mark === mark) last.text += s.text;
+    else out.push({...s});
+  }
+  return out;
+}

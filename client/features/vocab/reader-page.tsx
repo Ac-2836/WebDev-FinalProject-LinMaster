@@ -24,7 +24,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 import {lookupWord} from './lookup';
 import {LookupCard, type LookupState} from './lookup-card';
 import {QuickFilterPanel, type SavedWord, useQuickFilter} from './quick-filter-panel';
-import {contextParagraph, layoutDocument, segmentParagraph, sentenceSpan, tokenAt} from './reader-text';
+import {contextParagraph, layoutDocument, mergeRuns, segmentParagraph, sentenceSpan, tokenAt} from './reader-text';
 
 export interface ReaderPageProps {
   id: string;
@@ -411,7 +411,7 @@ function Reader({document}: {document: VocabDocumentDetail}) {
               collisionPadding={16}
               onCloseAutoFocus={returnFocus}
               aria-label={t('lookupLabel', {text: lookup?.text ?? ''})}
-              className="z-40 w-[380px] rounded-xl border bg-card p-4 shadow-2xl outline-none"
+              className="z-40 max-h-(--radix-popover-content-available-height) w-[380px] overflow-y-auto rounded-xl border bg-card p-4 shadow-2xl outline-none"
             >
               {card}
             </Popover.Content>
@@ -444,7 +444,7 @@ function Reader({document}: {document: VocabDocumentDetail}) {
         >
           {paragraphs.map((p, k) => (
             <p key={k}>
-              {segmentParagraph(p, highlights).map(s => {
+              {mergeRuns(segmentParagraph(p, highlights), highlights.length - 1).map(s => {
                 const active = range !== null && s.mark === highlights.length - 1;
                 if (active) {
                   return (
