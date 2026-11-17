@@ -1,9 +1,22 @@
 import express from 'express';
 import request from 'supertest';
 import {compare} from 'bcryptjs';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {errorMiddleware} from '../../src/core/error.middleware';
+
+// The rate-limit tests register or log in up to 11 times, and each cost-12 hash takes about 0.3 s in pure JS
+// (more on a busy CI runner), so they ran past the 5 s test timeout. These tests are about the routes, not the
+// cost: hash with a low cost here; the real cost (12) is checked in auth.service.test.ts.
+vi.mock('bcryptjs', async importOriginal => {
+  const bcrypt = await importOriginal<typeof import('bcryptjs')>();
+  const TEST_HASH_ROUNDS = 4;
+  return {
+    ...bcrypt,
+    hash: (text: string) => bcrypt.hash(text, TEST_HASH_ROUNDS),
+    hashSync: (text: string) => bcrypt.hashSync(text, TEST_HASH_ROUNDS),
+  };
+});
 import type {AuthRepository, AuthUser} from '../../src/modules/auth/auth.repository';
 import {AuthEmailAlreadyExistsError} from '../../src/modules/auth/auth.errors';
 import {createAuthModule} from '../../src/modules/auth';
