@@ -186,6 +186,30 @@ describe('AI gateway', () => {
     await db.aiCache.deleteMany({where: {task: pdfTask.name}});
   });
 
+  it('sends audio to the model, caches by its content and allows the long timeout', async () => {
+    const audioTask = aiTaskRegistry.register({
+      name: `${taskName}-audio`,
+      buildPrompt: (data: Buffer) => ({
+        system: 'Transcribe.',
+        text: 'Transcribe the recording.',
+        audio: {data, mimeType: 'audio/mpeg'},
+      }),
+      output: z.object({words: z.number()}),
+    });
+    const model = createMockAiModel([{words: 1}, {words: 2}]);
+    const {runJsonTask} = createAiGateway({db, model});
+
+    await runJsonTask(audioTask, Buffer.from('ID3 a'), {userId});
+    await runJsonTask(audioTask, Buffer.from('ID3 a'), {userId});
+    await runJsonTask(audioTask, Buffer.from('ID3 b'), {userId});
+
+    expect(model.requests).toHaveLength(2);
+    expect(model.requests[0].audio).toMatchObject({mimeType: 'audio/mpeg'});
+    expect(model.requests[0].audio?.data.toString()).toBe('ID3 a');
+    expect(model.requests[0].timeoutMs).toBe(AI_PDF_TIMEOUT_MS);
+    await db.aiCache.deleteMany({where: {task: audioTask.name}});
+  });
+
   it('refuses a task that is not registered', async () => {
     const {runJsonTask} = createAiGateway({db, model: createMockAiModel([])});
     await expect(runJsonTask({...echoTask, name: 'unknown.v1'}, {word: 'x'}, {userId})).rejects.toThrow(

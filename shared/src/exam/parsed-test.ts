@@ -146,3 +146,16 @@ export const ParseTranscriptOutputSchema = z.object({
 
 export type ParseTestV2Output = z.infer<typeof ParseTestV2OutputSchema>;
 export type ParseTranscriptOutput = z.infer<typeof ParseTranscriptOutputSchema>;
+
+/** Output of `parse-audio.v1` (P3-18): the transcript lines and the start second of each Listening part (1–4). */
+export const ParseAudioOutputSchema = z.object({
+  parts: z.array(
+    z.object({
+      part: z.number().int().min(1),
+      startSec: z.number().int().min(0),
+      lines: z.array(z.object({label: z.string().max(40).nullable(), text: z.string().min(1)})),
+    }),
+  ),
+});
+
+export type ParseAudioOutput = z.infer<typeof ParseAudioOutputSchema>;

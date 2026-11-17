@@ -2,7 +2,7 @@ import {CERTIFICATIONS, type PageLabel, type PageLabels} from '@linmaster/shared
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
-import {buildParsedTest, type parseAnswers, type parseTest} from './ai';
+import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest} from './ai';
 import type {ImportProcessor} from './import-jobs';
 import {validateParsedTest} from './import-validator';
 import type {ImportRepository} from './imports.repository';
@@ -15,6 +15,8 @@ export interface ImportProcessorDeps {
   labelPages: PageLabeler;
   parseTest: typeof parseTest;
   parseAnswers: typeof parseAnswers;
+  /** Writes the Listening transcript from the audio when the files have none (P3-18); skipped when left out. */
+  parseAudio?: typeof parseAudio;
 }
 
 /** Pages read by parse-test.v1 and by parse-answers.v1 (PLAN C4 step 3: each task gets only its pages). */
@@ -36,6 +38,7 @@ export function createImportProcessor({
   labelPages,
   parseTest,
   parseAnswers,
+  parseAudio,
 }: ImportProcessorDeps): ImportProcessor {
   return async (job, progress) => {
     const userId = job.ownerId;
@@ -59,15 +62,59 @@ export function createImportProcessor({
       parseAnswers(pdf, {pages: answerPages, userId}),
     ]);
 
+    // A Listening part without transcript is written from the recording; a failure only leaves the warning.
+    const listening = outline.sections.find(section => section.skill === 'listening');
+    const starts: (number | null)[] = [];
+    let transcriptByAi = false;
+    if (parseAudio && audio && listening?.passages.some(passage => !passage.paragraphs?.length)) {
+      try {
+        const recording = await storage.get(audio.storageKey);
+        const {parts} = recording
+          ? await parseAudio(recording, {
+              mimeType: audio.mimeType,
+              parts: listening.passages.length,
+              durationSec: audio.durationSec,
+              userId,
+            })
+          : {parts: []};
+        listening.passages.forEach((passage, index) => {
+          const entry = parts.find(part => part.part === index + 1);
+          if (!entry?.lines.length) return;
+          starts[index] = entry.startSec;
+          if (!passage.paragraphs?.length) {
+            passage.paragraphs = entry.lines;
+            transcriptByAi = true;
+          }
+        });
+      } catch (error) {
+        if (!(error instanceof AppError)) throw error;
+        console.warn('Import: the transcript could not be written from the audio:', error.message);
+      }
+    }
+
     await progress.validating();
     const certification = CERTIFICATIONS.IELTS_ACADEMIC;
+    const parsed = buildParsedTest(outline, answerKey, job.kind);
+    parsed.sections
+      .find(section => section.skill === 'listening')
+      ?.passages.forEach((passage, index) => {
+        passage.audioStartSec = starts[index] ?? passage.audioStartSec;
+      });
     const {issues, test} = validateParsedTest({
-      test: buildParsedTest(outline, answerKey, job.kind),
+      test: parsed,
       kind: job.kind,
       certification,
       audio: audio && {durationSec: audio.durationSec},
     });
     if (issues.some(issue => issue.severity === 'error')) return {status: 'failed', issues};
+    if (transcriptByAi) {
+      issues.push({
+        severity: 'warning',
+        section: 'listening',
+        code: 'TRANSCRIPT_BY_AI',
+        message: 'The Listening transcript was written by the AI from the audio and may contain mistakes.',
+      });
+    }
 
     const testId = await repository.saveTest(userId, {
       certification: certification.id,

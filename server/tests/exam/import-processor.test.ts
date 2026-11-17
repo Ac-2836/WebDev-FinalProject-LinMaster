@@ -1,6 +1,7 @@
 import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
 import type {PageLabels, ParseAnswersOutput, ParseTestOutput, Skill} from '@linmaster/shared';
 import {getDb} from '../../src/core/db';
+import {AppError} from '../../src/core/app-error';
 import type {Storage} from '../../src/core/storage';
 import {createImportProcessor} from '../../src/modules/exam/import-processor';
 import {type ImportJob, prismaImportRepository} from '../../src/modules/exam/imports.repository';
@@ -8,11 +9,13 @@ import {toCandidateTest} from '../../src/modules/exam/tests.service';
 import {prismaTestRepository} from '../../src/modules/exam/tests.repository';
 import {makeImportRepository} from './import-fakes';
 
+type ParseAudio = NonNullable<Parameters<typeof createImportProcessor>[0]['parseAudio']>;
+
 const PDF = Buffer.from('%PDF-1.7 merged');
 const range = (from: number, to: number) => Array.from({length: to - from + 1}, (_, index) => from + index);
 
 /** parse-test.v1 output: 40 completion questions per skill; Listening has a transcript. */
-function outline(skills: Skill[]): ParseTestOutput {
+function outline(skills: Skill[], transcript = true): ParseTestOutput {
   return {
     title: 'Cambridge 18 Test 1',
     sections: skills.map(skill => ({
@@ -20,7 +23,10 @@ function outline(skills: Skill[]): ParseTestOutput {
       passages: [
         {
           title: skill === 'reading' ? 'Urban farming' : 'Part 1',
-          paragraphs: [{label: skill === 'reading' ? 'A' : 'Woman', text: 'Farms grow on roofs.'}],
+          paragraphs:
+            skill === 'listening' && !transcript
+              ? null
+              : [{label: skill === 'reading' ? 'A' : 'Woman', text: 'Farms grow on roofs.'}],
           groups: [
             {
               kind: 'completion',
@@ -63,7 +69,16 @@ describe('import processor', () => {
   };
   const validating = vi.fn(() => Promise.resolve());
 
-  async function setup(skills: Skill[], options: {pages?: PageLabels[]; skip?: number[]; audio?: boolean} = {}) {
+  async function setup(
+    skills: Skill[],
+    options: {
+      pages?: PageLabels[];
+      skip?: number[];
+      audio?: boolean;
+      transcript?: boolean;
+      parseAudio?: ParseAudio;
+    } = {},
+  ) {
     const state = makeImportRepository();
     const pdf = await state.repository.createFile('owner', {
       storageKey: 'merged.pdf',
@@ -81,7 +96,8 @@ describe('import processor', () => {
           durationSec: 1680,
         })
       : null;
-    const parseTest = vi.fn(async () => outline(skills));
+    const parseTest = vi.fn(async () => outline(skills, options.transcript));
+    const parseAudio = options.parseAudio && vi.fn(options.parseAudio);
     const parseAnswers = vi.fn(async () => answerKey(skills, options.skip));
     const process = createImportProcessor({
       repository: state.repository,
@@ -89,6 +105,7 @@ describe('import processor', () => {
       labelPages: async () => options.pages ?? PAGES,
       parseTest,
       parseAnswers,
+      parseAudio,
     });
     const job: ImportJob = {
       id: 'import',
@@ -98,7 +115,7 @@ describe('import processor', () => {
       answerFileId: pdf.id,
       audioFileId: audio?.id ?? null,
     };
-    return {state, parseTest, parseAnswers, run: () => process(job, {validating})};
+    return {state, parseTest, parseAnswers, parseAudio, run: () => process(job, {validating})};
   }
 
   it('reads each task from its own pages, validates and saves a private test with warnings', async () => {
@@ -150,6 +167,85 @@ describe('import processor', () => {
     const saved = state.savedTests.get((withAudio as {testId: string}).testId)!;
     expect(saved.test.sections.map(section => section.skill)).toEqual(['listening', 'reading']);
     expect(saved.audioFileId).not.toBeNull();
+  });
+
+  describe('Listening transcript from the audio (P3-18)', () => {
+    const heard: Awaited<ReturnType<ParseAudio>> = {
+      parts: [{part: 1, startSec: 12, lines: [{label: 'Woman', text: 'Shall we meet at the library?'}]}],
+    };
+
+    it('writes the transcript and the part start when the files have none, and says so', async () => {
+      const {state, parseAudio, run} = await setup(['listening'], {
+        audio: true,
+        transcript: false,
+        parseAudio: async () => heard,
+      });
+
+      const outcome = await run();
+
+      expect(parseAudio).toHaveBeenCalledWith(PDF, {
+        mimeType: 'audio/mpeg',
+        parts: 1,
+        durationSec: 1680,
+        userId: 'owner',
+      });
+      expect(outcome.status).toBe('done');
+      const codes = outcome.issues.map(issue => issue.code);
+      expect(codes).toContain('TRANSCRIPT_BY_AI');
+      expect(codes).not.toContain('TRANSCRIPT_MISSING');
+      const passage = state.savedTests.get((outcome as {testId: string}).testId)!.test.sections[0].passages[0];
+      expect(passage).toMatchObject({
+        paragraphs: [{label: 'Woman', text: 'Shall we meet at the library?'}],
+        audioStartSec: 12,
+      });
+    });
+
+    it('does not listen when the files already have a transcript', async () => {
+      const {parseAudio, run} = await setup(['listening'], {audio: true, parseAudio: async () => heard});
+
+      const outcome = await run();
+
+      expect(parseAudio).not.toHaveBeenCalled();
+      expect(outcome.issues.map(issue => issue.code)).not.toContain('TRANSCRIPT_BY_AI');
+    });
+
+    it('keeps the warning and still creates the test when the AI cannot write the transcript', async () => {
+      const failure = new AppError('down', 503, undefined, 'AI_UNAVAILABLE');
+      const {state, run} = await setup(['listening'], {
+        audio: true,
+        transcript: false,
+        parseAudio: async () => Promise.reject(failure),
+      });
+
+      const outcome = await run();
+
+      expect(outcome.status).toBe('done');
+      expect(outcome.issues.map(issue => issue.code)).toContain('TRANSCRIPT_MISSING');
+      expect(outcome.issues.map(issue => issue.code)).not.toContain('TRANSCRIPT_BY_AI');
+      expect(state.savedTests.size).toBe(1);
+    });
+
+    it('does not hide a bug: an error that is not an AI error fails the import', async () => {
+      const {run} = await setup(['listening'], {
+        audio: true,
+        transcript: false,
+        parseAudio: async () => Promise.reject(new TypeError('bug')),
+      });
+
+      await expect(run()).rejects.toThrow('bug');
+    });
+
+    it('leaves a part the AI did not write without transcript and without start', async () => {
+      const {run} = await setup(['listening'], {
+        audio: true,
+        transcript: false,
+        parseAudio: async () => ({parts: []}),
+      });
+
+      const outcome = await run();
+
+      expect(outcome.issues.map(issue => issue.code)).toContain('TRANSCRIPT_MISSING');
+    });
   });
 });
 

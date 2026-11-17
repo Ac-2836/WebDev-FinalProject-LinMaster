@@ -77,7 +77,7 @@ export const ImportStatusSchema = z.enum(['queued', 'parsing', 'validating', 'do
  * - `PASSAGE_TEXT_MISSING`: a Reading passage without text.
  * - `AUDIO_MISSING`, `AUDIO_DURATION_UNKNOWN`: Listening without audio, or audio of unknown length.
  * - `IMPORT_JOB_FAILED`: the files could not be read (AI or storage error).
- * Warnings (`done`): `EXPLANATION_MISSING`, `TRANSCRIPT_MISSING`, `SECTION_IGNORED` (a skill outside the kind).
+ * Warnings (`done`): `EXPLANATION_MISSING`, `TRANSCRIPT_MISSING`, `TRANSCRIPT_BY_AI` (written by the AI from the audio), `SECTION_IGNORED` (a skill outside the kind).
  */
 export const ImportIssueCodeSchema = z.enum([
   'PAGES_MISSING',
@@ -94,6 +94,7 @@ export const ImportIssueCodeSchema = z.enum([
   'IMPORT_JOB_FAILED',
   'EXPLANATION_MISSING',
   'TRANSCRIPT_MISSING',
+  'TRANSCRIPT_BY_AI',
   'SECTION_IGNORED',
 ]);
 

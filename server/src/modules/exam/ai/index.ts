@@ -4,6 +4,7 @@ import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {runJsonTask} from '../../../core/ai/ai-gateway';
 import {AppError} from '../../../core/app-error';
 import {type ExplainAnswerInput, explainAnswerTask} from './explain-answer.v1';
+import {parseAudioTask} from './parse-audio.v1';
 import {classifyPagesTask} from './classify-pages.v1';
 import {parseAnswersTask} from './parse-answers.v1';
 import {parseTestTask} from './parse-test.v2';
@@ -92,6 +93,17 @@ export async function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Pro
 /** Answer key and explanations per skill and question with `parse-answers.v1`. Pass the answers and explanations pages. */
 export function parseAnswers(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseAnswersOutput> {
   return runJsonTask(parseAnswersTask, {pdf, pages: checkPages(pages)}, {userId});
+}
+
+/**
+ * Transcript lines and start second of each Listening part, written from the recording (`parse-audio.v1`, P3-18).
+ * Only for a test whose files have no transcript. Gateway errors: 429, 502, 503.
+ */
+export function parseAudio(
+  audio: Buffer,
+  {mimeType, parts, durationSec, userId}: {mimeType: string; parts: number; durationSec: number | null; userId: string},
+) {
+  return runJsonTask(parseAudioTask, {audio, mimeType, parts, durationSec}, {userId});
 }
 
 /** Why the answer key is right, with quotes from the text (`explain-answer.v1`, P4-12). Gateway errors: 429, 502, 503. */

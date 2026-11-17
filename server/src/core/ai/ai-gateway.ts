@@ -7,7 +7,7 @@ import {AppError} from '../app-error';
 import {getEnv} from '../config/env';
 import {getDb} from '../db';
 import {type AiModel, type AiModelRequest, createGeminiModel} from './ai-model';
-import {type AiTask, aiTaskRegistry} from './ai-task';
+import {type AiPrompt, type AiTask, aiTaskRegistry} from './ai-task';
 
 /** AI calls (cache misses) one user may make per day. */
 export const AI_DAILY_QUOTA = 50;
@@ -46,9 +46,10 @@ export function vietnamDayBounds(now: Date): {start: Date; end: Date} {
   return {start: new Date(start), end: new Date(start + DAY_MS)};
 }
 
-function hashPrompt(taskName: string, system: string, text: string, pdf?: Buffer): string {
+function hashPrompt(taskName: string, {system, text, pdf, audio}: AiPrompt): string {
   const hash = createHash('sha256').update(taskName).update('\0').update(system).update('\0').update(text);
   if (pdf) hash.update('\0').update(pdf);
+  if (audio) hash.update('\0').update(audio.mimeType).update('\0').update(audio.data);
   return hash.digest('hex');
 }
 
@@ -113,7 +114,7 @@ export function createAiGateway({
     }
 
     const prompt = task.buildPrompt(input);
-    const inputHash = hashPrompt(task.name, prompt.system, prompt.text, prompt.pdf);
+    const inputHash = hashPrompt(task.name, prompt);
     const cached = await db.aiCache.findUnique({where: {task_inputHash: {task: task.name, inputHash}}});
     if (cached && (cached.expiresAt === null || cached.expiresAt > now())) {
       const output = task.output.safeParse(cached.output);
@@ -124,7 +125,7 @@ export function createAiGateway({
     }
 
     const jsonSchema = z.toJSONSchema(task.output);
-    const timeoutMs = prompt.pdf ? AI_PDF_TIMEOUT_MS : AI_TIMEOUT_MS;
+    const timeoutMs = prompt.pdf || prompt.audio ? AI_PDF_TIMEOUT_MS : AI_TIMEOUT_MS;
     let inputTokens = 0;
     let outputTokens = 0;
     let incomplete: {output: Output} | undefined;
