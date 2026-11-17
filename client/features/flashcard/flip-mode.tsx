@@ -153,7 +153,7 @@ export function FlipMode({set}: {set: FlashcardSet}) {
             <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
               {t('term')}
             </span>
-            <span className="text-3xl font-bold break-words sm:text-5xl">{current.term}</span>
+            <span className="text-3xl font-bold [overflow-wrap:anywhere] sm:text-5xl">{current.term}</span>
           </span>
           <span
             className={cn(face, 'border-primary/40 bg-secondary [transform:rotateY(180deg)]')}
@@ -162,9 +162,11 @@ export function FlipMode({set}: {set: FlashcardSet}) {
             <span className="rounded-full bg-card px-2.5 py-0.5 text-xs font-semibold text-primary">
               {t('definition')}
             </span>
-            <span className="text-2xl font-bold break-words sm:text-3xl">{current.definition}</span>
+            <span className="text-2xl font-bold [overflow-wrap:anywhere] sm:text-3xl">{current.definition}</span>
             {current.example && (
-              <span className="max-w-lg font-serif break-words text-muted-foreground italic">“{current.example}”</span>
+              <span className="max-w-lg font-serif [overflow-wrap:anywhere] text-muted-foreground italic">
+                “{current.example}”
+              </span>
             )}
           </span>
         </span>

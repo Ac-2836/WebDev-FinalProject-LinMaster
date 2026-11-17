@@ -8,6 +8,7 @@ import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/skeleton';
 
 import type {WordExplanation} from '@linmaster/shared';
+import {useVocabLabels} from './vocab-labels';
 
 export type LookupState =
   | {status: 'loading'}
@@ -26,6 +27,7 @@ const badge = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-
 /** Body of the lookup popover / bottom sheet (wireframe 03-vocab/reader). */
 export function LookupCard({text, state, onSave, onClose}: LookupCardProps) {
   const t = useTranslations('vocab.lookup');
+  const labels = useVocabLabels();
 
   if (state.status === 'loading') {
     return (
@@ -74,7 +76,7 @@ export function LookupCard({text, state, onSave, onClose}: LookupCardProps) {
           </Button>
         )}
         <span className="ml-auto flex gap-1">
-          <span className={`${badge} bg-muted text-muted-foreground`}>{e.partOfSpeech}</span>
+          <span className={`${badge} bg-muted text-muted-foreground`}>{labels.pos(e.partOfSpeech)}</span>
           {e.cefr && <span className={`${badge} bg-secondary text-primary`}>{e.cefr}</span>}
         </span>
       </div>
@@ -98,7 +100,7 @@ export function LookupCard({text, state, onSave, onClose}: LookupCardProps) {
         <ul className="flex flex-wrap gap-1.5" aria-label={t('topics')}>
           {e.topics.map(topic => (
             <li key={topic} className={`${badge} bg-secondary text-primary capitalize`}>
-              {topic}
+              {labels.topic(topic)}
             </li>
           ))}
         </ul>

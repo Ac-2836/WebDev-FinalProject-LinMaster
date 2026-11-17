@@ -11,7 +11,17 @@ export interface Row {
 }
 
 let next = 0;
-export const newRow = (): Row => ({key: `new-${next++}`, term: '', definition: '', example: '', vocabEntryId: null});
+/**
+ * A blank row. Rows rendered on the server pass their own `key`: a counter shared by the whole process would give
+ * the page different keys (and ids) on the server and in the browser, a hydration mismatch.
+ */
+export const newRow = (key = `new-${next++}`): Row => ({
+  key,
+  term: '',
+  definition: '',
+  example: '',
+  vocabEntryId: null,
+});
 
 export const rowsFromCards = (cards: FlashcardCard[]): Row[] =>
   [...cards]

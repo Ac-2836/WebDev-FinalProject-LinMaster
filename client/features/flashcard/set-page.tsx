@@ -141,7 +141,7 @@ export function SetPage({id, publish}: SetPageProps) {
         {back}
         <div className="flex flex-wrap items-start gap-3">
           <div className="min-w-0 flex-1">
-            <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em] break-words sm:text-[34px]">
+            <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em] [overflow-wrap:anywhere] sm:text-[34px]">
               {set.title}
             </h1>
             {set.description && <p className="mt-1 text-muted-foreground">{set.description}</p>}
@@ -242,13 +242,15 @@ export function SetPage({id, publish}: SetPageProps) {
             <h2 id="card-list" className="mb-3 text-xl font-semibold">
               {t('cards')}
             </h2>
-            <ul className={cn(card, 'divide-y')}>
+            <ul className={cn(card, 'divide-y [overflow-wrap:anywhere]')}>
               {cards.map(c => (
                 <li key={c.id} className="grid gap-1 p-4 sm:grid-cols-[1fr_1.6fr] sm:gap-4">
-                  <p className="font-semibold break-words">{c.term}</p>
+                  <p className="font-semibold [overflow-wrap:anywhere]">{c.term}</p>
                   <div className="min-w-0">
-                    <p className="text-sm break-words text-muted-foreground">{c.definition}</p>
-                    {c.example && <p className="mt-1 font-serif text-[13px] break-words italic">{c.example}</p>}
+                    <p className="text-sm [overflow-wrap:anywhere] text-muted-foreground">{c.definition}</p>
+                    {c.example && (
+                      <p className="mt-1 font-serif text-[13px] [overflow-wrap:anywhere] italic">{c.example}</p>
+                    )}
                   </div>
                 </li>
               ))}

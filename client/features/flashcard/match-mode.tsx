@@ -197,7 +197,7 @@ function Board({set}: {set: FlashcardSet}) {
                   onClick={() => pick(tile)}
                   aria-pressed={selected?.key === tile.key}
                   className={cn(
-                    'flex min-h-24 items-center justify-center rounded-xl border-2 bg-card p-3 text-center font-semibold break-words shadow-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                    'flex min-h-24 items-center justify-center rounded-xl border-2 bg-card p-3 text-center font-semibold [overflow-wrap:anywhere] shadow-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
                     tile.side === 'term' ? 'text-lg' : 'text-[15px]',
                     selected?.key === tile.key && 'border-primary bg-secondary text-primary',
                     wrong.includes(tile.key) &&

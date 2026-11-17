@@ -481,8 +481,8 @@ export function CommunityWidget() {
       {d => (
         <dl className="grid grid-cols-2 gap-3 text-center">
           {[
-            [d.publishedSets, t('sets', {copies: d.setCopies})],
-            [d.publishedTests, t('tests', {attempts: d.testAttempts})],
+            [d.publishedSets, t('sets', {sets: d.publishedSets, copies: d.setCopies})],
+            [d.publishedTests, t('tests', {tests: d.publishedTests, attempts: d.testAttempts})],
           ].map(([value, label]) => (
             <div key={label} className="flex flex-col rounded-lg bg-muted/50 p-3">
               <dt className="order-last text-xs text-muted-foreground">{label}</dt>

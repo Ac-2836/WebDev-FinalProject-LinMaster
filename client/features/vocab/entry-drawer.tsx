@@ -14,6 +14,7 @@ import {useReturnFocus} from '@/components/ui/return-focus';
 import {inputClass} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
+import {useVocabLabels} from './vocab-labels';
 
 const badge = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold';
 
@@ -50,6 +51,7 @@ export function EntryDrawer({entry, onClose, onUpdated, onDelete}: EntryDrawerPr
 }
 
 function Detail({entry, onUpdated, onDelete}: Omit<EntryDrawerProps, 'entry' | 'onClose'> & {entry: VocabEntry}) {
+  const labels = useVocabLabels();
   const t = useTranslations('vocab.bank');
   const errorMessage = useErrorMessage();
   const ids = useId();
@@ -78,11 +80,11 @@ function Detail({entry, onUpdated, onDelete}: Omit<EntryDrawerProps, 'entry' | '
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5 text-sm">
         <div className="flex flex-wrap items-center gap-2">
           {entry.ipa && <span className="text-muted-foreground">{entry.ipa}</span>}
-          <span className={cn(badge, 'bg-muted text-muted-foreground')}>{entry.partOfSpeech}</span>
+          <span className={cn(badge, 'bg-muted text-muted-foreground')}>{labels.pos(entry.partOfSpeech)}</span>
           {entry.cefr && <span className={cn(badge, 'bg-secondary text-primary')}>{entry.cefr}</span>}
           {entry.topics.map(topic => (
             <span key={topic} className={cn(badge, 'bg-muted text-muted-foreground capitalize')}>
-              {topic}
+              {labels.topic(topic)}
             </span>
           ))}
         </div>
