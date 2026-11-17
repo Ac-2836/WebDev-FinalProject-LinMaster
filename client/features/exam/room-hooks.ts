@@ -6,7 +6,7 @@ import {useCallback, useEffect, useRef, useState, useSyncExternalStore} from 're
 import {ApiError, api, apiResponse} from '@/core/api/client';
 
 import type {SaveState} from './exam-room';
-import {clockOffset, crossedWarning, remainingMs, type WarningMinute} from './room-logic';
+import {clockOffset, crossedWarning, remainingMs, retryDelay, type WarningMinute} from './room-logic';
 
 /**
  * Ms left until `deadlineAt`, ticking every second on the server clock. `null` until mounted
@@ -121,17 +121,19 @@ export function useRoomSettings() {
 }
 
 const SAVE_DELAY_MS = 800;
-const RETRY_MS = 5000;
 
 /**
  * Autosave of the attempt state (`PUT /attempts/:id/state`): a short pause after each change, again when the
- * connection comes back, and every few seconds after a failed save. `onClosed` runs when the server refuses
+ * connection comes back or the tab is shown again, and after a failed save again and again (2 s, 5 s, 10 s… up to 30 s)
+ * until it goes through, so an answer is not left unsaved after one bad moment of the network. `onClosed` runs when the server refuses
  * because the time is over or the attempt was submitted. `flush()` waits for the last save and tells whether it
  * went through: call it before submitting, or the answer typed just before would not be graded.
  */
 export function useAutosave(attemptId: string, state: AttemptState, onClosed: () => void) {
   const online = useOnline();
   const [saveState, setSaveState] = useState<SaveState>('saved');
+  // Failed saves in a row; it decides how long to wait before the next try.
+  const [failures, setFailures] = useState(0);
   const latest = useRef(state);
   // The state loaded from the server (at mount) counts as saved.
   const saved = useRef(state);
@@ -149,13 +151,17 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
     inFlight.current = api(`/attempts/${attemptId}/state`, {method: 'PUT', body: {state: next}})
       .then(() => {
         saved.current = next;
+        setFailures(0);
         if (latest.current === next) setSaveState('saved');
       })
       .catch((error: unknown) => {
         if (error instanceof ApiError && (error.status === 'ATTEMPT_EXPIRED' || error.status === 'ATTEMPT_SUBMITTED')) {
           saved.current = next;
           closed.current();
-        } else setSaveState('error');
+        } else {
+          setSaveState('error');
+          setFailures(n => n + 1);
+        }
       })
       .finally(() => (inFlight.current = null));
     await inFlight.current;
@@ -187,9 +193,22 @@ export function useAutosave(attemptId: string, state: AttemptState, onClosed: ()
 
   useEffect(() => {
     if (saveState !== 'error' || !online) return;
-    const id = setTimeout(flush, RETRY_MS);
+    const id = setTimeout(flush, retryDelay(failures));
     return () => clearTimeout(id);
-  }, [saveState, online, flush]);
+  }, [saveState, failures, online, flush]);
+
+  // Do not wait for the timer when the connection is back or the tab is shown again (a sleeping laptop, a phone).
+  useEffect(() => {
+    const retryNow = () => {
+      if (document.visibilityState === 'visible' && latest.current !== saved.current) void flush();
+    };
+    window.addEventListener('online', retryNow);
+    document.addEventListener('visibilitychange', retryNow);
+    return () => {
+      window.removeEventListener('online', retryNow);
+      document.removeEventListener('visibilitychange', retryNow);
+    };
+  }, [flush]);
 
   return {saveState, flush};
 }
