@@ -1,8 +1,9 @@
 import type {FlashcardSet, StudyMode} from '@linmaster/shared';
-import {QUIZ_MIN_CARDS} from '@linmaster/shared';
-import {Brain, ListChecks, type LucideIcon, Rotate3d, Timer} from 'lucide-react';
+import {EXERCISE_MIN_CARDS, QUIZ_MIN_CARDS} from '@linmaster/shared';
+import {Brain, ListChecks, type LucideIcon, Rotate3d, Sparkles, Timer} from 'lucide-react';
 
 import {FlipMode} from './flip-mode';
+import {ExerciseMode} from './exercise-mode';
 import {LearnMode} from './learn-mode';
 import {MatchMode} from './match-mode';
 import {TestMode} from './test-mode';
@@ -24,6 +25,7 @@ export const studyModes: StudyModeEntry[] = [
   {id: 'flip', icon: Rotate3d, component: FlipMode},
   {id: 'test', icon: ListChecks, component: TestMode, minCards: QUIZ_MIN_CARDS},
   {id: 'match', icon: Timer, component: MatchMode, minCards: QUIZ_MIN_CARDS},
+  {id: 'exercise', icon: Sparkles, component: ExerciseMode, minCards: EXERCISE_MIN_CARDS},
 ];
 
 export const findStudyMode = (id: string) => studyModes.find(m => m.id === id);

@@ -673,7 +673,9 @@
       "matchHint": "Ghép 6 cặp, càng nhanh càng tốt",
       "test": "Kiểm tra",
       "testHint": "Trắc nghiệm, tự luận, đúng/sai",
-      "needCards": "Cần ít nhất {min} thẻ"
+      "needCards": "Cần ít nhất {min} thẻ",
+      "exercise": "Luyện tập AI",
+      "exerciseHint": "AI viết câu hỏi từ bộ thẻ"
     },
     "study": {
       "exit": "Thoát chế độ học",
@@ -765,7 +767,46 @@
       "testKeepGoing": "Cố lên, ôn thêm là được!",
       "testWrongCount": "{count} câu sai",
       "testRedoWrong": "Làm lại câu sai",
-      "testNew": "Bài kiểm tra mới"
+      "testNew": "Bài kiểm tra mới",
+      "exercise": "Luyện tập AI",
+      "exerciseCount": "Luyện tập AI · {count} câu",
+      "exerciseGenerating": "AI đang soạn {count} câu hỏi…",
+      "exerciseGeneratingHint": "Thường mất 5–15 giây.",
+      "exerciseQuotaTitle": "Hết lượt AI hôm nay",
+      "exerciseQuotaBody": "Lượt mới có lúc 0:00. Trong lúc chờ, thử chế độ Kiểm tra (không dùng AI).",
+      "toTest": "Sang Kiểm tra",
+      "exerciseBack": "Quay lại",
+      "exerciseTitle": "Tạo bài luyện từ bộ thẻ",
+      "exerciseIntro": "AI viết câu hỏi theo dạng đề thi, dùng các từ trong bộ thẻ này. Cần bộ thẻ có ít nhất {min} thẻ; bài luyện không đổi tiến độ học.",
+      "exerciseKinds": "Dạng câu",
+      "exerciseKind": {
+        "single_choice": "Trắc nghiệm",
+        "completion": "Điền chỗ trống",
+        "matching": "Nối"
+      },
+      "exerciseKindsNone": "Chọn ít nhất một dạng câu.",
+      "exerciseCountLabel": "Số câu",
+      "exerciseWait": "Thử lại sau {seconds} giây",
+      "exerciseRetry": "Thử lại",
+      "exerciseCreate": "Tạo bài luyện",
+      "exerciseByAi": "Do AI tạo, có thể chưa chính xác.",
+      "exerciseInvalid": "AI chưa soạn được bài hợp lệ. Chờ một phút rồi thử lại.",
+      "exerciseUnavailable": "AI đang bận. Thử lại sau ít giây.",
+      "exerciseGroup": "Câu {from}–{to} · {instruction}",
+      "exerciseInstruction": {
+        "single_choice": "Chọn đáp án đúng A, B, C hoặc D",
+        "completion": "Điền từ còn thiếu vào chỗ trống",
+        "matching": "Nối mỗi câu với từ phù hợp"
+      },
+      "exerciseCheck": "Kiểm tra đáp án",
+      "exerciseScore": "Đúng {correct}/{total}",
+      "exerciseAnother": "Tạo bài khác",
+      "exerciseRight": "Đúng.",
+      "exerciseAnswerIs": "Câu {number}: đáp án là \"{answer}\".",
+      "exerciseGap": "Chỗ trống {number}",
+      "exerciseTerms": "Các từ:",
+      "exerciseChoose": "Chọn từ…",
+      "exerciseGroupOne": "Câu {from} · {instruction}"
     }
   },
   "exam": {
