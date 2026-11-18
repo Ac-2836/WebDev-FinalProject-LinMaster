@@ -18,7 +18,7 @@ alt Không phải chủ / ít hơn 4 thẻ
   S --> R : lỗi
   R --> C : 403 / 422
 else Hợp lệ
-  S -> G : runJsonTask("generate-exercise.v1",\n{ cards[], kinds, count })
+  S -> G : runJsonTask("generate-exercise.v2",\n{ cards[], kinds, count })
   G -> DB : Kiểm tra quota (AiUsage), tra AiCache
   alt Hết quota
     R --> C : 429 AI_QUOTA_EXCEEDED { retryAt }

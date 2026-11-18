@@ -82,7 +82,7 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 |---|---|
 | [arc-01-component](06_Architecture/arc-01-component.png) | Module client / server / shared và phụ thuộc |
 | [arc-02-deployment-local](06_Architecture/arc-02-deployment-local.png) | Môi trường local và CI |
-| [arc-03-deployment-online](06_Architecture/arc-03-deployment-online.png) | Vercel, Render, Neon, R2, Gemini |
+| [arc-03-deployment-online](06_Architecture/arc-03-deployment-online.png) | Vercel, Render, Neon, Backblaze B2, Gemini |
 | [arc-04-class-module-registry](06_Architecture/arc-04-class-module-registry.png) | Hợp đồng module và các registry |
 | [arc-05-class-tang-module](06_Architecture/arc-05-class-tang-module.png) | Ba tầng trong một module server |
 

@@ -6,7 +6,7 @@ actor "Người học" as U
 participant "Client" as C
 participant "Exam route\n(/tests/imports)" as R
 participant "ImportService" as S
-participant "Storage\n(local / R2)" as ST
+participant "Storage\n(local / S3: Backblaze B2)" as ST
 database "PostgreSQL" as DB
 participant "Import job\n(chạy nền)" as J
 participant "AI gateway" as G
@@ -46,7 +46,7 @@ end
 J -> DB : status = parsing
 J -> G : runJsonTask("classify-pages.v1", PDF đã gộp)\n(cache theo hash file)
 par Trích nội dung theo nhãn trang
-  J -> G : runJsonTask("parse-test.v1", trang đề + câu hỏi)
+  J -> G : runJsonTask("parse-test.v2", trang đề + câu hỏi)
   G -> AI : generateContent(PDF + responseSchema)
   AI --> G : cấu trúc đề
 else

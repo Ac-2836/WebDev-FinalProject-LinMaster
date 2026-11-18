@@ -35,7 +35,7 @@ package "server (Express)" {
 
 database "PostgreSQL" as DB
 cloud "Gemini API" as Gemini
-cloud "Ổ đĩa local / Cloudflare R2" as Files
+cloud "Ổ đĩa local / S3 (Backblaze B2)" as Files
 
 U --> Pages
 Pages --> FAuth

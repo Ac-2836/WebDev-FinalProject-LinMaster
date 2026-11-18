@@ -117,8 +117,8 @@ entity "FlashcardSet" as FlashcardSet <<flashcard>> {
   * ownerId : uuid <<FK>>
   * title : varchar(200)
   description : text
-  * termLang : varchar(10)
-  * definitionLang : varchar(10)
+  * termLang : varchar(10) = 'en'
+  * definitionLang : varchar(10) = 'vi'
   * visibility : Visibility = 'private'
   publishedAt : timestamptz
   copiedFromId : uuid <<FK>>
@@ -250,7 +250,7 @@ entity "Attempt" as Attempt <<exam>> {
   --
   * userId : uuid <<FK>>
   * testId : uuid <<FK>>
-  * status : AttemptStatus
+  * status : AttemptStatus = 'in_progress'
   * startedAt : timestamptz
   * deadlineAt : timestamptz
   submittedAt : timestamptz

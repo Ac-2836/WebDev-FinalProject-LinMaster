@@ -10,10 +10,10 @@ participant "AI gateway\n(core)" as G
 database "PostgreSQL" as DB
 participant "Gemini API" as AI
 U -> C : Bôi chọn từ, bấm "Giải thích"
-C -> R : POST /api/v1/vocab/lookups\n{ text, sentence, documentId? } + JWT
+C -> R : POST /api/v1/vocab/lookups\n{ text, sentence, textStart?,\ncontext? { title, paragraph }, documentId? } + JWT
 R -> R : requireAuth + validate Zod\n(text ≤ 6 từ)
 R -> S : lookup(userId, input)
-S -> G : runJsonTask("explain-word.v1", { text, sentence })
+S -> G : runJsonTask("explain-word.v2",\n{ text, sentence, context })
 G -> DB : Đếm AiUsage hôm nay (không tính cache)
 alt Hết quota
   G --> S : AiQuotaExceeded
@@ -25,7 +25,7 @@ else Còn quota
     DB --> G : output
   else Không có cache
     loop Tối đa 3 lần cho đến khi output đúng schema
-      G -> AI : generateContent(prompt v1, responseSchema)
+      G -> AI : generateContent(prompt v2, responseSchema)
       AI --> G : JSON
       G -> G : Validate bằng Zod
     end
@@ -33,10 +33,15 @@ else Còn quota
   end
   G -> DB : INSERT AiUsage (cached = true/false)
   G --> S : explanation
+  S -> S : Tìm cụm AI giải nghĩa trong câu\n(nguyên văn, chạm vùng chọn, ≤ 6 từ)
+  opt Cụm sai hoặc bị rút còn 1 từ
+    S -> G : Hỏi lại 1 lần, kèm lý do
+    note right: Vẫn sai: 502 AI_INVALID_OUTPUT\n(hoặc dùng nguyên vùng chọn khi AI rút còn 1 từ)
+  end
   S -> DB : INSERT VocabLookup (saved = false)
   S -> DB : Từ này đã có trong kho chưa?
-  S --> R : explanation + alreadySaved
+  S --> R : explanation + match { text, start, end, adjusted }\n+ savedEntryId
   R --> C : 200
-  C --> U : Popover: nghĩa trong câu, IPA, cách dùng, collocations
+  C --> U : Popover: nghĩa trong câu và chủ đề bài, IPA, cách dùng, collocations\n(khung đánh dấu dời theo match)
 end
 @enduml

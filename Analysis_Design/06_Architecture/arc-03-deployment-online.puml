@@ -3,15 +3,15 @@
 title Deployment — Môi trường online (từ 11/11)
 actor "Người dùng" as U
 node "Trình duyệt" as B
-cloud "Cloudflare\n(DNS + HTTPS, khi có tên miền)" as CF
+cloud "Cloudflare\n(DNS + HTTPS, linmaster.id.vn)" as CF
 node "Vercel" {
-  artifact "client (Next.js)\n*.vercel.app\npreview cho mỗi PR" as C
+  artifact "client (Next.js)\nwww.linmaster.id.vn\npreview *.vercel.app cho mỗi PR" as C
 }
 node "Render (Web Service)" {
-  artifact "server (Express)\n*.onrender.com\nprisma migrate deploy → start" as S
+  artifact "server (Express)\napi.linmaster.id.vn\nprisma migrate deploy → start" as S
 }
 database "Neon PostgreSQL\n(branch main)" as DB
-storage "Cloudflare R2\n(PDF đề, audio)" as R2
+storage "Backblaze B2\n(PDF đề, audio, S3 API)" as B2
 cloud "Gemini API" as AI
 node "UptimeRobot" as UR
 node "GitHub" {
@@ -23,7 +23,7 @@ CF --> C
 CF --> S
 C --> S : REST /api/v1 + JWT
 S --> DB : Prisma (TLS)
-S --> R2 : S3 API
+S --> B2 : S3 API
 S --> AI : HTTPS
 UR --> S : ping /api/v1/health\nmỗi 5 phút
 GH --> C : deploy khi merge main

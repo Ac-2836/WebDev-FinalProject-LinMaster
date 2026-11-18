@@ -20,7 +20,7 @@ if (Có trong AiCache
   :Lấy bài từ cache;
 else (không)
   |Gemini AI|
-  :generate-exercise.v1: soạn câu hỏi
+  :generate-exercise.v2: soạn câu hỏi
   chỉ dùng thuật ngữ và định nghĩa của bộ thẻ;
   |Hệ thống|
   :Kiểm tra từng câu: đúng schema dạng câu,

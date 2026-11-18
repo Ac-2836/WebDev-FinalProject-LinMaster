@@ -31,7 +31,7 @@ Sơ đồ: [`erd-00-tong-quan.png`](erd-00-tong-quan.png) và các ERD theo modu
 | Cột | Kiểu | Bắt buộc | Ghi chú |
 |---|---|---|---|
 | id | uuid | ✓ | PK |
-| task | varchar(60) | ✓ | Tên và phiên bản task, ví dụ `explain-word.v1` |
+| task | varchar(60) | ✓ | Tên và phiên bản task, ví dụ `explain-word.v2` |
 | inputHash | char(64) | ✓ | SHA-256 của input đã chuẩn hóa. UNIQUE `(task, inputHash)` |
 | output | jsonb | ✓ | Kết quả đã qua validate Zod |
 | model | varchar(60) | ✓ | Model Gemini đã dùng |
@@ -55,7 +55,7 @@ Không gắn với người dùng: cùng một input dùng chung kết quả. Ri
 |---|---|---|---|
 | id | uuid | ✓ | PK |
 | ownerId | uuid | ✓ | FK → User |
-| storageKey | varchar(255) | ✓ | UNIQUE. Đường dẫn trong `uploads/` (local) hoặc key trên R2 |
+| storageKey | varchar(255) | ✓ | UNIQUE. Đường dẫn trong `uploads/` (local) hoặc key trên dịch vụ S3 (Backblaze B2 khi deploy) |
 | mimeType | varchar(100) | ✓ | Đã kiểm tra bằng nội dung file, không tin phần mở rộng |
 | sizeBytes | int | ✓ | |
 | originalName | varchar(255) | ✓ | |
