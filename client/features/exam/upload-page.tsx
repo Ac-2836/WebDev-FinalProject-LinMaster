@@ -3,6 +3,7 @@
 import {
   buildChecklist,
   CreateImportResponseSchema,
+  ImportFileTextResponseSchema,
   MAX_IMPORT_AUDIO_BYTES,
   MAX_IMPORT_FILES,
   MAX_IMPORT_PDF_BYTES,
@@ -34,10 +35,10 @@ import {toast} from 'sonner';
 
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
-import {api} from '@/core/api/client';
+import {api, ApiError} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
-import {ocrPercent, type OcrProgress} from './ocr/ocr-logic';
+import {ocrPercent, textPages, type OcrProgress} from './ocr/ocr-logic';
 import {recognizePdf} from './ocr/recognize-pdf';
 import {pageChips, slotAccepts, slotFiles, templateSlots} from './upload-logic';
 
@@ -78,19 +79,34 @@ function useUploadFile() {
 }
 
 /**
- * Reads a PDF's text in the browser (OCR), page by page, and reports the progress. Never rejects: a PDF that cannot be
- * read leaves the upload as it was, with no text, so no new error is shown (KH, 19/11).
+ * Reads the text of an uploaded PDF in this browser (OCR, page by page, with progress) and sends it with
+ * `PUT /tests/imports/files/:fileId/text`. Returns the file as the server knows it afterwards. A PDF that cannot be
+ * read is left as uploaded, without text, and no new error is shown (KH, 19/11); the server then reads it the old way.
  */
-async function readText(file: File, onProgress: (progress: OcrProgress | null) => void): Promise<string[] | null> {
-  onProgress({page: 0, pages: 0});
-  try {
-    return await recognizePdf(file, onProgress);
-  } catch (err) {
-    console.error('OCR failed', err);
-    return null;
-  } finally {
-    onProgress(null);
-  }
+function useReadPdfText() {
+  const t = useTranslations('exam.upload');
+  const errorMessage = useErrorMessage();
+  return async (
+    file: File,
+    uploaded: ImportFile,
+    onProgress: (progress: OcrProgress | null) => void,
+  ): Promise<ImportFile> => {
+    onProgress({page: 0, pages: 0});
+    try {
+      const texts = await recognizePdf(file, onProgress);
+      const body = {pages: textPages(texts)};
+      return ImportFileTextResponseSchema.parse(
+        await api(`/tests/imports/files/${uploaded.id}/text`, {method: 'PUT', body}),
+      ).file;
+    } catch (err) {
+      console.error('Reading the text of the PDF failed', err);
+      // Only the upload to the server has a message of its own (the same as for any file); OCR failures stay quiet.
+      if (err instanceof ApiError) toast.error(t('errors.upload', {name: file.name, reason: errorMessage(err)}));
+      return uploaded;
+    } finally {
+      onProgress(null);
+    }
+  };
 }
 
 /** `POST /tests/imports`, then the status page. */
@@ -98,13 +114,7 @@ function useCreateImport() {
   const router = useRouter();
   const errorMessage = useErrorMessage();
   const [creating, setCreating] = useState(false);
-  // `text`: the OCR text of each file, by file id. It goes to the server once the API takes it (contract R2a).
-  const create = async (
-    kind: TestKind,
-    files: {fileId: string; slots?: ImportSlot[]}[],
-    text: Record<string, string[]> = {},
-  ) => {
-    void text;
+  const create = async (kind: TestKind, files: {fileId: string; slots?: ImportSlot[]}[]) => {
     setCreating(true);
     try {
       const res = CreateImportResponseSchema.parse(await api('/tests/imports', {method: 'POST', body: {kind, files}}));
@@ -162,15 +172,14 @@ interface Entry {
   size: number;
   /** Null while uploading. */
   file: ImportFile | null;
-  /** Set while the browser reads the text of the PDF. */
+  /** Set while the browser reads the text of the PDF and sends it. */
   ocr: OcrProgress | null;
-  /** Text of each page, once read. */
-  text: string[] | null;
 }
 
 function AiTab() {
   const t = useTranslations('exam.upload');
   const upload = useUploadFile();
+  const readPdfText = useReadPdfText();
   const {creating, create} = useCreateImport();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [kind, setKind] = useState<TestKind | null>(null);
@@ -183,14 +192,16 @@ function AiTab() {
     // One at a time, like the API: each PDF is read page by page, by the AI and then by OCR in this browser.
     for (const file of files) {
       const key = crypto.randomUUID();
-      setEntries(e => [...e, {key, name: file.name, size: file.size, file: null, ocr: null, text: null}]);
+      setEntries(e => [...e, {key, name: file.name, size: file.size, file: null, ocr: null}]);
       const uploaded = await upload(file);
       setEntries(e =>
         uploaded ? e.map(x => (x.key === key ? {...x, file: uploaded} : x)) : e.filter(x => x.key !== key),
       );
       if (!uploaded || !isPdf(file)) continue;
-      const text = await readText(file, ocr => setEntries(e => e.map(x => (x.key === key ? {...x, ocr} : x))));
-      setEntries(e => e.map(x => (x.key === key ? {...x, text} : x)));
+      const sent = await readPdfText(file, uploaded, ocr =>
+        setEntries(e => e.map(x => (x.key === key ? {...x, ocr} : x))),
+      );
+      setEntries(e => e.map(x => (x.key === key ? {...x, file: sent} : x)));
     }
   }
 
@@ -292,7 +303,6 @@ function AiTab() {
             create(
               checklist.kind,
               used.map(f => ({fileId: f.id})),
-              Object.fromEntries(entries.flatMap(e => (e.file && e.text ? [[e.file.id, e.text]] : []))),
             )
           }
         >
@@ -436,12 +446,12 @@ function ChecklistRows({checklist}: {checklist: Checklist}) {
 function TemplateTab() {
   const t = useTranslations('exam.upload');
   const upload = useUploadFile();
+  const readPdfText = useReadPdfText();
   const {creating, create} = useCreateImport();
   const [kind, setKind] = useState<TestKind>('reading');
   const [chosen, setChosen] = useState<Partial<Record<ImportSlot, ImportFile>>>({});
   const [busy, setBusy] = useState<ImportSlot | null>(null);
   const [ocr, setOcr] = useState<OcrProgress | null>(null);
-  const [texts, setTexts] = useState<Record<string, string[]>>({});
   const name = useId();
 
   const slots = templateSlots(kind);
@@ -461,8 +471,11 @@ function TemplateTab() {
     if (uploaded) {
       setChosen(c => ({...c, [slot]: uploaded}));
       // The slot stays busy while the browser reads the text, so only one PDF is read at a time.
-      const text = type === 'pdf' ? await readText(file, setOcr) : null;
-      if (text) setTexts(t => ({...t, [uploaded.id]: text}));
+      if (type === 'pdf') {
+        const sent = await readPdfText(file, uploaded, setOcr);
+        // The same file may fill several boxes: all of them get the file with its text pages.
+        setChosen(c => Object.fromEntries(Object.entries(c).map(([k, f]) => [k, f.id === sent.id ? sent : f])));
+      }
     }
     setBusy(null);
   }
@@ -472,7 +485,7 @@ function TemplateTab() {
       className={cn(card, 'flex flex-col gap-6 p-5')}
       onSubmit={e => {
         e.preventDefault();
-        if (complete) void create(kind, slotFiles(kind, ids), texts);
+        if (complete) void create(kind, slotFiles(kind, ids));
       }}
     >
       <fieldset className="flex flex-col gap-3">

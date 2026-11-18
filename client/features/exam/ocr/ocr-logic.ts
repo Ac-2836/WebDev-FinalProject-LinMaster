@@ -1,3 +1,10 @@
+import {
+  MAX_IMPORT_TEXT_CHARS,
+  MAX_IMPORT_TEXT_PAGE_CHARS,
+  MAX_IMPORT_TEXT_PAGES,
+  type ImportFileTextRequest,
+} from '@linmaster/shared';
+
 export interface OcrProgress {
   /** The page being read, from 1; 0 while the reader is still being loaded. */
   page: number;
@@ -25,4 +32,18 @@ export async function ocrPages(
     texts.push(await read(page));
   }
   return texts;
+}
+
+/**
+ * The OCR text as `PUT /tests/imports/files/:fileId/text` takes it: page numbers from 1, an empty string for a page
+ * with no text, and cut to the limits of the API (pages, characters per page, characters in all) so the request is
+ * never refused for size. Only a very long PDF loses text, from its last pages.
+ */
+export function textPages(texts: readonly string[]): ImportFileTextRequest['pages'] {
+  let total = 0;
+  return texts.slice(0, MAX_IMPORT_TEXT_PAGES).map((text, i) => {
+    const kept = text.slice(0, Math.min(MAX_IMPORT_TEXT_PAGE_CHARS, MAX_IMPORT_TEXT_CHARS - total));
+    total += kept.length;
+    return {page: i + 1, text: kept};
+  });
 }
