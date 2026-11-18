@@ -5,6 +5,8 @@ import {
   DeleteImportFileResponseSchema,
   GetImportResponseSchema,
   ImportFileIdParamsSchema,
+  ImportFileTextRequestSchema,
+  ImportFileTextResponseSchema,
   ImportIdParamsSchema,
   UploadImportFileResponseSchema,
 } from '@linmaster/shared';
@@ -65,6 +67,7 @@ openApiRegistry.registerPath({
                     {page: 2, labels: ['answers'], skill: 'reading', questionRange: {from: 1, to: 40}},
                   ],
                   unused: false,
+                  textPages: [],
                   createdAt: '2026-11-13T03:00:00.000Z',
                 },
               },
@@ -77,6 +80,81 @@ openApiRegistry.registerPath({
     401: error('Authentication required.'),
     413: error('The file is too large.'),
     415: error('Only PDF, MP3 and M4A files are accepted.'),
+    429: error('More than 30 uploads in an hour by this user.'),
+    500: error('Unexpected server error.'),
+  },
+});
+
+openApiRegistry.registerPath({
+  method: 'put',
+  path: '/api/v1/tests/imports/files/{fileId}/text',
+  summary: 'Send the OCR text of an uploaded PDF',
+  description:
+    'The browser recognises the text of each PDF page (tesseract.js) and sends it here, all pages in one call; every ' +
+    'call replaces the text sent before. `page` counts from 1 in the file itself, an empty `text` is a page without ' +
+    'recognised text. The AI then reads this text instead of the scan and only returns the structure and line ranges, ' +
+    'never the passage (Gemini refuses to write out published text). A PDF without text is read from the scan as before. ' +
+    'Limits: 100 pages, 12,000 characters per page, 600,000 characters in all, 1 MB per request.',
+  tags: ['Exam'],
+  security,
+  request: {
+    params: ImportFileIdParamsSchema,
+    body: {
+      content: {
+        'application/json': {
+          schema: ImportFileTextRequestSchema,
+          examples: {
+            two_pages: {
+              value: {
+                pages: [
+                  {page: 1, text: 'READING PASSAGE 1\nYou should spend about 20 minutes ...'},
+                  {page: 2, text: ''},
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Text stored; `textPages` lists the pages that have text.',
+      content: {
+        'application/json': {
+          schema: ImportFileTextResponseSchema,
+          examples: {
+            stored: {
+              value: {
+                file: {
+                  id: FILE_ID,
+                  originalName: 'cambridge-reading-test-1.pdf',
+                  mimeType: 'application/pdf',
+                  sizeBytes: 1843200,
+                  type: 'pdf',
+                  pageCount: 2,
+                  durationSec: null,
+                  pages: [
+                    {page: 1, labels: ['passage', 'questions'], skill: 'reading', questionRange: {from: 1, to: 13}},
+                    {page: 2, labels: ['answers'], skill: 'reading', questionRange: {from: 1, to: 40}},
+                  ],
+                  unused: false,
+                  textPages: [1, 2],
+                  createdAt: '2026-11-13T03:00:00.000Z',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    400: error(
+      'Invalid body (a page twice, too long, too many pages), a `page` beyond the PDF, or the file is not a PDF.',
+    ),
+    401: error('Authentication required.'),
+    404: error('File not found.'),
+    409: error('`IMPORT_FILE_IN_USE`: the file belongs to a test import.'),
+    413: error('The request is larger than 1 MB.'),
     429: error('More than 30 uploads in an hour by this user.'),
     500: error('Unexpected server error.'),
   },

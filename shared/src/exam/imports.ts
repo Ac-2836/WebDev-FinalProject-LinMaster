@@ -9,6 +9,13 @@ import {PageLabelsSchema} from './page-labels';
 export const MAX_IMPORT_FILES = 10;
 export const MAX_IMPORT_PDF_BYTES = 20 * 1024 * 1024;
 export const MAX_IMPORT_AUDIO_BYTES = 60 * 1024 * 1024;
+/**
+ * OCR text of a PDF, sent by the browser page by page (PLAN C4: the AI reads this text, never the scan, so it has no
+ * long passage to copy). Page numbers are those of the file itself, counted from 1.
+ */
+export const MAX_IMPORT_TEXT_PAGES = 100;
+export const MAX_IMPORT_TEXT_PAGE_CHARS = 12_000;
+export const MAX_IMPORT_TEXT_CHARS = 600_000;
 /** Uploaded files that no import uses are deleted after this many hours. */
 export const IMPORT_FILE_TTL_HOURS = 24;
 
@@ -40,12 +47,38 @@ export const ImportFileSchema = z.object({
   pages: z.array(PageLabelsSchema).nullable(),
   /** The file does not look like part of an IELTS test and will be ignored. */
   unused: z.boolean(),
+  /** PDF only: the pages whose OCR text was sent with `PUT /tests/imports/files/:fileId/text`, ascending. */
+  textPages: z.array(z.number().int().positive()),
   createdAt: z.iso.datetime(),
 });
 
 /** `POST /tests/imports/files`: multipart field `file`, one PDF (≤ 20 MB) or MP3/M4A (≤ 60 MB). */
 export const UploadImportFileResponseSchema = z.object({file: ImportFileSchema});
 export const ImportFileIdParamsSchema = z.object({fileId: z.string().uuid()}).strict();
+/** `PUT /tests/imports/files/:fileId/text`: the OCR text of the PDF, replacing what was sent before. */
+export const ImportFileTextRequestSchema = z
+  .object({
+    pages: z
+      .array(
+        z
+          .object({
+            page: z.number().int().min(1),
+            /** An empty string for a page without recognised text. */
+            text: z.string().max(MAX_IMPORT_TEXT_PAGE_CHARS),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(MAX_IMPORT_TEXT_PAGES)
+      .refine(pages => new Set(pages.map(entry => entry.page)).size === pages.length, {
+        message: 'Each page can be sent only once.',
+      })
+      .refine(pages => pages.reduce((total, entry) => total + entry.text.length, 0) <= MAX_IMPORT_TEXT_CHARS, {
+        message: `The text of all pages together can have at most ${MAX_IMPORT_TEXT_CHARS} characters.`,
+      }),
+  })
+  .strict();
+export const ImportFileTextResponseSchema = UploadImportFileResponseSchema;
 export const DeleteImportFileResponseSchema = z.object({deleted: z.literal(true)});
 
 export const CreateImportRequestSchema = z
@@ -134,6 +167,7 @@ export const ImportIncompleteDetailsSchema = z.object({checklist: ChecklistSchem
 export type ImportSlot = z.infer<typeof ImportSlotSchema>;
 export type ImportFileType = z.infer<typeof ImportFileTypeSchema>;
 export type ImportFile = z.infer<typeof ImportFileSchema>;
+export type ImportFileTextRequest = z.infer<typeof ImportFileTextRequestSchema>;
 export type CreateImportRequest = z.infer<typeof CreateImportRequestSchema>;
 export type ImportStatus = z.infer<typeof ImportStatusSchema>;
 export type ImportIssue = z.infer<typeof ImportIssueSchema>;

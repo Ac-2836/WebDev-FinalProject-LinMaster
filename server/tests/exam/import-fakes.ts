@@ -34,9 +34,15 @@ export function makeImportRepository() {
 
   const repository: ImportRepository = {
     async createFile(ownerId, file) {
-      const record = {id: nextId(), ownerId, ...file, createdAt: clock.fileCreatedAt};
+      const record = {id: nextId(), ownerId, ...file, pageText: file.pageText ?? null, createdAt: clock.fileCreatedAt};
       files.set(record.id, record);
       return record;
+    },
+    async setFileText(ownerId, fileId, pageText) {
+      const file = files.get(fileId);
+      if (!file || file.ownerId !== ownerId) return false;
+      files.set(fileId, {...file, pageText});
+      return true;
     },
     async findFile(ownerId, fileId) {
       const file = files.get(fileId);

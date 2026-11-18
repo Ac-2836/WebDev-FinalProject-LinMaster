@@ -3,6 +3,7 @@ import {
   type ChecklistFile,
   type CreateImportRequest,
   type ImportFile,
+  type ImportFileTextRequest,
   type ImportFileType,
   ImportIssueSchema,
   type ImportStatus,
@@ -15,6 +16,7 @@ import {z} from 'zod';
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
 import {readAudioDurationSec} from './audio-duration';
+import {mergePageText, textPagesOf} from './ocr-text';
 import type {ImportJobs} from './import-jobs';
 import type {
   ImportFileRecord,
@@ -63,6 +65,7 @@ function toImportFile(record: ImportFileRecord, pages: PageLabels[] | null): Imp
     durationSec: record.durationSec,
     pages,
     unused,
+    textPages: textPagesOf(record.pageText),
     createdAt: record.createdAt.toISOString(),
   };
 }
@@ -80,9 +83,10 @@ function toTestImport(record: ImportRecord): TestImport {
   };
 }
 
-/** Appends every page of the PDFs, in order, into one PDF. */
-async function mergePdfs(pdfs: Buffer[]): Promise<Buffer> {
+/** Appends every page of the PDFs, in order, into one PDF; also returns the page count of each PDF. */
+async function mergePdfs(pdfs: Buffer[]): Promise<{data: Buffer; pageCounts: number[]}> {
   const merged = await PDFDocument.create();
+  const pageCounts: number[] = [];
   for (const pdf of pdfs) {
     let source: PDFDocument;
     try {
@@ -90,9 +94,10 @@ async function mergePdfs(pdfs: Buffer[]): Promise<Buffer> {
     } catch {
       throw new AppError('A PDF of the import could not be read.', 400);
     }
+    pageCounts.push(source.getPageCount());
     for (const page of await merged.copyPages(source, source.getPageIndices())) merged.addPage(page);
   }
-  return Buffer.from(await merged.save());
+  return {data: Buffer.from(await merged.save()), pageCounts};
 }
 
 export function createImportService({repository, storage, labelPages, jobs}: ImportServiceDeps) {
@@ -139,16 +144,19 @@ export function createImportService({repository, storage, labelPages, jobs}: Imp
     });
   }
 
-  /** Stores the merged PDF; the caller removes it when the import is not created. */
-  async function storeMergedPdf(pdfs: Buffer[]): Promise<{merged: NewImportFile}> {
-    const data = await mergePdfs(pdfs);
+  /** Stores the merged PDF with the OCR text of its parts; the caller removes it when the import is not created. */
+  async function storeMergedPdf(sources: {data: Buffer; pageText: unknown}[]): Promise<{merged: NewImportFile}> {
+    const {data, pageCounts} = await mergePdfs(sources.map(source => source.data));
+    const pageText = mergePageText(
+      sources.map((source, index) => ({pageCount: pageCounts[index], pageText: source.pageText})),
+    );
     try {
       const {key, mimeType, sizeBytes, originalName} = await storage.put({
         data,
         mimeType: PDF_MIME_TYPE,
         originalName: MERGED_PDF_NAME,
       });
-      return {merged: {storageKey: key, mimeType, sizeBytes, originalName, durationSec: null}};
+      return {merged: {storageKey: key, mimeType, sizeBytes, originalName, durationSec: null, pageText}};
     } catch (error) {
       if (error instanceof AppError && error.statusCode === 413) {
         throw new AppError('The PDFs of the import together exceed 20 MB.', 413);
@@ -183,6 +191,29 @@ export function createImportService({repository, storage, labelPages, jobs}: Imp
         await storage.delete(stored.key).catch(() => undefined);
         throw error;
       }
+    },
+
+    /**
+     * `PUT /tests/imports/files/:fileId/text`: keeps the OCR text of a PDF page by page, replacing what was sent before.
+     * The AI later reads this text instead of the scan, so it has no published passage to write out.
+     */
+    async setFileText(userId: string, fileId: string, request: ImportFileTextRequest): Promise<{file: ImportFile}> {
+      const [file] = await repository.findFiles(userId, [fileId]);
+      if (!file) throw new AppError('Import file not found.', 404);
+      if (file.inUse) throw new AppError('The file is used by a test import.', 409, undefined, 'IMPORT_FILE_IN_USE');
+      if (file.mimeType !== PDF_MIME_TYPE) throw new AppError('Only a PDF has page text.', 400);
+      const data = await readFile(file);
+      const pageCount = await PDFDocument.load(data, {ignoreEncryption: true}).then(
+        doc => doc.getPageCount(),
+        () => {
+          throw new AppError('The PDF could not be read.', 400);
+        },
+      );
+      const beyond = request.pages.find(entry => entry.page > pageCount);
+      if (beyond) throw new AppError(`The PDF has ${pageCount} pages, not ${beyond.page}.`, 400);
+      const pageText = [...request.pages].sort((a, b) => a.page - b.page);
+      if (!(await repository.setFileText(userId, fileId, pageText))) throw new AppError('Import file not found.', 404);
+      return {file: toImportFile({...file, pageText}, await labelPdf(data, userId))};
     },
 
     /** `DELETE /tests/imports/files/:fileId`: only the owner, and only while no import uses the file. */
@@ -228,7 +259,15 @@ export function createImportService({repository, storage, labelPages, jobs}: Imp
       if (audios.length > 1) throw new AppError('A test takes one audio file for the whole Listening section.', 400);
       if (pdfIds.length === 0) throw new AppError('The import needs at least one PDF.', 400);
 
-      const pdf = pdfIds.length > 1 ? await storeMergedPdf(pdfIds.map(id => pdfData.get(id)!)) : {fileId: pdfIds[0]};
+      const pdf =
+        pdfIds.length > 1
+          ? await storeMergedPdf(
+              pdfIds.map(id => ({
+                data: pdfData.get(id)!,
+                pageText: files.find(file => file.record.id === id)!.record.pageText,
+              })),
+            )
+          : {fileId: pdfIds[0]};
       try {
         const record = await repository.createImport(userId, {
           kind: request.kind,

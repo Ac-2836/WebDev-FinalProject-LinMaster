@@ -2,11 +2,12 @@ import {CERTIFICATIONS, type PageLabel, type PageLabels} from '@linmaster/shared
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
-import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest} from './ai';
+import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest, type parseTestFromText} from './ai';
 import type {ImportProcessor} from './import-jobs';
 import {validateParsedTest} from './import-validator';
 import type {ImportRepository} from './imports.repository';
 import type {PageLabeler} from './imports.service';
+import {readPageText} from './ocr-text';
 
 export interface ImportProcessorDeps {
   repository: ImportRepository;
@@ -14,6 +15,11 @@ export interface ImportProcessorDeps {
   /** KH's AI tasks (`./ai`), injected so tests never call the real model. */
   labelPages: PageLabeler;
   parseTest: typeof parseTest;
+  /**
+   * Reads the test from the OCR text the browser sent (`parse-test.v3`): the AI gets text and returns line ranges, so it
+   * has no published passage to write out (RECITATION). Without it, or without text for every page, `parseTest` reads the scan.
+   */
+  parseTestText?: typeof parseTestFromText;
   parseAnswers: typeof parseAnswers;
   /** Writes the Listening transcript from the audio when the files have none (P3-18); skipped when left out. */
   parseAudio?: typeof parseAudio;
@@ -37,6 +43,7 @@ export function createImportProcessor({
   storage,
   labelPages,
   parseTest,
+  parseTestText,
   parseAnswers,
   parseAudio,
 }: ImportProcessorDeps): ImportProcessor {
@@ -57,8 +64,17 @@ export function createImportProcessor({
         issues: [{severity: 'error', code: 'PAGES_MISSING', message: `No page with the ${missing} was found.`}],
       };
     }
+    const ocr = readPageText(file.pageText);
+    const readFromText =
+      parseTestText !== undefined &&
+      testPages.every(page => ocr.some(entry => entry.page === page && entry.text.trim()));
     const [outline, answerKey] = await Promise.all([
-      parseTest(pdf, {pages: testPages, userId}),
+      readFromText
+        ? parseTestText(
+            ocr.filter(entry => testPages.includes(entry.page)),
+            {userId},
+          )
+        : parseTest(pdf, {pages: testPages, userId}),
       parseAnswers(pdf, {pages: answerPages, userId}),
     ]);
 

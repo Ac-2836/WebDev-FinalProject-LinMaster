@@ -8,6 +8,7 @@ import {parseAudioTask} from './parse-audio.v2';
 import {classifyPagesTask} from './classify-pages.v1';
 import {parseAnswersTask} from './parse-answers.v1';
 import {parseTestTask} from './parse-test.v2';
+import {type OcrPage, outlineFromOcr, parseTestV3Task} from './parse-test.v3';
 import {parseTranscriptTask} from './parse-transcript.v1';
 
 // AI tasks of the exam module (KH's part). The import flow of TH calls only the functions exported here.
@@ -88,6 +89,15 @@ export async function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Pro
     if (lines?.length) passage.paragraphs = lines;
   });
   return outline;
+}
+
+/**
+ * The same outline as `parseTest`, read from the OCR text of the pages (`parse-test.v3`): the model returns line ranges
+ * and short strings, the server cuts the passages, transcripts and instructions out of the OCR text.
+ */
+export async function parseTestFromText(pages: OcrPage[], {userId}: {userId: string}): Promise<ParseTestOutput> {
+  if (pages.length === 0) throw new Error('parseTestFromText needs at least one page of text.');
+  return outlineFromOcr(await runJsonTask(parseTestV3Task, {pages}, {userId}), pages);
 }
 
 /** Answer key and explanations per skill and question with `parse-answers.v1`. Pass the answers and explanations pages. */

@@ -44,6 +44,8 @@ model StoredFile {
   originalName String   @db.VarChar(255)
   /// Audio only.
   durationSec  Int?
+  /// PDF only: OCR text per page, [{page, text}], sent by the browser for the test import (null: not sent).
+  pageText     Json?
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
 
   // exam: a file in use by a test or an import cannot be deleted (default Restrict).

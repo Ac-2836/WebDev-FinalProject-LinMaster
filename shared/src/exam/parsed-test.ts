@@ -147,6 +147,62 @@ export const ParseTranscriptOutputSchema = z.object({
 export type ParseTestV2Output = z.infer<typeof ParseTestV2OutputSchema>;
 export type ParseTranscriptOutput = z.infer<typeof ParseTranscriptOutputSchema>;
 
+/**
+ * Output of `parse-test.v3`: the structure of the test read from OCR text. Long text (passage paragraphs, transcript
+ * lines, instructions) is given as ranges of the numbered OCR lines, so the model copies none of it: Gemini refuses to
+ * write out published text (`finishReason = RECITATION`). Only short strings (options, question prompts, content of a
+ * group) are still written by the model. `outlineFromOcr` (server) cuts the text from the OCR lines.
+ */
+export const ParseTestV3OutputSchema = z.object({
+  title: z.string().min(1).max(200),
+  sections: z.array(
+    z.object({
+      skill: SkillSchema,
+      passages: z.array(
+        z.object({
+          title: z.string().min(1).max(200),
+          /** Reading: the passage. Listening: the transcript of the part, or null when the pages have none. */
+          paragraphs: z
+            .array(
+              z.object({label: z.string().max(40).nullable(), fromLine: z.number().int(), toLine: z.number().int()}),
+            )
+            .nullable(),
+          groups: z.array(
+            z.object({
+              kind: QuestionKindSchema,
+              fromNo: z.number().int().min(1),
+              toNo: z.number().int().min(1),
+              instructionsFromLine: z.number().int(),
+              instructionsToLine: z.number().int(),
+              wordLimit: z.number().int().min(1).nullable(),
+              optionsTitle: z.string().nullable(),
+              options: z.array(ChoiceOptionSchema).nullable(),
+              content: z
+                .array(
+                  z.object({
+                    type: z.enum(['text', 'table']),
+                    text: z.string().nullable(),
+                    rows: z.array(z.array(z.string())).nullable(),
+                  }),
+                )
+                .nullable(),
+              questions: z.array(
+                z.object({
+                  number: z.number().int().min(1),
+                  prompt: z.string(),
+                  options: z.array(ChoiceOptionSchema).nullable(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      ),
+    }),
+  ),
+});
+
+export type ParseTestV3Output = z.infer<typeof ParseTestV3OutputSchema>;
+
 /** Output of `parse-audio.v2` (P3-18): the transcript lines of each Listening part (1–4). */
 export const ParseAudioOutputSchema = z.object({
   parts: z.array(

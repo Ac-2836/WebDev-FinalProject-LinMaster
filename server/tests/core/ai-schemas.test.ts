@@ -5,6 +5,7 @@ import {explainAnswerTask} from '../../src/modules/exam/ai/explain-answer.v1';
 import {parseAnswersTask} from '../../src/modules/exam/ai/parse-answers.v1';
 import {parseAudioTask} from '../../src/modules/exam/ai/parse-audio.v2';
 import {parseTestTask} from '../../src/modules/exam/ai/parse-test.v2';
+import {parseTestV3Task} from '../../src/modules/exam/ai/parse-test.v3';
 import {parseTranscriptTask} from '../../src/modules/exam/ai/parse-transcript.v1';
 import {generateExerciseTask} from '../../src/modules/flashcard/ai/generate-exercise.v2';
 import {explainWordTask} from '../../src/modules/vocab/ai/explain-word.v2';
@@ -16,6 +17,7 @@ import {scanDocumentTask} from '../../src/modules/vocab/ai/scan-document.v1';
 const TASKS = [
   classifyPagesTask,
   parseTestTask,
+  parseTestV3Task,
   parseAnswersTask,
   parseTranscriptTask,
   parseAudioTask,
