@@ -2,7 +2,7 @@ import {CERTIFICATIONS, type PageLabel, type PageLabels} from '@linmaster/shared
 
 import {AppError} from '../../core/app-error';
 import type {Storage} from '../../core/storage';
-import {buildParsedTest, type parseAnswers, type parseAudio, type parseTest, type parseTestFromText} from './ai';
+import {buildParsedTest, type parseAnswers, type parseAudio, type parseTestFromText} from './ai';
 import type {ImportProcessor} from './import-jobs';
 import {validateParsedTest} from './import-validator';
 import type {ImportRepository} from './imports.repository';
@@ -14,18 +14,17 @@ export interface ImportProcessorDeps {
   storage: Storage;
   /** KH's AI tasks (`./ai`), injected so tests never call the real model. */
   labelPages: PageLabeler;
-  parseTest: typeof parseTest;
   /**
    * Reads the test from the OCR text the browser sent (`parse-test.v3`): the AI gets text and returns line ranges, so it
-   * has no published passage to write out (RECITATION). Without it, or without text for every page, `parseTest` reads the scan.
+   * has no published passage to write out (RECITATION). The only way a test is read; the scan is never sent to the AI for it.
    */
-  parseTestText?: typeof parseTestFromText;
+  parseTestText: typeof parseTestFromText;
   parseAnswers: typeof parseAnswers;
   /** Writes the Listening transcript from the audio when the files have none (P3-18); skipped when left out. */
   parseAudio?: typeof parseAudio;
 }
 
-/** Pages read by parse-test.v1 and by parse-answers.v1 (PLAN C4 step 3: each task gets only its pages). */
+/** Pages read by parse-test.v3 (as OCR text) and by parse-answers.v1 (as the scan) (PLAN C4 step 3: each task gets only its pages). */
 const TEST_LABELS: readonly PageLabel[] = ['instructions', 'passage', 'questions', 'transcript'];
 const ANSWER_LABELS: readonly PageLabel[] = ['answers', 'explanations'];
 
@@ -42,7 +41,6 @@ export function createImportProcessor({
   repository,
   storage,
   labelPages,
-  parseTest,
   parseTestText,
   parseAnswers,
   parseAudio,
@@ -64,17 +62,14 @@ export function createImportProcessor({
         issues: [{severity: 'error', code: 'PAGES_MISSING', message: `No page with the ${missing} was found.`}],
       };
     }
-    const ocr = readPageText(file.pageText);
-    const readFromText =
-      parseTestText !== undefined &&
-      testPages.every(page => ocr.some(entry => entry.page === page && entry.text.trim()));
+    // A page the browser sent with no recognised text still counts (a figure page): the validator reports what is missing.
+    const ocr = readPageText(file.pageText).filter(entry => testPages.includes(entry.page));
+    if (testPages.some(page => !ocr.some(entry => entry.page === page))) {
+      throw new AppError('The text of the test pages was not sent with the file.', 422);
+    }
+    if (!ocr.some(entry => entry.text.trim())) throw new AppError('No text was recognised on the test pages.', 422);
     const [outline, answerKey] = await Promise.all([
-      readFromText
-        ? parseTestText(
-            ocr.filter(entry => testPages.includes(entry.page)),
-            {userId},
-          )
-        : parseTest(pdf, {pages: testPages, userId}),
+      parseTestText(ocr, {userId}),
       parseAnswers(pdf, {pages: answerPages, userId}),
     ]);
 

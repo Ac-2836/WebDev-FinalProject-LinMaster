@@ -2,7 +2,7 @@ import {Router} from 'express';
 
 import type {ApiModule} from '../../core/module-registry';
 import {storage as defaultStorage} from '../../core/storage';
-import {classifyPages, explainAnswer, parseAnswers, parseAudio, parseTest, parseTestFromText} from './ai';
+import {classifyPages, explainAnswer, parseAnswers, parseAudio, parseTestFromText} from './ai';
 import {type AttemptRepository, prismaAttemptRepository} from './attempts.repository';
 import {addAttemptRoutes} from './attempts.routes';
 import {createAttemptService} from './attempts.service';
@@ -22,7 +22,6 @@ export interface ExamModuleDeps extends Partial<Omit<ImportServiceDeps, 'jobs'>>
   /** Reads an import into a test; built from the other dependencies when left out. */
   processImport?: ImportProcessor;
   /** AI tasks of `./ai`; tests pass fakes. */
-  parseTest?: typeof parseTest;
   parseTestText?: typeof parseTestFromText;
   parseAnswers?: typeof parseAnswers;
   parseAudio?: typeof parseAudio;
@@ -50,7 +49,6 @@ export function createExamModule(jwtSecret: string, deps: ExamModuleDeps = {}): 
       repository,
       storage,
       labelPages,
-      parseTest: deps.parseTest ?? parseTest,
       parseTestText: deps.parseTestText ?? parseTestFromText,
       parseAnswers: deps.parseAnswers ?? parseAnswers,
       parseAudio: deps.parseAudio ?? parseAudio,
