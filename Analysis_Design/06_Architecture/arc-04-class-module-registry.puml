@@ -3,91 +3,106 @@
 title Class — Hợp đồng module và các registry (server, shared, client)
 hide empty members
 package "server/core" {
-  interface ModuleDefinition {
+  interface ApiModule {
     + name : string
+    + basePath : string
     + router : Router
-    + registerOpenApi(registry) : void
-    + aiTasks : AiTask[]
   }
   class ModuleRegistry {
-    + register(def : ModuleDefinition) : void
-    + mount(app) : void
+    + register(module : ApiModule) : void
+    + getAll() : ApiModule[]
+  }
+  class AiTaskRegistry {
+    + register(task : AiTask) : AiTask
+    + has(name : string) : boolean
   }
   interface AiTask<I, O> {
     + name : string  « explain-word.v2 »
-    + inputSchema : ZodSchema<I>
-    + outputSchema : ZodSchema<O>
-    + buildPrompt(input : I) : Prompt
-    + cacheTtl : Duration
+    + buildPrompt(input : I) : AiPrompt
+    + output : ZodSchema<O>
+    + isComplete?(output : O, input : I) : boolean
+    + cacheTtlSeconds? : int
   }
   class AiGateway {
-    + runJsonTask(task, input, userId) : O
-    - checkQuota(userId)
-    - cache
-    - retry(max = 2)
+    + runJsonTask(task, input, { userId }) : O
+    - quota (50 lượt mỗi ngày, giờ VN)
+    - cache (AiCache)
+    - retry (lỗi mạng: thử lại 2 lần;\nkết quả sai schema: tối đa 3 lần gọi)
   }
-  interface StorageDriver {
-    + put(key, data, mime) : StoredFile
-    + get(key) : Stream
+  interface Storage {
+    + put({ mimeType, originalName, data }) : StoredObject
+    + get(key) : Buffer | null
     + delete(key) : void
   }
-  class LocalStorageDriver
-  class S3StorageDriver
+  class "createLocalStorage()" as LocalStorage
+  class "createS3Storage()" as S3Storage
 }
 package "shared/exam" {
   interface Certification {
-    + id : string  « IELTS_ACADEMIC »
-    + sections : SectionSpec[]
-    + toBand(skill, correct) : number
+    + id : CertificationId  « IELTS_ACADEMIC »
+    + name : string
+    + layout : string
+    + sections : Record<Skill, SectionSpec>
   }
   class SectionSpec {
     + skill : Skill
-    + durationSec : int
-    + questionCount : int
     + parts : int
+    + questionCount : int
+    + durationSec : int
+    + reviewSec : int
+    + questionKinds : QuestionKind[]
+    + bandTable : BandStep[]
   }
-  interface QuestionKind {
-    + id : string  « tfng »
+  interface QuestionKindDefinition {
+    + id : QuestionKind  « tfng »
     + answerSchema : ZodSchema
-    + normalize(given) : unknown
-    + grade(given, answer) : boolean
+    + normalize(given) : string | null
+    + gradeGroup(items, context) : boolean[]
   }
 }
-package "server/vocab" {
-  interface DocumentSource {
-    + id : string  « paste | file | exam »
-    + extract(input, userId) : Paragraph[]
+package "shared/vocab" {
+  enum DocumentSource {
+    paste
+    file
+    exam
   }
 }
-package "client/core" {
-  class NavRegistry
-  class HomeWidgetRegistry
-  class DashboardWidgetRegistry
+package "client" {
+  class "core/nav: NavRegistry" as NavRegistry
+  class "features/home: widgets (trang chủ)" as HomeWidgets
+  class "features/stats: DashboardWidgetRegistry" as DashboardWidgetRegistry
 }
 package "client/flashcard" {
   interface StudyMode {
-    + id : string  « flip | learn | test | match »
+    + id : string  « flip | learn | test | match | exercise »
     + component : ReactComponent
   }
 }
-ModuleRegistry o-- "*" ModuleDefinition
-ModuleDefinition o-- "*" AiTask
+ModuleRegistry o-- "*" ApiModule
+AiTaskRegistry o-- "*" AiTask
 AiGateway ..> AiTask : chạy
 note right of AiTask
-  Các task đăng ký (PLAN A5):
+  Các task đăng ký vào aiTaskRegistry:
   vocab: explain-word.v2, scan-document.v1
   exam: classify-pages.v1, parse-test.v2,
   parse-answers.v1, parse-transcript.v1,
   parse-audio.v2, explain-answer.v1
   flashcard: generate-exercise.v2
 end note
-StorageDriver <|.. LocalStorageDriver
-StorageDriver <|.. S3StorageDriver
+note right of ApiModule
+  Module tự đăng ký route và Swagger
+  (import *.openapi.ts); app.ts mount
+  các router của registry.
+end note
+Storage <|.. LocalStorage
+Storage <|.. S3Storage
 Certification *-- "1..*" SectionSpec
-note bottom of QuestionKind
-  Thêm dạng câu / chứng chỉ / nguồn tài liệu /
-  chế độ học = thêm một mục vào registry,
-  không sửa code của module khác (PLAN B4).
+note bottom of QuestionKindDefinition
+  Thêm dạng câu / chứng chỉ / chế độ học =
+  thêm một mục vào registry, không sửa code
+  của module khác (PLAN B4). Nguồn tài liệu
+  là enum DocumentSource, mỗi nguồn có hàm
+  riêng trong service.
 end note
 AiTask -[hidden]down-> Certification
 AiTask -[hidden]down-> DocumentSource

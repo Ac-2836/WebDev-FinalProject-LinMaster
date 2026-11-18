@@ -8,25 +8,29 @@ participant "Library route" as R
 participant "LibraryService" as L
 participant "flashcard public API" as F
 database "PostgreSQL" as DB
-U -> C : Bấm "Lưu về thư viện"
+U -> C : Bấm "Chép về thư viện của tôi"
 C -> R : POST /api/v1/library/sets/:id/copy
 R -> L : copySet(userId, setId)
-L -> F : getPublicSet(setId)
+L -> F : copyLibrarySet(userId, setId)
+F -> DB : BEGIN + khóa advisory theo (userId, setId)\n(chép đồng thời chỉ ra một bản)
 F -> DB : SELECT FlashcardSet + Card WHERE visibility = public
-alt Không public hoặc là của chính người học
-  F --> L : NotFound / Conflict
+alt Không public hoặc không tồn tại
+  F --> L : NotFound
   L --> R : lỗi
-  R --> C : 404 / 409
-else Hợp lệ
-  F --> L : set + cards
-  L -> F : cloneSet(userId, set)
-  F -> DB : BEGIN
-  F -> DB : INSERT FlashcardSet (private, copiedFromId)
-  F -> DB : INSERT Card x n
+  R --> C : 404
+else Là bộ của chính người học
+  F --> L : Conflict
+  L --> R : lỗi
+  R --> C : 409 OWN_CONTENT
+else Đã có bản chép của người học
+  F --> L : setId của bản chép cũ (created = false)
+  R --> C : 200 { setId }\n(không tạo bộ mới, không tăng copyCount)
+else Chép mới
+  F -> DB : INSERT FlashcardSet (private, copiedFromId)\n+ Card x n (nested createMany)
   F -> DB : UPDATE bản gốc copyCount + 1
   F -> DB : COMMIT
-  F --> L : newSetId
+  F --> L : newSetId (created = true)
   R --> C : 201 { setId }
-  C --> U : Mở bộ thẻ mới của mình
 end
+C --> U : Trang xem trước hiện "Đã chép"\nkèm liên kết mở /flashcards/:setId
 @enduml

@@ -5,28 +5,32 @@ autonumber
 actor "Người học" as U
 participant "Trang kết quả\n(Client)" as C
 participant "Vocab route" as R
-participant "VocabService" as V
+participant "DocumentService" as V
 participant "exam public API" as E
 database "PostgreSQL" as DB
 U -> C : Bấm "Mở bài đọc trong Trình đọc" (passage 2)
-C -> R : POST /api/v1/vocab/documents\n{ source: "exam", attemptId, passageId }
-R -> V : createFromExam(userId, attemptId, passageId)
+C -> R : POST /api/v1/vocab/documents/from-exam\n{ attemptId, passageId }
+R -> V : createExamDocument(userId, attemptId, passageId)
 V -> DB : Đã có Document với sourceRef này?
 alt Đã có
   DB --> V : document
 else Chưa có
   V -> E : getPassageText(userId, attemptId, passageId)
   E -> DB : Attempt của user và đã submitted?
-  alt Chưa nộp hoặc không phải của user
-    E --> V : Forbidden
+  alt Không phải của user, hoặc chưa nộp
+    E --> V : Forbidden / NotSubmitted
     V --> R : lỗi
-    R --> C : 403
+    R --> C : 403 (chưa nộp: ATTEMPT_NOT_SUBMITTED)
+  else Không thấy passage
+    E --> V : NotFound
+    V --> R : lỗi
+    R --> C : 404
   else Hợp lệ
     E --> V : { title, paragraphs }
     V -> DB : INSERT Document (source = exam, sourceRef)
   end
 end
-V --> R : documentId
-R --> C : 201 { documentId }
-C --> U : Chuyển tới /read/:documentId
+V --> R : document
+R --> C : 201 { document } (mới) hoặc 200 (đã có)
+C --> U : Chuyển tới /read/:document.id
 @enduml

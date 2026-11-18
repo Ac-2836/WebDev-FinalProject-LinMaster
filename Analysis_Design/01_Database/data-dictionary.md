@@ -64,7 +64,10 @@ Không gắn với người dùng: cùng một input dùng chung kết quả. Ri
 
 Chỉ lưu file của luồng tải đề (PDF đề, PDF đáp án, audio, ảnh sơ đồ). File tài liệu đọc của `vocab` **không** lưu, chỉ lấy chữ.
 
-Các khóa ngoại từ `exam` tới `StoredFile` (`TestSection.audioFileId`, `QuestionGroup.imageFileId`, `TestImport.*FileId`) dùng `ON DELETE RESTRICT`: file đang được đề hoặc lượt tải đề dùng thì không xóa được.
+Các khóa ngoại từ `exam` tới `StoredFile`:
+
+- `TestImport.questionFileId` và `TestImport.answerFileId` dùng `ON DELETE RESTRICT`: file đang được lượt tải đề dùng thì không xóa được.
+- `TestSection.audioFileId`, `QuestionGroup.imageFileId` và `TestImport.audioFileId` dùng `ON DELETE SET NULL`: xóa file thì cột này thành `null`.
 
 ## Module `vocab`
 
@@ -233,7 +236,7 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | instructions | text | ✓ | |
 | sharedOptions | jsonb |  | Phương án dùng chung (danh sách heading, A–G…) |
 | wordLimit | int |  | Completion: "NO MORE THAN TWO WORDS" → 2 |
-| imageFileId | uuid |  | FK → StoredFile (Nên có: điền nhãn sơ đồ) |
+| imageFileId | uuid |  | FK → StoredFile. Dành cho ảnh sơ đồ của dạng câu điền nhãn; chưa có luồng cắt ảnh từ PDF nên hiện luôn rỗng |
 
 ### Question — câu hỏi
 | Cột | Kiểu | Bắt buộc | Ghi chú |
@@ -303,6 +306,30 @@ Trạng thái hiển thị (Mới / Đang học / Đã thuộc) **tính ra từ 
 | createdAt | timestamptz | ✓ | UNIQUE `(reporterId, targetType, targetId)`: mỗi người báo cáo một nội dung một lần |
 
 Các cột công khai (`visibility`, `publishedAt`, `copyCount`, `attemptCount`) nằm trên bảng của `flashcard` và `exam`. `library` thay đổi chúng **qua public API** của hai module đó.
+
+## Index bổ sung
+
+Migration `add_query_indexes` (16/11) thêm 19 index cho các khóa ngoại và truy vấn thường dùng; ngoài các index đã ghi ở từng bảng (kể cả `Attempt(userId, testId)` từ `add_exam_tables`) còn có:
+
+| Bảng | Index |
+|---|---|
+| Attempt | `(testId)` |
+| AttemptAnswer | `(attemptId)` |
+| Card | `(setId, position)` |
+| CardProgress | `(cardId)` |
+| Document | `(ownerId, updatedAt)` |
+| FlashcardSet | `(ownerId)` |
+| Passage | `(sectionId)` |
+| Question | `(groupId)` |
+| QuestionGroup | `(passageId)` |
+| Report | `(targetType, targetId)` |
+| ReviewLog | `(sessionId)`, `(cardId)` |
+| StudySession | `(userId)` |
+| Test | `(ownerId, createdAt)` |
+| TestImport | `(ownerId)` |
+| TestSection | `(testId)` |
+| VocabContext | `(entryId)`, `(documentId)` |
+| VocabEntry | `(ownerId, updatedAt)` |
 
 ## Module `stats`
 

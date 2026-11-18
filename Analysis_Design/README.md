@@ -45,29 +45,29 @@ bash Analysis_Design/render.sh 03_Activity/act-05-tai-de.puml   # xuất một s
 | Sơ đồ | Nội dung |
 |---|---|
 | [act-01-tra-va-luu-tu](03_Activity/act-01-tra-va-luu-tu.png) | Đọc tài liệu, tra từ, lưu từ |
-| [act-02-loc-nhanh-tu](03_Activity/act-02-loc-nhanh-tu.png) | Lọc nhanh từ theo CEFR / chủ đề |
+| [act-02-loc-nhanh-tu](03_Activity/act-02-loc-nhanh-tu.png) | Lọc nhanh từ theo CEFR / chủ đề (một lần gọi AI cho cả tài liệu) |
 | [act-03-soan-bo-the](03_Activity/act-03-soan-bo-the.png) | Tạo / sửa bộ thẻ |
 | [act-04-hoc-the-srs](03_Activity/act-04-hoc-the-srs.png) | Học thẻ theo SM-2 |
 | [act-05-tai-de](03_Activity/act-05-tai-de.png) | Tải đề lên |
 | [act-06-lam-bai-thi](03_Activity/act-06-lam-bai-thi.png) | Làm bài thi CBT, tự lưu, nộp bài |
 | [act-07-dang-len-kho](03_Activity/act-07-dang-len-kho.png) | Đăng lên / gỡ khỏi kho |
 | [act-08-dung-kho](03_Activity/act-08-dung-kho.png) | Tìm, xem trước, chép, làm đề, báo cáo |
-| [act-09-luyen-tap-ai](03_Activity/act-09-luyen-tap-ai.png) | (Nên có) Luyện tập do AI sinh từ bộ thẻ |
+| [act-09-luyen-tap-ai](03_Activity/act-09-luyen-tap-ai.png) | Luyện tập do AI sinh từ bộ thẻ |
 
 ### 04 — Sequence (P0-08, P0-09)
 | Sơ đồ | Nội dung |
 |---|---|
 | [seq-01-dang-nhap](04_Sequence/seq-01-dang-nhap.png) | Đăng nhập, cấp JWT |
-| [seq-02-tra-tu](04_Sequence/seq-02-tra-tu.png) | Tra từ qua AI gateway (quota, cache, thử lại) |
+| [seq-02-tra-tu](04_Sequence/seq-02-tra-tu.png) | Tra từ theo ngữ cảnh qua AI gateway (quota, cache, thử lại, kiểm tra cụm AI giải nghĩa) |
 | [seq-03-loc-nhanh](04_Sequence/seq-03-loc-nhanh.png) | Lọc nhanh và lưu nhiều từ |
-| [seq-04-tai-de](04_Sequence/seq-04-tai-de.png) | Tải đề, job nền, AI nhận diện, kiểm tra |
+| [seq-04-tai-de](04_Sequence/seq-04-tai-de.png) | Tải đề, job nền, AI nhận diện (cả transcript từ audio), kiểm tra |
 | [seq-05-lam-bai-tu-luu](04_Sequence/seq-05-lam-bai-tu-luu.png) | Bắt đầu / tiếp tục làm bài, tự lưu |
 | [seq-06-nop-va-cham](04_Sequence/seq-06-nop-va-cham.png) | Nộp bài và chấm điểm |
 | [seq-07-mo-bai-doc-tu-ket-qua](04_Sequence/seq-07-mo-bai-doc-tu-ket-qua.png) | Mở passage của bài thi trong Trình đọc |
 | [seq-08-hoc-the](04_Sequence/seq-08-hoc-the.png) | Học thẻ SM-2 |
 | [seq-09-chep-bo-the](04_Sequence/seq-09-chep-bo-the.png) | Chép bộ thẻ từ kho |
-| [seq-10-luyen-tap-ai](04_Sequence/seq-10-luyen-tap-ai.png) | (Nên có) Sinh bài luyện tập qua AI gateway |
-| [seq-11-giai-thich-dap-an](04_Sequence/seq-11-giai-thich-dap-an.png) | Giải thích đáp án: từ file đề, hoặc do AI tạo (Nên có) |
+| [seq-10-luyen-tap-ai](04_Sequence/seq-10-luyen-tap-ai.png) | Sinh bài luyện tập qua AI gateway |
+| [seq-11-giai-thich-dap-an](04_Sequence/seq-11-giai-thich-dap-an.png) | Giải thích đáp án: từ file đề, hoặc do AI tạo |
 
 ### 05 — State (P0-10)
 | Sơ đồ | Nội dung |
@@ -92,7 +92,7 @@ Prototype HTML bấm được (Tailwind qua CDN, cùng token màu với `client/
 | File | Nội dung |
 |---|---|
 | [index.html](07_Wireframe/index.html) | Mục lục 32 màn; nút **375 / 1440** xem hai khổ cạnh nhau. Trong mỗi màn: nút **Mục lục** (góc dưới trái) và bảng **WF** đổi trạng thái tải / trống / lỗi / hộp thoại (góc trên phải) |
-| [wireframes.pdf](07_Wireframe/wireframes.pdf) | Bản in cho report: mỗi màn một trang, desktop 1440px và mobile 375px cạnh nhau |
+| [wireframes.pdf](07_Wireframe/wireframes.pdf) | Bản in cho report: mỗi màn một trang, desktop 1440px và mobile 375px cạnh nhau. Sinh lại sau mỗi lần sửa wireframe: `node Analysis_Design/07_Wireframe/build-pdf.mjs` |
 | [design-system](07_Wireframe/00-foundation/design-system.html) | Logo, màu, chữ, nút, ô nhập, card, hộp thoại, trạng thái |
 | [assets/logo-mark.svg](07_Wireframe/assets/logo-mark.svg), [assets/logo.svg](07_Wireframe/assets/logo.svg) | Logo LinMaster (biểu tượng, lockup ngang) |
 

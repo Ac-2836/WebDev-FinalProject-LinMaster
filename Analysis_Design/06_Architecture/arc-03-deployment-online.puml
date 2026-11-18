@@ -3,7 +3,7 @@
 title Deployment — Môi trường online (từ 11/11)
 actor "Người dùng" as U
 node "Trình duyệt" as B
-cloud "Cloudflare\n(DNS + HTTPS, linmaster.id.vn)" as CF
+cloud "Cloudflare\n(DNS cho www và api;\nproxy + HTTPS cho api)" as CF
 node "Vercel" {
   artifact "client (Next.js)\nwww.linmaster.id.vn\npreview *.vercel.app cho mỗi PR" as C
 }
@@ -15,17 +15,17 @@ storage "Backblaze B2\n(PDF đề, audio, S3 API)" as B2
 cloud "Gemini API" as AI
 node "UptimeRobot" as UR
 node "GitHub" {
-  artifact "repo + Actions" as GH
+  artifact "repo + Actions (CI)" as GH
 }
 U --> B
-B --> CF
-CF --> C
-CF --> S
+B --> C : HTTPS (HTTPS do Vercel)
+B --> CF : api.linmaster.id.vn
+CF --> S : proxy
 C --> S : REST /api/v1 + JWT
 S --> DB : Prisma (TLS)
 S --> B2 : S3 API
 S --> AI : HTTPS
 UR --> S : ping /api/v1/health\nmỗi 5 phút
-GH --> C : deploy khi merge main
-GH --> S : deploy khi merge main
+GH --> C : Vercel Git integration:\ndeploy khi merge main
+GH --> S : Render Git integration:\ndeploy khi merge main
 @enduml

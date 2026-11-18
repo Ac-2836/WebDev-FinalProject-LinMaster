@@ -45,7 +45,7 @@ flowchart LR
   api --> db[("PostgreSQL<br/>Neon")]
   api --> files[("File đề và audio<br/>Backblaze B2")]
   api --> ai[Gemini]
-  dns["DNS + HTTPS<br/>Cloudflare, linmaster.id.vn"] -.-> web
+  dns["Cloudflare, linmaster.id.vn<br/>DNS cho www và api, proxy + HTTPS cho api"] -.-> web
   dns -.-> api
   monitor[UptimeRobot] -.->|/api/v1/health| api
 ```
@@ -57,6 +57,7 @@ flowchart LR
 | [docs/Working_rules.md](docs/Working_rules.md) | Luật và quy trình làm việc cho thành viên và AI Agent: Git, PR, review, quy chuẩn code, API, bảo mật, deploy, checklist |
 | [docs/Project_Structure.md](docs/Project_Structure.md) | Tech stack, kiến trúc, cấu trúc thư mục và giải thích chi tiết |
 | [docs/PLAN.md](docs/PLAN.md) | Kế hoạch, phạm vi, lộ trình và backlog |
+| [docs/Database.md](docs/Database.md) | Cơ sở dữ liệu: bảng, ràng buộc, migration |
 | [Analysis_Design/](Analysis_Design/README.md) | Sơ đồ phân tích và thiết kế: ERD, use case, activity, sequence, state, kiến trúc |
 
 ## Chạy ở máy
@@ -66,7 +67,7 @@ Cần Node 22 (xem `.nvmrc`) và Docker Desktop.
 ```bash
 npm install
 docker compose up -d                 # PostgreSQL 16: linmaster_dev và linmaster_test ở cổng 5432
-cp server/.env.example server/.env
+cp server/.env.example server/.env   # điền JWT_SECRET (≥ 32 ký tự, cách tạo ghi trong file); GEMINI_API_KEY nếu muốn dùng AI
 npm run db:migrate -w server         # áp các migration của Prisma vào linmaster_dev
 npm run db:seed -w server            # nạp dữ liệu mẫu (chạy lại nhiều lần vẫn an toàn)
 npm run dev                          # client http://localhost:3000 · API http://localhost:4000/api/v1
@@ -76,8 +77,8 @@ Cổng 5432 đã bị chiếm thì đặt `POSTGRES_PORT=5433` trước `docker 
 
 ## Luật merge vào `main`
 
-Repo đang **private** trên gói GitHub Free nên GitHub không bật được branch protection. Các luật dưới đây vẫn **bắt buộc** và được cả nhóm **tuân thủ thủ công** (chi tiết ở [Working_rules mục 5.5](docs/Working_rules.md)):
+Repo là **public** và chưa bật branch protection trên GitHub. Các luật dưới đây vẫn **bắt buộc** và được cả nhóm **tuân thủ thủ công** (chi tiết ở [Working_rules mục 5.5](docs/Working_rules.md)):
 
-- Không push thẳng vào `main`, không force push, không xóa `main`. Mọi thay đổi đi qua Pull Request từ branch `<loại>/<số-issue>-<mô-tả>`.
-- Mỗi PR cần **1 approve** của thành viên còn lại. Không tự approve, không tự merge khi chưa có approve.
-- Chỉ dùng **Squash and merge**, khi CI xanh (từ lúc có CI ở P0-17). Merge xong thì xóa branch.
+- Không push thẳng vào `main`, không force push, không xóa `main`. Mọi thay đổi đi qua Pull Request từ branch `<loại>/<số-issue>-<mô-tả>` (giai đoạn đầu dùng mã việc của PLAN, ví dụ `feat/p1-06-auth-server`).
+- Mỗi PR cần được **duyệt** (người còn lại hoặc QA kết luận Đạt; KH được tự duyệt PR của mình) và CI xanh. Người mở PR bấm merge sau khi đủ hai điều kiện.
+- Chỉ dùng **Squash and merge**. Merge xong thì xóa branch.

@@ -7,8 +7,12 @@ start
 if (Hành động?) then (Đăng lên)
   |Hệ thống|
   if (Nội dung đang bị ẩn do báo cáo?) then (có)
-    :Không cho đăng lại,
-    yêu cầu sửa nội dung trước;
+    :Từ chối 409 CONTENT_HIDDEN:
+    chủ phải Gỡ xuống trước;
+    stop
+  endif
+  if (Là bộ thẻ và không có thẻ nào?) then (có)
+    :Từ chối 422 SET_EMPTY;
     stop
   endif
   if (Là đề và chưa ghi nguồn?) then (có)
@@ -16,16 +20,14 @@ if (Hành động?) then (Đăng lên)
     :Nhập nguồn đề;
   endif
   |Hệ thống|
-  :Hiện quy định chia sẻ
-  (quyền sử dụng, bản quyền);
-  |Chủ sở hữu|
-  :Xác nhận;
-  |Hệ thống|
-  :visibility = public, ghi publishedAt;
+  :visibility = public, ghi publishedAt = lúc đăng
+  (gỡ rồi đăng lại thì lấy giờ mới);
   :Nội dung xuất hiện trong kho;
 else (Gỡ xuống)
   |Hệ thống|
   :visibility = private;
+  :Nếu đang bị ẩn: các báo cáo đang mở
+  chuyển resolved, sau đó đăng lại được;
   :Ẩn khỏi kho; các bản đã chép vẫn giữ;
 endif
 stop

@@ -6,7 +6,7 @@ start
 :Tạo tài liệu: dán văn bản
 hoặc tải file PDF / DOCX / TXT;
 |Hệ thống|
-while (File sai định dạng, quá 5 MB hoặc không trích được chữ?) is (có)
+while (File sai định dạng, quá 5 MB, quá 20.000 từ hoặc không trích được chữ?) is (có)
   :Báo lỗi cụ thể, giữ nguyên form;
   |Người học|
   :Chọn file khác hoặc dán văn bản;
@@ -25,8 +25,8 @@ repeat
   :Bôi chọn từ hoặc cụm từ;
   if (Chọn quá 6 từ?) then (có)
     |Hệ thống|
-    :Khóa nút "Giải thích",
-    hiện gợi ý chọn ngắn hơn;
+    :Không nhận vùng chọn,
+    hiện thông báo "Chọn tối đa 6 từ";
   else (không)
     |Người học|
     :Bấm "Giải thích" (hoặc phím tắt);
@@ -39,19 +39,30 @@ repeat
         :Lấy kết quả từ cache;
       else (không)
         |Gemini AI|
-        :Giải thích từ theo đúng câu chứa từ;
+        :Giải thích theo câu chứa từ và
+        chủ đề của bài (explain-word.v2);
         |Hệ thống|
         :Kiểm tra kết quả bằng schema
         (thử lại tối đa 2 lần);
+        :Lưu vào AiCache;
+      endif
+      :Tìm cụm AI giải nghĩa trong câu
+      (nguyên văn, chạm vùng chọn, tối đa 6 từ);
+      if (Cụm sai hoặc bị rút còn 1 từ?) then (có)
+        |Gemini AI|
+        :Hỏi lại AI 1 lần, kèm lý do
+        (tính thêm một lượt quota);
+        |Hệ thống|
       endif
       if (Có kết quả hợp lệ?) then (không)
-        :Báo AI đang lỗi, mời thử lại,
-        không trừ quota;
+        :Báo lỗi AI (502 hoặc 503), mời thử lại
+        (lượt AI đã gọi thành công vẫn tính quota);
       else (có)
-      :Lưu vào AiCache (nếu mới);
       :Ghi VocabLookup;
-      :Hiện popover: nghĩa trong câu, IPA,
-      cách dùng, collocations, CEFR;
+      :Dời khung đánh dấu theo cụm
+      đã giải nghĩa (match);
+      :Hiện popover: nghĩa trong câu và chủ đề bài,
+      IPA, cách dùng, collocations, CEFR;
       |Người học|
       if (Muốn lưu từ?) then (có)
         :Bấm "Lưu";
@@ -62,8 +73,9 @@ repeat
         else (chưa)
           :Tạo VocabEntry + VocabContext;
         endif
-        :Tô màu từ trong bài,
-        toast có nút "Tạo bộ thẻ";
+        :Tô màu từ trong bài;
+        :Popover đổi sang "Đã lưu kèm câu này"
+        với liên kết "Mở kho từ";
       else (không)
       endif
       endif

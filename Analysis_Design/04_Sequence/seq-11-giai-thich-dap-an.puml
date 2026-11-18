@@ -12,12 +12,15 @@ participant "Gemini API" as AI
 U -> C : Bấm "Giải thích" ở câu n
 alt Câu có giải thích từ file đề\n(có trong GET /attempts/:id/result)
   C --> U : Ngăn bên: giải thích, nhãn "Từ file đề"
-else Chưa có giải thích (Nên có)
-  C -> R : POST /api/v1/attempts/:id/questions/:no/explain + JWT
-  R -> S : explain(userId, attemptId, no)
+else Chưa có giải thích
+  C -> R : POST /api/v1/attempts/:id/questions/:no/explain?skill= + JWT
+  R -> R : requireAuth + aiRateLimit
+  R -> S : explainQuestion(userId, attemptId, no, skill)
   S -> DB : Attempt của người học và đã nộp?
-  alt Chưa nộp / của người khác
-    R --> C : 403
+  alt Không hợp lệ
+    R --> C : 403 (của người khác), 409 ATTEMPT_NOT_SUBMITTED (chưa nộp),\n404 (không có câu), 400 (trùng số câu, cần ?skill=)
+  else Listening không có transcript
+    R --> C : 422 EXPLAIN_NO_TEXT (không gọi AI)
   else Hợp lệ
     S -> DB : Lấy câu hỏi, đáp án đúng, đáp án đã chọn,\npassage (Reading) hoặc transcript (Listening)
     S -> G : runJsonTask("explain-answer.v1", input)
@@ -31,7 +34,7 @@ else Chưa có giải thích (Nên có)
     end
     G --> S : explanation + evidence[]
     S -> S : Giữ bằng chứng có thật trong bài,\nbỏ câu trích không tìm thấy
-    R --> C : 200 { explanation, evidence[], source: "ai" }
+    R --> C : 200 { explanation: { number, skill, source: "ai",\ntext, evidence[] } }
     C --> U : Ngăn bên: giải thích, bằng chứng tô sáng,\nnhãn "Do AI tạo, có thể chưa chính xác"
   end
 end

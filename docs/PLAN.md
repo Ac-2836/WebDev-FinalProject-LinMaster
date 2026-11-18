@@ -52,6 +52,7 @@ Chỗ ghi **[CẦN CHỐT]** là quyết định nhóm còn phải đưa ra.
 | **home** | Trang chủ sau khi đăng nhập: tiếp tục bài dở, thẻ đến hạn, tài liệu gần đây |
 
 ### Nên có (làm trong kế hoạch, nhưng bị cắt đầu tiên khi trễ, xem Phần G)
+*Tình trạng ở v1.0: đã làm xong tất cả, trừ việc cắt hình bản đồ / sơ đồ từ PDF (không làm, #117 đã đóng) và mốc thời gian từng Part trong transcript từ audio (bản `parse-audio.v2` bỏ mốc).*
 - Flashcard: dán nhanh nhiều thẻ (mỗi dòng `thuật ngữ<Tab>định nghĩa`). Chế độ **Kiểm tra** tự sinh câu hỏi từ chính bộ thẻ. Chế độ **Ghép thẻ** (Match).
 - Flashcard: **AI sinh bài luyện tập** theo dạng câu thi thật (trắc nghiệm, điền chỗ trống, nối) từ các từ trong bộ thẻ.
 - Exam: **AI giải thích đáp án** và chỉ ra bằng chứng trong bài khi người dùng bấm xem.
@@ -108,14 +109,15 @@ Ngày hôm nay là T3 03/11/2026. Hạn nộp là CN 22/11/2026.
 
 ## A5. Việc dùng AI trong dự án
 
-- **Trong sản phẩm:** Gemini dùng cho 8 task, mỗi task một tên có phiên bản:
-  - `explain-word.v1`: giải thích từ theo ngữ cảnh (C2).
+- **Trong sản phẩm:** Gemini dùng cho 9 task, mỗi task một tên có phiên bản:
+  - `explain-word.v2`: giải thích từ theo ngữ cảnh và chủ đề của bài (C2).
   - `scan-document.v1`: lọc từ theo CEFR / chủ đề (C2).
   - `classify-pages.v1`: gắn nhãn từng trang của file đề (C4).
-  - `parse-test.v1`, `parse-answers.v1`: tách cấu trúc đề, đáp án và giải thích có sẵn trong file (C4).
-  - *(Nên có)* `parse-audio.v1`: tạo transcript từ audio khi bộ file không có (C4, P3-18).
-  - *(Nên có)* `generate-exercise.v1`: sinh bài luyện tập từ bộ thẻ (C3, P4-11).
-  - *(Nên có)* `explain-answer.v1`: giải thích đáp án khi file đề không kèm giải thích (C4, P4-12).
+  - `parse-test.v2`, `parse-answers.v1`: tách cấu trúc đề, đáp án và giải thích có sẵn trong file (C4).
+  - `parse-transcript.v1`: đọc transcript Listening có sẵn trong file đề (C4).
+  - `parse-audio.v2`: tạo transcript (không có mốc thời gian) từ audio khi bộ file không có (C4, P3-18).
+  - `generate-exercise.v2`: sinh bài luyện tập từ bộ thẻ (C3, P4-11).
+  - `explain-answer.v1`: giải thích đáp án khi file đề không kèm giải thích (C4, P4-12).
   - Mọi lệnh gọi đi qua AI gateway (C0), có cache và quota.
 - **Trong quá trình làm:** nhóm dùng AI Agent (Claude Code) để hỗ trợ viết code, test và tài liệu, theo luật [Working_rules.md](Working_rules.md) mục 3. Người phụ trách đọc hiểu và chịu trách nhiệm cho mọi PR. Report có mục riêng nói về việc này.
 - **Nội dung đề thi do người cung cấp.** AI chỉ chuyển file (PDF, audio) thành cấu trúc, **không** sinh nội dung đề hay đáp án. Giải thích do AI tạo (`explain-answer.v1`) luôn ghi rõ "Do AI tạo".
@@ -128,11 +130,11 @@ Ngày hôm nay là T3 03/11/2026. Hạn nộp là CN 22/11/2026.
 
 | Module | Trách nhiệm | Bảng sở hữu (dự kiến) |
 |---|---|---|
-| `core` | Cấu hình, DB client, lỗi, validate, bảo mật, JWT, **AI gateway**, **lưu file**, Swagger, i18n (client), module registry | `AiCache`, `AiUsage` |
+| `core` | Cấu hình, DB client, lỗi, validate, bảo mật, JWT, **AI gateway**, **lưu file**, Swagger, i18n (client), module registry | `AiCache`, `AiUsage`, `StoredFile` |
 | `auth` | Tài khoản, phiên đăng nhập, hồ sơ | `User` |
 | `exam` | Đề thi (tải lên, nhận diện, kiểm tra), lượt làm bài, chấm điểm, kết quả, registry chứng chỉ và dạng câu | `Test`, `TestSection`, `Passage`, `QuestionGroup`, `Question`, `TestImport`, `Attempt`, `AttemptAnswer` |
-| `vocab` | Tài liệu đọc, tra từ, lọc nhanh, kho từ | `Document`, `VocabEntry` |
-| `flashcard` | Bộ thẻ, thẻ, tiến độ học SM-2, phiên học, bài luyện tập | `FlashcardSet`, `Card`, `CardProgress`, `StudySession` |
+| `vocab` | Tài liệu đọc, tra từ, lọc nhanh, kho từ | `Document`, `VocabEntry`, `VocabContext`, `VocabLookup` |
+| `flashcard` | Bộ thẻ, thẻ, tiến độ học SM-2, phiên học, bài luyện tập | `FlashcardSet`, `Card`, `CardProgress`, `StudySession`, `ReviewLog` |
 | `library` | Đăng lên / gỡ xuống, tìm kiếm, xem trước, chép bộ thẻ, báo cáo | `Report` (trạng thái công khai nằm trên bảng của module sở hữu nội dung) |
 | `stats` | Tổng hợp số liệu cho dashboard (chỉ đọc qua public API của các module khác) | — |
 | `home` | Trang chủ: chỉ có ở client, ghép widget của các module | — |
@@ -155,7 +157,7 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 ## B3. Hợp đồng module
 
 - **Server:** mỗi module xuất ra một *module definition* gồm tên, router, đăng ký Swagger, task AI và public API (các hàm module khác được gọi). `server/src/modules/index.ts` đăng ký mỗi module bằng **một dòng**.
-- **Client:** mỗi module là một thư mục trong `client/features/<module>/`, có một điểm export công khai duy nhất. Module đăng ký mục điều hướng vào nav registry và widget vào home widget registry.
+- **Client:** mỗi module là một thư mục trong `client/features/<module>/`, có một điểm export công khai duy nhất. Module đăng ký mục điều hướng vào nav registry; widget của trang chủ nằm ở `features/home`, widget của dashboard ở `features/stats`.
 - **Shared:** mỗi module có `shared/src/<module>/` chứa Zod schema của request/response, kiểu dữ liệu và hằng số.
 - **Database:** mỗi module có một file `server/prisma/schema/<module>.prisma`.
 - **i18n:** chuỗi giao diện nằm trong `client/messages/{vi,en}.json`, mỗi module có namespace riêng. API trả về **mã lỗi**, client dịch mã lỗi thành câu thông báo.
@@ -169,9 +171,9 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 | **Certification registry** | shared + client | Thêm chứng chỉ mới (TOEIC…): khai báo các kỹ năng, thời gian, số câu, bảng quy đổi band, layout phòng thi |
 | **Question kind registry** | shared + client | Thêm dạng câu: schema đáp án, cách chuẩn hóa, cách chấm, component hiển thị |
 | AI task registry | server core | Thêm task AI: prompt có đánh phiên bản, schema output, chính sách cache |
-| Document source registry | server vocab | Thêm nguồn tài liệu: dán văn bản, file, bài thi, sau này là URL hoặc extension |
-| Study mode registry | client flashcard | Thêm chế độ học: thẻ lật, Học, Kiểm tra, Ghép thẻ |
-| Storage driver | server core | `local` (ổ đĩa, khi phát triển) / `r2` (khi deploy) |
+| Nguồn tài liệu | server vocab | Enum `paste` / `file` / `exam`, mỗi nguồn một hàm trong service; thêm nguồn là thêm giá trị và hàm mới |
+| Study mode registry | client flashcard | Thêm chế độ học: thẻ lật, Học, Kiểm tra, Ghép thẻ, Luyện tập AI |
+| Storage driver | server core | `local` (ổ đĩa, khi phát triển) / `s3` (dịch vụ tương thích S3: Backblaze B2 khi deploy; `r2` là tên khác của cùng driver) |
 
 ## B5. Quy tắc chống xung đột
 - Mỗi PR chỉ chạm **một module**, cộng thêm `shared/<module>` của module đó. Thêm module hay registry mới chỉ được sửa **một dòng** ở file đăng ký.
@@ -193,10 +195,10 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 | ERD + từ điển dữ liệu | Mọi bảng, khóa, quan hệ, ràng buộc duy nhất; mỗi bảng thuộc module nào | P0-05 |
 | Activity | Đọc → tra → lưu từ; Tạo / sửa bộ thẻ và học | P0-06 |
 | | Tải đề; Làm bài thi (tự lưu, hết giờ, nộp); Đăng lên và chép từ kho | P0-07 |
-| | *(Nên có)* Luyện tập do AI sinh từ bộ thẻ (`act-09`) | P4-11 |
+| | Luyện tập do AI sinh từ bộ thẻ (`act-09`) | P4-11 |
 | Sequence | Tra từ và Lọc nhanh qua AI gateway | P0-08 |
 | | Đăng nhập; Tải đề (job nền); Làm bài, tự lưu, nộp; Chép bộ thẻ | P0-09 |
-| | Giải thích đáp án (`seq-11`); *(Nên có)* sinh bài luyện tập (`seq-10`) | P4-11, P4-12 |
+| | Giải thích đáp án (`seq-11`); sinh bài luyện tập (`seq-10`) | P4-11, P4-12 |
 | State | `Attempt`; `TestImport`; trạng thái công khai của nội dung; tiến độ thẻ | P0-10 |
 | Component, Deployment, Class | Kiến trúc module và các registry; triển khai ở local và online | P0-11 |
 | Wireframe | Trình đọc, trình soạn thẻ, chế độ học, phòng thi, kết quả, dashboard | P0-12 |
@@ -210,21 +212,21 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 ## C0. `core`
 
 **Server:**
-- Lỗi chuẩn `{ error: { code, message, details? } }`. Middleware validate Zod. Bọc handler async.
+- Lỗi chuẩn `{ error: { code, status, message, details? } }`. Middleware validate Zod. Bọc handler async.
 - Bảo mật: helmet, CORS theo danh sách cho phép, rate limit, giới hạn body, JWT, `requireAuth`.
 - **AI gateway:** `runJsonTask(task, input)`.
   - Gọi Gemini với schema output, rồi validate kết quả bằng Zod. JSON sai thì thử lại tối đa 2 lần.
   - Cache theo hash của input. Quota mỗi người dùng mỗi ngày, quá quota thì trả `429 AI_QUOTA_EXCEEDED`.
   - Ghi `AiUsage`. Có bản mock để chạy test.
   - Nhận được đầu vào là file PDF.
-- **Lưu file:** `storage.put / get / delete`. Driver `local` lưu vào thư mục `uploads/` (không commit), driver `r2` dùng khi deploy. Kiểm tra MIME và kích thước ngay khi nhận file.
+- **Lưu file:** `storage.put / get / delete`. Driver `local` lưu vào thư mục `uploads/` (không commit), driver `s3` (Backblaze B2) dùng khi deploy. Kiểm tra MIME và kích thước ngay khi nhận file.
 - Swagger UI tại `/docs`, đặc tả tại `/docs/openapi.json`. Test route-coverage: route nào chưa có doc thì test báo lỗi.
 
 **Client:**
 - API client duy nhất: gắn JWT, chuyển mã lỗi thành câu đã dịch.
 - Phiên đăng nhập (context). Trang cần đăng nhập thì chặn và chuyển về `/login?next=...`.
 - **i18n với `next-intl`, hai ngôn ngữ `vi` và `en`.** Có nút đổi ngôn ngữ, lựa chọn lưu vào hồ sơ.
-- Ba nhóm layout: công khai, ứng dụng, phòng thi (toàn màn hình).
+- Bốn nhóm layout: công khai, ứng dụng, phòng thi (toàn màn hình), chế độ học flashcard (toàn màn hình).
 - Navbar sinh từ nav registry. Có toast, trang 404/lỗi, skeleton, trạng thái trống.
 
 **Hoàn thành khi:** lỗi Zod và lỗi không lường trước đều ra đúng định dạng chuẩn (có test); `/docs` hiển thị; đổi ngôn ngữ giữ được sau khi refresh.
@@ -232,7 +234,7 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 ## C1. `auth`
 
 - **Dữ liệu:** `User`: email (duy nhất), passwordHash, displayName, locale (`vi`/`en`), targetBand (có thể bỏ trống), createdAt.
-- **API:** `POST /auth/register`, `POST /auth/login` (công khai, rate limit chặt), `GET /auth/me`, `PATCH /auth/me`.
+- **API:** `POST /auth/register`, `POST /auth/login` (công khai, rate limit chặt), `GET /auth/me`, `PATCH /auth/me`, `PATCH /auth/me/email`, `PATCH /auth/me/password` (đổi email, đổi mật khẩu; đòi mật khẩu hiện tại).
 - **Giao diện:** `/login`, `/register`, `/profile`, đăng xuất.
 - **Hoàn thành khi:** sai mật khẩu ra 401 với thông báo không lộ là email có tồn tại hay không; thiếu token thì 401; mật khẩu được hash bằng bcrypt (có test).
 
@@ -250,14 +252,15 @@ core ◀── auth ◀── exam ◀── vocab ◀── flashcard ◀──
 |---|---|
 | `POST /vocab/documents` | Tạo tài liệu từ văn bản dán vào, hoặc file PDF/DOCX/TXT (≤ 5 MB, multipart). Server trích chữ ra |
 | `GET /vocab/documents`, `GET/DELETE /vocab/documents/:id` | Danh sách, chi tiết (kèm danh sách từ đã lưu trong tài liệu để tô lại), xóa |
-| `POST /vocab/lookups` | **Tra từ theo ngữ cảnh.** Đầu vào: `{ text, sentence, documentId?, sourceUrl? }`. Trả về giải thích. **Không phụ thuộc giao diện web**, để extension trình duyệt dùng lại được |
+| `POST /vocab/documents/from-exam` | Mở một passage của bài thi đã nộp thành tài liệu đọc. Đầu vào `{ attemptId, passageId }`; mở lại passage đã mở thì trả tài liệu cũ |
+| `POST /vocab/lookups` | **Tra từ theo ngữ cảnh.** Đầu vào: `{ text, sentence, textStart?, context?: { title?, paragraph? }, documentId?, sourceUrl? }`. Trả về `{ explanation, match: { text, start, end, adjusted }, savedEntryId }`: giải thích và cụm thật sự được giải nghĩa (vị trí trong `sentence`). **Không phụ thuộc giao diện web**, để extension trình duyệt dùng lại được |
 | `POST /vocab/documents/:id/scan` | **Lọc nhanh.** Đầu vào: `{ levels?: CEFR[], topics?: string[] }`. Trả về danh sách ứng viên kèm câu gốc. Server kiểm tra lại câu gốc phải có thật trong văn bản; câu nào AI bịa ra thì loại |
 | `POST /vocab/entries` | Lưu một hoặc nhiều từ |
 | `GET /vocab/entries` | Tìm kiếm, lọc theo chủ đề / CEFR / tài liệu, phân trang |
-| `PATCH/DELETE /vocab/entries/:id` | Sửa ghi chú, xóa |
+| `GET/PATCH/DELETE /vocab/entries/:id` | Xem một từ, sửa ghi chú, xóa |
 
 **Task AI:**
-- `explain-word.v1`: input là từ + câu chứa từ. Trả về headword, lemma, loại từ, IPA, nghĩa Việt **đúng nghĩa trong câu**, định nghĩa Anh, ghi chú cách dùng, collocations, CEFR, chủ đề.
+- `explain-word.v2`: input là từ + câu chứa từ, kèm tiêu đề và đoạn văn chứa từ để dịch đúng chủ đề của bài. Chọn cụm có nghĩa thì giải nghĩa nguyên cụm; chọn cụm vô nghĩa thì rút về cụm gần nhất; server kiểm tra cụm AI trả nằm nguyên văn trong câu. Trả về headword, lemma, loại từ, IPA, nghĩa Việt **đúng nghĩa trong câu**, định nghĩa Anh, ghi chú cách dùng, collocations, CEFR, chủ đề.
 - `scan-document.v1`: lọc từ theo trình độ và chủ đề.
 - Danh sách chủ đề có sẵn: khoảng 15 chủ đề quen thuộc của IELTS, cộng một ô nhập tự do.
 
@@ -296,18 +299,19 @@ Bám theo mô hình Quizlet.
 | `GET /flashcards/sets/:id/study` | Lấy các thẻ đến hạn và thẻ mới, có giới hạn mỗi ngày tính theo giờ Việt Nam |
 | `POST /flashcards/reviews` | Chấm một thẻ (Again / Hard / Good / Easy), cập nhật SM-2 |
 | `POST /flashcards/sessions`, `PATCH /flashcards/sessions/:id` | Bắt đầu và kết thúc phiên học |
-| *(Nên có)* `GET /flashcards/sets/:id/quiz` | Sinh câu hỏi Kiểm tra từ chính bộ thẻ (trắc nghiệm, tự gõ, đúng/sai) |
-| *(Nên có)* `POST /flashcards/sets/:id/exercises` | Task AI `generate-exercise.v1`: bài luyện tập theo dạng câu thi. Đầu vào: `{ kinds: ('single_choice' \| 'completion' \| 'matching')[], count: 10 \| 20 }`. Trả về câu hỏi kèm đáp án để chấm ngay ở client. Không lưu DB, chỉ cache theo bộ thẻ + tham số |
+| `GET /flashcards/due-summary` | Số thẻ đến hạn của người học (cho trang chủ) |
+| `GET /flashcards/sets/:id/quiz` | Sinh câu hỏi Kiểm tra từ chính bộ thẻ (trắc nghiệm, tự gõ, đúng/sai) |
+| `POST /flashcards/sets/:id/exercises` | Task AI `generate-exercise.v2`: bài luyện tập theo dạng câu thi. Đầu vào: `{ kinds: ('single_choice' \| 'completion' \| 'matching')[], count: 10 \| 20 }`. Trả về câu hỏi kèm đáp án để chấm ngay ở client. Không lưu DB, chỉ cache theo bộ thẻ + tham số |
 
 **Giao diện:**
 - `/flashcards`: các bộ thẻ của tôi.
-- `/flashcards/new` và `/flashcards/[id]/edit`: **trình soạn** dạng các hàng thuật ngữ / định nghĩa. Có thêm, xóa, kéo thả hoặc dùng phím để đổi thứ tự, và *(Nên có)* dán nhanh nhiều thẻ.
+- `/flashcards/new` và `/flashcards/[id]/edit`: **trình soạn** dạng các hàng thuật ngữ / định nghĩa. Có thêm, xóa, kéo thả hoặc dùng phím để đổi thứ tự, và dán nhanh nhiều thẻ.
 - `/flashcards/[id]`: xem trước bộ thẻ, danh sách thẻ, các nút chế độ học.
 - `/flashcards/[id]/study/[mode]`:
   - **Thẻ lật**: lật 3D, phím cách để lật, phím mũi tên để chuyển thẻ.
   - **Học**: 4 nút chấm, phím 1–4, thanh tiến độ, tổng kết cuối phiên.
-  - *(Nên có)* **Kiểm tra** và **Ghép thẻ** (bộ thẻ cần ít nhất 4 thẻ để có phương án nhiễu).
-  - *(Nên có)* **Luyện tập AI** (`/flashcards/[id]/study/exercise`, bộ thẻ cần ít nhất 4 thẻ): chọn dạng câu và số câu → AI soạn câu hỏi chỉ dùng các từ trong bộ thẻ → làm bài, chấm ngay, xem đáp án.
+  - **Kiểm tra** và **Ghép thẻ** (bộ thẻ cần ít nhất 4 thẻ để có phương án nhiễu).
+  - **Luyện tập AI** (`/flashcards/[id]/study/exercise`, bộ thẻ cần ít nhất 4 thẻ): chọn dạng câu và số câu → AI soạn câu hỏi chỉ dùng các từ trong bộ thẻ → làm bài, chấm ngay, xem đáp án.
     - Server kiểm tra từng câu: đúng schema dạng câu, đáp án nằm trong phương án, chỉ dùng từ của bộ thẻ. Câu không đạt thì bỏ; còn dưới một nửa số câu yêu cầu thì báo lỗi.
 
 **Hoàn thành khi:**
@@ -336,7 +340,7 @@ Bám theo mô hình Quizlet.
 - Nối: heading, thông tin, đặc điểm, nửa câu sau.
 - Điền chỗ trống: câu, tóm tắt, ghi chú, bảng, form, flow-chart. Có danh sách đáp án chấp nhận và giới hạn số từ.
 - Trả lời ngắn.
-- *(Nên có)* Điền nhãn bản đồ / sơ đồ.
+- Điền nhãn bản đồ / sơ đồ (dạng câu `diagram_label` có; chưa có luồng cắt hình từ PDF).
 
 **Luồng tải đề.** Có hai chế độ, là hai tab của màn tải đề. Quy định file của từng chế độ nằm ở Phần F.
 
@@ -363,10 +367,10 @@ Tab "AI nhận diện": thả file dần ─▶ gắn nhãn trang ─▶ bảng 
    - *shortcut:* file đã đưa lên nhưng không thuộc lượt tải nào sau 24 giờ thì bị xóa bởi một tác vụ dọn dẹp chạy định kỳ.
 3. **Job nền** (`queued` → `parsing` → `validating` → `done` | `failed`). Mỗi task chỉ nhận đúng các trang đã gắn nhãn cho nó.
    - Job đọc nhãn trang của PDF đã gộp (`classify-pages.v1`, cache theo hash), nên đề có đáp án ở cuối hay nhiều file đều xử lý như nhau.
-   - `parse-test.v1`: trang bài đọc và câu hỏi → cấu trúc (section, passage chia đoạn A, B, C…, nhóm câu, dạng câu, phương án, giới hạn số từ).
+   - `parse-test.v2`: trang bài đọc và câu hỏi → cấu trúc (section, passage chia đoạn A, B, C…, nhóm câu, dạng câu, phương án, giới hạn số từ).
    - `parse-answers.v1`: trang đáp án và giải thích → đáp án theo số câu, **giải thích gắn vào từng câu** (nếu có, lưu trong `Question.answer.explanation`). **Tự nhận ra đáp án nào thuộc phần nào** (Listening / Reading) khi là đề Full.
-   - Transcript lấy từ các trang `transcript` (nếu có), lưu vào `Passage.paragraphs` của đúng Part Listening.
-   - *(Nên có, P3-18)* `parse-audio.v1`: khi không có transcript thì nghe audio để tạo transcript và mốc bắt đầu từng Part. Cắt hình bản đồ / sơ đồ từ PDF theo tọa độ AI trả về.
+   - Transcript lấy từ các trang `transcript` (nếu có) bằng `parse-transcript.v1`, lưu vào `Passage.paragraphs` của đúng Part Listening.
+   - `parse-audio.v2` (P3-18): khi không có transcript thì nghe audio để tạo transcript từng Part (không có mốc thời gian), kèm cảnh báo `TRANSCRIPT_BY_AI`. Việc cắt hình bản đồ / sơ đồ từ PDF không làm.
 4. **Lớp kiểm tra (không dùng AI)**, chia làm hai mức:
    - **Lỗi chặn** → `failed`, kèm danh sách lỗi theo từng câu:
      - Số câu từng phần sai so với registry chứng chỉ, hoặc đánh số không liên tục.
@@ -396,9 +400,10 @@ Tab "AI nhận diện": thả file dần ─▶ gắn nhãn trang ─▶ bảng 
 | `POST /attempts` | Bắt đầu làm bài. Nếu đang có bài dở của đề này thì trả lại bài dở |
 | `GET /attempts/:id` | Trả về `serverNow`, thời gian còn lại, vị trí audio tính theo giờ server. Quá hạn thì tự nộp bài khi được gọi (nộp lười) |
 | `PUT /attempts/:id/state` | Tự lưu. Quá hạn thì từ chối |
+| `GET /attempts/:id/audio` | Phát audio Listening của bài đang làm (theo vị trí giờ server) |
 | `POST /attempts/:id/submit` | Chấm điểm và quy ra band. Gọi lại nhiều lần thì kết quả không đổi |
 | `GET /attempts/:id/result`, `GET /attempts` | Kết quả chi tiết (kèm giải thích có sẵn trong file và transcript Listening), lịch sử làm bài |
-| *(Nên có)* `POST /attempts/:id/questions/:no/explain` | Task AI `explain-answer.v1`: giải thích đáp án và chỉ ra bằng chứng (đoạn, câu trích) trong passage hoặc transcript. Chỉ cho bài đã nộp, của chính mình. Câu đã có giải thích từ file thì trả lại giải thích đó, không gọi AI. Cache theo câu hỏi + đáp án của người làm |
+| `POST /attempts/:id/questions/:no/explain` | Task AI `explain-answer.v1`: giải thích đáp án và chỉ ra bằng chứng (đoạn, câu trích) trong passage hoặc transcript. Chỉ cho bài đã nộp, của chính mình. Câu đã có giải thích từ file thì trả lại giải thích đó, không gọi AI. Cache theo câu hỏi + đáp án của người làm |
 | **public API** | `getPassageText(attemptId, passageId)` (chỉ khi đã nộp bài), cùng các hàm thống kê cho `stats` |
 
 **Phòng thi (client):**
@@ -416,7 +421,7 @@ Tab "AI nhận diện": thả file dần ─▶ gắn nhãn trang ─▶ bảng 
 - **Đồng hồ:** cảnh báo lúc còn 10 phút và 5 phút, hết giờ thì tự nộp. Có hộp xác nhận khi nộp bài.
 - **Tự lưu:** chỉ báo trạng thái lưu. Mất mạng thì hiện "Mất kết nối" và tự lưu lại khi có mạng. Hỏi xác nhận khi rời trang.
 - **Trang kết quả:** điểm, band, từng câu (đáp án của mình và đáp án đúng), lọc câu sai, nút **"Mở bài đọc trong Trình đọc"** (tạo `Document` nguồn `exam` → `/read/[id]`).
-  - Nút **Giải thích** ở mỗi câu mở ngăn bên: giải thích từ file đề (ghi "Từ file đề"), hoặc *(Nên có)* giải thích do AI tạo kèm bằng chứng tô sáng trong bài (ghi "Do AI tạo, có thể chưa chính xác").
+  - Nút **Giải thích** ở mỗi câu mở ngăn bên: giải thích từ file đề (ghi "Từ file đề"), hoặc giải thích do AI tạo kèm bằng chứng tô sáng trong bài (ghi "Do AI tạo, có thể chưa chính xác").
   - Listening có nút **Xem transcript** theo từng Part (nếu đề có transcript).
 
 **Hoàn thành khi:**
@@ -429,7 +434,7 @@ Tab "AI nhận diện": thả file dần ─▶ gắn nhãn trang ─▶ bảng 
 ## C5. `library` — Kho cộng đồng
 
 - **Đăng lên / gỡ xuống:** `POST /library/{sets|tests}/:id/publish` và `.../unpublish`, chỉ chủ sở hữu được làm. Đặt `visibility` qua public API của module sở hữu nội dung.
-- **Duyệt:** `GET /library?type=set|test&q=&topic=&skill=&sort=new|popular`, có phân trang.
+- **Duyệt:** `GET /library?type=set|test&q=&skill=&sort=new|popular&page=&pageSize=`, có phân trang.
 - **Xem trước:**
   - Bộ thẻ: toàn bộ thẻ.
   - Đề: tiêu đề, kỹ năng, số câu, thời gian, các dạng câu, người đăng, số lượt làm. **Không** lộ câu hỏi chi tiết hay đáp án.
@@ -635,10 +640,10 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 
 | Môi trường | Thành phần | Ghi chú |
 |---|---|---|
-| **Local** | Postgres trong Docker (`docker-compose.yml`), lưu file vào `uploads/`, AI dùng key riêng hoặc mock | Mặc định khi phát triển |
-| **CI** | Postgres service của GitHub Actions, AI luôn mock | Không gọi Gemini thật trong CI |
-| **Online (từ T4 11/11)** | Client trên **Vercel** (`*.vercel.app`, có preview cho mỗi PR); server trên **Render** (`*.onrender.com`); DB **Neon**; file trên **Cloudflare R2** | Build server xong thì chạy `prisma migrate deploy` rồi mới start. Health check `/api/v1/health` |
-| **Tên miền** | **[CẦN CHỐT]** chưa mua. Khi mua: `<tên-miền>` → Vercel, `api.<tên-miền>` → Render, HTTPS qua Cloudflare | Việc P5-06 |
+| **Local** | Postgres trong Docker (`docker-compose.yml`), lưu file vào `uploads/`, AI dùng key riêng (không có key thì AI trả 503; mock chỉ dùng trong test) | Mặc định khi phát triển |
+| **CI** | Postgres service của GitHub Actions, AI luôn mock; hai job `check` (lint, typecheck, migrate, test, build) và `e2e` (Playwright) | Không gọi Gemini thật trong CI |
+| **Online (từ T4 11/11)** | Client trên **Vercel** (`www.linmaster.id.vn`, preview `*.vercel.app` cho mỗi PR); server trên **Render** (`api.linmaster.id.vn`); DB **Neon**; file trên **Backblaze B2** (S3 API). Vercel và Render deploy qua Git integration khi merge `main` | Build server xong thì chạy `prisma migrate deploy` rồi mới start. Health check `/api/v1/health` |
+| **Tên miền** | `linmaster.id.vn`: `www` → Vercel, `api` → Render. Cloudflare lo DNS cho cả hai và proxy + HTTPS cho `api` (HTTPS của `www` do Vercel) | Việc P5-06 |
 
 - **Theo dõi:** UptimeRobot ping 5 phút một lần (đồng thời giữ Render không "ngủ"), có trang status công khai.
 - **Rollback:** Vercel thì *Promote* bản deploy trước. Render thì deploy lại commit trước. Migration chỉ thêm (B5) nên DB không cần rollback.
@@ -729,7 +734,7 @@ Dành cho người chỉ có một đống file, không biết hoặc không mu�
 
 # Phần H — Việc cần chốt
 
-1. **Tên miền:** tên cụ thể và đuôi (`.id.vn` hay `.me`), ngày mua.
+1. ~~**Tên miền:** tên cụ thể và đuôi (`.id.vn` hay `.me`), ngày mua.~~ **Đã chốt:** `linmaster.id.vn`.
 2. ~~**File đề kèm đáp án ở cuối** (Phần F): làm trong MVP hay để Nên có.~~ **Đã chốt 05/11:** làm trong MVP. Cả hai tab tải đề đều gắn nhãn trang nên tự tách được đề, đáp án, giải thích và transcript trong cùng một file.
 3. **Report có mẫu bắt buộc của khoa không?**
 4. **Cập nhật các tài liệu khác theo PLAN này** (issue P0-20, **đã xong**):

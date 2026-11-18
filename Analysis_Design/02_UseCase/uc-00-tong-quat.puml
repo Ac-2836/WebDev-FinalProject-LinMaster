@@ -38,5 +38,6 @@ Learner --> L1
 Learner --> S1
 V1 --> AI
 E1 --> AI
-F2 ..> AI : (Nên có)
+F2 ..> AI
+E3 ..> AI
 @enduml

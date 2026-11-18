@@ -10,12 +10,12 @@ rectangle "flashcard" {
   usecase "UC22 Xóa bộ thẻ" as UC22
   usecase "UC23 Tạo bộ thẻ từ kho từ" as UC23
   usecase "Soạn thẻ\n(thêm, xóa, đổi thứ tự)" as ED
-  usecase "Dán nhanh nhiều thẻ\n(Nên có)" as PASTE
+  usecase "Dán nhanh nhiều thẻ" as PASTE
   usecase "UC24 Học bằng thẻ lật" as UC24
   usecase "UC25 Học theo lặp lại ngắt quãng" as UC25
   usecase "Chấm thẻ\n(Again / Hard / Good / Easy)" as RATE
-  usecase "UC26 Kiểm tra / Ghép thẻ\n(Nên có)" as UC26
-  usecase "UC27 Luyện tập do AI sinh\n(Nên có)" as UC27
+  usecase "UC26 Kiểm tra / Ghép thẻ" as UC26
+  usecase "UC27 Luyện tập do AI sinh" as UC27
   usecase "Ghi phiên học" as SESS
 }
 Learner --> UC20

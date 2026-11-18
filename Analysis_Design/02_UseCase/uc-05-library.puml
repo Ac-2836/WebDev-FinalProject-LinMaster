@@ -7,7 +7,7 @@ actor "Người học\n(người dùng kho)" as User
 rectangle "library" {
   usecase "UC40 Đăng lên / gỡ khỏi kho" as UC40
   usecase "UC41 Duyệt và tìm kiếm kho" as UC41
-  usecase "Lọc theo loại, chủ đề, kỹ năng;\nsắp xếp mới / phổ biến" as FILTER
+  usecase "Lọc theo loại, kỹ năng;\nsắp xếp mới / phổ biến" as FILTER
   usecase "UC42 Xem trước nội dung" as UC42
   usecase "UC43 Chép bộ thẻ về thư viện" as UC43
   usecase "UC44 Làm đề từ kho" as UC44

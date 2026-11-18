@@ -5,39 +5,56 @@ hide empty members
 class "vocab/routes" as Routes <<routes>> {
   + POST /vocab/lookups
   + POST /vocab/documents
+  + POST /vocab/documents/:id/scan
   + GET /vocab/entries
   --
   validate Zod, đăng ký Swagger,
   gọi service, trả JSON
 }
+class LookupService <<service>> {
+  + lookup(userId, input) : { explanation, match, savedEntryId }
+}
+class ScanService <<service>> {
+  + scan(userId, docId, criteria) : { candidates }
+}
+class VocabDocumentService <<service>> {
+  + createPastedDocument(userId, input) : Document
+  + createUploadedDocument(userId, file, title?) : Document
+  + createExamDocument(userId, attemptId, passageId) : Document
+}
 class VocabService <<service>> {
-  + lookup(userId, input) : Explanation
-  + createDocument(userId, source, input) : Document
-  + scan(userId, docId, criteria) : Candidate[]
-  + saveMany(userId, items) : SaveResult
+  + saveEntries(userId, items) : VocabEntry[]
+  + ... (liệt kê, sửa, xóa từ)
 }
 class "vocab public API" as PublicApi <<public>> {
-  + assertOwnership(userId, vocabIds)
-  + getEntries(userId, ids) : VocabEntry[]
-  + statsForUser(userId, range) : VocabStats
+  + getEntriesForUser(userId, ids) : VocabEntry[]
+  + getDocumentForUser(userId, id) : Document
+  + getVocabStats(userId) : VocabStats
 }
-class "core: requireAuth, rateLimit,\nerrorHandler" as MW <<middleware>>
+class "core: requireAuth, aiRateLimit,\nvalidate, errorHandler" as MW <<middleware>>
 class AiGateway <<core>>
 class "PrismaClient" as Prisma <<core>>
 class "exam public API" as ExamApi <<public>> {
   + getPassageText(userId, attemptId, passageId)
 }
 MW --> Routes
+Routes --> LookupService
+Routes --> ScanService
+Routes --> VocabDocumentService
 Routes --> VocabService
-VocabService --> AiGateway
+LookupService --> AiGateway
+ScanService --> AiGateway
+LookupService --> Prisma
+ScanService --> Prisma
 VocabService --> Prisma
-VocabService --> ExamApi : chỉ qua public API
-PublicApi --> VocabService
+VocabDocumentService --> Prisma
+VocabDocumentService --> ExamApi : chỉ qua public API
+PublicApi ..> Prisma
 note right of Routes
   Routes không chứa logic nghiệp vụ,
   không truy cập DB trực tiếp.
 end note
-note right of VocabService
+note right of LookupService
   Service không biết HTTP;
   dễ unit test.
 end note

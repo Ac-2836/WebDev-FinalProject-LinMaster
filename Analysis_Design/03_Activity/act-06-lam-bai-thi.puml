@@ -6,16 +6,19 @@ start
 :Mở trang đề;
 |Hệ thống|
 if (Có bài dở của đề này?) then (có)
-  :Hiện nút "Tiếp tục";
+  :Hiện nút "Tiếp tục" (mở thẳng phòng thi,
+  bỏ qua các màn trước khi thi);
 else (không)
   :Hiện nút "Bắt đầu";
 endif
 |Người học|
 :Bấm nút;
-:Qua màn xác nhận thông tin, hướng dẫn,
-kiểm tra âm thanh (Listening);
+if (Bấm "Bắt đầu"?) then (đúng)
+  :Qua màn xác nhận thông tin, kiểm tra âm thanh
+  (đề có audio Listening), hướng dẫn;
+endif
 |Hệ thống|
-:Tạo hoặc mở lại Attempt,
+:Tạo Attempt (POST /attempts) hoặc mở lại bài dở,
 trả serverNow, deadlineAt, state đã lưu;
 if (Đã quá hạn?) then (có)
   :Tự nộp với đáp án đã lưu (nộp lười);
@@ -25,11 +28,12 @@ else (không)
     :Trả lời, highlight, ghi chú,
     gạch bỏ phương án, đánh dấu câu;
     |Hệ thống|
-    :Tự lưu (gom vài giây một lần);
+    :Tự lưu 0,8 giây sau thay đổi cuối
+(và khi rời trang);
     if (Lưu được?) then (mất mạng)
       :Hiện "Mất kết nối",
       giữ thay đổi ở trình duyệt,
-      thử lại khi có mạng;
+      thử lại lùi dần (2 s đến 30 s) và khi có mạng;
     else (đã lưu)
     endif
     if (Còn 10 / 5 phút?) then (đúng)
@@ -40,7 +44,9 @@ else (không)
   ->nộp bài hoặc hết giờ;
   if (Hết giờ?) then (có)
     |Hệ thống|
-    :Tự nộp, autoSubmitted = true;
+    :Tự nộp, autoSubmitted = true
+    (đề Full: hết giờ Listening thì lưu rồi
+    chuyển sang Reading, chỉ hết giờ phần cuối mới nộp);
   else (bấm Nộp bài)
     |Người học|
     :Xem số câu chưa làm, xác nhận;
