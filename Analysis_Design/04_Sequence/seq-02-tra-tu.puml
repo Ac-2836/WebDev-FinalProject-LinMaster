@@ -5,14 +5,19 @@ autonumber
 actor "Người học" as U
 participant "Trình đọc\n(Client)" as C
 participant "Vocab route\n(/vocab/lookups)" as R
-participant "VocabService" as S
+participant "LookupService" as S
 participant "AI gateway\n(core)" as G
 database "PostgreSQL" as DB
 participant "Gemini API" as AI
 U -> C : Bôi chọn từ, bấm "Giải thích"
 C -> R : POST /api/v1/vocab/lookups\n{ text, sentence, textStart?,\ncontext? { title, paragraph }, documentId? } + JWT
-R -> R : requireAuth + validate Zod\n(text ≤ 6 từ)
+R -> R : requireAuth + aiRateLimit (20 lượt AI / phút)\n+ validate Zod (text ≤ 6 từ)
 R -> S : lookup(userId, input)
+opt Có documentId
+  S -> DB : Tài liệu có phải của người học?
+  S --> R : NotFound nếu không
+  R --> C : 404
+end
 S -> G : runJsonTask("explain-word.v2",\n{ text, sentence, context })
 G -> DB : Đếm AiUsage hôm nay (không tính cache)
 alt Hết quota

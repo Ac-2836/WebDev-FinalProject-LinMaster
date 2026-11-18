@@ -7,17 +7,22 @@ start
 :Chọn trình độ CEFR và/hoặc chủ đề;
 |Hệ thống|
 if (Không chọn tiêu chí?) then (đúng)
-  :Mặc định: trình độ từ B2 trở lên;
+  :Không lọc cứng:
+  AI ưu tiên trình độ B2 trở lên;
 endif
-:Chia tài liệu thành các đoạn;
+:Ghép các đoạn của tài liệu thành một văn bản;
 |Gemini AI|
-:Lọc từ của từng đoạn theo tiêu chí,
-kèm câu gốc (các đoạn chạy song song);
+:scan-document.v1: lọc từ của cả tài liệu
+theo tiêu chí, kèm câu gốc (một lần gọi);
 |Hệ thống|
-:Gộp kết quả, bỏ từ trùng;
+:Gộp kết quả, bỏ từ trùng
+(tối đa 30 ứng viên);
 :Loại ứng viên có câu gốc
 không có thật trong văn bản;
-:Đánh dấu "Đã có" với từ đã trong kho;
+|Người học|
+:Client đánh dấu "Đã có" với ứng viên
+trùng vùng đã tô trong tài liệu này;
+|Hệ thống|
 if (Còn ứng viên?) then (không)
   :Hiện trạng thái trống,
   gợi ý đổi tiêu chí;
@@ -31,6 +36,6 @@ endif
 |Hệ thống|
 :Lưu từng từ như UC13
 (tạo mới hoặc thêm câu gốc);
-:Báo số từ đã lưu, nút "Tạo bộ thẻ";
+:Báo "Đã lưu N từ" (toast, không có nút);
 stop
 @enduml

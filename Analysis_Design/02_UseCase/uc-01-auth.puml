@@ -10,6 +10,8 @@ rectangle "auth" {
   usecase "UC03 Đăng xuất" as UC03
   usecase "UC04 Cập nhật hồ sơ" as UC04
   usecase "Đặt mục tiêu band" as UC04a
+  usecase "Đổi email, đổi mật khẩu" as UC04b
+  usecase "Quên mật khẩu\n(trang hướng dẫn)" as UC02a
   usecase "UC05 Đổi ngôn ngữ giao diện" as UC05
   usecase "Kiểm tra dữ liệu nhập" as V
 }
@@ -22,6 +24,8 @@ Learner --> UC05
 UC01 ..> V : <<include>>
 UC04 ..> V : <<include>>
 UC04 <.. UC04a : <<extend>>
+UC04 <.. UC04b : <<extend>>
+UC02 <.. UC02a : <<extend>>
 note bottom of UC05
   Khách: lưu lựa chọn ở trình duyệt.
   Người học: lưu vào hồ sơ (User.locale).

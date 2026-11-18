@@ -7,7 +7,7 @@
 
 - **PostgreSQL 16**, truy cập qua Prisma 7. Ở máy local, DB chạy bằng `docker compose up -d` và có hai database: `linmaster_dev` (dùng khi chạy app) và `linmaster_test` (dùng khi chạy test).
 - **Khóa chính** của mọi bảng là `id` kiểu `uuid`, sinh bằng UUID v7 (`@default(uuid(7))`). UUID v7 tăng dần theo thời gian nên index vẫn gọn, và người ngoài không đoán được id.
-- **Thời gian** lưu dạng `timestamptz` (có múi giờ), theo giờ của server.
+- **Thời gian** lưu dạng `timestamptz`: một thời điểm tuyệt đối, lưu theo UTC. Giao diện đổi sang giờ của người dùng khi hiển thị.
 - Bảng nào có `createdAt` thì Prisma tự ghi giá trị lúc tạo. Bảng nào có `updatedAt` thì Prisma tự cập nhật mỗi lần sửa.
 - **Quyền sở hữu:** hầu hết dữ liệu gắn với một người dùng qua `ownerId` hoặc `userId`. Xóa tài khoản thì mọi dữ liệu của người đó bị xóa theo (`CASCADE`).
 - Cột kiểu `Json` dùng cho dữ liệu có cấu trúc lồng nhau. Hình dạng của chúng được kiểm tra bằng schema Zod trong `shared/`, không phải bằng DB.
@@ -58,7 +58,7 @@ Lưu kết quả Gemini để **không phải gọi AI lại** khi cùng một �
 
 - Bảng này **không gắn với người dùng**. Kết quả được dùng chung cho mọi người.
 - Khóa tra cứu là cặp duy nhất (`task`, `inputHash`):
-  - `task` là tên tác vụ kèm phiên bản, ví dụ `explain-word.v1`. Đổi prompt thì tăng phiên bản, và cache cũ tự hết hiệu lực.
+  - `task` là tên tác vụ kèm phiên bản, ví dụ `explain-word.v2`. Đổi prompt thì tăng phiên bản, và cache cũ tự hết hiệu lực.
   - `inputHash` là SHA-256 của đầu vào đã chuẩn hóa. Với tác vụ PDF thì băm nội dung file.
 - `output` đã qua kiểm tra bằng schema Zod của tác vụ, nên đọc ra là dùng được ngay.
 - `expiresAt` để `null` nghĩa là không bao giờ hết hạn.
@@ -70,7 +70,7 @@ Mỗi lần một người dùng gọi tác vụ AI thì ghi một dòng. Bảng
 - Index (`userId`, `createdAt`) giúp đếm quota trong ngày nhanh.
 
 ### `StoredFile`: file người dùng tải lên
-Thông tin về các file trong luồng nạp đề: PDF đề, PDF đáp án, audio Listening và ảnh sơ đồ. File thật nằm trong thư mục `uploads/` (local) hoặc trên R2. Bảng này chỉ lưu `storageKey` (đường dẫn hoặc object key, là duy nhất).
+Thông tin về các file trong luồng nạp đề: PDF đề, PDF đáp án, audio Listening và ảnh sơ đồ. File thật nằm trong thư mục `uploads/` (local) hoặc trên dịch vụ S3 (Backblaze B2 khi deploy). Bảng này chỉ lưu `storageKey` (đường dẫn hoặc object key, là duy nhất).
 
 - `mimeType` được xác định từ **nội dung** file, không tin phần đuôi file.
 - `sizeBytes`, `originalName`.
@@ -269,6 +269,7 @@ Các migration nằm trong `server/prisma/migrations/`, theo thứ tự:
 | `add_vocab_flashcard_tables` | 4 bảng vocab, 5 bảng flashcard |
 | `add_exam_tables` | 8 bảng exam, cùng partial unique index của `Attempt` |
 | `add_library` | `Report`, cùng các cột library trên `FlashcardSet` và `Test` |
+| `add_query_indexes` | 19 index cho khóa ngoại và truy vấn thường dùng (xem `Analysis_Design/01_Database/data-dictionary.md`) |
 
 Migration theo luật **chỉ thêm, không phá** (PLAN mục B5). Lệnh thường dùng, chạy trong thư mục `server`:
 

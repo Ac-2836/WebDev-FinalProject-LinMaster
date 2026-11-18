@@ -9,7 +9,7 @@ participant "AttemptService" as S
 database "PostgreSQL" as DB
 U -> C : Bấm "Bắt đầu" / "Tiếp tục"
 C -> R : POST /api/v1/attempts { testId }
-R -> S : startOrResume(userId, testId)
+R -> S : createAttempt(userId, testId)
 S -> DB : Đề của mình hoặc đang public?
 S -> DB : Có Attempt in_progress của (user, test)?
 alt Có bài dở
@@ -17,19 +17,19 @@ alt Có bài dở
 else Chưa có
   S -> DB : INSERT Attempt (startedAt = now,\ndeadlineAt = now + tổng thời gian)
 end
-S --> R : attemptId
-R --> C : 201 { attemptId }
+S --> R : attempt
+R --> C : 201 (bài mới) hoặc 200 (bài dở)\n{ attempt }
 C -> R : GET /api/v1/attempts/:id
 R -> S : get(userId, attemptId)
-alt now > deadlineAt và chưa nộp
+alt now ≥ deadlineAt và chưa nộp
   S -> S : Nộp lười (xem seq-06)
-  R --> C : 409 ALREADY_SUBMITTED → trang kết quả
+  R --> C : 200 { attempt } với status = submitted, remainingSec = 0\n(client hiện "Hết giờ, đã nộp" kèm liên kết trang kết quả)
 else Còn giờ
   S --> R : đề (không có đáp án) + state + serverNow\n+ vị trí audio tính theo giờ server
   R --> C : 200
   C -> C : Đồng bộ đồng hồ theo serverNow
 end
-loop Mỗi khi có thay đổi (gom 3 giây)
+loop Mỗi khi có thay đổi (gom 0,8 giây)
   U -> C : Trả lời / highlight / ghi chú / đánh dấu
   C -> R : PUT /api/v1/attempts/:id/state { state }
   alt Mất mạng
@@ -37,12 +37,12 @@ loop Mỗi khi có thay đổi (gom 3 giây)
     C -> R : Gửi lại khi có mạng
   end
   R -> S : saveState
-  alt now > deadlineAt
+  alt now ≥ deadlineAt (hoặc bài đã nộp)
     S --> R : Quá hạn
-    R --> C : 409 ATTEMPT_EXPIRED → client gọi nộp bài
+    R --> C : 409 ATTEMPT_EXPIRED (hoặc ATTEMPT_SUBMITTED)\n→ client tải lại bài (GET), server nộp lười
   else
     S -> DB : UPDATE Attempt.state, updatedAt
-    R --> C : 200 { savedAt }
+    R --> C : 200 { savedAt, serverNow, remainingSec }
     C --> U : Chỉ báo "Đã lưu"
   end
 end

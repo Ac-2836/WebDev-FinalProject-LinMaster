@@ -5,7 +5,7 @@ skinparam componentStyle rectangle
 actor "Người học" as U
 
 package "client (Next.js)" {
-  component "app/ (trang, 3 nhóm layout)" as Pages
+  component "app/ (trang, 4 nhóm layout:\n(public), (app), (exam), (study))" as Pages
   package "features/" {
     component "auth" as FAuth
     component "vocab" as FVocab
@@ -13,8 +13,9 @@ package "client (Next.js)" {
     component "exam" as FExam
     component "library" as FLib
     component "stats" as FStats
+    component "home" as FHome
   }
-  component "core\n(API client, phiên đăng nhập,\nnav / widget registry, i18n)" as CCore
+  component "core\n(API client, phiên đăng nhập,\nnav registry, i18n)" as CCore
 }
 
 package "shared (Zod schema, kiểu, registry dùng chung)" as Shared
@@ -44,12 +45,14 @@ Pages --> FFlash
 Pages --> FExam
 Pages --> FLib
 Pages --> FStats
+Pages --> FHome
 FAuth --> CCore
 FVocab --> CCore
 FFlash --> CCore
 FExam --> CCore
 FLib --> CCore
 FStats --> CCore
+FHome --> CCore
 CCore --> SCore : REST / JSON + JWT\n(/api/v1, Swagger /docs)
 
 MVocab ..> MExam : public API
@@ -59,7 +62,7 @@ MLib ..> MExam : public API
 MStats ..> MExam : public API
 MStats ..> MVocab : public API
 MStats ..> MFlash : public API
-MStats ..> MLib : public API
+MStats ..> MAuth : public API
 
 SCore --> MAuth
 SCore --> MExam

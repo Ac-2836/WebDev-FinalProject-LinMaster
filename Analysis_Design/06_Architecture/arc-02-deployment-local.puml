@@ -13,9 +13,10 @@ node "Máy lập trình viên" {
     database "Postgres test" as PGT
   }
 }
-cloud "Gemini API\n(key riêng hoặc mock)" as AI
+cloud "Gemini API\n(cần GEMINI_API_KEY; không có thì AI trả 503,\nmock chỉ dùng trong test và e2e)" as AI
 node "GitHub Actions (CI)" {
-  artifact "lint · typecheck · test · build" as CI
+  artifact "job check:\nlint · typecheck · migrate · test · build" as CI
+  artifact "job e2e:\nPlaywright, AI giả" as CIE
   database "Postgres service" as PGCI
 }
 B --> C : HTTP
@@ -24,6 +25,7 @@ S --> PG : Prisma
 S --> UP
 S --> AI : HTTPS
 CI --> PGCI
+CIE --> PGCI
 note bottom of CI
   CI luôn dùng AI mock,
   không gọi Gemini thật.

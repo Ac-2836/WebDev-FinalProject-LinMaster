@@ -12,22 +12,22 @@ U -> C : Chọn chế độ "Học"
 C -> R : POST /api/v1/flashcards/sessions { setId, mode: learn }
 R -> S : startSession
 S -> DB : INSERT StudySession
-R --> C : 201 { sessionId }
+R --> C : 201 { session }
 C -> R : GET /api/v1/flashcards/sets/:id/study
 R -> S : dueCards(userId, setId, today theo giờ VN)
-S -> DB : CardProgress.dueAt ≤ now + thẻ chưa có tiến độ\n(giới hạn mỗi ngày)
+S -> DB : CardProgress.dueAt < cuối ngày hôm nay (giờ VN)\n+ thẻ chưa có tiến độ (tối đa 20 thẻ mới mỗi ngày)
 R --> C : cards[]
 loop Mỗi thẻ
   U -> C : Lật thẻ, chấm Good (phím 3)
   C -> R : POST /api/v1/flashcards/reviews\n{ cardId, rating, sessionId }
   R -> S : review
-  S -> SM : next(progress, rating)
+  S -> SM : scheduleReview(previous, rating, now)
   SM --> S : easiness, intervalDays, repetitions, dueAt
   S -> DB : UPSERT CardProgress, INSERT ReviewLog
-  R --> C : 200 { nextDueAt }
+  R --> C : 200 { progress: CardProgress }
 end
-C -> R : PATCH /api/v1/flashcards/sessions/:id { endedAt }
+C -> R : PATCH /api/v1/flashcards/sessions/:id\n{ cardsStudied?, correctCount? }
 R -> S : endSession
-S -> DB : UPDATE StudySession
+S -> DB : UPDATE StudySession (server đặt endedAt;\nphiên Học đếm số thẻ từ ReviewLog)
 C --> U : Tổng kết phiên
 @enduml

@@ -1,6 +1,6 @@
 @startuml seq-10-luyen-tap-ai
 !include ../_style.iuml
-title Sequence — Sinh bài luyện tập từ bộ thẻ qua AI gateway (UC27, Nên có)
+title Sequence — Sinh bài luyện tập từ bộ thẻ qua AI gateway (UC27)
 autonumber
 actor "Người học" as U
 participant "Màn Luyện tập AI\n(Client)" as C
@@ -9,14 +9,17 @@ participant "FlashcardService" as S
 participant "AI gateway\n(core)" as G
 database "PostgreSQL" as DB
 participant "Gemini API" as AI
+C -> R : POST /api/v1/flashcards/sessions { setId, mode: exercise }\n(client mở phiên ngay khi vào chế độ)
+R --> C : 201 { session }
 U -> C : Chọn dạng câu, số câu, bấm "Tạo bài luyện"
 C -> R : POST /api/v1/flashcards/sets/:id/exercises\n{ kinds[], count } + JWT
-R -> R : requireAuth + validate Zod
+R -> R : requireAuth + aiRateLimit + validate Zod
 R -> S : generateExercise(userId, setId, input)
+S -> S : Cùng yêu cầu vừa thất bại trong 60 giây?\n(chặn lặp lại, 502)
 S -> DB : Bộ thẻ là của người học?\nLấy thuật ngữ + định nghĩa
 alt Không phải chủ / ít hơn 4 thẻ
   S --> R : lỗi
-  R --> C : 403 / 422
+  R --> C : 404 (không phải chủ) / 422 (ít hơn 4 thẻ)
 else Hợp lệ
   S -> G : runJsonTask("generate-exercise.v2",\n{ cards[], kinds, count })
   G -> DB : Kiểm tra quota (AiUsage), tra AiCache
@@ -25,22 +28,21 @@ else Hợp lệ
   else Trúng cache
     DB --> G : bài luyện tập
   else Không có cache
-    G -> AI : generateContent(prompt v1, responseSchema)
+    G -> AI : generateContent(prompt v2, responseSchema)
     AI --> G : JSON câu hỏi
-    G -> G : Validate bằng Zod (thử lại tối đa 2 lần)
+    G -> G : Validate bằng Zod và kiểm tra đủ nội dung\n(gọi tối đa 3 lần)
     G -> DB : INSERT AiCache, AiUsage
   end
   G --> S : questions[]
   S -> S : Bỏ câu có đáp án ngoài phương án\nhoặc dùng từ ngoài bộ thẻ
   alt Còn dưới một nửa số câu
-    R --> C : 502 EXERCISE_TOO_FEW
+    R --> C : 502 AI_INVALID_OUTPUT\n(chặn cùng yêu cầu 60 giây ở server và client)
   else Đủ
-    S -> DB : INSERT StudySession (mode = exercise)
-    R --> C : 200 { sessionId, questions[] (kèm đáp án) }
+    R --> C : 200 { setId, questions[] (kèm đáp án) }\n(server không lưu gì)
     C --> U : Bài luyện tập
     U -> C : Làm bài, bấm "Chấm"
     C -> C : Chấm ngay ở client
-    C -> R : PATCH /api/v1/flashcards/sessions/:sessionId
+    C -> R : PATCH /api/v1/flashcards/sessions/:id
     C --> U : Đúng / sai, đáp án
   end
 end

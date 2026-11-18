@@ -24,7 +24,7 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
                    │ (Neon)       │  │ (Google)     │
                    └──────────────┘  └──────────────┘
 
-  File tải lên (PDF đề, audio): R2     DNS + HTTPS: Cloudflare
+  File tải lên (PDF đề, audio): Backblaze B2   DNS: Cloudflare
   Theo dõi: UptimeRobot                 CI: GitHub Actions
 ```
 
@@ -47,8 +47,8 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
 | **Tailwind CSS** + **shadcn/ui** | Styling và thư viện component | Giao diện hiện đại, đồng nhất, có sẵn a11y; code component nằm trong repo nên sửa được |
 | **Lucide**, font **Be Vietnam Pro** | Icon, font chữ | Đi kèm shadcn/ui; font hiển thị tiếng Việt đẹp |
 | **next-intl** | Giao diện song ngữ Việt / Anh | Hợp với App Router; chuỗi của mỗi module nằm trong một namespace riêng |
-| **Recharts** | Biểu đồ dashboard | Viết dạng component React |
-| **React Context + `useReducer`** | Quản lý state (nhất là state phòng thi) | Đủ dùng, không thêm thư viện state riêng |
+| **SVG vẽ tay** | Biểu đồ dashboard | Biểu đồ đơn giản, không cần thêm thư viện |
+| **React hooks** (`useState`, `useEffect`...) | Quản lý state (nhất là state phòng thi, nằm trong các hook của feature exam) | Đủ dùng, không thêm thư viện state riêng |
 
 ### 2.2. Back-end
 
@@ -68,7 +68,7 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
 | Thành phần | Dịch vụ |
 |---|---|
 | Database | PostgreSQL: chạy bằng Docker ở local, Neon khi deploy |
-| File tải lên (PDF đề, PDF đáp án, audio) | Thư mục `uploads/` ở local (không commit), Cloudflare R2 khi deploy. Đổi chỗ lưu chỉ là đổi driver (`local` / `r2`) |
+| File tải lên (PDF đề, PDF đáp án, audio) | Thư mục `uploads/` ở local (không commit), Backblaze B2 (qua S3 API) khi deploy. Đổi chỗ lưu chỉ là đổi driver (`local` / `s3`; `r2` là tên khác của driver `s3`) |
 | AI | Google Gemini API (tên model cấu hình qua biến môi trường) |
 
 ### 2.4. Công cụ phát triển và vận hành
@@ -105,13 +105,12 @@ Code của client, server và shared đều **chia theo module**: `core` (nền 
 
 | Thư mục | Ý nghĩa |
 |---|---|
-| `app/` | Các trang, tổ chức theo URL (quy ước App Router của Next.js). Trang được gom thành **3 nhóm layout**: công khai (landing, đăng nhập), ứng dụng (có thanh điều hướng, cần đăng nhập), phòng thi (toàn màn hình). File trang chỉ **ghép** component lấy từ `features/` |
+| `app/` | Các trang, tổ chức theo URL (quy ước App Router của Next.js). Trang được gom thành **4 nhóm layout**: `(public)` (landing, đăng nhập), `(app)` (có thanh điều hướng, cần đăng nhập), `(exam)` (phòng thi, toàn màn hình), `(study)` (chế độ học flashcard, toàn màn hình). File trang chỉ **ghép** component lấy từ `features/` |
 | `features/` | **Mỗi module một thư mục**, chứa API, component, hook của module đó. Mỗi thư mục có một điểm export công khai duy nhất |
-| `core/` | Khung ứng dụng: API client, phiên đăng nhập, layout, navbar, các registry (nav, widget trang chủ), tiện ích chung |
+| `core/` | Khung ứng dụng: API client, phiên đăng nhập, navbar và nav registry, i18n (gồm nhãn từ vựng), landing, header bảo mật, tiện ích chung. Widget trang chủ nằm ở `features/home`, widget dashboard ở `features/stats` |
 | `messages/` | Chuỗi giao diện `vi.json`, `en.json` (next-intl), mỗi module một namespace |
 | `components/ui/` | Component nền do shadcn/ui sinh ra, dùng chung cho mọi module |
-| `public/` | File tĩnh (ảnh, icon) |
-| `tests/` | Test end-to-end |
+| `tests/` | Test end-to-end (Playwright). Unit test của client (Vitest) nằm cạnh file nguồn, tên `*.test.ts` |
 
 ### `server/` — Back-end
 
@@ -119,7 +118,7 @@ Code của client, server và shared đều **chia theo module**: `core` (nền 
 |---|---|
 | `src/core/` | Hạ tầng chung: cấu hình, DB client, lỗi, validate, bảo mật, JWT, AI gateway, Swagger registry, nạp module |
 | `src/modules/` | **Mỗi module một thư mục**, chứa route, service, đăng ký Swagger, prompt AI (nếu có) và public API của module đó |
-| `prisma/` | Schema database (mỗi module một file), lịch sử migration, script seed (gồm dữ liệu mẫu cho demo) |
+| `prisma/` | Schema database (`schema/<module>.prisma`, mỗi module một file, cùng `schema/schema.prisma` chứa generator và datasource), lịch sử migration, script seed (gồm dữ liệu mẫu cho demo) |
 | `uploads/` | File tải lên khi chạy local (driver `local`), không commit |
 | `tests/` | Unit test và API test, chia theo module |
 
@@ -135,11 +134,11 @@ Chi tiết luật xem [Working_rules.md](Working_rules.md) mục 8.4.
 
 ### `Analysis_Design/` — Sơ đồ thiết kế
 
-ERD, use case, activity, sequence, state và kiến trúc (PLAN mục B6). Mỗi sơ đồ gồm file `.puml` (nguồn) và ảnh `.png` cùng tên, xuất bằng `render.sh`. Mục lục ở `Analysis_Design/README.md`.
+ERD, use case, activity, sequence, state và kiến trúc (PLAN mục B6). Mỗi sơ đồ gồm file `.puml` (nguồn) và ảnh `.png` cùng tên, xuất bằng `render.sh`; riêng `07_Wireframe/` là prototype HTML. Mục lục ở `Analysis_Design/README.md`.
 
 ### `docs/` — Tài liệu
 
-Chỉ gồm `PLAN.md`, `Working_rules.md` và `Project_Structure.md`. Sơ đồ thiết kế nằm ở `Analysis_Design/`.
+Gồm `PLAN.md`, `Working_rules.md`, `Project_Structure.md` và `Database.md`. Sơ đồ thiết kế nằm ở `Analysis_Design/`.
 
 ---
 
@@ -172,7 +171,7 @@ Request ─▶ middleware (core) ─▶ routes ─▶ service ─▶ hạ tầng
 ### 4.3. Front-end
 - **Trang mỏng, feature dày:** trang chỉ ghép component và lấy dữ liệu, giao diện chi tiết nằm trong `features/`.
 - **Một điểm gọi API:** mọi request tới back-end đi qua API client của `core`, nơi gắn JWT và xử lý lỗi.
-- **State phòng thi** gom trong một context riêng của feature exam.
+- **State phòng thi** gom trong các hook của feature exam (`room-hooks`).
 - **Phòng thi định danh theo lần làm bài (attempt)**, không theo đề. Nhờ vậy refresh không mất bài, đồng hồ tính theo giờ server, và kết quả có URL riêng.
 
 ### 4.4. Chung
@@ -190,7 +189,7 @@ Request ─▶ middleware (core) ─▶ routes ─▶ service ─▶ hạ tầng
 | Component, hook, hàm gọi API của một module | `client/features/<module>/` |
 | Thành phần dùng chung toàn app (layout, registry, tiện ích) | `client/core/` |
 | Endpoint mới | `server/src/modules/<module>/`: route + service + đăng ký Swagger; schema trong `shared/<module>`; có test |
-| Bảng hoặc cột mới | File schema của module trong `server/prisma/` + migration |
+| Bảng hoặc cột mới | File schema của module trong `server/prisma/schema/` + migration |
 | Prompt AI mới | Trong module dùng prompt đó, đăng ký vào AI task registry của `core` |
 | Module mới | Thư mục mới ở `server/src/modules/`, `client/features/`, `shared/` + đăng ký vào module registry và nav registry |
 | Đề thi mới | Tải lên trên web theo PLAN Phần F. Đề mẫu cho demo nạp bằng script seed trong `server/prisma/` |

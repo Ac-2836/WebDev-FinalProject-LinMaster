@@ -8,13 +8,17 @@ case (Tạo mới)
   :Mở trình soạn trống;
 case (Từ kho từ)
   :Chọn các từ trong kho,
-  bấm "Tạo bộ thẻ";
+  bấm "Tạo bộ thẻ", nhập tiêu đề;
   |Hệ thống|
-  :Điền sẵn thẻ: headword / nghĩa / câu gốc;
+  :POST /flashcards/sets/from-vocab: tạo luôn bộ thẻ
+  (headword / nghĩa / câu gốc đầu tiên);
+  |Người học|
+  :Mở trang bộ thẻ, sửa tiếp nếu muốn;
+  stop
 case (Sửa bộ có sẵn)
   |Hệ thống|
   if (Là chủ sở hữu?) then (không)
-    :Báo 403;
+    :Báo 404 (không tìm thấy bộ thẻ);
     stop
   endif
   :Tải bộ thẻ vào trình soạn;
@@ -23,11 +27,11 @@ endswitch
 :Nhập tiêu đề, mô tả;
 repeat
   :Thêm / sửa / xóa / đổi thứ tự thẻ
-  (hoặc dán nhanh nhiều dòng — Nên có);
+  (hoặc dán nhanh nhiều dòng);
   :Bấm "Lưu";
   |Hệ thống|
-  :Kiểm tra: ít nhất 2 thẻ đủ
-  thuật ngữ và định nghĩa;
+  :Kiểm tra: có tiêu đề, hàng trống bỏ qua,
+  hàng có chữ phải đủ thuật ngữ và định nghĩa;
   |Người học|
 repeat while (Có lỗi theo hàng?) is (có, sửa lại)
 ->không;

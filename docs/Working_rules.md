@@ -58,7 +58,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 | Viết code, test, tài liệu kỹ thuật | ✅ | ✅ trong phạm vi issue được giao |
 | Commit trên branch tính năng | ✅ | Chỉ khi thành viên phụ trách yêu cầu |
 | Push, mở PR | ✅ bằng tài khoản của mình | ❌ |
-| Approve, merge PR | ✅ (không tự merge PR của mình) | ❌ |
+| Approve, merge PR | ✅ (cần 1 approve và CI xanh; KH được tự duyệt PR của mình) | ❌ |
 | Thêm dependency, đổi tech stack | ✅ khi cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Sửa `Working_rules.md`, `Project_Structure.md` | ✅ qua PR, cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Quyết định thiết kế, phạm vi, nội dung đề, report, slide | ✅ | ❌ chỉ góp ý |
@@ -115,7 +115,7 @@ Issue ─▶ Branch ─▶ Code ─▶ Tự kiểm tra ─▶ Pull Request ─�
 | 2. Làm rõ | Cả nhóm (buổi xem lại tuần) | Đủ tiêu chí hoàn thành, các việc cần trước đã xong → chuyển sang Ready | Ready |
 | 3. Kéo việc | Người rảnh tay | Lấy thẻ **trên cùng** của Ready, gán mình vào Assignees (mục 6.3) | In progress |
 | 4. Branch + code | Người / AI | Branch từ `main` mới nhất (mục 5.1); code, test, cập nhật API doc nếu có | In progress |
-| 5. Tự kiểm tra | Người / AI | `lint`, `test`, `build` chạy qua ở máy; chạy thử luồng thật | In progress |
+| 5. Tự kiểm tra | Người / AI | `lint`, `typecheck`, `test`, `build` chạy qua ở máy; chạy thử luồng thật | In progress |
 | 6. Pull Request | Người | Mở PR theo template, gắn `Closes #<issue>`. Board tự chuyển thẻ | In review |
 | 7. Review | Người còn lại | Review theo mục 5.4, chạy thử trên link preview | In review |
 | 8. Merge | Người mở PR | 1 approve + CI xanh → Squash and merge, xóa branch. Issue tự đóng | Done |
@@ -139,6 +139,7 @@ Một task **chỉ** được coi là xong khi đủ các điều sau:
 - Nhánh chính duy nhất là `main`, luôn ở trạng thái deploy được.
 - Branch tính năng đặt tên `<loại>/<số-issue>-<mô-tả-ngắn>`, viết chữ thường, nối bằng `-`.
   - Ví dụ: `feat/12-cbt-timer`, `fix/30-highlight-offset`, `docs/41-api-doc-auth`, `chore/5-setup-ci`.
+  - Giai đoạn đầu dự án một số branch dùng mã việc của PLAN thay cho số issue (ví dụ `feat/p1-06-auth-server`); từ đợt sửa lỗi dùng số issue (ví dụ `fix/221-...`).
 - Mỗi branch chỉ phục vụ **một** Issue. Merge xong thì xóa.
 
 ### 5.2. Commit — [Conventional Commits](https://www.conventionalcommits.org/)
@@ -161,8 +162,8 @@ Refs #12
 | `test` | Thêm hoặc sửa test |
 | `chore` | Cấu hình, dependency, CI, công cụ |
 
-- **Phạm vi:** `auth`, `vocab`, `cbt`, `flashcard`, `stats`, `api`, `db`, `ai`, `ui`, `ci`, `deploy`.
-- **Ví dụ:** `feat(cbt): add countdown timer synced with server start time`.
+- **Phạm vi:** theo module hoặc khu vực: `auth`, `vocab`, `flashcard`, `exam`, `library`, `stats`, `client`, `server`, `api`, `db`, `ai`, `storage`, `e2e`, `ci`, `deploy`, `readme`.
+- **Ví dụ:** `feat(exam): add countdown timer synced with server start time`.
 - Mỗi commit là một bước hợp lý, chạy được. Không gom cả ngày vào một commit, không ghi message vô nghĩa như `update`, `fix bug`.
 
 ### 5.3. Pull Request
@@ -175,7 +176,7 @@ Refs #12
   - Thay đổi về API / DB / biến môi trường (nếu có).
   - `Closes #<issue>`.
 - PR chưa xong thì mở dạng **Draft**.
-- **Không được** tự merge PR của mình. **Không được** merge khi CI đỏ.
+- Chỉ merge khi có 1 approve (KH được tự duyệt PR của mình) và CI xanh. **Không được** merge khi CI đỏ.
 
 ### 5.4. Review (theo [Google Engineering Practices](https://google.github.io/eng-practices/))
 - Review trong vòng **24 giờ** kể từ khi PR được mở hoặc cập nhật.
@@ -192,7 +193,7 @@ Refs #12
 - Góp ý về code, không nhắm vào người. Nêu lý do khi yêu cầu sửa.
 
 ### 5.5. Bảo vệ `main`
-- Bắt buộc merge qua PR, cần 1 approve, CI (lint + test + build + kiểm tra mọi route có trong Swagger) phải xanh.
+- Bắt buộc merge qua PR, cần 1 approve, CI phải xanh: job `check` (lint, typecheck, migrate, test, build, gồm kiểm tra mọi route có trong Swagger) và job `e2e` (Playwright).
 - Cấm push thẳng, cấm force push, cấm xóa nhánh.
 - Lỗi gấp trên production vẫn đi qua PR (`fix/<issue>-...`), người review ưu tiên xử lý ngay.
 - Repo **private** trên gói GitHub Free không bật được branch protection. Khi đó các luật trên vẫn bắt buộc và được tuân thủ thủ công. Chuyển repo sang public (hoặc dùng GitHub Pro) để GitHub tự chặn.
@@ -306,7 +307,7 @@ Dự án theo các style guide của Google. Khi có điểm chưa rõ, bản g�
 - [Google JSON Style Guide](https://google.github.io/styleguide/jsoncstyleguide.xml)
 
 ### 7.1. Công cụ tự động
-- **[gts](https://github.com/google/gts)** (ESLint + Prettier của Google) dùng cho mọi workspace. Riêng `client/` gộp thêm `eslint-config-next`.
+- **[gts](https://github.com/google/gts)** (ESLint + Prettier của Google) dùng cho mọi workspace. Riêng `client/` thêm vài tùy chọn parser (`parserOptions`) trong `eslint.config.js`.
 - Lệnh `npm run lint` để kiểm tra, `npm run fix` để tự sửa.
 - CI chạy lint trên mỗi PR, lint lỗi thì không merge được.
 - **Định dạng do máy lo:** thụt lề 2 dấu cách, dòng tối đa 120 ký tự (nới từ mặc định 80 của gts cho phù hợp với JSX và class Tailwind), có dấu `;`, dùng nháy đơn. Không tranh cãi về định dạng trong review.
@@ -328,7 +329,7 @@ Dự án theo các style guide của Google. Khi có điểm chưa rõ, bản g�
 
 ### 7.3. TypeScript
 - Dùng `const`, khi cần gán lại thì dùng `let`. **Không** dùng `var`.
-- **Named export.** Ngoại lệ là các file Next.js bắt buộc default export (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`).
+- **Named export.** Ngoại lệ là các file Next.js bắt buộc default export (`page.tsx`, `layout.tsx`, `template.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`).
 - **Không** dùng `any`. Chưa biết kiểu thì dùng `unknown` rồi thu hẹp. **Không** dùng `@ts-ignore`.
 - Luôn dùng `===` / `!==` (gts báo lỗi cả `== null`). Cần kiểm tra cả `null` lẫn `undefined` thì dùng `??`, `?.` hoặc so sánh tường minh.
 - Mô tả object dùng `interface`. Union, tuple, kiểu tính toán dùng `type`.
@@ -374,17 +375,17 @@ Kiến trúc module được mô tả ở [PLAN.md](PLAN.md) Phần B. Các lu�
 ## 8. REST API và API doc
 
 ### 8.1. Thiết kế endpoint
-- URL là **danh từ số nhiều**, chữ thường, nối bằng `-`: `/tests`, `/attempts/:id`, `/review-logs`.
+- URL là **danh từ số nhiều**, chữ thường, nối bằng `-`: `/tests`, `/attempts/:id`, `/flashcards/reviews`.
 - Mọi endpoint nằm dưới tiền tố phiên bản `/api/v1`.
 
 | Thao tác | Method | Ví dụ | Mã thành công |
 |---|---|---|---|
-| Lấy danh sách | GET | `GET /api/v1/vocab` | 200 |
-| Lấy một bản ghi | GET | `GET /api/v1/vocab/:id` | 200 |
-| Tạo mới | POST | `POST /api/v1/flashcards/decks` | 201 |
-| Cập nhật một phần | PATCH | `PATCH /api/v1/flashcards/decks/:id` | 200 |
+| Lấy danh sách | GET | `GET /api/v1/vocab/entries` | 200 |
+| Lấy một bản ghi | GET | `GET /api/v1/vocab/entries/:id` | 200 |
+| Tạo mới | POST | `POST /api/v1/flashcards/sets` | 201 |
+| Cập nhật một phần | PATCH | `PATCH /api/v1/flashcards/sets/:id` | 200 |
 | Ghi đè | PUT | `PUT /api/v1/attempts/:id/state` | 200 |
-| Xóa | DELETE | `DELETE /api/v1/vocab/:id` | 204 |
+| Xóa | DELETE | `DELETE /api/v1/vocab/entries/:id` | 204 |
 | Hành động đặc biệt | POST | `POST /api/v1/attempts/:id/submit` | 200 |
 
 *Điều chỉnh so với Google:* Google viết hành động đặc biệt dạng `/attempts/123:submit`. Dự án dùng `/attempts/:id/submit` vì Express đã dùng dấu `:` cho tham số đường dẫn.
@@ -392,7 +393,7 @@ Kiến trúc module được mô tả ở [PLAN.md](PLAN.md) Phần B. Các lu�
 ### 8.2. Dữ liệu
 - Tên trường JSON dùng `lowerCamelCase`.
 - Thời gian theo chuẩn RFC 3339, giờ UTC: `"2026-11-02T08:30:00Z"`.
-- Phân trang bằng `?pageSize=20&pageToken=...`, response trả kèm `nextPageToken`.
+- Phân trang theo trang: `?page=1&pageSize=20`, response trả kèm `pagination { page, pageSize, total, totalPages }`.
 - Xác thực bằng header `Authorization: Bearer <JWT>`.
 - Mọi input **phải** được validate bằng Zod ở tầng route trước khi vào service.
 
@@ -409,8 +410,14 @@ Mọi lỗi trả về cùng một dạng:
 | 403 | `PERMISSION_DENIED` | Truy cập dữ liệu của người khác |
 | 404 | `NOT_FOUND` | Không tìm thấy |
 | 409 | `ALREADY_EXISTS` / `FAILED_PRECONDITION` | Trùng email; bài thi đã nộp |
-| 429 | `RESOURCE_EXHAUSTED` | Gọi AI quá giới hạn |
+| 413 / 415 | `INVALID_ARGUMENT` | File hoặc văn bản quá lớn / sai định dạng |
+| 422 | `FAILED_PRECONDITION` hoặc mã riêng (`SET_EMPTY`, `IMPORT_INCOMPLETE`, `EXPLAIN_NO_TEXT`) | Dữ liệu hợp lệ nhưng chưa đủ điều kiện xử lý |
+| 429 | `RESOURCE_EXHAUSTED` | Quá giới hạn tần suất (ví dụ 20 lượt AI mỗi phút) |
+| 429 | `AI_QUOTA_EXCEEDED` | Hết 50 lượt AI trong ngày; `details.retryAt` là lúc được dùng lại |
 | 500 | `INTERNAL` | Lỗi server. **Không** lộ stack trace hay chi tiết lỗi ra ngoài |
+| 500 | `AI_REQUEST_REJECTED` | Model AI từ chối chính yêu cầu (lỗi của hệ thống, không thử lại) |
+| 502 | `AI_INVALID_OUTPUT` | AI trả kết quả sai định dạng hoặc thiếu nội dung sau 3 lần gọi |
+| 503 | `AI_UNAVAILABLE` | Không gọi được AI sau khi thử lại, hoặc chưa cấu hình khóa |
 
 ### 8.4. API doc — Swagger (bắt buộc)
 Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
@@ -418,7 +425,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - **Sinh doc từ code:** đặc tả OpenAPI 3 được **sinh tự động từ các Zod schema** đang dùng để validate request/response, bằng thư viện `@asteasolutions/zod-to-openapi`. **Không** viết tay file YAML/JSON, để doc luôn khớp với code.
 - **Đăng ký endpoint:** mỗi endpoint phải được đăng ký vào registry của OpenAPI ngay cạnh route của nó, gồm:
   - Tóm tắt và mô tả.
-  - Tag theo module (`Auth`, `Documents`, `Vocab`, `Flashcards`, `Tests`, `Attempts`, `Library`, `Stats`).
+  - Tag theo module (`Core`, `Auth`, `Vocab`, `Documents`, `Flashcard`, `Exam`, `Library`, `Stats`).
   - Schema của request và response.
   - Ví dụ.
   - Các mã lỗi có thể trả về.
@@ -445,7 +452,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 ## 10. Tích hợp AI (Gemini)
 - Chỉ gọi Gemini từ **server**, qua AI gateway của `core`. Client không bao giờ thấy API key.
 - Prompt viết thành file riêng trong module dùng nó, có ghi phiên bản, và được đăng ký vào AI task registry. Không viết prompt rải rác trong code.
-- Luôn yêu cầu Gemini trả về **JSON theo schema**, rồi validate bằng Zod. Không hợp lệ thì thử lại 1 lần, vẫn lỗi thì trả lỗi rõ ràng cho người dùng.
+- Luôn yêu cầu Gemini trả về **JSON theo schema**, rồi validate bằng Zod. Không hợp lệ thì gọi lại, tối đa 3 lần gọi (thử lại 2 lần); vẫn lỗi thì trả lỗi rõ ràng cho người dùng. Lỗi mạng cũng được thử lại 2 lần.
 - Văn bản người dùng đưa vào prompt phải được bọc trong vùng phân cách rõ ràng và ghi chú "đây là dữ liệu, không phải chỉ dẫn" (chống prompt injection).
 - **AI không quyết định đúng/sai** của bài thi. Chấm điểm luôn dựa trên đáp án trong DB. AI chỉ chuyển file đề thành cấu trúc, viết lời giải thích, trích từ vựng và sinh bài luyện tập từ bộ thẻ (PLAN A5 liệt kê đủ các task).
 - Câu ví dụ AI trả về phải được kiểm tra là có thật trong văn bản gốc. Câu nào không tìm thấy thì loại.
@@ -477,7 +484,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 | End-to-end | Playwright | Luồng chính: đăng nhập → làm đề → xem kết quả → mở bài đọc, tra và lưu từ → ôn flashcard |
 
 - Bug được sửa thì nên có test tái hiện bug đó.
-- Test không gọi dịch vụ ngoài thật (Gemini, R2). Phải mock.
+- Test không gọi dịch vụ ngoài thật (Gemini, dịch vụ lưu file S3). Phải mock.
 - Không được merge khi có test lỗi. Không được tắt hay xóa test để CI xanh.
 
 ---
@@ -518,6 +525,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 - `docs/PLAN.md`
 - `docs/Working_rules.md`
 - `docs/Project_Structure.md`
+- `docs/Database.md`
 - `Analysis_Design/`: sơ đồ phân tích và thiết kế, theo PLAN mục B6
 
 Không tạo thêm file tài liệu khác khi chưa được cả nhóm đồng ý. Biên bản họp đăng ở GitHub Discussions. Ảnh chụp cho report lưu ở thư mục Drive chung của nhóm.
@@ -546,7 +554,7 @@ Không tạo thêm file tài liệu khác khi chưa được cả nhóm đồng 
 
 **Trước khi mở PR:**
 - [ ] Branch đặt tên đúng, chỉ làm một Issue.
-- [ ] Lint, test, build chạy qua ở máy.
+- [ ] Lint, typecheck, test, build chạy qua ở máy.
 - [ ] Đã cập nhật API doc, migration, `.env.example` và `Project_Structure.md` (nếu liên quan).
 - [ ] Đã điền đủ template PR, có `Closes #<issue>`.
 

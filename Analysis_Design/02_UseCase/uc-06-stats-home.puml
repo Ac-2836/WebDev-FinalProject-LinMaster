@@ -16,6 +16,8 @@ rectangle "stats & home" {
   usecase "Tiếp tục bài thi dở" as H1
   usecase "Thẻ đến hạn hôm nay" as H2
   usecase "Tài liệu đọc gần đây" as H3
+  usecase "Chuỗi ngày học" as H4
+  usecase "Lối tắt: đọc, tải đề, vào kho" as H5
 }
 Learner --> UC50
 Learner --> UC51
@@ -29,4 +31,6 @@ UC50 ..> W7 : <<include>>
 UC51 ..> H1 : <<include>>
 UC51 ..> H2 : <<include>>
 UC51 ..> H3 : <<include>>
+UC51 ..> H4 : <<include>>
+UC51 ..> H5 : <<include>>
 @enduml

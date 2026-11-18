@@ -8,14 +8,17 @@ state "hidden" as Hidden
 Private : chỉ chủ sở hữu thấy
 Public : xuất hiện trong kho; người khác xem trước, chép, làm đề
 Hidden : bị ẩn khỏi kho do báo cáo; chủ sở hữu vẫn thấy
-Private --> Public : Đăng lên kho\n[đề phải có nguồn] / publishedAt = now
+Private --> Public : Đăng lên kho\n[đề phải có nguồn; bộ thẻ phải có ít nhất 1 thẻ]\n/ publishedAt = now (giữ lần đầu)
 Public --> Private : Gỡ khỏi kho
 Public --> Hidden : nhận đủ 3 báo cáo "open"
-Hidden --> Private : chủ sở hữu sửa nội dung\n/ đóng các báo cáo
-Private --> [*] : xóa
-Hidden --> [*] : xóa
+Hidden --> Private : chủ sở hữu bấm Gỡ xuống\n/ các báo cáo đang mở chuyển resolved
+Private --> [*] : xóa\n[đề: chỉ khi attemptCount = 0]
+Public --> [*] : xóa\n[đề: chỉ khi attemptCount = 0]
+Hidden --> [*] : xóa\n[đề: chỉ khi attemptCount = 0]
 note bottom of Public
   Gỡ xuống hay xóa không ảnh hưởng
   các bản người khác đã chép về.
+  Hidden không đăng lại trực tiếp được
+  (409 CONTENT_HIDDEN): phải Gỡ xuống trước.
 end note
 @enduml

@@ -20,21 +20,31 @@ else (đề thi)
 endif
 |Người học|
 switch (Hành động?)
-case (Lưu bộ thẻ về thư viện)
+case (Chép bộ thẻ về thư viện)
   |Hệ thống|
-  :Chép sâu bộ thẻ + thẻ,
-  ghi copiedFromId, tăng copyCount;
-  :Mở bộ thẻ mới của người học;
+  if (Bộ thẻ của chính mình?) then (có)
+    :Từ chối 409 OWN_CONTENT;
+  elseif (Đã có bản chép?) then (có)
+    :Trả bản cũ (200), không tạo bộ mới,
+    không tăng copyCount;
+  else (chưa)
+    :Chép sâu bộ thẻ + thẻ,
+    ghi copiedFromId, tăng copyCount (201);
+  endif
+  :Trang xem trước hiện liên kết
+  mở bộ thẻ của người học;
 case (Làm đề)
   |Hệ thống|
-  :Tăng attemptCount;
   :Chuyển sang luồng Làm bài thi (UC32);
+  :Khi tạo Attempt (sau các màn trước khi thi)
+  attemptCount tăng, chỉ với lượt của người
+  không phải chủ đề;
 case (Báo cáo)
   |Người học|
   :Chọn lý do, nhập mô tả;
   |Hệ thống|
-  if (Đã báo cáo nội dung này?) then (có)
-    :Báo đã báo cáo trước đó;
+  if (Nội dung của mình hoặc đã báo cáo rồi?) then (có)
+    :Từ chối 409 (OWN_CONTENT hoặc ALREADY_REPORTED);
   else (chưa)
     :Ghi Report;
     if (Đủ 3 báo cáo đang mở?) then (có)

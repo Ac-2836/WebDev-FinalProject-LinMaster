@@ -14,37 +14,47 @@ participant "Gemini API" as AI
 loop Mỗi file người dùng đưa lên (cả hai tab)
   U -> C : Thả file (tab AI) hoặc chọn file cho một ô (tab Theo mẫu)
   C -> R : POST /api/v1/tests/imports/files (multipart)
-  R -> R : Kiểm tra MIME bằng nội dung file, giới hạn kích thước
-  R -> S : addFile(userId, file)
-  S -> ST : put(file)
+  R -> R : requireAuth + uploadRateLimit\n+ multer (giới hạn kích thước)
+  R -> S : uploadFile(userId, file)
+  S -> ST : put(file)\n(kiểm tra MIME bằng nội dung file)
   S -> DB : INSERT StoredFile (durationSec nếu là audio)
   opt PDF
     S -> G : runJsonTask("classify-pages.v1", PDF)
     G -> AI : generateContent(PDF + responseSchema)\n(bỏ qua nếu đã có trong AiCache)
     AI --> G : nhãn từng trang + kỹ năng + khoảng số câu
   end
-  R --> C : 201 { fileId, pages[] | durationSec }
+  R --> C : 201 { file: ImportFile }\n(id, pages, durationSec, unused...)
   C -> C : buildChecklist(files) (shared/exam)
   C --> U : Bảng Độ đầy đủ
 end
 U -> C : Bấm Tạo đề
 C -> R : POST /api/v1/tests/imports { kind, files[] }
+R -> R : requireAuth + aiRateLimit + validate Zod
 R -> S : createImport(userId, kind, files)
+S -> G : classify-pages.v1 cho PDF chưa gán ô\n(qua AiCache)
 S -> S : buildChecklist(files)
 alt Còn thiếu thành phần bắt buộc
-  R --> C : 422 { checklist }
+  R --> C : 422 IMPORT_INCOMPLETE { checklist }
 else Đủ
-  S -> ST : put(PDF đã gộp)
+  S -> ST : put(PDF đã gộp)\n(chỉ khi có nhiều hơn một PDF)
   S -> DB : INSERT StoredFile (PDF gộp), TestImport (queued)
-  S -> J : enqueue(importId)
-  R --> C : 202 { importId }
+  S -> J : jobs.start(importId)\n(chạy trong tiến trình server, không có hàng đợi)
+  R --> C : 202 { import: TestImport }
 end
 loop Mỗi 3 giây cho tới done / failed
   C -> R : GET /api/v1/tests/imports/:id
-  R --> C : { status, errors? }
+  R --> C : { import }
+  note right of R
+    Job dừng giữa chừng (server khởi động lại hoặc ngủ):
+    lần hỏi này nhận lại lượt queued / parsing / validating
+    và chạy lại job.
+  end note
 end
 J -> DB : status = parsing
 J -> G : runJsonTask("classify-pages.v1", PDF đã gộp)\n(cache theo hash file)
+alt Không có trang câu hỏi hoặc đáp án
+  J -> DB : status = failed, errors = PAGES_MISSING
+else Đủ trang
 par Trích nội dung theo nhãn trang
   J -> G : runJsonTask("parse-test.v2", trang đề + câu hỏi)
   G -> AI : generateContent(PDF + responseSchema)
@@ -54,6 +64,18 @@ else
   G -> AI : generateContent
   AI --> G : đáp án và giải thích theo kỹ năng + số câu
 end
+opt Đề Listening
+  alt Có transcript trong file
+    J -> G : runJsonTask("parse-transcript.v1", trang transcript)
+    G -> AI : generateContent
+    AI --> G : transcript theo Part
+  else Không có transcript, có audio
+    J -> G : runJsonTask("parse-audio.v2", audio)
+    G -> AI : generateContent(audio + responseSchema)
+    AI --> G : transcript theo Part (không có mốc thời gian)
+    J -> J : Thêm cảnh báo TRANSCRIPT_BY_AI\n(AI lỗi thì bỏ qua transcript)
+  end
+end
 J -> DB : status = validating
 J -> J : Ghép đáp án + giải thích vào Question.answer,\ntranscript vào Passage.paragraphs
 J -> J : Kiểm tra theo certification registry\nvà question kind registry
@@ -62,6 +84,7 @@ alt Đạt
   J -> DB : status = done, testId,\nerrors[] chỉ có cảnh báo (nếu có)
 else Có lỗi chặn
   J -> DB : status = failed, errors[] theo câu
+end
 end
 C --> U : Đề mới trong "Đề của tôi"\nhoặc danh sách lỗi theo câu
 @enduml

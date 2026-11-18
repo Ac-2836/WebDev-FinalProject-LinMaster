@@ -58,7 +58,7 @@ QuestionGroup ||--|{ Question
 StoredFile |o--o{ TestSection : audio
 StoredFile |o--o{ QuestionGroup : ảnh
 StoredFile ||--o{ TestImport : file đề / đáp án / audio
-TestImport |o--o| Test : tạo ra
+TestImport }o--o| Test : tạo ra
 Test ||--o{ Attempt
 Attempt ||--o{ AttemptAnswer
 Question |o--o{ AttemptAnswer

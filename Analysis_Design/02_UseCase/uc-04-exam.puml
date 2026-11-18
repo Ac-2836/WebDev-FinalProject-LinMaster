@@ -20,7 +20,7 @@ rectangle "exam" {
   usecase "Chấm điểm, quy ra band" as GRADE
   usecase "UC34 Xem kết quả" as UC34
   usecase "UC35 Mở bài đọc\ntrong Trình đọc" as UC35
-  usecase "UC36 Xem giải thích đáp án\n(Nên có)" as UC36
+  usecase "UC36 Xem giải thích đáp án" as UC36
 }
 Learner --> UC30
 Learner --> UC31
@@ -37,6 +37,7 @@ UC32 <.. AUDIO : <<extend>>\n(Listening)
 UC33 ..> GRADE : <<include>>
 UC33 <.. AUTO : <<extend>>
 Clock --> AUTO
+Clock --> UC32
 UC34 <.. UC35 : <<extend>>
 UC34 <.. UC36 : <<extend>>
 UC36 --> AI

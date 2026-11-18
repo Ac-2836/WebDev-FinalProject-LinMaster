@@ -37,7 +37,8 @@ else (Theo mẫu)
   :Lưu file, gắn nhãn trang;
 endif
 |Hệ thống|
-:Gộp các PDF thành một PDF;
+:Gộp các PDF thành một PDF
+(chỉ khi có nhiều hơn một PDF);
 :TestImport = queued, trả importId;
 fork
   |Người học|
@@ -47,27 +48,48 @@ fork again
   |Hệ thống|
   :TestImport = parsing;
   |Gemini AI|
-  :parse-test.v2 (trang đề, câu hỏi) → section,
-  passage, nhóm câu, dạng câu, phương án;
-  :parse-answers.v1 (trang đáp án, giải thích)
-  → đáp án và giải thích theo số câu,
-  tự nhận ra phần Listening / Reading;
+  :classify-pages.v1: gắn nhãn lại PDF đã gộp
+  (có cache);
   |Hệ thống|
-  :Lấy transcript theo Part (nếu có)
-vào Passage.paragraphs;
-  :TestImport = validating;
-  :Ghép đáp án và giải thích
-vào Question.answer;
-  :Kiểm tra: số câu từng phần theo chứng chỉ,
-  đánh số liên tục, đủ đáp án,
-  đáp án hợp lệ với dạng câu, audio đọc được;
-  if (Có lỗi chặn?) then (không)
-    :Ghi Test (riêng tư) và các bảng con;
-    :TestImport = done, ghi cảnh báo
-    vào errors (severity = warning);
+  if (Có trang câu hỏi và trang đáp án?) then (không)
+    :TestImport = failed (PAGES_MISSING);
   else (có)
-    :TestImport = failed,
-    lưu danh sách lỗi theo từng câu;
+    |Gemini AI|
+    :parse-test.v2 (trang đề, câu hỏi) → section,
+    passage, nhóm câu, dạng câu, phương án;
+    :parse-answers.v1 (trang đáp án, giải thích)
+    → đáp án và giải thích theo số câu,
+    tự nhận ra phần Listening / Reading
+    (hai task chạy song song);
+    |Hệ thống|
+    if (Listening không có transcript trong file
+    nhưng có audio?) then (có)
+      |Gemini AI|
+      :parse-audio.v2: nghe audio, viết transcript
+      (không có mốc thời gian; lỗi thì bỏ qua);
+      |Hệ thống|
+      :Thêm cảnh báo TRANSCRIPT_BY_AI;
+    else (không)
+      |Gemini AI|
+      :parse-transcript.v1: đọc transcript theo Part
+      (khi parse-test báo có transcript);
+      |Hệ thống|
+    endif
+    :Ghép transcript vào Passage.paragraphs;
+    :TestImport = validating;
+    :Ghép đáp án và giải thích
+vào Question.answer;
+    :Kiểm tra: số câu từng phần theo chứng chỉ,
+    đánh số liên tục, đủ đáp án,
+    đáp án hợp lệ với dạng câu, audio đọc được;
+    if (Có lỗi chặn?) then (không)
+      :Ghi Test (riêng tư) và các bảng con;
+      :TestImport = done, ghi cảnh báo
+      vào errors (severity = warning);
+    else (có)
+      :TestImport = failed,
+      lưu danh sách lỗi theo từng câu;
+    endif
   endif
 end fork
 |Người học|
