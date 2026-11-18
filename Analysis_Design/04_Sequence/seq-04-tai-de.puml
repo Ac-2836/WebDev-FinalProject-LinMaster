@@ -6,7 +6,7 @@ actor "Người học" as U
 participant "Client" as C
 participant "Exam route\n(/tests/imports)" as R
 participant "ImportService" as S
-participant "Storage\n(local / R2)" as ST
+participant "Storage\n(local / S3: Backblaze B2)" as ST
 database "PostgreSQL" as DB
 participant "Import job\n(chạy nền)" as J
 participant "AI gateway" as G

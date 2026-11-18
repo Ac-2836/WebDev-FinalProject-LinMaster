@@ -83,8 +83,8 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 |---|---|
 | Actor | Người học, Gemini AI |
 | Tiền điều kiện | Đang mở một tài liệu trong trình đọc (UC11) |
-| Luồng chính | 1. Người học bôi chọn một từ hoặc cụm từ (tối đa 6 từ). 2. Trình đọc hiện nút "Giải thích" (hoặc phím tắt). 3. Client gửi từ + câu chứa từ. 4. Server tra AiCache; không có thì gọi Gemini qua AI gateway, kiểm tra kết quả bằng schema, lưu cache. 5. Server ghi `VocabLookup`, trả về: nghĩa tiếng Việt **đúng trong câu này**, định nghĩa tiếng Anh, IPA, loại từ, cách dùng, collocations, CEFR, chủ đề. 6. Trình đọc hiện popover giải thích |
-| Luồng thay thế / lỗi | 1a. Chọn quá 6 từ: nút Giải thích bị khóa, có gợi ý. 4a. Hết quota AI trong ngày: báo lỗi 429 kèm thời điểm được dùng lại. 4b. Gemini lỗi sau 2 lần thử lại: báo 503 "AI đang bận, thử lại sau" |
+| Luồng chính | 1. Người học bôi chọn một từ hoặc cụm từ (tối đa 6 từ). 2. Trình đọc hiện nút "Giải thích" (hoặc phím tắt). 3. Client gửi từ + câu chứa từ + vị trí chọn + tiêu đề và đoạn văn chứa từ. 4. Server tra AiCache; không có thì gọi Gemini qua AI gateway (task `explain-word.v2`, đọc chủ đề của bài trước khi dịch), kiểm tra kết quả bằng schema, lưu cache. 5. Server kiểm tra cụm AI giải nghĩa: nguyên văn trong câu, chạm vùng chọn, tối đa 6 từ (sai thì hỏi lại 1 lần). Chọn cụm có nghĩa thì giải nghĩa nguyên cụm; chọn cụm vô nghĩa thì rút về cụm có nghĩa gần nhất và trả vị trí mới. 6. Server ghi `VocabLookup`, trả về: nghĩa tiếng Việt **đúng trong câu và chủ đề bài**, định nghĩa tiếng Anh, IPA, loại từ, cách dùng, collocations, CEFR, chủ đề, và cụm thật sự được giải nghĩa. 7. Trình đọc dời khung đánh dấu theo cụm đó và hiện popover giải thích |
+| Luồng thay thế / lỗi | 1a. Chọn quá 6 từ: nút Giải thích bị khóa, có gợi ý. 4a. Hết quota AI trong ngày: báo lỗi 429 kèm thời điểm được dùng lại. 4b. Gemini không phản hồi sau 2 lần thử lại: báo 503 "AI đang bận, thử lại sau". 4c. AI hai lần trả cụm không nằm trong câu: báo 502 |
 | Hậu điều kiện | Có `VocabLookup`. Có thể tiếp tục UC13 |
 
 ## UC13 — Lưu từ vào kho
@@ -173,7 +173,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 |---|---|
 | Actor | Người học, Gemini AI |
 | Tiền điều kiện | Bộ thẻ là của mình (kể cả bản đã chép), có ít nhất 4 thẻ |
-| Luồng chính | 1. Ở trang bộ thẻ, người học chọn "Luyện tập AI". 2. Chọn dạng câu (trắc nghiệm, điền chỗ trống, nối) và số câu (10 hoặc 20). 3. Client gửi `POST /flashcards/sets/:id/exercises`. 4. Server tra `AiCache` theo bộ thẻ + tham số; không có thì gọi task `generate-exercise.v1` qua AI gateway với danh sách thuật ngữ và định nghĩa. 5. Server kiểm tra từng câu: đúng schema dạng câu, đáp án nằm trong phương án, chỉ dùng từ của bộ thẻ; câu không đạt thì bỏ. 6. Trả về câu hỏi kèm đáp án. 7. Người học làm bài bằng đúng component dạng câu của phòng thi, bấm "Chấm" để xem đúng / sai và đáp án. 8. Có thể làm lại hoặc tạo bài khác |
+| Luồng chính | 1. Ở trang bộ thẻ, người học chọn "Luyện tập AI". 2. Chọn dạng câu (trắc nghiệm, điền chỗ trống, nối) và số câu (10 hoặc 20). 3. Client gửi `POST /flashcards/sets/:id/exercises`. 4. Server tra `AiCache` theo bộ thẻ + tham số; không có thì gọi task `generate-exercise.v2` qua AI gateway với danh sách thuật ngữ và định nghĩa. 5. Server kiểm tra từng câu: đúng schema dạng câu, đáp án nằm trong phương án, chỉ dùng từ của bộ thẻ; câu không đạt thì bỏ. 6. Trả về câu hỏi kèm đáp án. 7. Người học làm bài bằng đúng component dạng câu của phòng thi, bấm "Chấm" để xem đúng / sai và đáp án. 8. Có thể làm lại hoặc tạo bài khác |
 | Luồng thay thế / lỗi | 4a. Hết quota AI trong ngày: 429, báo thời điểm được dùng lại. 4b. Gemini lỗi sau 2 lần thử lại: 503 "AI đang bận, thử lại sau". 5a. Còn dưới một nửa số câu yêu cầu: báo lỗi, cho thử lại. 1a. Bộ thẻ ít hơn 4 thẻ: chế độ bị khóa |
 | Hậu điều kiện | Có `StudySession` chế độ `exercise`. Bài luyện tập không lưu DB, không đổi tiến độ SM-2 |
 
