@@ -180,9 +180,7 @@ export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFi
                       checked={topics.includes(topic)}
                       onChange={() => setTopics(l => toggle(l, topic))}
                     />
-                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium capitalize')}>
-                      {labels.topic(topic)}
-                    </span>
+                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium')}>{labels.topic(topic)}</span>
                   </label>
                 ))}
               </div>

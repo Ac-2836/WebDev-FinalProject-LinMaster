@@ -7,5 +7,6 @@ import {defaultLocale, isLocale, LOCALE_COOKIE} from './config';
 export default getRequestConfig(async () => {
   const value = (await cookies()).get(LOCALE_COOKIE)?.value;
   const locale = isLocale(value) ? value : defaultLocale;
-  return {locale, messages: (await import(`../../messages/${locale}.json`)).default};
+  // The server (Vercel) runs in UTC; without this every date and time is shown 7 hours off for users in Vietnam.
+  return {locale, timeZone: 'Asia/Ho_Chi_Minh', messages: (await import(`../../messages/${locale}.json`)).default};
 });

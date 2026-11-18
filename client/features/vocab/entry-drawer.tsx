@@ -83,7 +83,7 @@ function Detail({entry, onUpdated, onDelete}: Omit<EntryDrawerProps, 'entry' | '
           <span className={cn(badge, 'bg-muted text-muted-foreground')}>{labels.pos(entry.partOfSpeech)}</span>
           {entry.cefr && <span className={cn(badge, 'bg-secondary text-primary')}>{entry.cefr}</span>}
           {entry.topics.map(topic => (
-            <span key={topic} className={cn(badge, 'bg-muted text-muted-foreground capitalize')}>
+            <span key={topic} className={cn(badge, 'bg-muted text-muted-foreground')}>
               {labels.topic(topic)}
             </span>
           ))}

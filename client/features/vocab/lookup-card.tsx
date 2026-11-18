@@ -110,7 +110,7 @@ export function LookupCard({text, state, onSave, onClose}: LookupCardProps) {
       {e.topics.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label={t('topics')}>
           {e.topics.map(topic => (
-            <li key={topic} className={`${badge} bg-secondary text-primary capitalize`}>
+            <li key={topic} className={`${badge} bg-secondary text-primary`}>
               {labels.topic(topic)}
             </li>
           ))}

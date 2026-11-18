@@ -328,7 +328,7 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
                     </span>
                   )}
                 </span>
-                <span className="hidden text-sm text-muted-foreground capitalize md:block">
+                <span className="hidden text-sm text-muted-foreground md:block">
                   {e.topics.map(labels.topic).join(', ')}
                 </span>
                 <span className="hidden text-[13px] text-muted-foreground md:block">
