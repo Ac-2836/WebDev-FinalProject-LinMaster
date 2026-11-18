@@ -2,6 +2,7 @@ import type {ImportIssue, ImportStatus, ParsedTest, Skill, TestKind} from '@linm
 
 import {getDb} from '../../core/db';
 import {Prisma} from '../../generated/prisma/client';
+import type {StoredPageText} from './ocr-text';
 
 /** A row of `StoredFile` uploaded for a test import. */
 export interface ImportFileRecord {
@@ -12,6 +13,8 @@ export interface ImportFileRecord {
   sizeBytes: number;
   originalName: string;
   durationSec: number | null;
+  /** PDF only: `[{page, text}]` sent by the browser, or null (jsonb). */
+  pageText: unknown;
   createdAt: Date;
 }
 
@@ -21,6 +24,8 @@ export interface NewImportFile {
   sizeBytes: number;
   originalName: string;
   durationSec: number | null;
+  /** OCR text of the merged PDF, built from the texts of the PDFs it holds. */
+  pageText?: StoredPageText | null;
 }
 
 /** A stored file looked up for a new import. `inUse` when an import or a test already points at it. */
@@ -76,6 +81,8 @@ const UNFINISHED: ImportStatus[] = ['queued', 'parsing', 'validating'];
 
 export interface ImportRepository {
   createFile(ownerId: string, file: NewImportFile): Promise<ImportFileRecord>;
+  /** Replaces the OCR text of the file; false when it is not the user's. */
+  setFileText(ownerId: string, fileId: string, pageText: StoredPageText): Promise<boolean>;
   /** The file when it belongs to the user, else null. */
   findFile(ownerId: string, fileId: string): Promise<ImportFileRecord | null>;
   /**
@@ -125,7 +132,12 @@ function hasPrismaCode(error: unknown, code: string): boolean {
 
 export const prismaImportRepository: ImportRepository = {
   async createFile(ownerId, file) {
-    return getDb().storedFile.create({data: {ownerId, ...file}});
+    return getDb().storedFile.create({data: {ownerId, ...file, pageText: json(file.pageText)}});
+  },
+
+  async setFileText(ownerId, fileId, pageText) {
+    const {count} = await getDb().storedFile.updateMany({where: {id: fileId, ownerId}, data: {pageText}});
+    return count > 0;
   },
 
   async findFile(ownerId, fileId) {
@@ -159,7 +171,9 @@ export const prismaImportRepository: ImportRepository = {
   async createImport(ownerId, {kind, pdf, audioFileId}) {
     return getDb().$transaction(async tx => {
       const pdfFileId =
-        'fileId' in pdf ? pdf.fileId : (await tx.storedFile.create({data: {ownerId, ...pdf.merged}})).id;
+        'fileId' in pdf
+          ? pdf.fileId
+          : (await tx.storedFile.create({data: {ownerId, ...pdf.merged, pageText: json(pdf.merged.pageText)}})).id;
       return tx.testImport.create({
         data: {ownerId, kind, questionFileId: pdfFileId, answerFileId: pdfFileId, audioFileId},
       });

@@ -1,7 +1,9 @@
 import {
   CreateImportRequestSchema,
   type CreateImportRequest,
+  type ImportFileTextRequest,
   ImportFileIdParamsSchema,
+  ImportFileTextRequestSchema,
   ImportIdParamsSchema,
   MAX_IMPORT_AUDIO_BYTES,
 } from '@linmaster/shared';
@@ -42,6 +44,7 @@ const parseImportFile: RequestHandler = (req, res, next) => {
 };
 
 const deleteImportFileSchema = z.object({params: ImportFileIdParamsSchema});
+const importFileTextSchema = z.object({params: ImportFileIdParamsSchema, body: ImportFileTextRequestSchema});
 const createImportSchema = z.object({body: CreateImportRequestSchema});
 const getImportSchema = z.object({params: ImportIdParamsSchema});
 
@@ -60,6 +63,21 @@ export function addImportRoutes(router: Router, service: ImportService, jwtSecre
         originalName: file.originalname,
       });
       res.status(201).json(result);
+    }),
+  );
+  router.put(
+    '/tests/imports/files/:fileId/text',
+    requireAuth(jwtSecret),
+    uploadRateLimit(),
+    validate(importFileTextSchema),
+    catchAsync(async (req, res) => {
+      res.json(
+        await service.setFileText(
+          req.user!.userId,
+          (req.params as FileParams).fileId,
+          req.body as ImportFileTextRequest,
+        ),
+      );
     }),
   );
   router.delete(
