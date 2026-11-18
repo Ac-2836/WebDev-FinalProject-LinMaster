@@ -15,12 +15,12 @@ U -> C : Chọn dạng câu, số câu, bấm "Tạo bài luyện"
 C -> R : POST /api/v1/flashcards/sets/:id/exercises\n{ kinds[], count } + JWT
 R -> R : requireAuth + aiRateLimit + validate Zod
 R -> S : generateExercise(userId, setId, input)
-S -> S : Cùng yêu cầu vừa thất bại trong 60 giây?\n(chặn lặp lại, 502)
 S -> DB : Bộ thẻ là của người học?\nLấy thuật ngữ + định nghĩa
 alt Không phải chủ / ít hơn 4 thẻ
   S --> R : lỗi
   R --> C : 404 (không phải chủ) / 422 (ít hơn 4 thẻ)
 else Hợp lệ
+  S -> S : Cùng yêu cầu vừa thất bại trong 60 giây?\n(chặn lặp lại, 502)
   S -> G : runJsonTask("generate-exercise.v2",\n{ cards[], kinds, count })
   G -> DB : Kiểm tra quota (AiUsage), tra AiCache
   alt Hết quota

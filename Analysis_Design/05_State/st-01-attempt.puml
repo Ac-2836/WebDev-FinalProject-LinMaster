@@ -22,8 +22,8 @@ state "in_progress" as InProgress {
 
 InProgress --> InProgress : PUT /state [now < deadlineAt]\n/ ghi state
 InProgress --> Submitted : Người học bấm Nộp bài\n/ chấm, autoSubmitted = false
-InProgress --> Submitted : Hết giờ phần cuối (client tải lại bài, server nộp)\n/ chấm, autoSubmitted = true
-InProgress --> Submitted : Mở lại khi đã quá hạn (nộp lười)\n/ chấm với state đã lưu, autoSubmitted = true
+InProgress --> Submitted : Hết giờ phần cuối (client lưu bài rồi tự gọi nộp)\n/ chấm, autoSubmitted = true
+InProgress --> Submitted : Mở lại bài khi đã quá hạn (nộp lười)\n/ chấm với state đã lưu, autoSubmitted = true
 
 state "submitted" as Submitted
 Submitted : chỉ đọc; nộp lại trả kết quả cũ

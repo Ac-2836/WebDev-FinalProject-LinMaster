@@ -44,6 +44,7 @@ repeat
         |Hệ thống|
         :Kiểm tra kết quả bằng schema
         (thử lại tối đa 2 lần);
+        :Lưu vào AiCache;
       endif
       :Tìm cụm AI giải nghĩa trong câu
       (nguyên văn, chạm vùng chọn, tối đa 6 từ);
@@ -54,10 +55,9 @@ repeat
         |Hệ thống|
       endif
       if (Có kết quả hợp lệ?) then (không)
-        :Báo lỗi AI (502 hoặc 503),
-        mời thử lại, không trừ quota;
+        :Báo lỗi AI (502 hoặc 503), mời thử lại
+        (lượt AI đã gọi thành công vẫn tính quota);
       else (có)
-      :Lưu vào AiCache (nếu mới);
       :Ghi VocabLookup;
       :Dời khung đánh dấu theo cụm
       đã giải nghĩa (match);

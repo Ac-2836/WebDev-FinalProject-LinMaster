@@ -80,5 +80,5 @@ Cổng 5432 đã bị chiếm thì đặt `POSTGRES_PORT=5433` trước `docker 
 Repo là **public** và chưa bật branch protection trên GitHub. Các luật dưới đây vẫn **bắt buộc** và được cả nhóm **tuân thủ thủ công** (chi tiết ở [Working_rules mục 5.5](docs/Working_rules.md)):
 
 - Không push thẳng vào `main`, không force push, không xóa `main`. Mọi thay đổi đi qua Pull Request từ branch `<loại>/<số-issue>-<mô-tả>` (giai đoạn đầu dùng mã việc của PLAN, ví dụ `feat/p1-06-auth-server`).
-- Mỗi PR cần **1 approve** (KH được tự duyệt PR của mình) và CI xanh. Người mở PR bấm merge sau khi đủ hai điều kiện.
+- Mỗi PR cần được **duyệt** (người còn lại hoặc QA kết luận Đạt; KH được tự duyệt PR của mình) và CI xanh. Người mở PR bấm merge sau khi đủ hai điều kiện.
 - Chỉ dùng **Squash and merge**. Merge xong thì xóa branch.

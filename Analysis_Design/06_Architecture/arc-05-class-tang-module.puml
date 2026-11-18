@@ -15,11 +15,11 @@ class LookupService <<service>> {
   + lookup(userId, input) : { explanation, match, savedEntryId }
 }
 class ScanService <<service>> {
-  + scan(userId, docId, criteria) : Candidate[]
+  + scan(userId, docId, criteria) : { candidates }
 }
 class VocabDocumentService <<service>> {
-  + createPasted(userId, input) : Document
-  + createUploaded(userId, file) : Document
+  + createPastedDocument(userId, input) : Document
+  + createUploadedDocument(userId, file, title?) : Document
   + createExamDocument(userId, attemptId, passageId) : Document
 }
 class VocabService <<service>> {
@@ -29,7 +29,7 @@ class VocabService <<service>> {
 class "vocab public API" as PublicApi <<public>> {
   + getEntriesForUser(userId, ids) : VocabEntry[]
   + getDocumentForUser(userId, id) : Document
-  + getVocabStats(userId, range) : VocabStats
+  + getVocabStats(userId) : VocabStats
 }
 class "core: requireAuth, aiRateLimit,\nvalidate, errorHandler" as MW <<middleware>>
 class AiGateway <<core>>

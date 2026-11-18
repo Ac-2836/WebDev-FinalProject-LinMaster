@@ -10,12 +10,12 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
 
 ```
                          ┌──────────────────────────────┐
-  Trình duyệt ─────────▶ │  client  (Next.js, Vercel)   │  https://<tên-miền>
+  Trình duyệt ─────────▶ │  client  (Next.js, Vercel)   │  https://www.linmaster.id.vn
                          └──────────────┬───────────────┘
                                         │ REST / JSON + JWT
                                         ▼
                          ┌──────────────────────────────┐
-                         │  server  (Express, Render)   │  https://api.<tên-miền>
+                         │  server  (Express, Render)   │  https://api.linmaster.id.vn
                          └───┬──────────────┬───────────┘
                              │ Prisma       │ HTTPS
                              ▼              ▼
@@ -81,7 +81,7 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
 | Vitest, Supertest, Playwright | Unit test, API test, test end-to-end |
 | GitHub Actions | CI trên mỗi PR |
 | Vercel / Render | Deploy front-end (có preview cho từng PR) / back-end |
-| Cloudflare, UptimeRobot | Tên miền, HTTPS / theo dõi uptime |
+| Cloudflare, UptimeRobot | DNS cho `www` và `api`, proxy + HTTPS cho `api` (HTTPS của `www` do Vercel) / theo dõi uptime |
 
 Phiên bản cụ thể được khóa trong `package.json` và lockfile, không ghi ở đây.
 
@@ -187,7 +187,7 @@ Request ─▶ middleware (core) ─▶ routes ─▶ service ─▶ hạ tầng
 |---|---|
 | Trang mới | `client/app/`, trong nhóm layout phù hợp; trang chỉ ghép component từ `features/` |
 | Component, hook, hàm gọi API của một module | `client/features/<module>/` |
-| Thành phần dùng chung toàn app (layout, registry, tiện ích) | `client/core/` |
+| Thành phần dùng chung toàn app (API client, phiên đăng nhập, i18n, landing, nav registry, header bảo mật, tiện ích). Layout nằm ở `client/app/` | `client/core/` |
 | Endpoint mới | `server/src/modules/<module>/`: route + service + đăng ký Swagger; schema trong `shared/<module>`; có test |
 | Bảng hoặc cột mới | File schema của module trong `server/prisma/schema/` + migration |
 | Prompt AI mới | Trong module dùng prompt đó, đăng ký vào AI task registry của `core` |

@@ -8,7 +8,7 @@ state "hidden" as Hidden
 Private : chỉ chủ sở hữu thấy
 Public : xuất hiện trong kho; người khác xem trước, chép, làm đề
 Hidden : bị ẩn khỏi kho do báo cáo; chủ sở hữu vẫn thấy
-Private --> Public : Đăng lên kho\n[đề phải có nguồn; bộ thẻ phải có ít nhất 1 thẻ]\n/ publishedAt = now (giữ lần đầu)
+Private --> Public : Đăng lên kho\n[đề phải có nguồn; bộ thẻ phải có ít nhất 1 thẻ]\n/ publishedAt = now (đăng lại thì lấy giờ mới)
 Public --> Private : Gỡ khỏi kho
 Public --> Hidden : nhận đủ 3 báo cáo "open"
 Hidden --> Private : chủ sở hữu bấm Gỡ xuống\n/ các báo cáo đang mở chuyển resolved

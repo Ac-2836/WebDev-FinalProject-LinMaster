@@ -20,8 +20,8 @@ if (Hành động?) then (Đăng lên)
     :Nhập nguồn đề;
   endif
   |Hệ thống|
-  :visibility = public, ghi publishedAt
-  (giữ lần đăng đầu tiên);
+  :visibility = public, ghi publishedAt = lúc đăng
+  (gỡ rồi đăng lại thì lấy giờ mới);
   :Nội dung xuất hiện trong kho;
 else (Gỡ xuống)
   |Hệ thống|

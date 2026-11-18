@@ -92,7 +92,7 @@ Prototype HTML bấm được (Tailwind qua CDN, cùng token màu với `client/
 | File | Nội dung |
 |---|---|
 | [index.html](07_Wireframe/index.html) | Mục lục 32 màn; nút **375 / 1440** xem hai khổ cạnh nhau. Trong mỗi màn: nút **Mục lục** (góc dưới trái) và bảng **WF** đổi trạng thái tải / trống / lỗi / hộp thoại (góc trên phải) |
-| [wireframes.pdf](07_Wireframe/wireframes.pdf) | Bản in cho report: mỗi màn một trang, desktop 1440px và mobile 375px cạnh nhau |
+| [wireframes.pdf](07_Wireframe/wireframes.pdf) | Bản in cho report: mỗi màn một trang, desktop 1440px và mobile 375px cạnh nhau. Sinh lại sau mỗi lần sửa wireframe: `node Analysis_Design/07_Wireframe/build-pdf.mjs` |
 | [design-system](07_Wireframe/00-foundation/design-system.html) | Logo, màu, chữ, nút, ô nhập, card, hộp thoại, trạng thái |
 | [assets/logo-mark.svg](07_Wireframe/assets/logo-mark.svg), [assets/logo.svg](07_Wireframe/assets/logo.svg) | Logo LinMaster (biểu tượng, lockup ngang) |
 

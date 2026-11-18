@@ -14,7 +14,7 @@ R -> S : startSession
 S -> DB : INSERT StudySession
 R --> C : 201 { session }
 C -> R : GET /api/v1/flashcards/sets/:id/study
-R -> S : dueCards(userId, setId, today theo giờ VN)
+R -> S : getStudyCards(userId, setId)
 S -> DB : CardProgress.dueAt < cuối ngày hôm nay (giờ VN)\n+ thẻ chưa có tiến độ (tối đa 20 thẻ mới mỗi ngày)
 R --> C : cards[]
 loop Mỗi thẻ

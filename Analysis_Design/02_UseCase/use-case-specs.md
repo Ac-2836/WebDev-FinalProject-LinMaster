@@ -13,12 +13,12 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 
 **Quy ước chung cho mọi use case của Người học:** tiền điều kiện luôn gồm "đã đăng nhập". Hết phiên đăng nhập thì chuyển về `/login?next=<trang hiện tại>`. Mọi thông báo hiển thị theo ngôn ngữ giao diện đang chọn.
 
-**Lỗi AI chung** cho mọi use case gọi Gemini (UC12, 14, 27, 30, 36). Mỗi người có tối đa 50 lượt AI mỗi ngày (tính từ 0 giờ giờ Việt Nam, kết quả lấy từ cache không tính) và tối đa 20 lượt AI mỗi phút.
+**Lỗi AI chung** cho mọi use case gọi Gemini (UC12, 14, 27, 30, 36). Mỗi người có tối đa 50 lượt AI mỗi ngày (tính từ 0 giờ giờ Việt Nam, kết quả lấy từ cache không tính) và tối đa 20 yêu cầu tới các route AI mỗi phút (đếm cả yêu cầu được lấy từ cache).
 
 | Mã | Khi nào |
 |---|---|
-| 429 `AI_QUOTA_EXCEEDED` | Hết lượt trong ngày; kèm `retryAt` là thời điểm được dùng lại. Quá 20 lượt mỗi phút cũng trả 429 (`RESOURCE_EXHAUSTED`) |
-| 502 `AI_INVALID_OUTPUT` | AI trả kết quả sai định dạng hoặc thiếu nội dung sau 3 lần gọi |
+| 429 `AI_QUOTA_EXCEEDED` | Hết lượt trong ngày; kèm `retryAt` là thời điểm được dùng lại. Quá 20 yêu cầu AI mỗi phút cũng trả 429 (`RESOURCE_EXHAUSTED`) |
+| 502 `AI_INVALID_OUTPUT` | AI trả kết quả sai định dạng cả 3 lần gọi; hoặc service từ chối kết quả (Luyện tập AI: còn dưới một nửa số câu; tra từ: cụm không nằm trong câu) |
 | 503 `AI_UNAVAILABLE` | Không gọi được AI (mạng, quá tải) sau 2 lần thử lại, hoặc chưa cấu hình khóa |
 | 500 `AI_REQUEST_REJECTED` | Model từ chối chính yêu cầu (lỗi của hệ thống, không thử lại) |
 
@@ -39,7 +39,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Actor | Khách |
 | Tiền điều kiện | Có tài khoản |
 | Luồng chính | 1. Khách nhập email, mật khẩu. 2. Hệ thống kiểm tra, cấp JWT. 3. Chuyển tới trang `next` (nếu có) hoặc `/home`. Ngôn ngữ giao diện lấy theo hồ sơ |
-| Luồng thay thế / lỗi | 2a. Sai email hoặc mật khẩu: báo "Email hoặc mật khẩu không đúng" (không cho biết sai phần nào). 2b. Thử sai quá 10 lần trong 15 phút: 429, yêu cầu thử lại sau. 2c. Quên mật khẩu: trang `/forgot-password` chỉ hướng dẫn, chưa gửi được email đặt lại |
+| Luồng thay thế / lỗi | 2a. Sai email hoặc mật khẩu: báo "Email hoặc mật khẩu không đúng" (không cho biết sai phần nào). 2b. Thử sai quá 10 lần trong 15 phút: 429, yêu cầu thử lại sau. 2c. Quên mật khẩu: Khách bấm liên kết ở trang đăng nhập để mở `/forgot-password`, trang này chỉ hướng dẫn, chưa gửi được email đặt lại |
 | Hậu điều kiện | Client giữ JWT; mọi request sau gắn token |
 
 ## UC03 — Đăng xuất
@@ -57,7 +57,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Actor | Người học |
 | Tiền điều kiện | — |
 | Luồng chính | 1. Người học mở `/profile`. 2. Sửa tên hiển thị, ngôn ngữ giao diện, mục tiêu band. 3. Bấm "Lưu", client gửi `PATCH /auth/me`. 4. Server validate bằng Zod, cập nhật `User`. 5. Hiện thông báo "Đã lưu". 6. Ở mục bảo mật, người học đổi email (`PATCH /auth/me/email`) hoặc đổi mật khẩu (`PATCH /auth/me/password`); cả hai đòi nhập mật khẩu hiện tại |
-| Luồng thay thế / lỗi | 4a. Dữ liệu không hợp lệ (tên rỗng, band ngoài 4.0–9.0 hoặc không chia hết cho 0.5): 400, hiện lỗi ngay dưới ô tương ứng. 4c. Đổi email hoặc mật khẩu nhập sai mật khẩu hiện tại: 403 `WRONG_PASSWORD`; email mới đã có người dùng: 409. 4b. Mất mạng: giữ nguyên dữ liệu trên form, cho bấm lưu lại |
+| Luồng thay thế / lỗi | 4a. Dữ liệu không hợp lệ (tên rỗng, band ngoài 4.0–9.0 hoặc không chia hết cho 0.5): 400, hiện lỗi ngay dưới ô tương ứng. 4c. Đổi email hoặc mật khẩu nhập sai mật khẩu hiện tại: 403 `WRONG_PASSWORD`; email mới đã có người dùng: 409. 4d. Quá 10 lần đổi email hoặc mật khẩu trong 15 phút: 429. 4b. Mất mạng: giữ nguyên dữ liệu trên form, cho bấm lưu lại |
 | Hậu điều kiện | `User` được cập nhật. Mục tiêu band hiện thành vạch mục tiêu trên dashboard (UC50) |
 
 ## UC05 — Đổi ngôn ngữ giao diện
@@ -93,7 +93,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 | Actor | Người học, Gemini AI |
 | Tiền điều kiện | Đang mở một tài liệu trong trình đọc (UC11) |
 | Luồng chính | 1. Người học bôi chọn một từ hoặc cụm từ (tối đa 6 từ). 2. Trình đọc hiện nút "Giải thích" (hoặc phím tắt). 3. Client gửi từ + câu chứa từ + vị trí chọn + tiêu đề và đoạn văn chứa từ. 4. Server tra AiCache; không có thì gọi Gemini qua AI gateway (task `explain-word.v2`, đọc chủ đề của bài trước khi dịch), kiểm tra kết quả bằng schema, lưu cache. 5. Server kiểm tra cụm AI giải nghĩa: nguyên văn trong câu, chạm vùng chọn, tối đa 6 từ (sai thì hỏi lại 1 lần). Chọn cụm có nghĩa thì giải nghĩa nguyên cụm; chọn cụm vô nghĩa thì rút về cụm có nghĩa gần nhất và trả vị trí mới. 6. Server ghi `VocabLookup`, trả về: nghĩa tiếng Việt **đúng trong câu và chủ đề bài**, định nghĩa tiếng Anh, IPA, loại từ, cách dùng, collocations, CEFR, chủ đề, và cụm thật sự được giải nghĩa. 7. Trình đọc dời khung đánh dấu theo cụm đó và hiện popover giải thích |
-| Luồng thay thế / lỗi | 1a. Chọn quá 6 từ hoặc chọn qua hai đoạn: không nhận vùng chọn, hiện thông báo "Chọn tối đa 6 từ". 4a. Hết quota AI trong ngày: báo lỗi 429 kèm thời điểm được dùng lại. 4b. Gemini không phản hồi sau 2 lần thử lại: báo 503 "AI đang bận, thử lại sau". 4c. AI hai lần trả cụm không nằm trong câu: báo 502. 4d. `documentId` không phải của người học: 404. Các mã AI xem "Lỗi AI chung" |
+| Luồng thay thế / lỗi | 1a. Chọn quá 6 từ: không nhận vùng chọn, hiện thông báo "Chọn tối đa 6 từ". Chọn qua hai đoạn: hiện "Chỉ chọn trong một đoạn.". 4a. Hết quota AI trong ngày: báo lỗi 429 kèm thời điểm được dùng lại. 4b. Gemini không phản hồi sau 2 lần thử lại: báo 503 "AI đang bận, thử lại sau". 4c. AI hai lần trả cụm không nằm trong câu: báo 502. 4d. `documentId` không phải của người học: 404. Các mã AI xem "Lỗi AI chung" |
 | Hậu điều kiện | Có `VocabLookup`. Có thể tiếp tục UC13 |
 
 ## UC13 — Lưu từ vào kho
@@ -110,7 +110,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 |---|---|
 | Actor | Người học, Gemini AI |
 | Tiền điều kiện | Đang mở một tài liệu |
-| Luồng chính | 1. Người học mở bảng "Lọc nhanh", chọn trình độ CEFR và/hoặc chủ đề (có sẵn khoảng 15 chủ đề, hoặc gõ chủ đề khác). 2. Server gọi Gemini một lần cho cả tài liệu (task `scan-document.v1`), lấy tối đa 30 ứng viên. 3. Server **kiểm tra câu gốc phải có thật trong văn bản** và gộp từ trùng; client đánh dấu "Đã có" những từ trùng vùng đã tô trong chính tài liệu này. 4. Hiện danh sách ứng viên có checkbox. 5. Người học chọn và lưu (UC13) |
+| Luồng chính | 1. Người học mở bảng "Lọc nhanh", chọn trình độ CEFR và/hoặc chủ đề (có sẵn khoảng 15 chủ đề, hoặc gõ chủ đề khác). 2. Server gọi Gemini một lần cho cả tài liệu (task `scan-document.v1`), lấy tối đa 30 ứng viên; server bỏ ứng viên không đúng trình độ CEFR đã chọn. 3. Server **kiểm tra câu gốc phải có thật trong văn bản** và gộp từ trùng; client đánh dấu "Đã có" những từ trùng vùng đã tô trong chính tài liệu này. 4. Hiện danh sách ứng viên có checkbox. 5. Người học chọn và lưu (UC13) |
 | Luồng thay thế / lỗi | 1a. Không chọn tiêu chí nào: không lọc cứng, AI ưu tiên từ trình độ B2 trở lên. 3a. Câu gốc AI bịa: loại khỏi danh sách. 3b. Không có ứng viên: hiện trạng thái trống kèm gợi ý đổi tiêu chí. 2a. Hết quota: như UC12 |
 | Hậu điều kiện | Không đổi dữ liệu cho tới khi người học lưu |
 
@@ -245,7 +245,7 @@ Thuộc issue **P0-03** (vocab, flashcard, exam) và **P0-04** (auth, library, s
 |---|---|
 | Actor | Người học (chủ sở hữu) |
 | Tiền điều kiện | Là chủ sở hữu bộ thẻ hoặc đề |
-| Luồng chính | 1. Người học bấm "Đăng lên kho". 2. Client gọi ngay `POST .../publish` (không có bước xác nhận quy định). 3. Đề chưa có nguồn thì hỏi nguồn trước. 4. `visibility` = `public`, ghi `publishedAt` (giữ lần đăng đầu) |
+| Luồng chính | 1. Người học bấm "Đăng lên kho". 2. Đề chưa có nguồn thì hỏi nguồn trước. 3. Client gọi `POST .../publish` (không có bước xác nhận quy định). 4. `visibility` = `public`, ghi `publishedAt` = lúc đăng (gỡ rồi đăng lại thì lấy giờ mới) |
 | Luồng thay thế / lỗi | 2a. Đề chưa có nguồn: yêu cầu nhập nguồn trước. 2b. Bộ thẻ không có thẻ nào: 422 `SET_EMPTY`. 1a. Nội dung đang bị ẩn do báo cáo (`hidden`): đăng lại bị 409 `CONTENT_HIDDEN`; chủ bấm "Gỡ xuống" (`hidden` thành `private`, các báo cáo đang mở chuyển `resolved`) thì sau đó đăng lại được. 1b. Gỡ khỏi kho: `visibility` = `private`; các bản người khác đã chép vẫn giữ nguyên |
 | Hậu điều kiện | Nội dung xuất hiện (hoặc biến mất) trong kho |
 

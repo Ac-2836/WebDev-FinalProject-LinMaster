@@ -17,12 +17,12 @@ loop Mỗi file người dùng đưa lên (cả hai tab)
   R -> R : requireAuth + uploadRateLimit\n+ multer (giới hạn kích thước)
   R -> S : uploadFile(userId, file)
   S -> ST : put(file)\n(kiểm tra MIME bằng nội dung file)
-  S -> DB : INSERT StoredFile (durationSec nếu là audio)
   opt PDF
     S -> G : runJsonTask("classify-pages.v1", PDF)
     G -> AI : generateContent(PDF + responseSchema)\n(bỏ qua nếu đã có trong AiCache)
     AI --> G : nhãn từng trang + kỹ năng + khoảng số câu
   end
+  S -> DB : INSERT StoredFile (durationSec nếu là audio)\n(lỗi ở bước trước thì xóa file vừa lưu)
   R --> C : 201 { file: ImportFile }\n(id, pages, durationSec, unused...)
   C -> C : buildChecklist(files) (shared/exam)
   C --> U : Bảng Độ đầy đủ
@@ -59,22 +59,21 @@ par Trích nội dung theo nhãn trang
   J -> G : runJsonTask("parse-test.v2", trang đề + câu hỏi)
   G -> AI : generateContent(PDF + responseSchema)
   AI --> G : cấu trúc đề
+  opt Có transcript trong file
+    J -> G : runJsonTask("parse-transcript.v1", trang transcript)
+    G -> AI : generateContent
+    AI --> G : transcript theo Part
+  end
 else
   J -> G : runJsonTask("parse-answers.v1", trang đáp án + giải thích)
   G -> AI : generateContent
   AI --> G : đáp án và giải thích theo kỹ năng + số câu
 end
-opt Đề Listening
-  alt Có transcript trong file
-    J -> G : runJsonTask("parse-transcript.v1", trang transcript)
-    G -> AI : generateContent
-    AI --> G : transcript theo Part
-  else Không có transcript, có audio
-    J -> G : runJsonTask("parse-audio.v2", audio)
-    G -> AI : generateContent(audio + responseSchema)
-    AI --> G : transcript theo Part (không có mốc thời gian)
-    J -> J : Thêm cảnh báo TRANSCRIPT_BY_AI\n(AI lỗi thì bỏ qua transcript)
-  end
+opt Part Listening còn trống transcript và có audio
+  J -> G : runJsonTask("parse-audio.v2", audio)
+  G -> AI : generateContent(audio + responseSchema)
+  AI --> G : transcript theo Part (không có mốc thời gian)
+  J -> J : Thêm cảnh báo TRANSCRIPT_BY_AI\n(AI lỗi thì bỏ qua transcript)
 end
 J -> DB : status = validating
 J -> J : Ghép đáp án + giải thích vào Question.answer,\ntranscript vào Passage.paragraphs

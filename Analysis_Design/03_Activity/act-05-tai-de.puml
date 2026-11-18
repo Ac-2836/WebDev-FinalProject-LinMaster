@@ -57,23 +57,20 @@ fork again
     |Gemini AI|
     :parse-test.v2 (trang đề, câu hỏi) → section,
     passage, nhóm câu, dạng câu, phương án;
+    :parse-transcript.v1: đọc transcript theo Part
+    (khi parse-test báo có transcript);
     :parse-answers.v1 (trang đáp án, giải thích)
     → đáp án và giải thích theo số câu,
     tự nhận ra phần Listening / Reading
-    (hai task chạy song song);
+    (chạy song song với parse-test);
     |Hệ thống|
-    if (Listening không có transcript trong file
-    nhưng có audio?) then (có)
+    if (Part Listening còn trống transcript
+    và có audio?) then (có)
       |Gemini AI|
       :parse-audio.v2: nghe audio, viết transcript
       (không có mốc thời gian; lỗi thì bỏ qua);
       |Hệ thống|
       :Thêm cảnh báo TRANSCRIPT_BY_AI;
-    else (không)
-      |Gemini AI|
-      :parse-transcript.v1: đọc transcript theo Part
-      (khi parse-test báo có transcript);
-      |Hệ thống|
     endif
     :Ghép transcript vào Passage.paragraphs;
     :TestImport = validating;

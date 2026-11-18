@@ -52,7 +52,7 @@ Chỗ ghi **[CẦN CHỐT]** là quyết định nhóm còn phải đưa ra.
 | **home** | Trang chủ sau khi đăng nhập: tiếp tục bài dở, thẻ đến hạn, tài liệu gần đây |
 
 ### Nên có (làm trong kế hoạch, nhưng bị cắt đầu tiên khi trễ, xem Phần G)
-*Tình trạng ở v1.0: đã làm xong tất cả, trừ việc cắt hình bản đồ / sơ đồ từ PDF (không làm, #117 đã đóng).*
+*Tình trạng ở v1.0: đã làm xong tất cả, trừ việc cắt hình bản đồ / sơ đồ từ PDF (không làm, #117 đã đóng) và mốc thời gian từng Part trong transcript từ audio (bản `parse-audio.v2` bỏ mốc).*
 - Flashcard: dán nhanh nhiều thẻ (mỗi dòng `thuật ngữ<Tab>định nghĩa`). Chế độ **Kiểm tra** tự sinh câu hỏi từ chính bộ thẻ. Chế độ **Ghép thẻ** (Match).
 - Flashcard: **AI sinh bài luyện tập** theo dạng câu thi thật (trắc nghiệm, điền chỗ trống, nối) từ các từ trong bộ thẻ.
 - Exam: **AI giải thích đáp án** và chỉ ra bằng chứng trong bài khi người dùng bấm xem.

@@ -43,8 +43,10 @@ case (Báo cáo)
   |Người học|
   :Chọn lý do, nhập mô tả;
   |Hệ thống|
-  if (Nội dung của mình hoặc đã báo cáo rồi?) then (có)
-    :Từ chối 409 (OWN_CONTENT hoặc ALREADY_REPORTED);
+  if (Nội dung không public, của mình
+  hoặc đã báo cáo rồi?) then (có)
+    :Từ chối: 404 (không public),
+    409 OWN_CONTENT hoặc ALREADY_REPORTED;
   else (chưa)
     :Ghi Report;
     if (Đủ 3 báo cáo đang mở?) then (có)

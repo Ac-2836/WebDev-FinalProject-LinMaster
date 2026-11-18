@@ -58,7 +58,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 | Viết code, test, tài liệu kỹ thuật | ✅ | ✅ trong phạm vi issue được giao |
 | Commit trên branch tính năng | ✅ | Chỉ khi thành viên phụ trách yêu cầu |
 | Push, mở PR | ✅ bằng tài khoản của mình | ❌ |
-| Approve, merge PR | ✅ (cần 1 approve và CI xanh; KH được tự duyệt PR của mình) | ❌ |
+| Duyệt, merge PR | ✅ (cần được duyệt và CI xanh; KH được tự duyệt PR của mình) | ❌ |
 | Thêm dependency, đổi tech stack | ✅ khi cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Sửa `Working_rules.md`, `Project_Structure.md` | ✅ qua PR, cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Quyết định thiết kế, phạm vi, nội dung đề, report, slide | ✅ | ❌ chỉ góp ý |
@@ -117,8 +117,8 @@ Issue ─▶ Branch ─▶ Code ─▶ Tự kiểm tra ─▶ Pull Request ─�
 | 4. Branch + code | Người / AI | Branch từ `main` mới nhất (mục 5.1); code, test, cập nhật API doc nếu có | In progress |
 | 5. Tự kiểm tra | Người / AI | `lint`, `typecheck`, `test`, `build` chạy qua ở máy; chạy thử luồng thật | In progress |
 | 6. Pull Request | Người | Mở PR theo template, gắn `Closes #<issue>`. Board tự chuyển thẻ | In review |
-| 7. Review | Người còn lại | Review theo mục 5.4, chạy thử trên link preview | In review |
-| 8. Merge | Người mở PR | 1 approve + CI xanh → Squash and merge, xóa branch. Issue tự đóng | Done |
+| 7. Review | Người còn lại hoặc QA | Review theo mục 5.4, chạy thử trên link preview | In review |
+| 8. Merge | Người mở PR | Đã được duyệt (người còn lại hoặc QA kết luận Đạt; KH được tự duyệt PR của mình) + CI xanh → Squash and merge, xóa branch. Issue tự đóng | Done |
 
 ### Definition of Done
 Một task **chỉ** được coi là xong khi đủ các điều sau:
@@ -129,7 +129,7 @@ Một task **chỉ** được coi là xong khi đủ các điều sau:
 - [ ] Đổi schema DB thì có migration đi kèm.
 - [ ] Đổi giao diện thì PR có ảnh chụp, đã thử trên desktop và mobile, dùng được bằng bàn phím.
 - [ ] Đã chạy thử trên bản preview deploy của PR.
-- [ ] Có 1 approve và đã merge vào `main`.
+- [ ] Đã được duyệt và merge vào `main`.
 
 ---
 
@@ -176,7 +176,7 @@ Refs #12
   - Thay đổi về API / DB / biến môi trường (nếu có).
   - `Closes #<issue>`.
 - PR chưa xong thì mở dạng **Draft**.
-- Chỉ merge khi có 1 approve (KH được tự duyệt PR của mình) và CI xanh. **Không được** merge khi CI đỏ.
+- Chỉ merge khi đã được duyệt (người còn lại hoặc QA kết luận Đạt; KH được tự duyệt PR của mình) và CI xanh. **Không được** merge khi CI đỏ.
 
 ### 5.4. Review (theo [Google Engineering Practices](https://google.github.io/eng-practices/))
 - Review trong vòng **24 giờ** kể từ khi PR được mở hoặc cập nhật.
@@ -193,10 +193,10 @@ Refs #12
 - Góp ý về code, không nhắm vào người. Nêu lý do khi yêu cầu sửa.
 
 ### 5.5. Bảo vệ `main`
-- Bắt buộc merge qua PR, cần 1 approve, CI phải xanh: job `check` (lint, typecheck, migrate, test, build, gồm kiểm tra mọi route có trong Swagger) và job `e2e` (Playwright).
+- Bắt buộc merge qua PR, cần được duyệt, CI phải xanh: job `check` (lint, typecheck, migrate, test, build, gồm kiểm tra mọi route có trong Swagger) và job `e2e` (Playwright).
 - Cấm push thẳng, cấm force push, cấm xóa nhánh.
 - Lỗi gấp trên production vẫn đi qua PR (`fix/<issue>-...`), người review ưu tiên xử lý ngay.
-- Repo **private** trên gói GitHub Free không bật được branch protection. Khi đó các luật trên vẫn bắt buộc và được tuân thủ thủ công. Chuyển repo sang public (hoặc dùng GitHub Pro) để GitHub tự chặn.
+- Repo là **public** và chưa bật branch protection trên GitHub, nên các luật trên vẫn bắt buộc và được tuân thủ thủ công.
 
 ---
 
@@ -431,8 +431,8 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
   - Các mã lỗi có thể trả về.
   - Yêu cầu xác thực (`bearerAuth`).
 - **Địa chỉ cố định:**
-  - Swagger UI: `https://api.<tên-miền>/docs`. Trang này có nút **Authorize** để dán JWT và "Try it out" để gọi thử API.
-  - File đặc tả: `https://api.<tên-miền>/docs/openapi.json`. Có thể import vào Postman nếu cần.
+  - Swagger UI: `https://api.linmaster.id.vn/docs`. Trang này có nút **Authorize** để dán JWT và "Try it out" để gọi thử API.
+  - File đặc tả: `https://api.linmaster.id.vn/docs/openapi.json`. Có thể import vào Postman nếu cần.
 - **Cập nhật cùng PR:** thêm hoặc sửa endpoint thì **phải** cập nhật phần đăng ký doc trong cùng PR. CI có test kiểm tra **mọi route đều có trong doc** và đặc tả sinh ra hợp lệ.
 - Swagger UI bật ở cả production, vì đây là sản phẩm nộp cho giảng viên. Link được ghi trong README và report.
 
@@ -495,7 +495,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 |---|---|---|
 | Local | Máy cá nhân | `localhost` |
 | Preview | Mỗi PR (Vercel tự tạo) | Link trong PR |
-| Production | Mỗi lần merge vào `main` | `https://<tên-miền>` (web), `https://api.<tên-miền>` (API) |
+| Production | Mỗi lần merge vào `main` | `https://www.linmaster.id.vn` (web), `https://api.linmaster.id.vn` (API) |
 
 - **Tên miền, DNS, HTTPS:** do Tien Hung quản lý qua Cloudflare (PLAN P5-06).
 - **Secret của production** chỉ nằm trong phần cài đặt biến môi trường của Vercel/Render, chỉ thành viên có quyền truy cập.

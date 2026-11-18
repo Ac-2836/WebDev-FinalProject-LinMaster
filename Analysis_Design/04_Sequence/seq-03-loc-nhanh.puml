@@ -6,6 +6,7 @@ actor "Người học" as U
 participant "Trình đọc\n(Client)" as C
 participant "Vocab route" as R
 participant "ScanService" as S
+participant "VocabService" as V
 participant "AI gateway" as G
 database "PostgreSQL" as DB
 participant "Gemini API" as AI
@@ -42,8 +43,8 @@ else Đúng chủ sở hữu
     C --> U : Danh sách có checkbox
     U -> C : Chọn từ, "Lưu các từ đã chọn"
     C -> R : POST /api/v1/vocab/entries { entries: [ ... ] }
-    R -> S : saveEntries
-    S -> DB : Upsert VocabEntry + INSERT VocabContext (transaction)
+    R -> V : saveEntries
+    V -> DB : Upsert VocabEntry + INSERT VocabContext (transaction)
     R --> C : 201 { entries }
   end
 end

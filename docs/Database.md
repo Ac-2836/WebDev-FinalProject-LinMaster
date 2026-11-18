@@ -7,7 +7,7 @@
 
 - **PostgreSQL 16**, truy cập qua Prisma 7. Ở máy local, DB chạy bằng `docker compose up -d` và có hai database: `linmaster_dev` (dùng khi chạy app) và `linmaster_test` (dùng khi chạy test).
 - **Khóa chính** của mọi bảng là `id` kiểu `uuid`, sinh bằng UUID v7 (`@default(uuid(7))`). UUID v7 tăng dần theo thời gian nên index vẫn gọn, và người ngoài không đoán được id.
-- **Thời gian** lưu dạng `timestamptz`: một thời điểm tuyệt đối, lưu theo UTC. Giao diện đổi sang giờ của người dùng khi hiển thị.
+- **Thời gian** lưu dạng `timestamptz`: một thời điểm tuyệt đối, lưu theo UTC. Giao diện luôn hiển thị theo giờ Việt Nam (`Asia/Ho_Chi_Minh`).
 - Bảng nào có `createdAt` thì Prisma tự ghi giá trị lúc tạo. Bảng nào có `updatedAt` thì Prisma tự cập nhật mỗi lần sửa.
 - **Quyền sở hữu:** hầu hết dữ liệu gắn với một người dùng qua `ownerId` hoặc `userId`. Xóa tài khoản thì mọi dữ liệu của người đó bị xóa theo (`CASCADE`).
 - Cột kiểu `Json` dùng cho dữ liệu có cấu trúc lồng nhau. Hình dạng của chúng được kiểm tra bằng schema Zod trong `shared/`, không phải bằng DB.

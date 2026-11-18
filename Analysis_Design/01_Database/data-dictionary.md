@@ -309,11 +309,11 @@ Các cột công khai (`visibility`, `publishedAt`, `copyCount`, `attemptCount`)
 
 ## Index bổ sung
 
-Migration `add_query_indexes` (16/11) thêm index cho các khóa ngoại và truy vấn thường dùng; ngoài các index đã ghi ở từng bảng còn có:
+Migration `add_query_indexes` (16/11) thêm 19 index cho các khóa ngoại và truy vấn thường dùng; ngoài các index đã ghi ở từng bảng (kể cả `Attempt(userId, testId)` từ `add_exam_tables`) còn có:
 
 | Bảng | Index |
 |---|---|
-| Attempt | `(userId, testId)`, `(testId)` |
+| Attempt | `(testId)` |
 | AttemptAnswer | `(attemptId)` |
 | Card | `(setId, position)` |
 | CardProgress | `(cardId)` |

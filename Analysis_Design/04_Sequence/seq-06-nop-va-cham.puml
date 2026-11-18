@@ -12,7 +12,7 @@ database "PostgreSQL" as DB
 alt Người học bấm "Nộp bài"
   U -> C : Xác nhận nộp
 else Hết giờ
-  C -> C : Đồng hồ về 0 (hết giờ phần cuối)\nclient tải lại bài, server nộp lười
+  C -> C : Đồng hồ về 0 ở phần cuối\nclient lưu bài (flush) rồi tự gọi nộp
 end
 C -> R : POST /api/v1/attempts/:id/submit
 R -> S : submit(userId, attemptId)
@@ -32,6 +32,7 @@ else in_progress
 end
 S --> R : AttemptResult
 R --> C : 200 { result }
+C -> R : reload: GET /api/v1/attempts/:id\n(màn "đã nộp" có liên kết xem kết quả)
 C -> R : GET /api/v1/attempts/:id/result\n(trang kết quả)
 R --> C : điểm, band, từng câu
 C --> U : Trang kết quả
