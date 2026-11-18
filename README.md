@@ -27,6 +27,29 @@ Các nền tảng hiện có thường chỉ giải quyết một trong hai vấ
 
 Giao diện song ngữ Việt / Anh. Chi tiết phạm vi xem [docs/PLAN.md](docs/PLAN.md) Phần A.
 
+## Bản chạy thật (production)
+
+| | Địa chỉ |
+|---|---|
+| Web | https://www.linmaster.id.vn |
+| Tài liệu API (Swagger) | https://api.linmaster.id.vn/docs |
+| Kiểm tra API còn sống | https://api.linmaster.id.vn/api/v1/health → `{"status":"ok"}` |
+
+Tài khoản demo (dữ liệu mẫu công khai, có sẵn tài liệu, bộ thẻ và đề mẫu): email `demo@linmaster.app`, mật khẩu xem trong [server/prisma/seed.ts](server/prisma/seed.ts).
+
+```mermaid
+flowchart LR
+  user[Trình duyệt] -->|HTTPS| web["Client Next.js<br/>Vercel<br/>www.linmaster.id.vn"]
+  user -->|HTTPS| api["API Express<br/>Render<br/>api.linmaster.id.vn"]
+  web -->|gọi API| api
+  api --> db[("PostgreSQL<br/>Neon")]
+  api --> files[("File đề và audio<br/>Backblaze B2")]
+  api --> ai[Gemini]
+  dns["DNS + HTTPS<br/>Cloudflare, linmaster.id.vn"] -.-> web
+  dns -.-> api
+  monitor[UptimeRobot] -.->|/api/v1/health| api
+```
+
 ## Tài liệu dự án
 
 | Tài liệu | Nội dung |
