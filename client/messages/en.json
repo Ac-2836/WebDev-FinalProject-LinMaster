@@ -927,6 +927,8 @@
       "drop": "Drop every file of the test here",
       "dropHint": "Test PDF, answers, explanations, transcript, MP3 / M4A audio. One file or several, added bit by bit. No need to pick the test type.",
       "remove": "Remove {name}",
+      "ocr": "Reading the text… page {page}/{pages}",
+      "ocrStart": "Reading the text…",
       "reading": "The AI is reading each page…",
       "unused": "Not used · does not look like an IELTS test",
       "audio": "Audio · {length}",

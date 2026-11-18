@@ -927,6 +927,8 @@
       "drop": "Thả mọi file của đề vào đây",
       "dropHint": "PDF đề, đáp án, giải thích, transcript, audio MP3 / M4A. Một file hay nhiều file đều được, thả thêm dần cũng được. Không cần chọn loại đề.",
       "remove": "Bỏ {name}",
+      "ocr": "Đang nhận dạng chữ… trang {page}/{pages}",
+      "ocrStart": "Đang nhận dạng chữ…",
       "reading": "AI đang đọc từng trang…",
       "unused": "Không dùng · không nhận ra là đề IELTS",
       "audio": "Audio · {length}",

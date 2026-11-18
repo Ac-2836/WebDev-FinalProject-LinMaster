@@ -37,6 +37,8 @@ import {Button} from '@/components/ui/button';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
+import {ocrPercent, type OcrProgress} from './ocr/ocr-logic';
+import {recognizePdf} from './ocr/recognize-pdf';
 import {pageChips, slotAccepts, slotFiles, templateSlots} from './upload-logic';
 
 const card = 'rounded-[20px] border bg-card shadow-soft';
@@ -75,12 +77,34 @@ function useUploadFile() {
   };
 }
 
+/**
+ * Reads a PDF's text in the browser (OCR), page by page, and reports the progress. Never rejects: a PDF that cannot be
+ * read leaves the upload as it was, with no text, so no new error is shown (KH, 19/11).
+ */
+async function readText(file: File, onProgress: (progress: OcrProgress | null) => void): Promise<string[] | null> {
+  onProgress({page: 0, pages: 0});
+  try {
+    return await recognizePdf(file, onProgress);
+  } catch (err) {
+    console.error('OCR failed', err);
+    return null;
+  } finally {
+    onProgress(null);
+  }
+}
+
 /** `POST /tests/imports`, then the status page. */
 function useCreateImport() {
   const router = useRouter();
   const errorMessage = useErrorMessage();
   const [creating, setCreating] = useState(false);
-  const create = async (kind: TestKind, files: {fileId: string; slots?: ImportSlot[]}[]) => {
+  // `text`: the OCR text of each file, by file id. It goes to the server once the API takes it (contract R2a).
+  const create = async (
+    kind: TestKind,
+    files: {fileId: string; slots?: ImportSlot[]}[],
+    text: Record<string, string[]> = {},
+  ) => {
+    void text;
     setCreating(true);
     try {
       const res = CreateImportResponseSchema.parse(await api('/tests/imports', {method: 'POST', body: {kind, files}}));
@@ -138,6 +162,10 @@ interface Entry {
   size: number;
   /** Null while uploading. */
   file: ImportFile | null;
+  /** Set while the browser reads the text of the PDF. */
+  ocr: OcrProgress | null;
+  /** Text of each page, once read. */
+  text: string[] | null;
 }
 
 function AiTab() {
@@ -152,14 +180,17 @@ function AiTab() {
   async function add(list: FileList | null) {
     const files = [...(list ?? [])].slice(0, MAX_IMPORT_FILES - entries.length);
     if (list && list.length > files.length) toast.error(t('errors.tooMany', {max: MAX_IMPORT_FILES}));
-    // One at a time, like the API: each PDF is read page by page by the AI.
+    // One at a time, like the API: each PDF is read page by page, by the AI and then by OCR in this browser.
     for (const file of files) {
       const key = crypto.randomUUID();
-      setEntries(e => [...e, {key, name: file.name, size: file.size, file: null}]);
+      setEntries(e => [...e, {key, name: file.name, size: file.size, file: null, ocr: null, text: null}]);
       const uploaded = await upload(file);
       setEntries(e =>
         uploaded ? e.map(x => (x.key === key ? {...x, file: uploaded} : x)) : e.filter(x => x.key !== key),
       );
+      if (!uploaded || !isPdf(file)) continue;
+      const text = await readText(file, ocr => setEntries(e => e.map(x => (x.key === key ? {...x, ocr} : x))));
+      setEntries(e => e.map(x => (x.key === key ? {...x, text} : x)));
     }
   }
 
@@ -174,7 +205,7 @@ function AiTab() {
     kind,
     files: ready.map(f => ({fileId: f.id, type: f.type, pages: f.pages})),
   });
-  const uploading = entries.some(e => !e.file);
+  const uploading = entries.some(e => !e.file || e.ocr);
   const used = ready.filter(f => !checklist.unusedFileIds.includes(f.id));
 
   return (
@@ -261,6 +292,7 @@ function AiTab() {
             create(
               checklist.kind,
               used.map(f => ({fileId: f.id})),
+              Object.fromEntries(entries.flatMap(e => (e.file && e.text ? [[e.file.id, e.text]] : []))),
             )
           }
         >
@@ -298,6 +330,7 @@ function FileRow({entry, unused, onRemove}: {entry: Entry; unused: boolean; onRe
           <X aria-hidden="true" />
         </Button>
       </div>
+      {entry.ocr && <OcrStatus progress={entry.ocr} />}
       <div className="flex flex-wrap gap-1.5 text-xs">
         {!file ? (
           <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -332,6 +365,30 @@ function FileRow({entry, unused, onRemove}: {entry: Entry; unused: boolean; onRe
         )}
       </div>
     </li>
+  );
+}
+
+/** "Reading the text… page x/y" with a bar; a screen reader hears the page change through the list's live region. */
+function OcrStatus({progress}: {progress: OcrProgress}) {
+  const t = useTranslations('exam.upload');
+  const label = progress.page ? t('ocr', {page: progress.page, pages: progress.pages}) : t('ocrStart');
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+        {label}
+      </span>
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={ocrPercent(progress)}
+        className="h-1.5 overflow-hidden rounded-full bg-muted"
+      >
+        <div className="h-full bg-primary transition-[width]" style={{width: `${ocrPercent(progress)}%`}} />
+      </div>
+    </div>
   );
 }
 
@@ -383,6 +440,8 @@ function TemplateTab() {
   const [kind, setKind] = useState<TestKind>('reading');
   const [chosen, setChosen] = useState<Partial<Record<ImportSlot, ImportFile>>>({});
   const [busy, setBusy] = useState<ImportSlot | null>(null);
+  const [ocr, setOcr] = useState<OcrProgress | null>(null);
+  const [texts, setTexts] = useState<Record<string, string[]>>({});
   const name = useId();
 
   const slots = templateSlots(kind);
@@ -399,9 +458,13 @@ function TemplateTab() {
     }
     setBusy(slot);
     const uploaded = await upload(file);
+    if (uploaded) {
+      setChosen(c => ({...c, [slot]: uploaded}));
+      // The slot stays busy while the browser reads the text, so only one PDF is read at a time.
+      const text = type === 'pdf' ? await readText(file, setOcr) : null;
+      if (text) setTexts(t => ({...t, [uploaded.id]: text}));
+    }
     setBusy(null);
-    if (!uploaded) return;
-    setChosen(c => ({...c, [slot]: uploaded}));
   }
 
   return (
@@ -409,7 +472,7 @@ function TemplateTab() {
       className={cn(card, 'flex flex-col gap-6 p-5')}
       onSubmit={e => {
         e.preventDefault();
-        if (complete) void create(kind, slotFiles(kind, ids));
+        if (complete) void create(kind, slotFiles(kind, ids), texts);
       }}
     >
       <fieldset className="flex flex-col gap-3">
@@ -451,6 +514,8 @@ function TemplateTab() {
               required={required}
               file={chosen[slot]}
               busy={busy === slot}
+              locked={busy !== null}
+              ocr={busy === slot ? ocr : null}
               testFile={slot !== 'test' && slot !== 'audio' ? chosen.test : undefined}
               onPick={file => pick(slot, file)}
               onUse={file => setChosen(c => ({...c, [slot]: file}))}
@@ -492,6 +557,8 @@ function SlotRow({
   required,
   file,
   busy,
+  locked,
+  ocr,
   testFile,
   onPick,
   onUse,
@@ -501,6 +568,9 @@ function SlotRow({
   required: boolean;
   file: ImportFile | undefined;
   busy: boolean;
+  /** Another box is uploading or being read: one at a time. */
+  locked: boolean;
+  ocr: OcrProgress | null;
   /** The file of the "Đề" box, offered for boxes a PDF with an answer key at the end can also fill. */
   testFile: ImportFile | undefined;
   onPick: (file: File | undefined) => void;
@@ -524,12 +594,28 @@ function SlotRow({
           )}
         </p>
         <p className="truncate text-xs text-muted-foreground">
-          {busy
-            ? t('uploading')
-            : file
-              ? `${file.originalName} · ${fileSize(file.sizeBytes)}`
-              : t(audio ? 'noAudio' : 'noPdf')}
+          {ocr
+            ? ocr.page
+              ? t('ocr', {page: ocr.page, pages: ocr.pages})
+              : t('ocrStart')
+            : busy
+              ? t('uploading')
+              : file
+                ? `${file.originalName} · ${fileSize(file.sizeBytes)}`
+                : t(audio ? 'noAudio' : 'noPdf')}
         </p>
+        {ocr && (
+          <div
+            role="progressbar"
+            aria-label={t('ocr', {page: ocr.page, pages: ocr.pages})}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={ocrPercent(ocr)}
+            className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted"
+          >
+            <div className="h-full bg-primary transition-[width]" style={{width: `${ocrPercent(ocr)}%`}} />
+          </div>
+        )}
       </div>
       {testFile && file?.id !== testFile.id && (
         <Button type="button" variant="ghost" className="h-11 rounded-full px-3" onClick={() => onUse(testFile)}>
@@ -552,7 +638,7 @@ function SlotRow({
         type="button"
         variant="outline"
         className="h-11 rounded-full px-4"
-        disabled={busy}
+        disabled={busy || locked}
         aria-label={`${file ? t('change') : t('choose')}: ${t(`slots.${slot}`)}`}
         onClick={() => input.current?.click()}
       >

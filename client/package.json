@@ -3,22 +3,27 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-ocr-assets.mjs",
     "dev": "next dev --port 3000",
+    "prebuild": "node scripts/copy-ocr-assets.mjs",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
     "e2e": "playwright test -c tests/e2e/playwright.config.ts"
   },
   "dependencies": {
+    "@tesseract.js-data/eng": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "lucide-react": "^1.70.0",
     "next": "^16.4.5",
     "next-intl": "^4.14.9",
+    "pdfjs-dist": "^6.5.438",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "sonner": "^2.0.8"
+    "sonner": "^2.0.8",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
