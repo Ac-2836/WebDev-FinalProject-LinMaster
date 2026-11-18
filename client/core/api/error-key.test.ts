@@ -14,6 +14,11 @@ describe('errorKey', () => {
     expect(errorKey('SOMETHING_NEW', 418)).toBe('UNKNOWN');
   });
 
+  it('has its own message for a set with no cards and for an AI request the AI refused', () => {
+    expect(errorKey('SET_EMPTY', 422)).toBe('SET_EMPTY');
+    expect(errorKey('AI_REQUEST_REJECTED', 500)).toBe('AI_REQUEST_REJECTED');
+  });
+
   it('keeps network failures apart', () => {
     expect(errorKey('NETWORK', 0)).toBe('NETWORK');
   });

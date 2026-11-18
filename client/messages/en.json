@@ -276,6 +276,8 @@
       "AI_QUOTA_EXCEEDED": "You have used up today’s AI requests. More will be available tomorrow.",
       "AI_INVALID_OUTPUT": "The AI returned an invalid result. Please try again.",
       "AI_UNAVAILABLE": "AI features are unavailable right now. Please try again later.",
+      "AI_REQUEST_REJECTED": "The AI feature has a system error and trying again will not help. Please tell the development team.",
+      "SET_EMPTY": "Add at least one card before publishing.",
       "NETWORK": "Cannot reach the server. Check your connection and try again.",
       "UNKNOWN": "Something went wrong. Please try again."
     },

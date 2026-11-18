@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {api, ApiError, isNotFound} from './client';
+import {api, ApiError, isAiRejected, isNotFound} from './client';
 
 const assign = vi.fn();
 let cookie = '';
@@ -32,6 +32,20 @@ const reply = (status: number, body?: unknown) =>
   );
 
 describe('api', () => {
+  it('treats 200 and 201 as success alike (copying a set again returns the copy that exists)', async () => {
+    for (const status of [200, 201]) {
+      reply(status, {setId: 'copy'});
+      await expect(api('/library/sets/x/copy', {method: 'POST'})).resolves.toEqual({setId: 'copy'});
+    }
+  });
+
+  it('knows the AI refused our request', async () => {
+    reply(500, {error: {code: 500, status: 'AI_REQUEST_REJECTED', message: 'x'}});
+    const error = await api('/vocab/lookups', {method: 'POST'}).catch((e: unknown) => e);
+    expect(isAiRejected(error)).toBe(true);
+    expect(isAiRejected(new ApiError('INTERNAL', 500))).toBe(false);
+  });
+
   it('sends the JWT and a JSON body', async () => {
     reply(200, {ok: true});
     await expect(api('/tests', {method: 'POST', body: {a: 1}})).resolves.toEqual({ok: true});
