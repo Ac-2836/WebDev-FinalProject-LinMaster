@@ -8,7 +8,7 @@ import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/skeleton';
 
 import type {WordExplanation} from '@linmaster/shared';
-import {useVocabLabels} from './vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 export type LookupState =
   | {status: 'loading'}

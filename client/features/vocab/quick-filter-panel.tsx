@@ -20,7 +20,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
-import {useVocabLabels} from './vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 const LEVELS = CefrLevelSchema.options;
 const chip =

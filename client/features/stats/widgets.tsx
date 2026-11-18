@@ -24,7 +24,7 @@ import {
   type ActivityRange,
   type BandSkill,
 } from './stats-logic';
-import {useVocabLabels} from '../vocab/vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 import {DataTable, useStat, Widget, WidgetEmpty} from './widget';
 
