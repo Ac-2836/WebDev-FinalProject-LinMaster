@@ -22,20 +22,25 @@
 
   <!-- Activity calendar -->
   <section class="card flex flex-col gap-4 p-5" aria-labelledby="act">
-    <div class="flex flex-wrap items-baseline gap-x-6 gap-y-1"><h2 id="act" class="h2 flex-1">412 hoạt động trong năm qua</h2>
+    <div class="flex flex-wrap items-baseline gap-x-6 gap-y-1"><h2 id="act" class="h2 flex-1">128 hoạt động trong 3 tháng qua</h2>
+      <label class="flex items-center gap-2 text-sm"><span class="hint">Khoảng thời gian</span><select class="input h-8 w-auto py-0 text-sm"><option>1 tháng</option><option selected>3 tháng</option><option>6 tháng</option><option>1 năm</option></select></label>
       <p data-state="default" class="flex items-center gap-1.5 text-sm"><i data-lucide="flame" class="size-4 text-orange-500"></i>Chuỗi hiện tại <strong>7 ngày</strong> · dài nhất <strong>21 ngày</strong></p></div>
     <div data-state="default empty" class="overflow-x-auto">
-      <div class="grid w-max grid-flow-col grid-rows-7 gap-[3px]" role="img" aria-label="Lịch hoạt động 52 tuần. Ngày nhiều nhất: 2/11 với 34 hoạt động">
+      <div class="grid w-max grid-flow-col grid-rows-7 gap-[3px]" role="img" aria-label="Lịch hoạt động 3 tháng qua. Ngày nhiều nhất: 2/11 với 34 hoạt động">
         <script>
           const lv = ['bg-muted','bg-primary/25','bg-primary/50','bg-primary/75','bg-primary'];
           let s = 7; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
           const empty = new URLSearchParams(location.search).get('state') === 'empty';
-          document.write(Array.from({length: 52 * 7}, (_, i) => `<span class="size-[11px] rounded-[2px] ${empty ? lv[0] : lv[i > 300 ? Math.floor(r() * 5) : r() > .7 ? Math.floor(r() * 3) : 0]}"></span>`).join(''));
+          document.write(Array.from({length: 13 * 7}, (_, i) => `<span class="size-[11px] rounded-[2px] ${empty ? lv[0] : lv[i > 60 ? Math.floor(r() * 5) : r() > .7 ? Math.floor(r() * 3) : 0]}"></span>`).join(''));
         </script>
       </div>
     </div>
     <div class="flex items-center justify-between text-xs text-muted-foreground"><details><summary class="cursor-pointer font-semibold text-primary">Xem bảng số liệu</summary><p class="mt-1">Bảng ngày · số lần tra từ · lưu từ · ôn thẻ · làm bài.</p></details><span class="flex items-center gap-1">Ít <span class="size-[11px] rounded-[2px] bg-muted"></span><span class="size-[11px] rounded-[2px] bg-primary/25"></span><span class="size-[11px] rounded-[2px] bg-primary/50"></span><span class="size-[11px] rounded-[2px] bg-primary/75"></span><span class="size-[11px] rounded-[2px] bg-primary"></span> Nhiều</span></div>
   </section>
+
+  <p data-state="empty" class="-mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">Chưa có hoạt động nào <a href="../03-vocab/documents.html" class="font-semibold text-primary hover:underline">Đọc bài đầu tiên</a></p>
+  <!-- Each widget fails on its own: -->
+  <div data-state="error" role="alert" class="card flex flex-col items-center gap-3 p-6 text-center"><p class="font-semibold">Không tải được phần này</p><button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4"></i>Thử lại</button></div>
 
   <!-- Stat cards -->
   <section data-state="default" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6" aria-label="Số liệu">
@@ -64,6 +69,7 @@
     <!-- Vocabulary -->
     <section class="card flex flex-col gap-3 p-5" aria-labelledby="vc">
       <h2 id="vc" class="h2">Vốn từ</h2>
+      <p data-state="default" class="-mb-1 text-xs font-semibold text-muted-foreground">Số từ mới theo tuần</p>
       <div data-state="default" class="flex h-32 items-end gap-2" role="img" aria-label="Số từ mới theo tuần, 8 tuần gần nhất: 12, 20, 9, 31, 25, 40, 28, 36">
         <script>document.write([12,20,9,31,25,40,28,36].map((v,i)=>`<div class="flex flex-1 flex-col items-center gap-1"><span class="text-[10px] text-muted-foreground">${v}</span><span class="w-full rounded-t ${i===7?'bg-primary':'bg-primary/40'}" style="height:${v*2.2}px"></span><span class="text-[10px] text-muted-foreground">T${i+1}</span></div>`).join(''))</script>
       </div>
@@ -75,18 +81,18 @@
     <!-- Weak points -->
     <section class="card flex flex-col gap-3 p-5" aria-labelledby="wk">
       <h2 id="wk" class="h2">Điểm yếu theo dạng câu</h2>
-      <div data-state="default" class="flex gap-3 rounded-lg bg-danger-soft p-3 text-sm"><i data-lucide="target" class="mt-0.5 size-4 shrink-0 text-destructive"></i><p><strong>True / False / Not Given</strong> đúng 55%. Gợi ý: đọc lại các câu sai và chú ý phân biệt FALSE với NOT GIVEN.</p></div>
+      <div data-state="default" class="flex gap-3 rounded-lg bg-danger-soft p-3 text-sm"><i data-lucide="target" class="mt-0.5 size-4 shrink-0 text-destructive"></i><p><strong>True / False / Not Given</strong> (Reading) đúng 55%. Gợi ý: đọc lại các câu sai và chú ý phân biệt FALSE (bài nói ngược lại) với NOT GIVEN (bài không nói).</p></div>
       <ul data-state="default" class="flex flex-col gap-2.5 text-sm">
         <script>document.write([['True / False / Not Given',55],['Thông tin ở đoạn nào',60],['Nối heading',68],['Trắc nghiệm',80],['Hoàn thành chỗ trống',88]].map(([k,p])=>`<li class="grid grid-cols-[1fr_40px] items-center gap-x-3 sm:grid-cols-[180px_1fr_40px]"><span>${k}</span><span class="order-last col-span-2 h-2 overflow-hidden rounded-full bg-muted sm:order-none sm:col-span-1"><span class="block h-full ${p<60?'bg-destructive':p<75?'bg-warning':'bg-success'}" style="width:${p}%"></span></span><span class="text-right font-semibold">${p}%</span></li>`).join(''))</script>
       </ul>
-      <p data-state="empty" class="rounded-lg bg-muted/50 p-6 text-center text-sm text-muted-foreground">Cần ít nhất một bài thi để phân tích.</p>
+      <p data-state="empty" class="rounded-lg bg-muted/50 p-6 text-center text-sm text-muted-foreground">Cần ít nhất một bài thi để phân tích.</p><a data-state="empty" href="../05-exam/tests.html" class="text-sm font-semibold text-primary hover:underline">Vào thi thử</a>
     </section>
 
     <!-- Topics + community -->
     <div class="flex flex-col gap-5">
       <section class="card flex flex-col gap-3 p-5" aria-labelledby="tp">
         <h2 id="tp" class="h2">Chủ đề học nhiều nhất</h2>
-        <div data-state="default" class="flex flex-wrap gap-2"><span class="badge badge-primary text-sm">Environment · 64</span><span class="badge badge-primary text-sm">Urban · 41</span><span class="badge text-sm">Science · 28</span><span class="badge text-sm">Health · 22</span><span class="badge text-sm">Education · 19</span></div>
+        <div data-state="default" class="flex flex-wrap gap-2"><span class="badge badge-primary text-sm">Môi trường · 64</span><span class="badge badge-primary text-sm">Đời sống đô thị · 41</span><span class="badge text-sm">Khoa học · 28</span><span class="badge text-sm">Health · 22</span><span class="badge text-sm">Education · 19</span></div>
         <p data-state="empty" class="text-sm text-muted-foreground">Chưa có dữ liệu.</p>
       </section>
       <section class="card flex flex-col gap-3 p-5" aria-labelledby="cm">

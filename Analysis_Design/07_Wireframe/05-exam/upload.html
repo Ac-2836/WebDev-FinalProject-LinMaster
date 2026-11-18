@@ -16,13 +16,13 @@
 
   <nav class="flex gap-1 overflow-x-auto border-b" role="tablist" aria-label="Cách tải đề">
     <a href="?state=default" role="tab" data-state="template" aria-selected="false" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-4 py-2.5 font-semibold text-muted-foreground hover:text-foreground"><i data-lucide="sparkles" class="size-4"></i>AI nhận diện <span class="badge badge-warning">Mới</span></a>
-    <a href="?state=default" role="tab" data-state="default ready" aria-selected="true" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-primary px-4 py-2.5 font-semibold text-primary"><i data-lucide="sparkles" class="size-4"></i>AI nhận diện <span class="badge badge-warning">Mới</span></a>
-    <a href="?state=template" role="tab" data-state="default ready" aria-selected="false" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-4 py-2.5 font-semibold text-muted-foreground hover:text-foreground"><i data-lucide="layout-list" class="size-4"></i>Theo mẫu</a>
+    <a href="?state=default" role="tab" data-state="default ready empty not-read" aria-selected="true" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-primary px-4 py-2.5 font-semibold text-primary"><i data-lucide="sparkles" class="size-4"></i>AI nhận diện <span class="badge badge-warning">Mới</span></a>
+    <a href="?state=template" role="tab" data-state="default ready empty not-read" aria-selected="false" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-4 py-2.5 font-semibold text-muted-foreground hover:text-foreground"><i data-lucide="layout-list" class="size-4"></i>Theo mẫu</a>
     <a href="?state=template" role="tab" data-state="template" aria-selected="true" class="-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 border-primary px-4 py-2.5 font-semibold text-primary"><i data-lucide="layout-list" class="size-4"></i>Theo mẫu</a>
   </nav>
 
   <!-- ============ Tab: AI nhận diện ============ -->
-  <section data-state="default ready" class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
+  <section data-state="default ready empty not-read" class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
     <div class="flex flex-col gap-4">
       <label class="glow flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-primary/40 p-8 text-center hover:border-primary">
         <span class="inline-flex size-12 items-center justify-center rounded-full bg-secondary text-primary"><i data-lucide="upload" class="size-6"></i></span>
@@ -39,6 +39,7 @@
             ['file-x', 'menu-quan-com.pdf', '640 KB · 2 trang', [['Không dùng', 'Không nhận ra là đề IELTS']], 'unused', 'default ready'],
             ['file-text', 'answers-and-transcript.pdf', '1,1 MB · 13 trang', [['tr. 1', 'Đáp án 26–40'], ['tr. 2–5', 'Giải thích 1–40'], ['tr. 6–13', 'Transcript Part 1–4']], 'ok', 'ready'],
             ['file-text', 'answers-and-transcript.pdf', '1,1 MB · 13 trang', [], 'scanning', 'default'],
+            ['file-text', 'scan-chat-luong-thap.pdf', '9,8 MB · 6 trang', [], 'unread', 'not-read'],
           ];
           document.write(FILES.map(([i, n, m, chips, s, st]) => `<li data-state="${st}" class="card flex flex-col gap-2 p-4">
             <div class="flex items-center gap-3">
@@ -48,6 +49,8 @@
             </div>
             ${s === 'scanning'
               ? '<p class="flex items-center gap-2 text-sm text-primary"><i data-lucide="loader-circle" class="size-4 animate-spin"></i>AI đang đọc từng trang…</p>'
+              : s === 'unread'
+              ? '<p role="alert" class="text-sm text-destructive">AI chưa đọc được file này. Thử lại sau, hoặc dùng tab Theo mẫu.</p>'
               : `<div class="flex flex-wrap gap-1.5">${chips.map(([a, b]) => `<span class="badge ${s === 'unused' ? 'badge-danger' : ''}"><b>${a}</b>&nbsp;· ${b}</span>`).join('')}</div>`}
           </li>`).join(''));
         </script>
@@ -63,15 +66,14 @@
       <ul class="flex flex-col gap-3 text-sm">
         <script>
           const ROWS = [
-            ['ok', 'Câu hỏi', 'Listening: câu 1–40', 'default ready'],
-            ['ok', 'Part', '4/4 Part', 'default ready'],
-            ['part', 'Đáp án', 'Có câu 1–25, thiếu câu 26–40', 'default'],
-            ['ok', 'Đáp án', 'Đủ 40/40', 'ready'],
-            ['ok', 'Audio', 'Độ dài 31:20', 'default ready'],
-            ['opt', 'Giải thích', 'Không bắt buộc · chưa có, sau này dùng AI giải thích', 'default'],
-            ['ok', 'Giải thích', 'Có cho 40/40 câu', 'ready'],
+            ['ok', 'Câu hỏi', 'Đủ', 'default ready'],
+            ['part', 'Đáp án', 'Thiếu câu 26–40', 'default'],
+            ['ok', 'Đáp án', 'Đủ', 'ready'],
+            ['ok', 'Audio', 'Đủ', 'default ready'],
+            ['opt', 'Giải thích', 'Không bắt buộc · chưa có', 'default'],
+            ['ok', 'Giải thích', 'Đủ', 'ready'],
             ['opt', 'Transcript', 'Không bắt buộc · chưa có', 'default'],
-            ['ok', 'Transcript', 'Có cho Part 1–4', 'ready'],
+            ['ok', 'Transcript', 'Đủ', 'ready'],
           ];
           const ICON = { ok: ['circle-check', 'text-success'], part: ['circle-alert', 'text-warning'], opt: ['circle-dashed', 'text-muted-foreground'] };
           document.write(ROWS.map(([s, k, d, st]) => `<li data-state="${st}" class="flex items-start gap-3">
@@ -79,8 +81,9 @@
             <div class="min-w-0"><p class="font-semibold">${k}${['Giải thích', 'Transcript'].includes(k) ? '' : ' <span class="text-destructive">*</span>'}</p><p class="hint">${d}</p></div></li>`).join(''));
         </script>
       </ul>
+      <p data-state="empty not-read" class="text-sm text-muted-foreground">Thả file vào để xem đề đã có gì và còn thiếu gì.</p>
       <p data-state="default" class="rounded-lg bg-warning-soft p-3 text-sm">Còn thiếu <b>đáp án câu 26–40</b>. Thả thêm file chứa phần này để tạo đề.</p>
-      <button data-state="default" class="btn btn-primary btn-lg" disabled>Tạo đề</button>
+      <button data-state="default empty not-read" class="btn btn-primary btn-lg" disabled>Tạo đề</button>
       <a data-state="ready" href="import-status.html" class="btn btn-primary btn-lg">Tạo đề</a>
       <p class="hint">Bảng này kiểm tra sơ bộ theo nhãn trang. Sau khi bấm Tạo đề, hệ thống còn kiểm tra kỹ từng câu.</p>
     </aside>
@@ -104,17 +107,17 @@
         document.write([
           ['file-text', 'Đề', 'listening-test-1.pdf · 2,4 MB', 'ok', 1],
           ['file-audio', 'Audio', 'listening-test-1.mp3 · 28,7 MB', 'ok', 1],
-          ['file-check', 'Đáp án', 'listening-test-1.pdf · trang có đáp án sẽ được tự tách', 'ok', 1],
+          ['file-check', 'Đáp án', 'Cùng file với Đề', 'ok', 1],
           ['file-text', 'Transcript', 'Chưa chọn · PDF', 'empty', 0],
           ['message-square-text', 'Giải thích', 'Chưa chọn · PDF', 'empty', 0],
         ].map(([i, t, f, s, req]) => `<div class="flex flex-wrap items-center gap-3 rounded-xl border ${s === 'empty' ? 'border-dashed' : ''} p-3">
           <span class="inline-flex size-10 items-center justify-center rounded-lg ${s === 'ok' ? 'bg-success-soft text-success' : 'bg-muted text-muted-foreground'}"><i data-lucide="${i}" class="size-5"></i></span>
           <div class="min-w-0 flex-1"><p class="font-semibold">${t} ${req ? '<span class="text-destructive">*</span>' : '<span class="font-normal text-muted-foreground">(không bắt buộc)</span>'}</p><p class="hint truncate">${f}</p></div>
-          ${s === 'ok' ? '<button type="button" class="btn btn-ghost btn-sm">Đổi file</button>' : '<button type="button" class="btn btn-secondary btn-sm"><i data-lucide="upload" class="size-4"></i>Chọn file</button>'}</div>`).join(''));
+          ${s === 'ok' ? '<button type="button" class="btn btn-ghost btn-sm">Đổi file</button>' : '<button type="button" class="btn btn-ghost btn-sm">Cùng file với Đề</button><button type="button" class="btn btn-secondary btn-sm"><i data-lucide="upload" class="size-4"></i>Chọn file</button>'}</div>`).join(''));
       </script>
       <p class="flex items-start gap-2 rounded-lg bg-secondary p-3 text-sm"><i data-lucide="info" class="mt-0.5 size-4 shrink-0 text-primary"></i>Đề có đáp án hoặc giải thích ở cuối thì chọn <b>cùng một file</b> cho nhiều ô. Hệ thống tự lấy đúng phần cho từng ô.</p>
       <details class="rounded-lg bg-muted/60 p-3 text-sm"><summary class="cursor-pointer font-semibold">Quy định file (đọc trước khi tải)</summary>
-        <ul class="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground"><li>PDF nên có lớp chữ, tối đa 20 MB mỗi file.</li><li>Audio MP3 hoặc M4A, một file cho cả bài, tối đa 60 MB.</li><li>Đáp án đánh số câu rõ ràng. Nhiều cách viết thì ngăn bằng <code>/</code> hoặc <code>OR</code>; phần tùy chọn để trong ngoặc, ví dụ <code>(the) library</code>.</li><li>Chỉ tải đề bạn có quyền dùng.</li></ul><a href="#" class="mt-2 inline-flex items-center gap-1 font-semibold text-primary hover:underline"><i data-lucide="download" class="size-4"></i>Tải bộ file mẫu</a>
+        <ul class="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground"><li>PDF nên có lớp chữ, tối đa 20 MB mỗi file.</li><li>Audio MP3 hoặc M4A, một file cho cả bài, tối đa 60 MB.</li><li>Đáp án đánh số câu rõ ràng. Nhiều cách viết thì ngăn bằng <code>/</code> hoặc <code>OR</code>; phần tùy chọn để trong ngoặc, ví dụ <code>(the) library</code>.</li><li>Chỉ tải đề bạn có quyền dùng.</li></ul>
       </details>
     </section>
 
@@ -124,7 +127,6 @@
     </div>
   </form>
 
-  <section class="card grid gap-4 p-5 sm:grid-cols-2"><label class="flex flex-col gap-1.5"><span class="label">Tiêu đề <span class="font-normal text-muted-foreground">(không bắt buộc)</span></span><input class="input" placeholder="Tự lấy từ nội dung đề"></label><label class="flex flex-col gap-1.5"><span class="label">Nguồn đề</span><input class="input" placeholder="Ví dụ: tự soạn, sách X trang Y"><span class="hint">Bắt buộc trước khi đăng lên thư viện.</span></label></section>
 </main>
 </body>
 </html>

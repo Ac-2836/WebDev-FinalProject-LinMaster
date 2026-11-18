@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trước khi thi</title>
+  <script src="../assets/wf.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+</head>
+<body class="flex h-dvh flex-col bg-white">
+<!--
+  /tests/[id]/start: full screen, no app nav. Steps in English like the exam room: 1 Confirm your details,
+  2 Test your sound (only when the test has audio), 3 Instructions to candidates. "Step x of y" counts only the steps shown.
+  POST /attempts is sent only by "Start test", so the clock starts there; then the room opens (room-listening / room-reading).
+-->
+<header class="flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4">
+  <p class="truncate text-sm font-semibold">Practice Test 3</p>
+  <p data-state="default" class="shrink-0 text-xs text-muted-foreground">Step 1 of 3</p>
+  <p data-state="sound" class="shrink-0 text-xs text-muted-foreground">Step 2 of 3</p>
+  <p data-state="instructions starting" class="shrink-0 text-xs text-muted-foreground">Step 3 of 3</p>
+</header>
+
+<main id="main" class="flex-1 overflow-y-auto px-4 py-8">
+  <div class="mx-auto flex max-w-2xl flex-col gap-6">
+
+    <!-- Step 1 -->
+    <section data-state="default" class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold">Confirm your details</h1>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 rounded-lg border p-5">
+        <dt class="text-muted-foreground">Name</dt><dd class="font-semibold">Khải Hưng</dd>
+        <dt class="text-muted-foreground">Test</dt><dd class="font-semibold">Practice Test 3</dd>
+        <dt class="text-muted-foreground">Type</dt><dd class="font-semibold">IELTS Academic · Listening and Reading</dd>
+      </dl>
+      <p class="text-sm text-muted-foreground">If your name is not correct, change it in your <a href="../02-app/profile.html" class="text-primary underline">profile</a> before you start.</p>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <a href="test-intro.html" class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"><i data-lucide="arrow-left" class="size-4"></i>Back to test</a>
+        <button class="btn btn-primary h-11 px-6">My details are correct</button>
+      </div>
+    </section>
+
+    <!-- Step 2: only when the test has audio -->
+    <section data-state="sound" class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold">Test your sound</h1>
+      <div class="flex flex-col gap-5 rounded-lg border p-5">
+        <p class="flex gap-2"><i data-lucide="headphones" class="mt-0.5 size-5 shrink-0"></i>Put on your headphones and click Play sound. Change the volume until you can hear the sound clearly.</p>
+        <div class="flex flex-wrap items-center gap-4">
+          <button class="btn btn-secondary h-11 px-5"><i data-lucide="play" class="size-4"></i>Play sound</button>
+          <label class="flex min-w-0 flex-1 items-center gap-3"><i data-lucide="volume-2" class="size-5 shrink-0"></i><span class="sr-only">Volume</span><input type="range" value="70" class="h-11 min-w-0 flex-1 accent-primary"></label>
+        </div>
+        <p class="text-sm text-muted-foreground">If you cannot hear the sound, check your headphones and the volume of your device.</p>
+      </div>
+      <div class="flex justify-end"><button class="btn btn-primary h-11 px-6">Continue</button></div>
+    </section>
+
+    <!-- Step 3 -->
+    <section data-state="instructions starting" class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold">Instructions to candidates</h1>
+      <section class="flex flex-col gap-3 rounded-lg border p-5">
+        <h2 class="text-lg font-bold">IELTS Academic Listening</h2>
+        <p class="text-sm text-muted-foreground">Time: 32 minutes · 40 questions · 4 parts</p>
+        <ul class="flex list-disc flex-col gap-1.5 pl-5">
+          <li>Answer all the questions.</li>
+          <li>You can change your answers at any time during the test.</li>
+          <li>You will hear each part once only. The recording cannot be paused or replayed.</li>
+          <li>At the end you have 2 minutes to check your answers.</li>
+          <li>Each question carries one mark.</li>
+        </ul>
+      </section>
+      <section class="flex flex-col gap-3 rounded-lg border p-5">
+        <h2 class="text-lg font-bold">IELTS Academic Reading</h2>
+        <p class="text-sm text-muted-foreground">Time: 60 minutes · 40 questions · 3 parts</p>
+        <ul class="flex list-disc flex-col gap-1.5 pl-5">
+          <li>Answer all the questions.</li>
+          <li>You can change your answers at any time during the test.</li>
+          <li>Select text in a passage and right-click to highlight it or add a note.</li>
+          <li>Each question carries one mark.</li>
+        </ul>
+      </section>
+      <p class="text-sm">The clock starts when you click <strong>Start test</strong> and keeps running even if you close the page. When the time is up, your answers are submitted.</p>
+      <div class="flex justify-end">
+        <a data-state="instructions" href="room-listening.html" class="btn btn-primary h-11 px-6">Start test</a>
+        <button data-state="starting" class="btn btn-primary h-11 px-6" disabled aria-busy="true">Starting…</button>
+      </div>
+    </section>
+
+  </div>
+</main>
+</body>
+</html>

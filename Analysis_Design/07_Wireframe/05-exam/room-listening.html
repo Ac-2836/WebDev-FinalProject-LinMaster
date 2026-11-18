@@ -10,16 +10,16 @@
 <body class="flex h-dvh flex-col overflow-hidden bg-white">
 <!--
   Listening: audio plays by itself, no pause, no seek; only volume. After a refresh it resumes at the position computed
-  from server time (GET /attempts/:id). 2 minutes to check answers at the end. Full test: Listening first, then Reading.
-  Same header, bottom navigation and dialogs (Settings, Help, Hide, Submit, warnings, offline) as the Reading room.
+  from server time (GET /attempts/:id), with no banner. The sound check is a step BEFORE the room (pre-exam.html, step 2).
+  When the recording ends the bar says how many minutes are left to check answers. Full test: submitting Listening
+  reloads the room straight into Reading (no transition screen). Same header, bottom navigation and dialogs (Settings, Help, Hide, Submit, warnings, offline) as the Reading room.
 -->
 <header class="flex h-14 shrink-0 items-center gap-3 border-b px-3 sm:px-4">
   <div class="flex min-w-0 items-center gap-2"><span class="inline-flex size-8 items-center justify-center rounded-full bg-muted text-xs font-bold">KH</span><div class="hidden sm:block"><p class="text-sm font-semibold">Khải Hưng</p><p class="text-xs text-muted-foreground">Practice Test 3 · Listening</p></div></div>
   <div class="mx-auto flex items-center gap-2" role="timer">
     <i data-lucide="clock" class="size-4 text-muted-foreground"></i>
-    <span data-state="default resume" class="text-base font-bold tabular-nums">24 minutes left</span>
-    <span data-state="review" class="rounded-md bg-warning-soft px-2 text-base font-bold tabular-nums text-warning">1:42 to check answers</span>
-    <span data-state="sound-check transition" class="text-base font-bold text-muted-foreground">Not started</span>
+    <span data-state="default" class="text-base font-bold tabular-nums">24 minutes left</span>
+    <span data-state="review" class="rounded-md bg-warning-soft px-2 text-base font-bold tabular-nums text-warning">2 minutes left</span>
   </div>
   <div class="flex items-center gap-0.5">
     <button class="btn btn-ghost btn-sm" aria-label="Settings"><i data-lucide="settings" class="size-4"></i><span class="hidden lg:inline">Settings</span></button>
@@ -29,29 +29,18 @@
 </header>
 
 <!-- Audio bar: status + volume only -->
-<div data-state="default resume review" class="flex shrink-0 flex-wrap items-center gap-3 border-b bg-muted/60 px-4 py-2.5 text-sm">
-  <span data-state="default resume" class="flex items-center gap-2 font-semibold"><span class="relative flex size-2.5"><span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75"></span><span class="relative inline-flex size-2.5 rounded-full bg-success"></span></span>Audio is playing · Part 1</span>
-  <span data-state="review" class="flex items-center gap-2 font-semibold"><i data-lucide="volume-x" class="size-4"></i>The recording has ended. Check your answers.</span>
-  <label class="ml-auto flex items-center gap-2"><i data-lucide="volume-2" class="size-4 text-muted-foreground"></i><span class="sr-only">Volume</span><input type="range" value="70" class="w-28 accent-primary"></label>
+<div data-state="default review audio-error no-audio" class="flex shrink-0 flex-wrap items-center gap-3 border-b bg-muted/60 px-4 py-2.5 text-sm">
+  <span data-state="default" class="flex items-center gap-2 font-semibold"><i data-lucide="headphones" class="size-4"></i>The recording is playing. It cannot be paused or replayed.</span>
+  <span data-state="review" class="flex items-center gap-2 font-semibold"><i data-lucide="headphones" class="size-4"></i>The recording has ended. You have 2 minutes to check your answers.</span>
+  <span data-state="audio-error" class="flex items-center gap-2 font-semibold"><i data-lucide="circle-alert" class="size-4"></i>The recording could not be loaded. Tell the test owner, and answer what you can.</span>
+  <span data-state="no-audio" class="flex items-center gap-2 font-semibold"><i data-lucide="headphones" class="size-4"></i>This test has no recording. Answer the questions in the time given.</span>
+  <label data-state="default review audio-error" class="ml-auto flex items-center gap-2"><i data-lucide="volume-2" class="size-4 text-muted-foreground"></i><span class="sr-only">Volume</span><input type="range" value="70" class="w-28 accent-primary"></label>
 </div>
-<div data-state="resume" role="status" class="shrink-0 bg-secondary px-4 py-2 text-sm text-primary-strong">Welcome back. The recording continues from 06:12, where it would be now.</div>
-
-<div data-state="default resume review" class="shrink-0 border-b px-4 py-2.5"><p class="text-sm"><strong>Part 1</strong> &nbsp;Listen and answer questions 1–10.</p></div>
+<div data-state="default review audio-error no-audio" class="shrink-0 border-b px-4 py-2.5"><p class="text-sm"><strong>Part 1</strong> &nbsp;Listen and answer questions 1–10.</p></div>
 
 <main id="main" class="relative min-h-0 flex-1 overflow-y-auto">
-  <!-- Sound check before start -->
-  <section data-state="sound-check" class="mx-auto flex max-w-lg flex-col items-center gap-5 px-4 py-12 text-center">
-    <span class="tile size-16 rounded-3xl"><i data-lucide="headphones" class="size-8"></i></span>
-    <h1 class="h1">Check your sound</h1>
-    <p class="text-muted-foreground">Put on your headphones and click Play sound. Adjust the volume until you can hear clearly. Once the test starts, the recording cannot be paused or replayed.</p>
-    <button class="btn btn-secondary"><i data-lucide="play" class="size-4"></i>Play sound</button>
-    <label class="flex w-full max-w-xs items-center gap-3"><i data-lucide="volume-1" class="size-4"></i><input type="range" value="70" class="flex-1 accent-primary" aria-label="Volume"><i data-lucide="volume-2" class="size-4"></i></label>
-    <button class="btn btn-primary btn-lg">Start Listening test</button>
-    <p class="hint">Time: about 30 minutes + 2 minutes to check answers · 4 parts · 40 questions</p>
-  </section>
-
   <!-- Questions -->
-  <section data-state="default resume review" class="mx-auto flex max-w-3xl flex-col gap-6 p-5 text-[15px] sm:p-8">
+  <section data-state="default review audio-error no-audio" class="mx-auto flex max-w-3xl flex-col gap-6 p-5 text-[15px] sm:p-8">
     <div class="flex flex-col gap-3">
       <h2 class="font-bold">Questions 1–6</h2>
       <p>Complete the form below. Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.</p>
@@ -72,16 +61,9 @@
     </div>
   </section>
 
-  <!-- Full test: Listening → Reading -->
-  <section data-state="transition" class="mx-auto flex max-w-lg flex-col items-center gap-5 px-4 py-12 text-center">
-    <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="circle-check" class="size-8"></i></span>
-    <h1 class="h1">Listening finished</h1>
-    <p class="text-muted-foreground">Your Listening answers have been saved and can no longer be changed. The Reading test lasts 60 minutes and starts when you click the button.</p>
-    <a href="room-reading.html" class="btn btn-primary btn-lg">Start Reading test</a>
-  </section>
 </main>
 
-<footer data-state="default resume review" class="shrink-0 border-t">
+<footer data-state="default review audio-error no-audio" class="shrink-0 border-t">
   <div class="flex items-stretch">
     <label class="hidden items-center gap-2 border-r px-4 text-sm sm:flex"><input type="checkbox" class="size-4 accent-primary">Review</label>
     <nav aria-label="Question navigation" class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 py-2">

@@ -13,30 +13,40 @@
   /read/[id]: GET /vocab/documents/:id (text + saved words to re-highlight), POST /vocab/lookups, POST /vocab/documents/:id/scan, POST /vocab/entries.
   Select ≤ 6 words → press T (or the floating "Tra" button) → popover. Mobile: popover = bottom sheet, side panel = sheet behind the "Lọc nhanh" button.
 -->
-<div class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+<!-- Document missing or not the user's own (GET /vocab/documents/:id → 404) -->
+<main data-state="not-found" class="page flex min-h-[70vh] flex-col items-center justify-center gap-3 text-center">
+  <h1 class="h1">Không tìm thấy tài liệu</h1>
+  <p class="max-w-md text-muted-foreground">Tài liệu này không tồn tại, đã bị xóa, hoặc không phải của bạn.</p>
+  <a href="documents.html" class="btn btn-primary">Tài liệu đọc</a>
+</main>
+<div data-state="default lookup-loading quota saved already lookup-error scan-loading scan-none scan saved-empty" class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px]">
   <main id="main" class="min-w-0">
     <a href="documents.html" class="hint inline-flex items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Tài liệu đọc</a>
     <h1 class="mt-2 text-2xl font-bold leading-tight sm:text-3xl">Rising seas and coastal cities</h1>
     <div class="mt-3 flex flex-wrap items-center gap-2"><span class="badge">Dán văn bản</span><span class="badge">1.240 từ</span><span class="badge badge-primary"><span class="inline-block size-2 rounded-sm bg-mark"></span>9 từ đã lưu</span></div>
-    <p class="mt-4 flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-[13px] text-primary-strong"><i data-lucide="mouse-pointer-click" class="size-4 shrink-0"></i><span>Bôi chọn một từ hoặc cụm tối đa 6 từ, rồi nhấn <kbd class="rounded border bg-card px-1.5 font-mono text-xs">T</kbd> hoặc nút <strong>Tra</strong>.</span></p>
+    <p class="mt-4 flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-[13px] text-primary-strong"><i data-lucide="mouse-pointer-click" class="size-4 shrink-0"></i><span>Bôi chọn một từ hoặc cụm tối đa 6 từ, rồi nhấn <kbd class="rounded border bg-card px-1.5 font-mono text-xs">T</kbd> hoặc nút <strong>Tra</strong>. Dùng bàn phím: Tab vào bài, mũi tên để chọn từ, Shift + mũi tên để chọn cụm, Enter để tra.</span></p>
 
     <article class="relative mt-6 flex max-w-[68ch] flex-col gap-5 font-serif text-[17px] leading-8">
       <p>Across the world, low-lying cities are confronting a slow but relentless threat. As oceans warm and polar ice retreats, average sea levels have risen steadily, and the <mark>trajectory</mark> of that rise is now one of the most closely watched figures in climate science.</p>
       <p class="relative">Governments are under pressure to <span class="rounded-sm bg-primary/15 ring-2 ring-primary">mitigate</span> the effects of rising sea levels, yet funding for coastal <mark>infrastructure</mark> remains limited. Planners must weigh the cost of sea walls against <mark>managed retreat</mark>, a strategy that relocates communities away from the most vulnerable shores.
 
         <!-- Desktop popover anchored to the selection -->
-        <span data-state="default lookup-loading quota saved" role="dialog" aria-label="Giải thích từ mitigate" class="absolute left-0 top-full z-20 mt-2 hidden w-[380px] flex-col gap-3 rounded-xl border bg-card p-4 font-sans text-sm leading-normal shadow-2xl lg:flex">
-          <span data-state="default saved" class="flex flex-col gap-3">
+        <span data-state="default lookup-loading quota saved already lookup-error" role="dialog" aria-label="Giải thích từ mitigate" class="absolute left-0 top-full z-20 mt-2 hidden w-[380px] flex-col gap-3 rounded-xl border bg-card p-4 font-sans text-sm leading-normal shadow-2xl lg:flex">
+          <span data-state="default saved already" class="flex flex-col gap-3">
             <span class="flex items-baseline gap-2"><span class="text-lg font-bold">mitigate</span><span class="text-muted-foreground">/ˈmɪt.ɪ.ɡeɪt/</span><button class="btn btn-ghost btn-icon btn-sm size-7" aria-label="Nghe phát âm"><i data-lucide="volume-2" class="size-4"></i></button><span class="ml-auto flex gap-1"><span class="badge">verb</span><span class="badge badge-primary">C1</span></span></span>
             <span class="block text-base font-semibold">giảm nhẹ, làm dịu (tác động xấu)</span>
             <span class="block text-muted-foreground">To make something bad less severe or harmful.</span>
             <span class="block rounded-lg bg-muted p-2.5 text-[13px]"><strong>Cách dùng:</strong> thường đi với danh từ chỉ tác hại; trang trọng, hay gặp trong bài báo và IELTS Writing.</span>
-            <span class="flex flex-wrap gap-1.5"><span class="badge">mitigate the effects</span><span class="badge">mitigate risks</span><span class="badge">mitigate the impact</span></span>
-            <span class="flex flex-wrap gap-1.5"><span class="badge">Environment</span><span class="badge">Government</span></span>
+            <span class="block text-[13px] font-semibold text-muted-foreground">Cụm từ hay đi kèm</span><span class="flex flex-wrap gap-1.5"><span class="badge">mitigate the effects</span><span class="badge">mitigate risks</span><span class="badge">mitigate the impact</span></span>
+            <span class="flex flex-wrap gap-1.5"><span class="badge">Môi trường</span><span class="badge">Chính phủ</span></span>
+            <!-- If the word is already in the bank: -->
+            <span data-state="already" class="block rounded-lg bg-secondary p-2.5 text-[13px] text-primary-strong">Đã tra cụm gần nhất: mitigate the effects</span>
+            <span data-state="already" class="block rounded-lg bg-warning-soft p-2.5 text-[13px] text-warning">Từ này đã có trong kho. Lưu sẽ thêm câu này vào từ đó.</span>
           </span>
-          <span data-state="default" class="flex gap-2 border-t pt-3"><button class="btn btn-primary flex-1"><i data-lucide="bookmark-plus" class="size-4"></i>Lưu vào kho từ</button><button class="btn btn-secondary">Đóng</button></span>
+          <span data-state="default already" class="flex gap-2 border-t pt-3"><button class="btn btn-primary flex-1"><i data-lucide="bookmark-plus" class="size-4"></i>Lưu vào kho từ</button><button class="btn btn-secondary">Đóng</button></span>
           <span data-state="saved" class="flex items-center gap-2 border-t pt-3 text-success"><i data-lucide="circle-check" class="size-4"></i><span class="flex-1 font-semibold">Đã lưu kèm câu này</span><a href="word-bank.html" class="font-semibold text-primary hover:underline">Mở kho từ</a></span>
-          <span data-state="lookup-loading" class="flex flex-col gap-2" aria-busy="true"><span class="flex items-center gap-2 text-muted-foreground"><i data-lucide="sparkles" class="size-4 animate-pulse text-primary"></i>AI đang đọc câu để giải thích…</span><span class="skeleton block h-5 w-1/2"></span><span class="skeleton block h-4 w-full"></span><span class="skeleton block h-4 w-4/5"></span></span>
+          <span data-state="lookup-loading" class="flex flex-col gap-2" aria-busy="true"><span class="flex items-center gap-2 text-muted-foreground"><i data-lucide="sparkles" class="size-4 animate-pulse text-primary"></i>AI đang đọc câu để giải thích “mitigate”…</span><span class="skeleton block h-5 w-1/2"></span><span class="skeleton block h-4 w-full"></span><span class="skeleton block h-4 w-4/5"></span></span>
+          <span data-state="lookup-error" role="alert" class="flex flex-col gap-2"><span class="flex items-center gap-2 font-semibold text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Chưa tra được từ này</span><span class="text-muted-foreground">AI chưa trả lời được. Thử lại sau ít giây.</span><button class="btn btn-secondary btn-sm w-fit">Đóng</button></span>
           <span data-state="quota" role="alert" class="flex flex-col gap-2"><span class="flex items-center gap-2 font-semibold text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Hết lượt AI hôm nay</span><span class="text-muted-foreground">Bạn đã dùng hết lượt AI trong ngày. Lượt mới có lúc 0:00. Các từ đã tra trước đó vẫn xem lại được.</span><button class="btn btn-secondary btn-sm w-fit">Đóng</button></span>
         </span>
       </p>
@@ -53,17 +63,20 @@
         <button role="tab" class="flex-1 px-4 py-3 text-muted-foreground">Từ đã lưu (9)</button>
       </div>
       <div class="flex flex-col gap-4 overflow-y-auto p-4">
-        <div data-state="default lookup-loading quota saved scan-loading" class="flex flex-col gap-4">
+        <div data-state="default lookup-loading quota saved already lookup-error scan-loading scan-none" class="flex flex-col gap-4">
           <p class="hint">AI quét cả bài và đề xuất những từ hợp trình độ bạn đang luyện. Chỉ giữ lại câu ví dụ có thật trong bài.</p>
           <fieldset><legend class="label mb-2">Trình độ CEFR</legend><div class="flex flex-wrap gap-1.5">
             <script>document.write(['A1','A2','B1','B2','C1','C2'].map(l=>`<label class="cursor-pointer"><input type="checkbox" class="peer sr-only" ${['B2','C1','C2'].includes(l)?'checked':''}><span class="inline-flex h-8 min-w-11 items-center justify-center rounded-lg border px-2 text-sm font-semibold peer-checked:border-primary peer-checked:bg-secondary peer-checked:text-primary-strong peer-focus-visible:ring-3 peer-focus-visible:ring-ring">${l}</span></label>`).join(''))</script>
           </div></fieldset>
           <fieldset><legend class="label mb-2">Chủ đề <span class="font-normal text-muted-foreground">(không bắt buộc)</span></legend><div class="flex flex-wrap gap-1.5">
             <script>document.write(['Environment','Education','Technology','Health','Work','Crime','Media','Science','Travel','Urban','Economy','Culture','Government','Food','Family'].map((t,i)=>`<label class="cursor-pointer"><input type="checkbox" class="peer sr-only" ${i===0||i===9?'checked':''}><span class="inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium peer-checked:border-primary peer-checked:bg-secondary peer-checked:text-primary-strong">${t}</span></label>`).join(''))</script>
-          </div><input class="input mt-2" placeholder="Chủ đề khác, ví dụ: architecture"></fieldset>
-          <button data-state="default lookup-loading quota saved" class="btn btn-primary"><i data-lucide="sparkles" class="size-4"></i>Quét bài</button>
+          </div><input class="input mt-2" placeholder="Chủ đề khác, cách nhau bằng dấu phẩy"></fieldset>
+          <button data-state="default lookup-loading quota saved already lookup-error scan-none" class="btn btn-primary"><i data-lucide="sparkles" class="size-4"></i>Quét bài</button>
           <button data-state="scan-loading" class="btn btn-primary" disabled aria-busy="true"><i data-lucide="loader-circle" class="size-4 animate-spin"></i>Đang quét 1.240 từ…</button>
         </div>
+        <p data-state="scan-none" role="status" class="rounded-lg bg-warning-soft p-3 text-sm text-warning">Không tìm thấy từ nào hợp bộ lọc. Thử nới trình độ hoặc bỏ bớt chủ đề.</p>
+        <!-- Tab "Từ đã lưu (0)" -->
+        <div data-state="saved-empty" class="flex flex-col items-center gap-2 py-6 text-center text-sm"><p class="text-muted-foreground">Chưa lưu từ nào trong bài này.</p><a href="word-bank.html" class="font-semibold text-primary hover:underline">Xem trong kho từ</a></div>
         <div data-state="scan" class="flex flex-col gap-3">
           <div class="flex items-center justify-between"><p class="text-sm font-semibold">12 từ gợi ý · B2–C2 · Environment, Urban</p><button class="text-sm font-semibold text-primary hover:underline">Lọc lại</button></div>
           <label class="flex items-center gap-2 text-sm"><input type="checkbox" checked class="size-4 accent-primary">Chọn tất cả</label>
@@ -80,29 +93,32 @@
 </div>
 
 <!-- Mobile: floating actions + bottom sheet for the lookup -->
-<div class="fixed bottom-20 right-4 z-20 flex flex-col items-end gap-2 lg:hidden">
+<div data-state="default lookup-loading quota saved already lookup-error scan-loading scan-none scan saved-empty" class="fixed bottom-20 right-4 z-20 flex flex-col items-end gap-2 lg:hidden">
   <button class="btn btn-primary btn-lg rounded-full shadow-lg"><i data-lucide="search" class="size-4"></i>Tra "mitigate"</button>
   <button class="btn btn-secondary rounded-full shadow-lg"><i data-lucide="sparkles" class="size-4"></i>Lọc nhanh · 9 từ</button>
 </div>
-<div data-state="default saved lookup-loading quota" class="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+<div data-state="default saved already lookup-loading quota lookup-error" class="fixed inset-x-0 bottom-0 z-40 lg:hidden">
   <div class="absolute inset-x-0 bottom-0 h-screen bg-foreground/30"></div>
   <div role="dialog" aria-label="Giải thích từ mitigate" class="relative flex max-h-[75vh] flex-col gap-3 overflow-y-auto rounded-t-2xl bg-card p-5 pb-8 shadow-2xl">
     <span class="mx-auto h-1 w-10 rounded-full bg-border"></span>
-    <div data-state="default saved" class="flex flex-col gap-3 text-sm">
+    <div data-state="default saved already" class="flex flex-col gap-3 text-sm">
       <div class="flex items-baseline gap-2"><span class="text-xl font-bold">mitigate</span><span class="text-muted-foreground">/ˈmɪt.ɪ.ɡeɪt/</span><span class="ml-auto flex gap-1"><span class="badge">verb</span><span class="badge badge-primary">C1</span></span></div>
       <p class="text-base font-semibold">giảm nhẹ, làm dịu (tác động xấu)</p>
       <p class="text-muted-foreground">To make something bad less severe or harmful.</p>
       <p class="rounded-lg bg-muted p-2.5 text-[13px]"><strong>Cách dùng:</strong> thường đi với danh từ chỉ tác hại; trang trọng.</p>
+      <p data-state="already" class="rounded-lg bg-secondary p-2.5 text-[13px] text-primary-strong">Đã tra cụm gần nhất: mitigate the effects</p>
+      <p data-state="already" class="rounded-lg bg-warning-soft p-2.5 text-[13px] text-warning">Từ này đã có trong kho. Lưu sẽ thêm câu này vào từ đó.</p>
       <div class="flex flex-wrap gap-1.5"><span class="badge">mitigate the effects</span><span class="badge">mitigate risks</span></div>
     </div>
-    <div data-state="lookup-loading" class="flex flex-col gap-2" aria-busy="true"><p class="flex items-center gap-2 text-sm text-muted-foreground"><i data-lucide="sparkles" class="size-4 animate-pulse text-primary"></i>AI đang giải thích…</p><div class="skeleton h-5 w-1/2"></div><div class="skeleton h-4 w-full"></div></div>
+    <div data-state="lookup-loading" class="flex flex-col gap-2" aria-busy="true"><p class="flex items-center gap-2 text-sm text-muted-foreground"><i data-lucide="sparkles" class="size-4 animate-pulse text-primary"></i>AI đang đọc câu để giải thích “mitigate”…</p><div class="skeleton h-5 w-1/2"></div><div class="skeleton h-4 w-full"></div></div>
     <div data-state="quota" role="alert" class="text-sm"><p class="flex items-center gap-2 font-semibold text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Hết lượt AI hôm nay</p><p class="mt-1 text-muted-foreground">Lượt mới có lúc 0:00.</p></div>
-    <button data-state="default" class="btn btn-primary btn-lg w-full"><i data-lucide="bookmark-plus" class="size-4"></i>Lưu vào kho từ</button>
+    <button data-state="default already" class="btn btn-primary btn-lg w-full"><i data-lucide="bookmark-plus" class="size-4"></i>Lưu vào kho từ</button>
     <p data-state="saved" class="flex items-center gap-2 text-sm font-semibold text-success"><i data-lucide="circle-check" class="size-4"></i>Đã lưu kèm câu này</p>
   </div>
 </div>
 
 <!-- Toast after saving -->
-<div data-state="saved" role="status" class="card fixed bottom-24 right-4 z-50 hidden items-center gap-3 p-3 shadow-lg lg:bottom-4 lg:flex"><i data-lucide="circle-check" class="size-5 text-success"></i><p class="text-sm">Đã lưu "mitigate" vào kho từ</p><button class="btn btn-ghost btn-sm">Hoàn tác</button></div>
+<!-- Saving from the quick-filter list shows this toast; saving one looked-up word shows "Đã lưu kèm câu này" in the card. -->
+<div data-state="scan" role="status" class="card fixed bottom-24 right-4 z-50 hidden items-center gap-3 p-3 shadow-lg lg:bottom-4 lg:flex"><i data-lucide="circle-check" class="size-5 text-success"></i><p class="text-sm">Đã lưu 4 từ vào kho</p></div>
 </body>
 </html>

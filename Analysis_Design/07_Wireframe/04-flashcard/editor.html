@@ -12,7 +12,8 @@
 <!--
   /flashcards/new and /flashcards/[id]/edit. Save = POST/PATCH set + PUT /flashcards/sets/:id/cards (whole list:
   rows with id are updated, new rows inserted, removed rows deleted, so progress of kept cards survives).
-  Reorder: drag handle, or focus the handle and press Alt+↑ / Alt+↓.
+  Reorder: drag handle, or focus the handle and press Alt+↑ / Alt+↓. Title reads "Bộ thẻ mới" on /flashcards/new and "Sửa bộ thẻ" on edit.
+  "Thêm từ kho từ" navigates to /vocab (pick words there and create the set); it is not a dialog.
 -->
 <main id="main" class="page flex max-w-4xl flex-col gap-6">
   <header class="flex flex-wrap items-center gap-3">
@@ -65,9 +66,9 @@
 <!-- Sticky save bar -->
 <div class="fixed inset-x-0 bottom-[68px] z-20 border-t bg-card/95 backdrop-blur lg:bottom-0">
   <div class="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
-    <p data-state="default" class="hint hidden sm:block">2 thẻ đã sửa · 1 thẻ mới · 1 thẻ bị xóa sẽ mất tiến độ</p>
+    <p data-state="default" class="hint hidden sm:block">1 thẻ mới · 2 thẻ đã sửa · 1 thẻ bị xóa sẽ mất tiến độ học</p>
     <p data-state="saving" class="hint flex items-center gap-1"><i data-lucide="loader-circle" class="size-3.5 animate-spin"></i>Đang lưu…</p>
-    <p data-state="save-error" role="alert" class="flex items-center gap-1 text-sm text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Chưa lưu được. Nội dung vẫn còn ở đây.</p>
+    <p data-state="save-error" role="alert" class="flex items-center gap-1 text-sm text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Chưa lưu được: không có kết nối mạng. Nội dung vẫn còn ở đây.</p>
     <div class="ml-auto flex gap-2"><a href="set.html" class="btn btn-secondary">Hủy</a><button class="btn btn-primary">Lưu bộ thẻ</button></div>
   </div>
 </div>
@@ -77,11 +78,11 @@
   <div role="dialog" aria-modal="true" aria-labelledby="bp" class="flex w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl">
     <div class="flex items-center border-b px-5 py-4"><h2 id="bp" class="h2 flex-1">Dán nhanh nhiều thẻ</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
     <div class="grid gap-4 p-5 md:grid-cols-2">
-      <label class="flex flex-col gap-1.5"><span class="label">Mỗi dòng: thuật ngữ <kbd class="rounded border px-1 font-mono text-xs">Tab</kbd> định nghĩa</span><textarea class="input min-h-48 py-2 font-mono text-[13px]">resilient	kiên cường, phục hồi nhanh
+      <label class="flex flex-col gap-1.5"><span class="label">Nội dung cần dán</span><span class="hint">Mỗi dòng một thẻ: thuật ngữ, phím Tab, rồi định nghĩa. Có thể dán thẳng từ Excel, Google Sheets hoặc Quizlet.</span><textarea class="input min-h-48 py-2 font-mono text-[13px]">resilient	kiên cường, phục hồi nhanh
 drought	hạn hán
 biodiversity	đa dạng sinh học
 emission</textarea></label>
-      <div class="flex flex-col gap-1.5"><span class="label">Xem trước: 3 thẻ</span>
+      <div class="flex flex-col gap-1.5"><span class="label">3 thẻ hợp lệ · 1 dòng bị bỏ qua (thiếu Tab hoặc thiếu một vế)</span>
         <ul class="flex flex-col divide-y rounded-lg border text-sm"><li class="flex gap-2 p-2"><strong class="w-28 truncate">resilient</strong>kiên cường, phục hồi nhanh</li><li class="flex gap-2 p-2"><strong class="w-28 truncate">drought</strong>hạn hán</li><li class="flex gap-2 p-2"><strong class="w-28 truncate">biodiversity</strong>đa dạng sinh học</li><li class="flex gap-2 bg-danger-soft p-2 text-destructive"><i data-lucide="circle-alert" class="size-4"></i>Dòng 4 thiếu định nghĩa, sẽ bỏ qua</li></ul>
       </div>
     </div>
