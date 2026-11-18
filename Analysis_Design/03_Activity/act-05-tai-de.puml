@@ -47,7 +47,7 @@ fork again
   |Hệ thống|
   :TestImport = parsing;
   |Gemini AI|
-  :parse-test.v1 (trang đề, câu hỏi) → section,
+  :parse-test.v2 (trang đề, câu hỏi) → section,
   passage, nhóm câu, dạng câu, phương án;
   :parse-answers.v1 (trang đáp án, giải thích)
   → đáp án và giải thích theo số câu,

@@ -46,7 +46,7 @@ end
 J -> DB : status = parsing
 J -> G : runJsonTask("classify-pages.v1", PDF đã gộp)\n(cache theo hash file)
 par Trích nội dung theo nhãn trang
-  J -> G : runJsonTask("parse-test.v1", trang đề + câu hỏi)
+  J -> G : runJsonTask("parse-test.v2", trang đề + câu hỏi)
   G -> AI : generateContent(PDF + responseSchema)
   AI --> G : cấu trúc đề
 else

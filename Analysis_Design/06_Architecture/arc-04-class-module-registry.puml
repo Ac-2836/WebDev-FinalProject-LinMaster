@@ -14,7 +14,7 @@ package "server/core" {
     + mount(app) : void
   }
   interface AiTask<I, O> {
-    + name : string  « explain-word.v1 »
+    + name : string  « explain-word.v2 »
     + inputSchema : ZodSchema<I>
     + outputSchema : ZodSchema<O>
     + buildPrompt(input : I) : Prompt
@@ -32,7 +32,7 @@ package "server/core" {
     + delete(key) : void
   }
   class LocalStorageDriver
-  class R2StorageDriver
+  class S3StorageDriver
 }
 package "shared/exam" {
   interface Certification {
@@ -75,14 +75,14 @@ ModuleDefinition o-- "*" AiTask
 AiGateway ..> AiTask : chạy
 note right of AiTask
   Các task đăng ký (PLAN A5):
-  vocab: explain-word.v1, scan-document.v1
-  exam: classify-pages.v1, parse-test.v1,
-  parse-answers.v1, parse-audio.v1 (Nên có),
-  explain-answer.v1 (Nên có)
-  flashcard: generate-exercise.v1 (Nên có)
+  vocab: explain-word.v2, scan-document.v1
+  exam: classify-pages.v1, parse-test.v2,
+  parse-answers.v1, parse-transcript.v1,
+  parse-audio.v2, explain-answer.v1
+  flashcard: generate-exercise.v2
 end note
 StorageDriver <|.. LocalStorageDriver
-StorageDriver <|.. R2StorageDriver
+StorageDriver <|.. S3StorageDriver
 Certification *-- "1..*" SectionSpec
 note bottom of QuestionKind
   Thêm dạng câu / chứng chỉ / nguồn tài liệu /
