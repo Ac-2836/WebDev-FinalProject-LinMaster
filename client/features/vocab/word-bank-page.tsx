@@ -26,7 +26,7 @@ import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {CreateSetDialog, MAX_SET_WORDS} from './create-set-dialog';
 import {EntryDrawer} from './entry-drawer';
-import {useVocabLabels} from './vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 const PAGE_SIZE = 20;
 const card = 'rounded-[20px] border bg-card shadow-soft';
@@ -328,7 +328,7 @@ export function WordBankPage({documentId: initialDocument = ''}: WordBankPagePro
                     </span>
                   )}
                 </span>
-                <span className="hidden text-sm text-muted-foreground capitalize md:block">
+                <span className="hidden text-sm text-muted-foreground md:block">
                   {e.topics.map(labels.topic).join(', ')}
                 </span>
                 <span className="hidden text-[13px] text-muted-foreground md:block">

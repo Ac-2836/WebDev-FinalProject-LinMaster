@@ -586,7 +586,10 @@
         "media": "Media",
         "government": "Government",
         "crime": "Crime",
-        "urban_life": "Urban life"
+        "urban_life": "Urban life",
+        "mathematics": "Mathematics",
+        "statistics": "Statistics",
+        "psychology": "Psychology"
       },
       "pos": {
         "noun": "noun",
@@ -1093,7 +1096,7 @@
       "explain": "Explanation",
       "explainTitle": "Question {n} · Explanation",
       "yourAnswer": "You answered {given} · the answer is {correct}",
-      "fromFile": "From the test file you uploaded.",
+      "fromFile": "From the test file.",
       "close": "Close",
       "byKind": "By question type",
       "kinds": {

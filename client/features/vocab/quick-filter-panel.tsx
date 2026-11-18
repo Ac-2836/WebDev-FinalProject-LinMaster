@@ -20,7 +20,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
-import {useVocabLabels} from './vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 const LEVELS = CefrLevelSchema.options;
 const chip =
@@ -180,9 +180,7 @@ export function QuickFilterPanel({documentId, wordCount, words, filter}: QuickFi
                       checked={topics.includes(topic)}
                       onChange={() => setTopics(l => toggle(l, topic))}
                     />
-                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium capitalize')}>
-                      {labels.topic(topic)}
-                    </span>
+                    <span className={cn(chip, 'h-8 rounded-full text-xs font-medium')}>{labels.topic(topic)}</span>
                   </label>
                 ))}
               </div>

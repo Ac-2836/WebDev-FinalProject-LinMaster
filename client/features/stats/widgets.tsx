@@ -24,6 +24,8 @@ import {
   type ActivityRange,
   type BandSkill,
 } from './stats-logic';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
+
 import {DataTable, useStat, Widget, WidgetEmpty} from './widget';
 
 const LEVEL = ['bg-muted', 'bg-primary/25', 'bg-primary/50', 'bg-primary/75', 'bg-primary'];
@@ -441,6 +443,7 @@ export function WeaknessesWidget() {
 
 export function TopicsWidget() {
   const t = useTranslations('stats.dashboard.topics');
+  const labels = useVocabLabels();
   const stat = useStat('/stats/vocab', StatsVocabResponseSchema);
   return (
     <Widget
@@ -459,7 +462,7 @@ export function TopicsWidget() {
                 i < 2 ? 'bg-secondary text-primary' : 'bg-muted text-muted-foreground',
               )}
             >
-              {tp.topic} · {tp.words}
+              {labels.topic(tp.topic)} · {tp.words}
             </li>
           ))}
         </ul>

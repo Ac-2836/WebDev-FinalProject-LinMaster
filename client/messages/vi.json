@@ -586,7 +586,10 @@
         "media": "Truyền thông",
         "government": "Chính phủ",
         "crime": "Tội phạm",
-        "urban_life": "Đời sống đô thị"
+        "urban_life": "Đời sống đô thị",
+        "mathematics": "Toán học",
+        "statistics": "Thống kê",
+        "psychology": "Tâm lý học"
       },
       "pos": {
         "noun": "danh từ",
@@ -1093,7 +1096,7 @@
       "explain": "Giải thích",
       "explainTitle": "Câu {n} · Giải thích",
       "yourAnswer": "Bạn trả lời {given} · đáp án {correct}",
-      "fromFile": "Từ file đề bạn tải lên.",
+      "fromFile": "Từ file đề.",
       "close": "Đóng",
       "byKind": "Theo dạng câu",
       "kinds": {

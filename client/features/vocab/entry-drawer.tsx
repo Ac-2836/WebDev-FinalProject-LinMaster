@@ -14,7 +14,7 @@ import {useReturnFocus} from '@/components/ui/return-focus';
 import {inputClass} from '@/components/ui/input';
 import {api} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
-import {useVocabLabels} from './vocab-labels';
+import {useVocabLabels} from '@/core/i18n/vocab-labels';
 
 const badge = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold';
 
@@ -83,7 +83,7 @@ function Detail({entry, onUpdated, onDelete}: Omit<EntryDrawerProps, 'entry' | '
           <span className={cn(badge, 'bg-muted text-muted-foreground')}>{labels.pos(entry.partOfSpeech)}</span>
           {entry.cefr && <span className={cn(badge, 'bg-secondary text-primary')}>{entry.cefr}</span>}
           {entry.topics.map(topic => (
-            <span key={topic} className={cn(badge, 'bg-muted text-muted-foreground capitalize')}>
+            <span key={topic} className={cn(badge, 'bg-muted text-muted-foreground')}>
               {labels.topic(topic)}
             </span>
           ))}
