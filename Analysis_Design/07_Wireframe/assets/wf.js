@@ -190,7 +190,9 @@
       warn: 'Cảnh báo giờ', offline: 'Mất mạng', 'sound-check': 'Thử âm thanh', resume: 'Vào lại', review: '2 phút cuối',
       transition: 'Chuyển Reading', invalid: 'File sai', uploading: 'Đang tải lên', parsing: 'Đang xử lý',
       ready: 'Đủ file', template: 'Tab Theo mẫu', done: 'Thành công', failed: 'Thất bại', 'in-progress': 'Đang làm dở', explain: 'AI giải thích', 'explain-file': 'Giải thích từ file', transcript: 'Transcript',
-      tests: 'Tab Đề thi', copied: 'Đã chép', report: 'Báo cáo',
+      tests: 'Tab Đề thi', copied: 'Đã chép', report: 'Báo cáo', 'copied-before': 'Đã chép trước đó', delete: 'Hỏi xóa',
+      'other-tab': 'Mở ở tab khác', submitted: 'Đã nộp', 'audio-error': 'Lỗi audio', 'no-audio': 'Không có audio', instructions: 'Hướng dẫn', starting: 'Đang bắt đầu',
+      sound: 'Thử âm thanh', 'create-set': 'Tạo bộ thẻ', 'scan-none': 'Lọc không ra từ', 'saved-empty': 'Chưa lưu từ nào', already: 'Từ đã có trong kho', 'lookup-error': 'Lỗi tra từ', 'not-found': 'Không tìm thấy', 'not-read': 'File không đọc được', 'ai-invalid': 'AI soạn lỗi', busy: 'AI bận',
     };
     const params = new URLSearchParams(location.search);
     const show = s => {
@@ -225,14 +227,15 @@
     ]],
     ['Công khai', [
       ['01-public/landing.html', 'Landing /', 'Giới thiệu vòng học, đăng ký'],
-      ['01-public/login.html', 'Đăng nhập /login', 'Lỗi sai mật khẩu, quá số lần, quay lại ?next='],
+      ['01-public/login.html', 'Đăng nhập /login', 'Lỗi sai mật khẩu, quá số lần, quay lại ?next=, link Quên mật khẩu'],
+      ['01-public/forgot-password.html', 'Quên mật khẩu /forgot-password', 'Trang hướng dẫn: chưa gửi được email đặt lại mật khẩu'],
       ['01-public/register.html', 'Đăng ký /register', 'Tên, email, mật khẩu, band mục tiêu'],
       ['01-public/not-found.html', 'Trang 404', ''],
       ['01-public/error.html', 'Trang lỗi', 'Lỗi không lường trước, nút thử lại'],
     ]],
     ['Khung app', [
       ['02-app/home.html', 'Trang chủ /home', 'Bài thi dở, thẻ đến hạn, tài liệu gần đây, chuỗi ngày, lối tắt'],
-      ['02-app/profile.html', 'Hồ sơ /profile', 'Tên, ngôn ngữ, band mục tiêu'],
+      ['02-app/profile.html', 'Hồ sơ /profile', 'Số liệu, tên, ngôn ngữ, band mục tiêu, Bảo mật (đổi email, đổi mật khẩu)'],
     ]],
     ['vocab: đọc và học từ', [
       ['03-vocab/documents.html', 'Tài liệu /read', 'Danh sách + hộp Tài liệu mới (dán / tải file)'],
@@ -242,23 +245,23 @@
     ['flashcard', [
       ['04-flashcard/sets.html', 'Bộ thẻ /flashcards', ''],
       ['04-flashcard/editor.html', 'Trình soạn /flashcards/new, /[id]/edit', 'Thêm, xóa, kéo thả, dán nhanh'],
-      ['04-flashcard/set.html', 'Bộ thẻ /flashcards/[id]', 'Tiến độ, chế độ học, đăng lên thư viện'],
+      ['04-flashcard/set.html', 'Bộ thẻ /flashcards/[id]', 'Chế độ học, thẻ trong bộ, đăng lên thư viện, xóa bộ thẻ'],
       ['04-flashcard/study-flip.html', 'Thẻ lật', 'Lật 3D, phím cách, mũi tên'],
       ['04-flashcard/study-learn.html', 'Học (SM-2)', '4 nút chấm, phím 1–4, tổng kết phiên'],
-      ['04-flashcard/study-test.html', 'Kiểm tra', 'Nên có · trắc nghiệm, tự gõ, đúng/sai, kết quả'],
-      ['04-flashcard/study-match.html', 'Ghép thẻ', 'Nên có · tính giờ'],
-      ['04-flashcard/exercise.html', 'Bài luyện AI', 'Nên có · dạng câu như đề thi, hết quota'],
+      ['04-flashcard/study-test.html', 'Kiểm tra', 'Trắc nghiệm, tự luận, đúng/sai, kết quả'],
+      ['04-flashcard/study-match.html', 'Ghép thẻ', 'Ghép 6 cặp, tính giờ'],
+      ['04-flashcard/exercise.html', 'Luyện tập AI', 'Dạng câu như đề thi, hết quota, AI bận'],
     ]],
     ['exam: thi thử', [
       ['05-exam/tests.html', 'Đề của tôi /tests', ''],
       ['05-exam/upload.html', 'Tải đề lên', 'Hai tab: AI nhận diện (thả file tùy ý, bảng Độ đầy đủ) và Theo mẫu (mỗi ô một file)'],
       ['05-exam/import-status.html', 'Trạng thái nạp đề', 'Đang xử lý, thành công, lỗi theo từng câu'],
-      ['05-exam/test-intro.html', 'Giới thiệu đề', 'Thông tin, hướng dẫn, bắt đầu hoặc làm tiếp'],
+      ['05-exam/test-intro.html', 'Giới thiệu đề /tests/[id]', 'Thông tin, hướng dẫn, đăng lên thư viện, bắt đầu hoặc làm tiếp'],
+      ['05-exam/pre-exam.html', 'Trước khi thi /tests/[id]/start', 'Xác nhận thông tin, thử âm thanh (nếu có audio), hướng dẫn, Start test'],
       ['05-exam/room-reading.html', 'Phòng thi Reading', 'Hai cột, highlight, ghi chú, gạch phương án'],
       ['05-exam/room-reading.html?state=submit', 'Hộp thoại phòng thi', 'Settings, Help, Hide, nộp bài, cảnh báo giờ, mất kết nối (đổi bằng bảng WF)'],
-      ['05-exam/room-listening.html', 'Phòng thi Listening', 'Thử âm thanh, audio không tua, 2 phút xem lại'],
+      ['05-exam/room-listening.html', 'Phòng thi Listening', 'Audio không tua, trạng thái ghi âm, thời gian xem lại'],
       ['05-exam/result.html', 'Kết quả', 'Band, từng câu, lọc câu sai, mở bài đọc, giải thích (từ file đề hoặc AI), transcript Listening'],
-      ['05-exam/history.html', 'Lịch sử làm bài', ''],
     ]],
     ['library', [
       ['06-library/library.html', 'Thư viện /library', 'Tab Bộ thẻ / Đề thi, tìm, lọc'],

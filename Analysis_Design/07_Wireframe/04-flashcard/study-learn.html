@@ -28,7 +28,7 @@
 
 <main id="main" class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8">
   <div data-state="question answer" class="card flex min-h-72 flex-1 flex-col items-center justify-center gap-4 p-8 text-center shadow-lg sm:min-h-80">
-    <span class="badge badge-warning">Đang học</span>
+    <span class="badge badge-warning">Đang học</span><!-- Mới / Đang học / Ôn lại -->
     <p class="text-4xl font-bold sm:text-5xl">managed retreat</p>
     <div data-state="answer" class="flex w-full flex-col items-center gap-3 border-t pt-5">
       <p class="text-2xl font-bold">di dời có kế hoạch khỏi vùng nguy hiểm</p>
@@ -44,12 +44,12 @@
   <div data-state="answer" class="flex flex-col gap-2">
     <p class="text-center text-sm font-semibold">Bạn nhớ từ này thế nào?</p>
     <div class="grid grid-cols-4 gap-2">
-      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-destructive/40 bg-danger-soft text-destructive hover:border-destructive"><span class="font-bold">Quên</span><span class="text-xs">&lt; 10 phút</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">1</kbd></button>
-      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-warning/40 bg-warning-soft text-warning hover:border-warning"><span class="font-bold">Khó</span><span class="text-xs">1 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">2</kbd></button>
-      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-success/40 bg-success-soft text-success hover:border-success"><span class="font-bold">Tốt</span><span class="text-xs">3 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">3</kbd></button>
-      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-primary/40 bg-secondary text-primary-strong hover:border-primary"><span class="font-bold">Dễ</span><span class="text-xs">7 ngày</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">4</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-destructive/40 bg-danger-soft text-destructive hover:border-destructive"><span class="font-bold">Quên</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">1</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-warning/40 bg-warning-soft text-warning hover:border-warning"><span class="font-bold">Khó</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">2</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-success/40 bg-success-soft text-success hover:border-success"><span class="font-bold">Tốt</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">3</kbd></button>
+      <button class="flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-primary/40 bg-secondary text-primary-strong hover:border-primary"><span class="font-bold">Dễ</span><kbd class="mt-0.5 hidden font-mono text-[11px] opacity-70 sm:block">4</kbd></button>
     </div>
-    <p class="hint text-center">Khoảng cách tới lần ôn sau, tính theo SM-2.</p>
+    <p class="hint text-center">Nhấn phím 1–4 để chấm, S để nghe. Lịch ôn tiếp theo do SM-2 tính.</p>
   </div>
 
   <!-- Session summary -->
@@ -62,19 +62,18 @@
       <div class="card p-3"><p class="text-xl font-bold text-success">8</p><p class="hint">Tốt</p></div>
       <div class="card p-3"><p class="text-xl font-bold text-primary">3</p><p class="hint">Dễ</p></div>
     </div>
-    <p class="text-sm"><i data-lucide="flame" class="inline size-4 text-orange-500"></i> Chuỗi ngày học: <strong>8 ngày</strong> · Lần ôn tới: <strong>ngày mai, 9 thẻ</strong></p>
-    <div class="flex w-full max-w-sm flex-col gap-2"><a href="set.html" class="btn btn-primary btn-lg">Về bộ thẻ</a><a href="study-test.html" class="btn btn-secondary">Tự kiểm tra thêm</a></div>
+        <div class="flex w-full max-w-sm flex-col gap-2"><a href="set.html" class="btn btn-primary btn-lg">Về bộ thẻ</a></div>
   </section>
 
   <!-- Nothing due (empty) -->
   <section data-state="empty" class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
     <span class="tile size-16 rounded-3xl"><i data-lucide="calendar-check" class="size-8"></i></span>
     <h1 class="h1">Hôm nay không còn thẻ nào</h1>
-    <p class="max-w-sm text-muted-foreground">Bạn đã ôn hết thẻ đến hạn và đủ số thẻ mới trong ngày. Lần ôn tới: ngày mai, 9 thẻ.</p>
+    <p class="max-w-sm text-muted-foreground">Bạn đã ôn hết thẻ đến hạn và đủ số thẻ mới trong ngày. Quay lại vào ngày mai nhé.</p>
     <div class="flex flex-col gap-2 sm:flex-row"><a href="study-flip.html" class="btn btn-secondary">Lật thẻ để xem lại</a><a href="set.html" class="btn btn-ghost">Về bộ thẻ</a></div>
   </section>
 
-  <p data-state="review-error" role="alert" class="flex items-center justify-center gap-2 rounded-lg bg-warning-soft p-3 text-sm text-warning"><i data-lucide="wifi-off" class="size-4"></i>Chưa gửi được kết quả thẻ vừa chấm. Đang thử lại…</p>
+  <p data-state="review-error" role="alert" class="flex items-center justify-center gap-2 rounded-lg bg-warning-soft p-3 text-sm text-warning"><i data-lucide="wifi-off" class="size-4"></i>Chưa gửi được kết quả thẻ vừa chấm: không có kết nối mạng.</p>
 </main>
 </body>
 </html>

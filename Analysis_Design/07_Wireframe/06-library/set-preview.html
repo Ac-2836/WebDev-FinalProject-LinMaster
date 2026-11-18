@@ -9,12 +9,12 @@
 </head>
 <body class="pb-20 lg:pb-0">
 <div data-app-nav="library"></div>
-<!-- /library/sets/[id]: public preview (all cards). POST /library/sets/:id/copy (deep copy, copiedFromId, copyCount+1). POST /library/reports. -->
+<!-- /library/sets/[id]: public preview (all cards). POST /library/sets/:id/copy (deep copy, copiedFromId, copyCount+1; answers 201 for a new copy and 200 when the user already copied it). All cards are shown, no "see more". POST /library/reports. -->
 <main id="main" class="page flex max-w-4xl flex-col gap-6">
   <a href="library.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thư viện</a>
   <header class="flex flex-wrap items-start gap-4">
     <div class="min-w-0 flex-1">
-      <div class="flex gap-2"><span class="badge">Environment</span><span class="badge">EN → VI</span></div>
+      <div class="flex gap-2"><span class="badge">EN → VI</span></div>
       <h1 class="h1 mt-2">IELTS Environment vocabulary</h1>
       <p class="mt-1 text-muted-foreground">64 từ hay gặp trong bài đọc chủ đề môi trường, có câu ví dụ.</p>
       <p class="mt-3 flex items-center gap-2 text-sm"><span class="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold">TT</span>Thu Trang · đăng 28/10/2026 · <span class="flex items-center gap-1"><i data-lucide="copy" class="size-3.5"></i>986 lượt chép</span></p>
@@ -22,16 +22,17 @@
     <div class="flex w-full gap-2 sm:w-auto">
       <button data-state="default report" class="btn btn-primary flex-1 sm:flex-none"><i data-lucide="copy-plus" class="size-4"></i>Chép về thư viện của tôi</button>
       <a data-state="copied" href="../04-flashcard/set.html" class="btn btn-primary flex-1 sm:flex-none"><i data-lucide="check" class="size-4"></i>Đã chép · Mở bộ thẻ</a>
-      <button class="btn btn-ghost btn-icon" aria-label="Báo cáo bộ thẻ này"><i data-lucide="flag" class="size-4"></i></button>
+      <a data-state="copied-before" href="../04-flashcard/set.html" class="btn btn-primary flex-1 sm:flex-none">Mở bộ thẻ của tôi</a>
+      <button class="btn btn-ghost btn-icon" aria-label="Báo cáo"><i data-lucide="flag" class="size-4"></i></button>
     </div>
   </header>
+  <p data-state="copied-before" role="status" class="flex items-center gap-2 rounded-lg bg-secondary p-3 text-sm text-primary-strong"><i data-lucide="info" class="size-4"></i>Bạn đã chép bộ thẻ này trước đây. Nút ở trên mở bản chép của bạn.</p>
   <p data-state="copied" role="status" class="flex items-center gap-2 rounded-lg bg-success-soft p-3 text-sm text-success"><i data-lucide="circle-check" class="size-4"></i>Đã chép 64 thẻ vào "Bộ thẻ của tôi". Bản chép là của riêng bạn, sửa thoải mái.</p>
 
   <section aria-labelledby="c" class="flex flex-col gap-3">
     <h2 id="c" class="h2">64 thẻ</h2>
     <ul class="card divide-y">
       <script>document.write([['sustainable','bền vững','Sustainable farming reduces soil damage.'],['emission','khí thải','Carbon emissions rose by 3%.'],['deforestation','nạn phá rừng',''],['renewable','có thể tái tạo','Renewable energy is getting cheaper.'],['habitat','môi trường sống','']].map(([t,d,e])=>`<li class="grid gap-1 p-4 sm:grid-cols-[1fr_1.6fr] sm:gap-4"><p class="font-semibold">${t}</p><div><p class="text-sm">${d}</p>${e?`<p class="hint font-serif italic">${e}</p>`:''}</div></li>`).join(''))</script>
-      <li class="p-4 text-center"><button class="text-sm font-semibold text-primary hover:underline">Xem thêm 59 thẻ</button></li>
     </ul>
   </section>
 </main>

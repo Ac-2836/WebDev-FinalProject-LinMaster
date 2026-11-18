@@ -9,42 +9,43 @@
 </head>
 <body class="pb-20 lg:pb-0">
 <div data-app-nav="vocab"></div>
-<!-- /vocab: GET /vocab/entries?q&cefr&topic&documentId&page, PATCH/DELETE /vocab/entries/:id, POST /flashcards/sets/from-vocab -->
+<!-- /vocab: GET /vocab/entries?q&cefr&topic&documentId&page, PATCH/DELETE /vocab/entries/:id, POST /flashcards/sets/from-vocab.
+     States: delete = dialog "Xóa {count} từ?"; create-set = dialog "Tạo bộ thẻ từ kho từ" (vocab.createSet.*), then a toast with "Mở bộ thẻ". -->
 <main id="main" class="page flex flex-col gap-5">
   <header class="flex flex-wrap items-end gap-3">
     <div class="flex-1"><p class="eyebrow">Từ vựng</p><h1 class="h1 mt-1">Kho từ</h1><p class="mt-1 text-muted-foreground">248 từ · lưu kèm câu gốc nơi bạn gặp chúng.</p></div>
   </header>
 
-  <div data-state="default detail" class="flex flex-col gap-3 lg:flex-row">
-    <label class="relative flex-1"><span class="sr-only">Tìm từ</span><i data-lucide="search" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"></i><input class="input pl-9" placeholder="Tìm từ, nghĩa, ghi chú"></label>
+  <div data-state="default detail delete create-set" class="flex flex-col gap-3 lg:flex-row">
+    <label class="relative flex-1"><span class="sr-only">Tìm từ, nghĩa, ghi chú</span><i data-lucide="search" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"></i><input class="input pl-9" placeholder="Tìm từ, nghĩa, ghi chú"></label>
     <div class="grid grid-cols-3 gap-2 lg:flex">
-      <select class="input lg:w-32" aria-label="CEFR"><option>Mọi CEFR</option><option>B2</option><option>C1</option></select>
-      <select class="input lg:w-40" aria-label="Chủ đề"><option>Mọi chủ đề</option><option>Environment</option></select>
-      <select class="input lg:w-48" aria-label="Tài liệu"><option>Mọi tài liệu</option><option>Rising seas…</option></select>
+      <select class="input lg:w-32" aria-label="Lọc theo CEFR"><option>Mọi CEFR</option><option>B2</option><option>C1</option></select>
+      <select class="input lg:w-40" aria-label="Lọc theo chủ đề"><option>Mọi chủ đề</option><option>Môi trường</option></select>
+      <select class="input lg:w-48" aria-label="Lọc theo tài liệu"><option>Mọi tài liệu</option><option>Rising seas…</option></select>
     </div>
   </div>
 
   <!-- Selection bar -->
-  <div data-state="default detail" class="sticky top-14 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-primary/40 bg-secondary px-4 py-2.5">
+  <div data-state="default detail delete create-set" class="sticky top-14 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-primary/40 bg-secondary px-4 py-2.5">
     <p class="text-sm font-semibold text-primary-strong">Đã chọn 3 từ</p>
     <button class="text-sm text-primary hover:underline">Bỏ chọn</button>
-    <div class="ml-auto flex gap-2"><button class="btn btn-ghost btn-sm text-destructive"><i data-lucide="trash-2" class="size-4"></i><span class="hidden sm:inline">Xóa</span></button><a href="../04-flashcard/editor.html" class="btn btn-primary btn-sm"><i data-lucide="layers" class="size-4"></i>Tạo bộ thẻ</a></div>
+    <div class="ml-auto flex gap-2"><button class="btn btn-ghost btn-sm text-destructive"><i data-lucide="trash-2" class="size-4"></i><span class="hidden sm:inline">Xóa</span></button><button class="btn btn-primary btn-sm"><i data-lucide="layers" class="size-4"></i>Tạo bộ thẻ</button></div>
   </div>
 
   <!-- Table (desktop) / cards (mobile) -->
-  <div data-state="default detail" class="card overflow-hidden">
+  <div data-state="default detail delete create-set" class="card overflow-hidden">
     <div class="hidden grid-cols-[40px_1.3fr_2fr_70px_1.4fr_90px] gap-3 border-b bg-muted/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
       <input type="checkbox" class="size-4 accent-primary" aria-label="Chọn tất cả"><span>Từ</span><span>Nghĩa</span><span>CEFR</span><span>Chủ đề</span><span>Ngữ cảnh</span>
     </div>
     <ul class="divide-y">
       <script>
         document.write([
-          ['mitigate','verb','/ˈmɪt.ɪ.ɡeɪt/','giảm nhẹ, làm dịu','C1','Environment',2,true],
-          ['managed retreat','phrase','','di dời có kế hoạch','C2','Urban',1,true],
-          ['infrastructure','noun','/ˈɪn.frəˌstrʌk.tʃər/','cơ sở hạ tầng','B2','Urban, Economy',3,true],
-          ['exacerbate','verb','/ɪɡˈzæs.ə.beɪt/','làm trầm trọng thêm','C1','Environment',1,false],
-          ['compensation','noun','/ˌkɒm.pənˈseɪ.ʃən/','tiền bồi thường','B2','Work, Government',2,false],
-          ['trajectory','noun','/trəˈdʒek.tər.i/','quỹ đạo, xu hướng','C1','Science',1,false],
+          ['mitigate','verb','/ˈmɪt.ɪ.ɡeɪt/','giảm nhẹ, làm dịu','C1','Môi trường',2,true],
+          ['managed retreat','phrase','','di dời có kế hoạch','C2','Đời sống đô thị',1,true],
+          ['infrastructure','noun','/ˈɪn.frəˌstrʌk.tʃər/','cơ sở hạ tầng','B2','Đời sống đô thị, Kinh tế',3,true],
+          ['exacerbate','verb','/ɪɡˈzæs.ə.beɪt/','làm trầm trọng thêm','C1','Môi trường',1,false],
+          ['compensation','noun','/ˌkɒm.pənˈseɪ.ʃən/','tiền bồi thường','B2','Công việc, Chính phủ',2,false],
+          ['trajectory','noun','/trəˈdʒek.tər.i/','quỹ đạo, xu hướng','C1','Khoa học',1,false],
         ].map(([w,p,ipa,m,c,t,n,s]) => `<li class="grid grid-cols-[28px_1fr_auto] items-start gap-3 px-4 py-3 hover:bg-muted/40 md:grid-cols-[40px_1.3fr_2fr_70px_1.4fr_90px] md:items-center">
           <input type="checkbox" ${s?'checked':''} class="mt-1 size-4 accent-primary md:mt-0" aria-label="Chọn ${w}">
           <button class="min-w-0 text-left"><span class="font-semibold">${w}</span> <span class="hint">${p}</span><span class="hint block md:hidden">${m}</span>${ipa?`<span class="hint hidden md:block">${ipa}</span>`:''}</button>
@@ -73,7 +74,7 @@
   <aside role="dialog" aria-modal="true" aria-labelledby="ed" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
     <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="ed" class="h2 flex-1">mitigate</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>
     <div class="flex flex-1 flex-col gap-5 overflow-y-auto p-5 text-sm">
-      <div class="flex flex-wrap items-center gap-2"><span class="text-muted-foreground">/ˈmɪt.ɪ.ɡeɪt/</span><span class="badge">verb</span><span class="badge badge-primary">C1</span><span class="badge">Environment</span><span class="badge">Government</span></div>
+      <div class="flex flex-wrap items-center gap-2"><span class="text-muted-foreground">/ˈmɪt.ɪ.ɡeɪt/</span><span class="badge">verb</span><span class="badge badge-primary">C1</span><span class="badge">Môi trường</span><span class="badge">Government</span></div>
       <div><p class="text-base font-semibold">giảm nhẹ, làm dịu (tác động xấu)</p><p class="mt-1 text-muted-foreground">To make something bad less severe or harmful.</p></div>
       <p class="rounded-lg bg-muted p-3"><strong>Cách dùng:</strong> thường đi với danh từ chỉ tác hại; trang trọng.</p>
       <div><p class="label mb-2">Collocations</p><div class="flex flex-wrap gap-1.5"><span class="badge">mitigate the effects</span><span class="badge">mitigate risks</span><span class="badge">mitigate the impact</span></div></div>
@@ -83,10 +84,28 @@
           <li class="rounded-lg border p-3"><p class="font-serif italic">"…measures designed to <mark>mitigate</mark> the risk of flooding."</p><span class="hint">Tài liệu đã xóa</span></li>
         </ul></div>
       <label class="flex flex-col gap-1.5"><span class="label">Ghi chú của tôi</span><textarea class="input min-h-20 py-2" placeholder="Mẹo nhớ, ví dụ riêng…">Đồng nghĩa: alleviate, lessen</textarea></label>
-      <p class="hint">Đã có trong bộ thẻ: IELTS Environment</p>
-    </div>
+          </div>
     <div class="flex gap-2 border-t px-5 py-4"><button class="btn btn-ghost text-destructive"><i data-lucide="trash-2" class="size-4"></i>Xóa từ</button><button class="btn btn-primary ml-auto">Lưu ghi chú</button></div>
   </aside>
 </div>
+<!-- Delete selected words -->
+<div data-state="delete" class="fixed inset-0 z-40 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4">
+  <div role="alertdialog" aria-modal="true" aria-labelledby="dw" class="w-full max-w-md rounded-t-2xl bg-card p-6 shadow-2xl sm:rounded-2xl">
+    <h2 id="dw" class="h2">Xóa 3 từ?</h2>
+    <p class="mt-2 text-sm text-muted-foreground">Sẽ xóa khỏi kho: mitigate, managed retreat, infrastructure. Không hoàn tác được.</p>
+    <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Hủy</button><button class="btn btn-danger">Xóa</button></div>
+  </div>
+</div>
+
+<!-- Create a flashcard set from the selected words -->
+<div data-state="create-set" class="fixed inset-0 z-40 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4">
+  <div role="dialog" aria-modal="true" aria-labelledby="cs" class="w-full max-w-md rounded-t-2xl bg-card p-6 shadow-2xl sm:rounded-2xl">
+    <h2 id="cs" class="h2">Tạo bộ thẻ từ kho từ</h2>
+    <p class="mt-2 text-sm text-muted-foreground">Bộ thẻ mới gồm 3 từ đã chọn. Mặt trước là từ, mặt sau là nghĩa tiếng Việt.</p>
+    <label class="mt-4 flex flex-col gap-1.5"><span class="label">Tên bộ thẻ</span><input class="input" placeholder="Ví dụ: IELTS Environment"></label>
+    <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Hủy</button><button class="btn btn-primary">Tạo bộ thẻ</button></div>
+  </div>
+</div>
+<!-- Toast after creating: "Đã tạo "IELTS Environment" với 3 thẻ" + link "Mở bộ thẻ" -->
 </body>
 </html>
