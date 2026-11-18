@@ -13,13 +13,21 @@ describe('security headers of the web app', () => {
     });
   });
 
+  it('allows only WASM and a same-origin worker for the in-browser OCR of uploaded tests', () => {
+    const csp = contentSecurityPolicy('https://linmaster-api.onrender.com/api/v1');
+    expect(csp).toContain("script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval';");
+    expect(csp).toContain("worker-src 'self' blob:");
+    // No third-party host: the OCR files are served from /ocr on this site.
+    expect(csp).not.toMatch(/cdn|unpkg|jsdelivr/);
+  });
+
   it('lets the pages reach only the API, and play exam audio from a blob', () => {
     const csp = contentSecurityPolicy('https://linmaster-api.onrender.com/api/v1');
     expect(csp).toContain("connect-src 'self' https://linmaster-api.onrender.com;");
     expect(csp).toContain("media-src 'self' blob: https://linmaster-api.onrender.com;");
     expect(csp).toContain("img-src 'self' data: blob:");
     expect(csp).toContain("frame-ancestors 'none'");
-    expect(csp).not.toContain('unsafe-eval');
+    expect(csp).not.toMatch(/(?<!wasm-)unsafe-eval/);
     expect(contentSecurityPolicy('http://localhost:4000/api/v1', true)).toContain("'unsafe-eval'");
   });
 });

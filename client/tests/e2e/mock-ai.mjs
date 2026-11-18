@@ -140,6 +140,30 @@ function parseTest() {
   };
 }
 
+/**
+ * `parse-test.v3` reads the OCR text of the PDF the browser sent, not the PDF, so the skill comes from the text: the
+ * e2e Listening PDF says "Listening" on its first page. Passages and instructions are line ranges (lines 1 and 2 are
+ * the first lines of the OCR text), which the server cuts out of that text.
+ */
+function parseTestV3(text) {
+  const listening = /listening/iu.test(userData(text).at(-1) ?? '');
+  const lines = {instructionsFromLine: 1, instructionsToLine: 1};
+  const outline = listening ? parseListening() : parseTest();
+  return {
+    title: outline.title,
+    sections: outline.sections.map(section => ({
+      skill: section.skill,
+      passages: section.passages.map(passage => ({
+        title: passage.title,
+        paragraphs:
+          passage.paragraphs && passage.paragraphs.map(({label}, index) => ({label, fromLine: 1, toLine: index + 1})),
+        // v3 gives the instructions as a line range, not as text.
+        groups: passage.groups.map(group => ({...group, instructions: undefined, ...lines})),
+      })),
+    })),
+  };
+}
+
 function parseAnswers(skill) {
   return {
     answers: NUMBERS.map(number => ({
@@ -159,6 +183,7 @@ const REPLIES = [
     'You convert an IELTS-style test PDF',
     async ({pdf}) => ((await skillOf(pdf)) === 'listening' ? parseListening() : parseTest()),
   ],
+  ['You convert the OCR text', ({text}) => parseTestV3(text)],
   ['You read the answer key', async ({pdf}) => parseAnswers(await skillOf(pdf))],
   ['You read the transcript', () => ({parts: []})],
 ];

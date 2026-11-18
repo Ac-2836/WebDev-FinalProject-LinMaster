@@ -8,6 +8,9 @@ build/
 out/
 *.tsbuildinfo
 
+# In-browser OCR assets, copied from node_modules by client/scripts/copy-ocr-assets.mjs
+/client/public/ocr/
+
 # Environment (only .env.example is committed)
 .env
 .env.*
