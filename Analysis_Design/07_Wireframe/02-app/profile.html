@@ -11,7 +11,8 @@
 <div data-app-nav=""></div>
 <main id="main" class="page max-w-2xl">
   <p class="eyebrow">Tài khoản</p><h1 class="h1 mt-1">Hồ sơ</h1>
-  <p class="mt-1 text-muted-foreground">Thông tin tài khoản và tùy chọn học. Dữ liệu: <code>GET/PATCH /auth/me</code>.</p>
+  <!-- Data: GET/PATCH /auth/me, PATCH /auth/me/email, PATCH /auth/me/password. The stats row comes from /stats/overview. -->
+  <p class="mt-1 text-muted-foreground">Thông tin tài khoản và tùy chọn học.</p>
 
   <!-- loading -->
   <div data-state="loading" class="card mt-6 flex flex-col gap-5 p-6" aria-busy="true" aria-label="Đang tải hồ sơ">
@@ -32,8 +33,17 @@
         <span class="inline-flex size-16 items-center justify-center rounded-full bg-secondary text-xl font-bold text-primary-strong" aria-hidden="true">KH</span>
         <div><p class="text-lg font-bold">Khải Hưng</p><p class="hint">Thành viên từ 03/11/2026</p></div>
       </div>
+      <div class="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
+        <div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">7</p><p class="hint">ngày liên tiếp</p></div>
+        <div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">248</p><p class="hint">từ đã lưu</p></div>
+        <div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">1.032</p><p class="hint">lượt ôn thẻ</p></div>
+        <div class="rounded-lg bg-muted/50 p-3"><p class="text-xl font-bold">6</p><p class="hint">bài đã thi</p></div>
+      </div>
+    </section>
+
+    <section class="card flex flex-col gap-5 p-6" aria-labelledby="info">
+      <h2 id="info" class="h2">Thông tin</h2>
       <label class="flex flex-col gap-1.5"><span class="label">Tên hiển thị</span><input class="input" value="Khải Hưng" maxlength="80"></label>
-      <label class="flex flex-col gap-1.5"><span class="label">Email</span><input class="input bg-muted" value="khaihung@example.com" readonly aria-describedby="eh"><span id="eh" class="hint">Email không đổi được.</span></label>
     </section>
 
     <section class="card flex flex-col gap-5 p-6" aria-labelledby="pref">
@@ -58,6 +68,24 @@
       <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
     </div>
   </form>
+
+  <!-- Security: two separate forms, each asks for the current password -->
+  <section data-state="default saved" class="mt-6 flex flex-col gap-6" aria-labelledby="sec">
+    <h2 id="sec" class="h2">Bảo mật</h2>
+    <form class="card flex flex-col gap-4 p-6">
+      <h3 class="font-bold">Đổi email</h3>
+      <p class="hint">Email hiện tại: khaihung@example.com</p>
+      <label class="flex flex-col gap-1.5"><span class="label">Email mới</span><input class="input" type="email" autocomplete="email"></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Mật khẩu hiện tại</span><input class="input" type="password" autocomplete="current-password"></label>
+      <button class="btn btn-secondary w-fit" type="submit">Đổi email</button>
+    </form>
+    <form class="card flex flex-col gap-4 p-6">
+      <h3 class="font-bold">Đổi mật khẩu</h3>
+      <label class="flex flex-col gap-1.5"><span class="label">Mật khẩu hiện tại</span><input class="input" type="password" autocomplete="current-password"></label>
+      <label class="flex flex-col gap-1.5"><span class="label">Mật khẩu mới</span><input class="input" type="password" autocomplete="new-password"><span class="hint">Tối thiểu 8 ký tự. Bạn vẫn đăng nhập sau khi đổi.</span></label>
+      <button class="btn btn-secondary w-fit" type="submit">Đổi mật khẩu</button>
+    </form>
+  </section>
 </main>
 </body>
 </html>

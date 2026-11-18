@@ -9,7 +9,8 @@
 </head>
 <body class="pb-20 lg:pb-0">
 <div data-app-nav="tests"></div>
-<!-- /tests/[id]: GET /tests/:id (candidate view, never contains answers). Start = POST /attempts (returns the in-progress attempt if there is one). -->
+<!-- /tests/[id]: GET /tests/:id (candidate view, never contains answers). 
+  "Bắt đầu làm bài" opens /tests/[id]/start (pre-exam.html); POST /attempts is sent there, by "Start test". Publish card as on the flashcard set page. -->
 <main id="main" class="page flex max-w-3xl flex-col gap-6">
   <a href="tests.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thi thử</a>
   <header class="flex flex-col gap-2">
@@ -25,7 +26,7 @@
     <div class="p-4"><p class="hint">Lần làm trước</p><p class="font-bold">Band 6.5</p></div>
   </section>
 
-  <section data-state="default" class="card flex flex-col gap-3 p-5">
+  <section data-state="default published hidden publish" class="card flex flex-col gap-3 p-5">
     <h2 class="h2">Trước khi bắt đầu</h2>
     <ul class="flex flex-col gap-2.5 text-sm">
       <li class="flex gap-3"><i data-lucide="maximize" class="mt-0.5 size-4 shrink-0 text-primary"></i>Phòng thi mở toàn màn hình, giống thi trên máy tính tại điểm thi.</li>
@@ -34,14 +35,39 @@
       <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 size-4 shrink-0 text-primary"></i>Bài làm tự lưu liên tục. Mở lại trang là làm tiếp.</li>
       <li class="flex gap-3"><i data-lucide="monitor" class="mt-0.5 size-4 shrink-0 text-primary"></i>Nên làm trên máy tính. Màn hình điện thoại vẫn làm được nhưng khó nhìn hai cột.</li>
     </ul>
-    <a href="room-listening.html?state=sound-check" class="btn btn-primary btn-lg mt-2 sm:w-fit">Bắt đầu làm bài</a>
+    <a href="pre-exam.html" class="btn btn-primary btn-lg mt-2 sm:w-fit">Bắt đầu làm bài</a>
   </section>
 
   <section data-state="in-progress" class="card flex flex-col gap-3 border-primary/40 p-5">
     <h2 class="h2">Bạn đang làm dở đề này</h2>
-    <p class="text-sm text-muted-foreground">Bắt đầu lúc 20:14 · đang ở Reading, câu 15 · còn 38 phút. Đồng hồ vẫn chạy từ lúc bắt đầu.</p>
+    <p class="text-sm text-muted-foreground">Bắt đầu lúc 20:14 · còn 38 phút. Đồng hồ vẫn chạy từ lúc bắt đầu.</p>
     <a href="room-reading.html" class="btn btn-primary btn-lg sm:w-fit">Tiếp tục làm bài</a>
   </section>
+
+  <!-- Publish card (owner only): library.publish.* States: private, public, hidden; asks for the source first when the test has none. -->
+  <section data-state="default in-progress" class="card flex flex-wrap items-center gap-3 p-4">
+    <span class="tile size-10 rounded-xl"><i data-lucide="lock" class="size-5"></i></span>
+    <div class="min-w-0 flex-1"><p class="font-semibold">Chỉ mình bạn thấy</p><p class="hint">Đăng lên để chia sẻ trong thư viện.</p></div>
+    <button class="btn btn-secondary btn-sm">Đăng lên</button>
+  </section>
+  <section data-state="published" class="card flex flex-wrap items-center gap-3 p-4">
+    <span class="tile size-10 rounded-xl"><i data-lucide="globe" class="size-5"></i></span>
+    <div class="min-w-0 flex-1"><p class="font-semibold">Đang có trong thư viện</p><p class="hint">Người học khác tìm thấy được.</p></div>
+    <a href="../06-library/test-preview.html" class="btn btn-ghost btn-sm">Xem trang công khai</a><button class="btn btn-secondary btn-sm">Gỡ xuống</button>
+  </section>
+  <section data-state="hidden" class="card flex flex-wrap items-center gap-3 border-destructive/40 p-4">
+    <span class="tile size-10 rounded-xl"><i data-lucide="eye-off" class="size-5"></i></span>
+    <div class="min-w-0 flex-1"><p class="font-semibold">Đã bị ẩn do báo cáo</p><p class="hint">Gỡ xuống để đóng các báo cáo, sửa lại, rồi đăng lại.</p></div>
+    <button class="btn btn-secondary btn-sm">Gỡ xuống</button>
+  </section>
+  <div data-state="publish" class="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4">
+    <div role="dialog" aria-modal="true" aria-labelledby="src" class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+      <h2 id="src" class="h2">Đề này lấy từ đâu?</h2>
+      <p class="mt-2 text-sm text-muted-foreground">Thư viện hiện nguồn của mọi đề để người khác biết đề từ đâu ra.</p>
+      <label class="mt-4 flex flex-col gap-1.5"><span class="label">Nguồn</span><input class="input" placeholder="Ví dụ: Cambridge IELTS 18, hoặc tự soạn"></label>
+      <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Hủy</button><button class="btn btn-primary">Đăng lên</button></div>
+    </div>
+  </div>
 
   <section aria-labelledby="h" class="flex flex-col gap-3">
     <h2 id="h" class="h2">Các lần làm trước</h2>

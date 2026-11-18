@@ -9,7 +9,7 @@
 </head>
 <body class="pb-20 lg:pb-0">
 <div data-app-nav="tests"></div>
-<!-- /tests/imports/[id]: polls GET /tests/imports/:id every few seconds. queued → parsing → validating → done | failed (state diagram st-02). -->
+<!-- /tests/imports/[id]: polls GET /tests/imports/:id every few seconds. queued → parsing → validating → done | failed (state diagram st-02). Reached from the upload page; the /tests list does not show running imports. -->
 <main id="main" class="page flex max-w-3xl flex-col gap-6">
   <a href="tests.html" class="hint inline-flex w-fit items-center gap-1 hover:underline"><i data-lucide="arrow-left" class="size-3.5"></i>Thi thử</a>
   <header class="flex items-start gap-4">
@@ -18,17 +18,17 @@
     <span data-state="failed" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-x" class="size-6"></i></span>
     <div>
       <h1 class="h1"><span data-state="parsing">Đang nhận diện đề…</span><span data-state="done">Đề đã sẵn sàng</span><span data-state="failed">Chưa tạo được đề</span></h1>
-      <p class="mt-1 text-muted-foreground">3 file (practice-test-4.pdf, answers-test-4.pdf, audio) · Full · tab AI nhận diện</p>
+      <p class="mt-1 text-muted-foreground">Đề Full</p>
     </div>
   </header>
 
   <ol class="card flex flex-col p-5" aria-label="Các bước">
     <script>
-      const steps = [['Gắn nhãn trang','3 file, 38 trang: đề, đáp án, giải thích, transcript'],['AI đọc đề','Tách 2 phần, 7 đoạn, 18 nhóm câu'],['AI đọc đáp án và giải thích','Ghép 80 đáp án và 80 giải thích vào đúng phần'],['Kiểm tra','Đủ câu, đáp án hợp lệ, đọc được audio']];
-      const at = {parsing: 1, done: 4, failed: 3};
+      const steps = [['Chờ xử lý',''],['AI đọc đề, đáp án và giải thích',''],['Kiểm tra từng câu','']];
+      const at = {parsing: 1, done: 3, failed: 2};
       document.write(Object.entries(at).map(([st, cur]) => `<div data-state="${st}" class="flex flex-col">${steps.map(([t, d], i) => {
         const ok = i < cur, now = i === cur && st === 'parsing', bad = st === 'failed' && i === cur;
-        return `<li class="flex gap-3 pb-5 last:pb-0"><span class="flex flex-col items-center"><span class="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold ${ok ? 'bg-success text-white' : bad ? 'bg-destructive text-white' : now ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}">${ok ? '✓' : bad ? '!' : i + 1}</span>${i < 3 ? `<span class="mt-1 w-0.5 flex-1 ${ok ? 'bg-success' : 'bg-border'}"></span>` : ''}</span><div class="pb-1"><p class="font-semibold ${!ok && !now && !bad ? 'text-muted-foreground' : ''}">${t}${now ? ' <span class="text-sm font-normal text-primary">đang chạy…</span>' : ''}</p>${ok || bad ? `<p class="hint">${bad ? 'Phát hiện 4 lỗi' : d}</p>` : ''}</div></li>`;
+        return `<li class="flex gap-3 pb-5 last:pb-0"><span class="flex flex-col items-center"><span class="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold ${ok ? 'bg-success text-white' : bad ? 'bg-destructive text-white' : now ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}">${ok ? '✓' : bad ? '!' : i + 1}</span>${i < 2 ? `<span class="mt-1 w-0.5 flex-1 ${ok ? 'bg-success' : 'bg-border'}"></span>` : ''}</span><div class="pb-1"><p class="font-semibold ${!ok && !now && !bad ? 'text-muted-foreground' : ''}">${t}${now ? ' <span class="text-sm font-normal text-primary">đang chạy…</span>' : ''}</p>${bad ? '<p class="hint">Phát hiện 4 lỗi</p>' : ''}</div></li>`;
       }).join('')}</div>`).join(''));
     </script>
   </ol>
@@ -47,10 +47,16 @@
     <div class="card overflow-hidden">
       <div class="grid grid-cols-[90px_80px_1fr] gap-3 border-b bg-muted/50 px-4 py-2 text-xs font-semibold uppercase text-muted-foreground"><span>Phần</span><span>Câu</span><span>Lỗi</span></div>
       <ul class="divide-y text-sm">
-        <script>document.write([['Listening','31','Không tìm thấy đáp án'],['Listening','32','Không tìm thấy đáp án'],['Listening','33','Không tìm thấy đáp án'],['Reading','14','Đáp án "F" không hợp lệ: đoạn văn chỉ có A–E']].map(([s,q,m])=>`<li class="grid grid-cols-[90px_80px_1fr] gap-3 px-4 py-3"><span>${s}</span><span class="font-semibold">${q}</span><span>${m}</span></li>`).join(''))</script>
+        <script>document.write([['Listening','31','Không tìm thấy đáp án câu 31.'],['Listening','32','Không tìm thấy đáp án câu 32.'],['Listening','33','Không tìm thấy đáp án câu 33.'],['Reading','14','Đáp án câu 14 không hợp lệ với dạng câu.']].map(([s,q,m])=>`<li class="grid grid-cols-[90px_80px_1fr] gap-3 px-4 py-3"><span>${s}</span><span class="font-semibold">${q}</span><span>${m}</span></li>`).join(''))</script>
       </ul>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row"><a href="upload.html" class="btn btn-primary"><i data-lucide="upload" class="size-4"></i>Tải lên lại</a></div>
+  </section>
+
+  <!-- Import not found, or not the user's own -->
+  <section data-state="not-found" class="card flex flex-col items-center gap-3 px-6 py-12 text-center">
+    <p class="text-lg font-bold">Không tìm thấy lượt tải</p>
+    <p class="text-muted-foreground">Lượt tải này không tồn tại hoặc không phải của bạn.</p>
   </section>
 </main>
 </body>

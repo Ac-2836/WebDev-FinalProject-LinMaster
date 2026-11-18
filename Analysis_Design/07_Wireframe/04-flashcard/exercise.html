@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bài luyện AI</title>
+  <title>Luyện tập AI</title>
   <script src="../assets/wf.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
 </head>
 <body class="glow flex min-h-screen flex-col">
-<!-- (Nên có) /flashcards/[id]/study/exercise: POST /flashcards/sets/:id/exercises (AI task generate-exercise.v1). Question kinds reuse the exam question components. -->
+<!-- /flashcards/[id]/study/exercise: POST /flashcards/sets/:id/exercises (AI task generate-exercise.v2). Question kinds reuse the exam question components. -->
 <header class="border-b border-white/60 bg-white/70 backdrop-blur-xl">
   <div class="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
     <a href="set.html" class="btn btn-ghost btn-icon" aria-label="Thoát"><i data-lucide="x" class="size-5"></i></a>
-    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Bài luyện AI · 10 câu</p></div>
+    <div class="min-w-0 flex-1 text-center"><p class="truncate text-sm font-semibold">IELTS Environment</p><p class="hint">Luyện tập AI · 10 câu</p></div>
     <span class="w-10"></span>
   </div>
 </header>
@@ -36,6 +36,20 @@
     <p class="hint">Thường mất 5–15 giây.</p>
   </section>
 
+  <p data-state="default checked" class="text-sm text-muted-foreground">Do AI tạo, có thể chưa chính xác.</p>
+
+  <section data-state="ai-invalid" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center">
+    <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-alert" class="size-6"></i></span>
+    <p class="text-muted-foreground">AI chưa soạn được bài hợp lệ. Chờ một phút rồi thử lại.</p>
+    <button class="btn btn-secondary btn-sm" disabled>Thử lại sau 42 giây</button>
+  </section>
+
+  <section data-state="busy" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center">
+    <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-alert" class="size-6"></i></span>
+    <p class="text-muted-foreground">AI đang bận. Thử lại sau ít giây.</p>
+    <button class="btn btn-secondary btn-sm">Thử lại</button>
+  </section>
+
   <section data-state="quota" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center">
     <span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="circle-alert" class="size-6"></i></span>
     <p class="font-bold">Hết lượt AI hôm nay</p><p class="text-muted-foreground">Lượt mới có lúc 0:00. Trong lúc chờ, thử chế độ Kiểm tra (không dùng AI).</p>
@@ -53,7 +67,7 @@
       </div>
     </section>
     <section class="card flex flex-col gap-4 p-6">
-      <h2 class="font-bold">Câu 4–6 · Hoàn thành tóm tắt. Dùng KHÔNG QUÁ MỘT TỪ cho mỗi chỗ trống</h2>
+      <h2 class="font-bold">Câu 4–6 · Điền từ còn thiếu vào chỗ trống</h2>
       <p class="font-serif text-[17px] leading-9">Coastal towns face a choice between building sea walls and <strong>(4)</strong> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans" value="relocation" aria-label="Chỗ trống 4"> of residents. Critics argue that walls may <strong>(5)</strong> <input class="input inline-block h-8 min-h-0 w-36 align-baseline font-sans data-[bad]:border-destructive" value="increase" data-bad aria-label="Chỗ trống 5"> erosion elsewhere.</p>
       <p data-state="checked" class="flex items-center gap-2 text-sm font-semibold text-destructive"><i data-lucide="circle-x" class="size-4"></i>Câu 5: đáp án là "exacerbate".</p>
     </section>

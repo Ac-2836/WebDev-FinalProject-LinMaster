@@ -13,6 +13,7 @@
   names or artwork of IDP / British Council / Cambridge (PLAN C4).
   GET /attempts/:id (serverNow, remaining time), PUT /attempts/:id/state (autosave), POST /attempts/:id/submit.
   Exam UI text stays in English like the real test; app chrome around it follows the user's locale.
+  Also states: saving, not saved, the same attempt open in a second tab (cannot be dismissed), and the finished screen.
 -->
 <header class="flex h-14 shrink-0 items-center gap-3 border-b bg-white px-3 sm:px-4">
   <div class="flex min-w-0 items-center gap-2">
@@ -21,11 +22,13 @@
   </div>
   <div class="mx-auto flex items-center gap-2 rounded-lg px-3 py-1" role="timer" aria-live="off">
     <i data-lucide="clock" class="size-4 text-muted-foreground"></i>
-    <span data-state="default menu note settings help submit hide offline" class="text-base font-bold tabular-nums">38 minutes left</span>
+    <span data-state="default menu note settings help submit hide offline saving save-error other-tab" class="text-base font-bold tabular-nums">38 minutes left</span>
     <span data-state="warn" class="rounded-md bg-warning-soft px-2 text-base font-bold tabular-nums text-warning">9 minutes left</span>
   </div>
   <div class="flex items-center gap-0.5">
     <span data-state="default menu note settings help submit hide warn" class="hidden items-center gap-1 px-2 text-xs text-muted-foreground md:flex"><i data-lucide="circle-check" class="size-4 text-success"></i>Saved</span>
+    <span data-state="saving" class="hidden items-center gap-1 px-2 text-xs text-muted-foreground md:flex"><i data-lucide="loader-circle" class="size-4 animate-spin"></i>Saving…</span>
+    <span data-state="save-error" class="hidden items-center gap-1 px-2 text-xs text-warning md:flex"><i data-lucide="circle-alert" class="size-4"></i>Not saved</span>
     <span data-state="offline" class="flex items-center gap-1 rounded-md bg-warning-soft px-2 py-1 text-xs font-semibold text-warning"><i data-lucide="wifi-off" class="size-4"></i><span class="hidden sm:inline">Offline</span></span>
     <button class="btn btn-ghost btn-sm" aria-label="Settings"><i data-lucide="settings" class="size-4"></i><span class="hidden lg:inline">Settings</span></button>
     <button class="btn btn-ghost btn-sm" aria-label="Help"><i data-lucide="circle-help" class="size-4"></i><span class="hidden lg:inline">Help</span></button>
@@ -174,6 +177,24 @@
     <div class="mt-4 flex flex-wrap gap-1"><span class="badge">Unanswered: 15, 17, 18, 20, 21, 22, 24, 25, 26</span></div>
     <div class="mt-6 flex justify-end gap-2"><button class="btn btn-secondary">Go back</button><button class="btn btn-primary">Submit</button></div>
   </div>
+</div>
+
+<!-- Same attempt open in another tab: this tab saves nothing until "Use this tab" -->
+<div data-state="other-tab" class="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4">
+  <div role="alertdialog" aria-modal="true" aria-labelledby="ot" class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <h2 id="ot" class="h2">This test is open in another tab</h2>
+    <p class="mt-2 text-sm text-muted-foreground">Your answers are being saved in the other tab. This tab will not save anything, so the two cannot overwrite each other. The timer keeps running.</p>
+    <div class="mt-6 flex justify-end"><button class="btn btn-primary">Use this tab</button></div>
+  </div>
+</div>
+
+<!-- Finished: after Submit, or when time is up (attempt already submitted) -->
+<div data-state="submitted" class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-white px-4 text-center">
+  <span class="inline-flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><i data-lucide="circle-check" class="size-8"></i></span>
+  <h1 class="h1">Test submitted</h1>
+  <p class="text-muted-foreground">Your answers have been submitted.</p>
+  <p class="hint">When time runs out the title reads "Time is up".</p>
+  <div class="flex flex-wrap justify-center gap-2"><a href="result.html" class="btn btn-primary">See your result</a><a href="../02-app/home.html" class="btn btn-secondary">Back to home</a></div>
 </div>
 </body>
 </html>

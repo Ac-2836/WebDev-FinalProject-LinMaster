@@ -13,7 +13,7 @@
   /attempts/[id]/result: GET /attempts/:id/result (owner only, 403 for others).
   "Mở bài đọc trong Trình đọc" creates a Document with source = exam and opens /read/[id].
   "Giải thích": explanation from the test file comes with the result (state explain-file);
-  (Nên có) otherwise POST /attempts/:id/questions/:no/explain → explain-answer.v1 (state explain).
+  otherwise POST /attempts/:id/questions/:no/explain → explain-answer.v1 (state explain).
   Listening transcript (Passage.paragraphs) comes with the result, never before submit (state transcript).
 -->
 <main id="main" class="page flex flex-col gap-6">
@@ -93,7 +93,7 @@
   </aside>
 </div>
 
-<!-- (Nên có) AI explanation drawer: explain-answer.v1, only when the test file has no explanation -->
+<!-- AI explanation drawer: explain-answer.v1, only when the test file has no explanation -->
 <div data-state="explain" class="fixed inset-0 z-40 flex justify-end bg-foreground/30">
   <aside role="dialog" aria-modal="true" aria-labelledby="ex" class="flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
     <div class="flex items-center gap-2 border-b px-5 py-4"><h2 id="ex" class="h2 flex-1">Câu 20 · Giải thích</h2><button class="btn btn-ghost btn-icon btn-sm" aria-label="Đóng"><i data-lucide="x" class="size-4"></i></button></div>

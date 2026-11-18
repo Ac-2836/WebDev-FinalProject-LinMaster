@@ -9,7 +9,7 @@
 </head>
 <body class="pb-20 lg:pb-0">
 <div data-app-nav="flashcards"></div>
-<!-- /flashcards: GET /flashcards/sets -->
+<!-- /flashcards: GET /flashcards/sets. One flat list, no tabs or filters; no progress bar or visibility badge on the cards. -->
 <main id="main" class="page flex flex-col gap-6">
   <header class="flex flex-wrap items-end gap-3">
     <div class="flex-1"><p class="eyebrow">Flashcard</p><h1 class="h1 mt-1">Bộ thẻ của tôi</h1><p class="mt-1 text-muted-foreground">18 thẻ đến hạn hôm nay trong 2 bộ.</p></div>
@@ -17,25 +17,18 @@
     <a href="editor.html" class="btn btn-primary"><i data-lucide="plus" class="size-4"></i>Bộ thẻ mới</a>
   </header>
 
-  <div data-state="default" class="inline-flex w-fit rounded-lg border bg-muted p-0.5 text-sm" role="tablist">
-    <button role="tab" aria-selected="true" class="rounded-md bg-card px-3 py-1.5 font-semibold shadow-sm">Tất cả (5)</button>
-    <button role="tab" class="rounded-md px-3 py-1.5 text-muted-foreground">Đến hạn (2)</button>
-    <button role="tab" class="rounded-md px-3 py-1.5 text-muted-foreground">Đã chép (1)</button>
-  </div>
-
   <ul data-state="default" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <script>
       document.write([
-        ['IELTS Environment',42,12,4,60,'Riêng tư',''],
-        ['Từ trong bài "Coastal cities"',9,6,0,20,'Riêng tư',''],
-        ['Academic Word List 1',60,0,0,85,'Công khai','globe'],
-        ['Phrasal verbs for Speaking',35,0,8,10,'Riêng tư',''],
-        ['Cambridge collocations',120,0,0,40,'Riêng tư','copy'],
-      ].map(([t,n,due,neu,p,v,ic]) => `<li class="card flex flex-col gap-4 p-5">
-        <div class="flex items-start justify-between gap-2"><span class="tile size-10 rounded-xl"><i data-lucide="layers" class="size-5"></i></span><span class="badge ${ic==='globe'?'badge-primary':''}">${ic?`<i data-lucide="${ic}" class="size-3"></i>`:''}${ic==='copy'?'Đã chép':v}</span></div>
-        <div><a href="set.html" class="font-bold hover:text-primary">${t}</a><p class="hint">${n} thẻ${due?` · <span class="font-semibold text-warning">${due} đến hạn</span>`:''}${neu?` · ${neu} mới`:''}</p></div>
-        <div><div class="flex h-1.5 overflow-hidden rounded-full bg-muted" aria-label="${p}% đã thuộc"><div class="bg-success" style="width:${p}%"></div><div class="bg-warning/60" style="width:${Math.min(100-p,25)}%"></div></div><p class="hint mt-1">${p}% đã thuộc</p></div>
-        <div class="mt-auto flex gap-2">${due||neu?`<a href="study-learn.html" class="btn btn-primary btn-sm flex-1">Học ngay</a>`:`<a href="study-flip.html" class="btn btn-secondary btn-sm flex-1">Lật thẻ</a>`}<a href="editor.html" class="btn btn-ghost btn-icon btn-sm" aria-label="Sửa ${t}"><i data-lucide="pencil" class="size-4"></i></a></div></li>`).join(''));
+        ['IELTS Environment',42,12],
+        ['Từ trong bài "Coastal cities"',9,6],
+        ['Academic Word List 1',60,0],
+        ['Phrasal verbs for Speaking',35,8],
+        ['Cambridge collocations',120,0],
+      ].map(([t,n,due]) => `<li class="card flex flex-col gap-4 p-5">
+        <div class="flex items-start justify-between gap-2"><span class="tile size-10 rounded-xl"><i data-lucide="layers" class="size-5"></i></span></div>
+        <div><a href="set.html" class="font-bold hover:text-primary">${t}</a><p class="hint">${n} thẻ${due?` · <span class="font-semibold text-warning">${due} đến hạn</span>`:''}</p></div>
+        <div class="mt-auto flex gap-2">${due?`<a href="study-learn.html" class="btn btn-primary btn-sm flex-1">Học ngay</a>`:`<a href="set.html" class="btn btn-secondary btn-sm flex-1">Xem bộ thẻ</a>`}<a href="editor.html" class="btn btn-ghost btn-icon btn-sm" aria-label="Sửa ${t}"><i data-lucide="pencil" class="size-4"></i></a></div></li>`).join(''));
     </script>
   </ul>
 
@@ -43,8 +36,8 @@
 
   <div data-state="empty" class="card flex flex-col items-center gap-4 px-6 py-14 text-center">
     <span class="tile size-14 rounded-3xl"><i data-lucide="layers" class="size-7"></i></span>
-    <div><p class="text-lg font-bold">Chưa có bộ thẻ nào</p><p class="mx-auto mt-1 max-w-sm text-muted-foreground">Tạo bộ thẻ từ những từ đã lưu, tự gõ thẻ mới, hoặc chép một bộ có sẵn trong thư viện.</p></div>
-    <div class="flex flex-col gap-2 sm:flex-row"><a href="editor.html" class="btn btn-primary">Bộ thẻ mới</a><a href="../06-library/library.html" class="btn btn-secondary">Tìm trong thư viện</a></div>
+    <div><p class="text-lg font-bold">Chưa có bộ thẻ nào</p><p class="mx-auto mt-1 max-w-sm text-muted-foreground">Tạo bộ thẻ từ những từ đã lưu trong kho từ, hoặc tự gõ thẻ mới.</p></div>
+    <div class="flex flex-col gap-2 sm:flex-row"><a href="editor.html" class="btn btn-primary">Bộ thẻ mới</a></div>
   </div>
   <div data-state="error" role="alert" class="card flex flex-col items-center gap-3 p-10 text-center"><span class="inline-flex size-12 items-center justify-center rounded-full bg-danger-soft text-destructive"><i data-lucide="cloud-off" class="size-6"></i></span><p class="font-bold">Không tải được bộ thẻ</p><button class="btn btn-secondary btn-sm"><i data-lucide="rotate-cw" class="size-4"></i>Thử lại</button></div>
 </main>
