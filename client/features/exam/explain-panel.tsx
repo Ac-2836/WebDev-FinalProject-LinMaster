@@ -12,7 +12,7 @@ import {useTranslations} from 'next-intl';
 import {useRef, useState} from 'react';
 
 import {Button} from '@/components/ui/button';
-import {api, ApiError} from '@/core/api/client';
+import {api, ApiError, isAiRejected} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {evidenceContext, findPrompt, splitEvidence} from './explain-logic';
@@ -54,7 +54,8 @@ export function ExplainPanel({attemptId, question, test, transcripts, cached, on
       onExplained(ExplainQuestionResponseSchema.parse(res).explanation);
     } catch (err) {
       const http = err instanceof ApiError ? err.httpStatus : 0;
-      if (http === 422) setError({retry: false, text: t('explainNoText')});
+      if (isAiRejected(err)) setError({retry: false, text: errorMessage(err)});
+      else if (http === 422) setError({retry: false, text: t('explainNoText')});
       else if (http === 429) setError({retry: false, text: t('explainQuota')});
       else if (http === 502 || http === 503) setError({retry: true, text: t('explainAiFailed')});
       else setError({retry: true, text: errorMessage(err)});

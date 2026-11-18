@@ -15,7 +15,7 @@ import {useEffect, useRef, useState} from 'react';
 import {cn} from 'cn';
 import {Button} from '@/components/ui/button';
 import {inputClass} from '@/components/ui/input';
-import {api, ApiError} from '@/core/api/client';
+import {api, ApiError, isAiRejected} from '@/core/api/client';
 import {useErrorMessage} from '@/core/api/use-error-message';
 
 import {grade, KIND_ORDER, ordered, splitBlank, unitsOf, withKind, type Unit} from './exercise-logic';
@@ -80,7 +80,8 @@ function Practice({set}: {set: FlashcardSet}) {
       setChecked(null);
     } catch (err) {
       const http = err instanceof ApiError ? err.httpStatus : 0;
-      if (http === 429) setProblem({kind: 'quota'});
+      if (isAiRejected(err)) setProblem({kind: 'error', text: errorMessage(err), retry: false});
+      else if (http === 429) setProblem({kind: 'quota'});
       else if (http === 422) setProblem({kind: 'noCards'});
       else if (http === 502) {
         // The same request fails at once on the server for a minute, so wait it out here too.
@@ -214,7 +215,7 @@ function Practice({set}: {set: FlashcardSet}) {
           <Sparkles aria-hidden="true" />
           {wait > 0
             ? t('exerciseWait', {seconds: wait})
-            : problem?.kind === 'error'
+            : problem?.kind === 'error' && problem.retry
               ? t('exerciseRetry')
               : t('exerciseCreate')}
         </Button>

@@ -71,6 +71,9 @@ export async function apiResponse(
 /** A page for one record (`/tests/abc`, someone else's set): a missing, foreign or malformed id all read as "not found". */
 export const isNotFound = (error: unknown) => error instanceof ApiError && [400, 403, 404].includes(error.httpStatus);
 
+/** The AI refused our own request (500 `AI_REQUEST_REJECTED`): a bug on our side, so offering "try again" would be a lie. */
+export const isAiRejected = (error: unknown) => error instanceof ApiError && error.status === 'AI_REQUEST_REJECTED';
+
 /**
  * The only way the client calls the server (Working_rules 7.4). Browser only.
  * Adds the JWT, turns error responses into `ApiError`, and on 401 ends the session and goes to the login page.
