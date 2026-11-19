@@ -24,6 +24,13 @@ loop Mỗi file người dùng đưa lên (cả hai tab)
   end
   S -> DB : INSERT StoredFile (durationSec nếu là audio)\n(lỗi ở bước trước thì xóa file vừa lưu)
   R --> C : 201 { file: ImportFile }\n(id, pages, durationSec, unused...)
+  opt PDF
+    C -> C : recognizePdf(file): vẽ từng trang (pdfjs-dist),\nnhận dạng chữ (tesseract.js, WASM), hiện "trang x/y"
+    C -> R : PUT /api/v1/tests/imports/files/:fileId/text\n{ pages: [{page, text}] }
+    R -> S : setFileText(userId, fileId, pages)
+    S -> DB : UPDATE StoredFile.pageText
+    R --> C : 200 { file: ImportFile }
+  end
   C -> C : buildChecklist(files) (shared/exam)
   C --> U : Bảng Độ đầy đủ
 end
@@ -36,7 +43,7 @@ S -> S : buildChecklist(files)
 alt Còn thiếu thành phần bắt buộc
   R --> C : 422 IMPORT_INCOMPLETE { checklist }
 else Đủ
-  S -> ST : put(PDF đã gộp)\n(chỉ khi có nhiều hơn một PDF)
+  S -> ST : put(PDF đã gộp), gộp chữ OCR theo trang\n(chỉ khi có nhiều hơn một PDF)
   S -> DB : INSERT StoredFile (PDF gộp), TestImport (queued)
   S -> J : jobs.start(importId)\n(chạy trong tiến trình server, không có hàng đợi)
   R --> C : 202 { import: TestImport }
@@ -54,19 +61,17 @@ J -> DB : status = parsing
 J -> G : runJsonTask("classify-pages.v1", PDF đã gộp)\n(cache theo hash file)
 alt Không có trang câu hỏi hoặc đáp án
   J -> DB : status = failed, errors = PAGES_MISSING
-else Đủ trang
+else Trang đề chưa có chữ OCR hoặc không nhận ra chữ nào
+  J -> DB : status = failed, errors = IMPORT_JOB_FAILED
+else Đủ trang và chữ
 par Trích nội dung theo nhãn trang
-  J -> G : runJsonTask("parse-test.v2", trang đề + câu hỏi)
-  G -> AI : generateContent(PDF + responseSchema)
-  AI --> G : cấu trúc đề
-  opt Có transcript trong file
-    J -> G : runJsonTask("parse-transcript.v1", trang transcript)
-    G -> AI : generateContent
-    AI --> G : transcript theo Part
-  end
+  J -> G : runJsonTask("parse-test.v3", chữ OCR các trang đề + câu hỏi)
+  G -> AI : generateContent(chữ có đánh số dòng + responseSchema)
+  AI --> G : cấu trúc đề + vị trí dòng của bài đọc / transcript
+  J -> J : Cắt bài đọc và transcript\ntừ chữ OCR theo vị trí dòng
 else
   J -> G : runJsonTask("parse-answers.v1", trang đáp án + giải thích)
-  G -> AI : generateContent
+  G -> AI : generateContent(PDF + responseSchema)
   AI --> G : đáp án và giải thích theo kỹ năng + số câu
 end
 opt Part Listening còn trống transcript và có audio

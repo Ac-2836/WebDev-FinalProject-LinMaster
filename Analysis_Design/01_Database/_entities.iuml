@@ -50,6 +50,7 @@ entity "StoredFile" as StoredFile <<core>> {
   * sizeBytes : int
   * originalName : varchar(255)
   durationSec : int
+  pageText : jsonb
   * createdAt : timestamptz
 }
 !endsub

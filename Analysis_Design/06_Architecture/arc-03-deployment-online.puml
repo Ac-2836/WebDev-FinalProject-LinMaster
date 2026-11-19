@@ -5,7 +5,7 @@ actor "Người dùng" as U
 node "Trình duyệt" as B
 cloud "Cloudflare\n(DNS cho www và api;\nproxy + HTTPS cho api)" as CF
 node "Vercel" {
-  artifact "client (Next.js)\nwww.linmaster.id.vn\npreview *.vercel.app cho mỗi PR" as C
+  artifact "client (Next.js)\nwww.linmaster.id.vn\npreview *.vercel.app cho mỗi PR\ntự host tài nguyên OCR (/ocr: worker,\nWASM, dữ liệu tiếng Anh)" as C
 }
 node "Render (Web Service)" {
   artifact "server (Express)\napi.linmaster.id.vn\nprisma migrate deploy → start" as S
@@ -25,6 +25,11 @@ C --> S : REST /api/v1 + JWT
 S --> DB : Prisma (TLS)
 S --> B2 : S3 API
 S --> AI : HTTPS
+note right of B
+  OCR đề tải lên (tesseract.js, WASM)
+  chạy trên trình duyệt người dùng;
+  chỉ chữ theo trang được gửi về api.
+end note
 UR --> S : ping /api/v1/health\nmỗi 5 phút
 GH --> C : Vercel Git integration:\ndeploy khi merge main
 GH --> S : Render Git integration:\ndeploy khi merge main
