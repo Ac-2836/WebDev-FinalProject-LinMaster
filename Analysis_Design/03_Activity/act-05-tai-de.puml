@@ -17,6 +17,12 @@ if (Chọn tab?) then (AI nhận diện)
     |Hệ thống|
     :Audio: đọc độ dài.
     File không nhận ra: đánh dấu Không dùng;
+    |Người học|
+    :PDF: trình duyệt vẽ từng trang, nhận dạng chữ
+    (tesseract.js, hiện "trang x/y"), gửi chữ theo trang
+    (PUT /tests/imports/files/{fileId}/text);
+    |Hệ thống|
+    :Lưu chữ vào StoredFile.pageText;
     :Tính lại bảng Độ đầy đủ
     (buildChecklist, không lưu DB);
     |Người học|
@@ -35,9 +41,12 @@ else (Theo mẫu)
     stop
   endif
   :Lưu file, gắn nhãn trang;
+  |Người học|
+  :PDF: trình duyệt nhận dạng chữ từng trang,
+  gửi chữ theo trang (PUT …/text);
 endif
 |Hệ thống|
-:Gộp các PDF thành một PDF
+:Gộp các PDF thành một PDF, kèm chữ OCR
 (chỉ khi có nhiều hơn một PDF);
 :TestImport = queued, trả importId;
 fork
@@ -53,16 +62,21 @@ fork again
   |Hệ thống|
   if (Có trang câu hỏi và trang đáp án?) then (không)
     :TestImport = failed (PAGES_MISSING);
+  elseif (Trang đề có chữ OCR?) then (không)
+    :TestImport = failed (IMPORT_JOB_FAILED);
   else (có)
     |Gemini AI|
-    :parse-test.v2 (trang đề, câu hỏi) → section,
-    passage, nhóm câu, dạng câu, phương án;
-    :parse-transcript.v1: đọc transcript theo Part
-    (khi parse-test báo có transcript);
+    :parse-test.v3 (chữ OCR các trang đề, câu hỏi)
+    → section, nhóm câu, dạng câu, phương án
+    + vị trí dòng của bài đọc / transcript;
+    |Hệ thống|
+    :Cắt bài đọc và transcript từ chữ OCR
+    theo vị trí dòng;
+    |Gemini AI|
     :parse-answers.v1 (trang đáp án, giải thích)
     → đáp án và giải thích theo số câu,
     tự nhận ra phần Listening / Reading
-    (chạy song song với parse-test);
+    (đọc bản PDF, chạy song song với parse-test);
     |Hệ thống|
     if (Part Listening còn trống transcript
     và có audio?) then (có)

@@ -84,9 +84,10 @@ AiGateway ..> AiTask : chạy
 note right of AiTask
   Các task đăng ký vào aiTaskRegistry:
   vocab: explain-word.v2, scan-document.v1
-  exam: classify-pages.v1, parse-test.v2,
-  parse-answers.v1, parse-transcript.v1,
-  parse-audio.v2, explain-answer.v1
+  exam: classify-pages.v1, parse-test.v3,
+  parse-answers.v1, parse-audio.v2,
+  explain-answer.v1 (parse-test.v2 còn đăng ký
+  theo quy ước phiên bản, job không gọi)
   flashcard: generate-exercise.v2
 end note
 note right of ApiModule

@@ -11,6 +11,7 @@ package "client (Next.js)" {
     component "vocab" as FVocab
     component "flashcard" as FFlash
     component "exam" as FExam
+    component "exam/ocr\n(pdfjs-dist + tesseract.js,\nWASM trong trình duyệt)" as FOcr
     component "library" as FLib
     component "stats" as FStats
     component "home" as FHome
@@ -50,6 +51,7 @@ FAuth --> CCore
 FVocab --> CCore
 FFlash --> CCore
 FExam --> CCore
+FExam --> FOcr : OCR PDF đề\ntrước khi gửi chữ
 FLib --> CCore
 FStats --> CCore
 FHome --> CCore

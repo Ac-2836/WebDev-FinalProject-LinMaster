@@ -60,6 +60,7 @@ Không gắn với người dùng: cùng một input dùng chung kết quả. Ri
 | sizeBytes | int | ✓ | |
 | originalName | varchar(255) | ✓ | |
 | durationSec | int |  | Chỉ với audio |
+| pageText | jsonb |  | Chỉ với PDF: chữ OCR theo trang `[{ page, text }]`, trình duyệt gửi lên khi nhập đề (`PUT /tests/imports/files/{fileId}/text`). `null`: chưa gửi |
 | createdAt | timestamptz | ✓ | |
 
 Chỉ lưu file của luồng tải đề (PDF đề, PDF đáp án, audio, ảnh sơ đồ). File tài liệu đọc của `vocab` **không** lưu, chỉ lấy chữ.
