@@ -7,9 +7,7 @@ import {type ExplainAnswerInput, explainAnswerTask} from './explain-answer.v1';
 import {parseAudioTask} from './parse-audio.v2';
 import {classifyPagesTask} from './classify-pages.v1';
 import {parseAnswersTask} from './parse-answers.v1';
-import {parseTestTask} from './parse-test.v2';
 import {type OcrPage, outlineFromOcr, parseTestV3Task} from './parse-test.v3';
-import {parseTranscriptTask} from './parse-transcript.v1';
 
 // AI tasks of the exam module (KH's part). The import flow of TH calls only the functions exported here.
 
@@ -73,27 +71,9 @@ function checkPages(pages: number[]): number[] {
 }
 
 /**
- * Passages, questions (no answers) and Listening transcripts. Pass the pages labelled instructions, passage,
- * questions and transcript. `parse-test.v2` reads the test; when it reports a transcript, `parse-transcript.v1`
- * reads it in its own call and its lines become the `paragraphs` of the Listening parts, in order.
- */
-export async function parseTest(pdf: Buffer, {pages, userId}: ParseOptions): Promise<ParseTestOutput> {
-  const input = {pdf, pages: checkPages(pages)};
-  const {hasTranscript, ...outline} = await runJsonTask(parseTestTask, input, {userId});
-  const listening = outline.sections.find(section => section.skill === 'listening');
-  if (!hasTranscript || !listening) return outline;
-
-  const {parts} = await runJsonTask(parseTranscriptTask, {...input, parts: listening.passages.length}, {userId});
-  listening.passages.forEach((passage, index) => {
-    const lines = parts.find(entry => entry.part === index + 1)?.lines;
-    if (lines?.length) passage.paragraphs = lines;
-  });
-  return outline;
-}
-
-/**
- * The same outline as `parseTest`, read from the OCR text of the pages (`parse-test.v3`): the model returns line ranges
- * and short strings, the server cuts the passages, transcripts and instructions out of the OCR text.
+ * Passages, questions (no answers) and Listening transcripts, read from the OCR text of the pages the browser sent
+ * (`parse-test.v3`): the model returns line ranges and short strings, the server cuts the passages, transcripts and
+ * instructions out of the OCR text, so the model never writes out published text (RECITATION).
  */
 export async function parseTestFromText(pages: OcrPage[], {userId}: {userId: string}): Promise<ParseTestOutput> {
   if (pages.length === 0) throw new Error('parseTestFromText needs at least one page of text.');

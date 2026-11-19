@@ -93,7 +93,7 @@ openApiRegistry.registerPath({
     'The browser recognises the text of each PDF page (tesseract.js) and sends it here, all pages in one call; every ' +
     'call replaces the text sent before. `page` counts from 1 in the file itself, an empty `text` is a page without ' +
     'recognised text. The AI then reads this text instead of the scan and only returns the structure and line ranges, ' +
-    'never the passage (Gemini refuses to write out published text). A PDF without text is read from the scan as before. ' +
+    'never the passage (Gemini refuses to write out published text). Send the text before creating the import: it fails when a page of the test has no text sent. ' +
     'Limits: 100 pages, 12,000 characters per page, 600,000 characters in all, 1 MB per request.',
   tags: ['Exam'],
   security,

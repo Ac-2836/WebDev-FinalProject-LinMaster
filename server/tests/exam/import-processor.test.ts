@@ -12,6 +12,8 @@ import {makeImportRepository} from './import-fakes';
 type ParseAudio = NonNullable<Parameters<typeof createImportProcessor>[0]['parseAudio']>;
 
 const PDF = Buffer.from('%PDF-1.7 merged');
+/** OCR text of the one test page of PAGES, as the browser sends it. */
+const OCR_TEXT = [{page: 1, text: 'READING PASSAGE 1'}];
 const range = (from: number, to: number) => Array.from({length: to - from + 1}, (_, index) => from + index);
 
 /** parse-test.v1 output: 40 completion questions per skill; Listening has a transcript. */
@@ -77,10 +79,8 @@ describe('import processor', () => {
       audio?: boolean;
       transcript?: boolean;
       parseAudio?: ParseAudio;
-      /** OCR text the browser sent for the PDF. */
+      /** OCR text the browser sent for the PDF (default: the text of page 1). */
       pageText?: {page: number; text: string}[];
-      /** Gives the processor the v3 reader that works from the OCR text. */
-      textReader?: boolean;
     } = {},
   ) {
     const state = makeImportRepository();
@@ -90,7 +90,7 @@ describe('import processor', () => {
       sizeBytes: PDF.length,
       originalName: 'test.pdf',
       durationSec: null,
-      pageText: options.pageText,
+      pageText: options.pageText ?? OCR_TEXT,
     });
     const audio = options.audio
       ? await state.repository.createFile('owner', {
@@ -101,15 +101,13 @@ describe('import processor', () => {
           durationSec: 1680,
         })
       : null;
-    const parseTest = vi.fn(async () => outline(skills, options.transcript));
     const parseAudio = options.parseAudio && vi.fn(options.parseAudio);
-    const parseTestText = options.textReader ? vi.fn(async () => outline(skills, options.transcript)) : undefined;
+    const parseTestText = vi.fn(async () => outline(skills, options.transcript));
     const parseAnswers = vi.fn(async () => answerKey(skills, options.skip));
     const process = createImportProcessor({
       repository: state.repository,
       storage,
       labelPages: async () => options.pages ?? PAGES,
-      parseTest,
       parseTestText,
       parseAnswers,
       parseAudio,
@@ -122,15 +120,15 @@ describe('import processor', () => {
       answerFileId: pdf.id,
       audioFileId: audio?.id ?? null,
     };
-    return {state, parseTest, parseTestText, parseAnswers, parseAudio, run: () => process(job, {validating})};
+    return {state, parseTestText, parseAnswers, parseAudio, run: () => process(job, {validating})};
   }
 
   it('reads each task from its own pages, validates and saves a private test with warnings', async () => {
-    const {state, parseTest, parseAnswers, run} = await setup(['reading']);
+    const {state, parseTestText, parseAnswers, run} = await setup(['reading']);
 
     const outcome = await run();
 
-    expect(parseTest).toHaveBeenCalledWith(PDF, {pages: [1], userId: 'owner'});
+    expect(parseTestText).toHaveBeenCalledWith(OCR_TEXT, {userId: 'owner'});
     expect(parseAnswers).toHaveBeenCalledWith(PDF, {pages: [2], userId: 'owner'});
     expect(validating).toHaveBeenCalled();
     expect(outcome).toMatchObject({status: 'done', issues: [{severity: 'warning', code: 'EXPLANATION_MISSING'}]});
@@ -142,36 +140,46 @@ describe('import processor', () => {
     });
   });
 
-  it('reads the test from the OCR text, not the scan, when every page of the test has text', async () => {
+  it('reads only the pages of the test from the OCR text, never the scan', async () => {
     const pageText = [
       {page: 1, text: 'READING PASSAGE 1'},
       {page: 2, text: 'Answer key'},
       {page: 3, text: 'not a test page'},
     ];
-    const {parseTest, parseTestText, parseAnswers, run} = await setup(['reading'], {pageText, textReader: true});
+    const {parseTestText, parseAnswers, run} = await setup(['reading'], {pageText});
 
     const outcome = await run();
 
     expect(outcome.status).toBe('done');
     expect(parseTestText).toHaveBeenCalledWith([{page: 1, text: 'READING PASSAGE 1'}], {userId: 'owner'});
-    expect(parseTest).not.toHaveBeenCalled();
     expect(parseAnswers).toHaveBeenCalledWith(PDF, {pages: [2], userId: 'owner'});
   });
 
-  it('reads the scan as before when a page of the test has no text, or there is no text reader', async () => {
-    for (const options of [
-      {pageText: [{page: 1, text: '   '}], textReader: true},
-      {pageText: [{page: 2, text: 'Answer key'}], textReader: true},
-      {pageText: undefined, textReader: true},
-      {pageText: [{page: 1, text: 'READING PASSAGE 1'}], textReader: false},
-    ]) {
-      const {parseTest, parseTestText, run} = await setup(['reading'], options);
+  it('still reads a test page the browser sent with no text, and leaves the gaps to the validator', async () => {
+    const pages: PageLabels[] = [
+      {page: 1, labels: ['passage'], skill: 'reading', questionRange: null},
+      {page: 2, labels: ['questions'], skill: 'reading', questionRange: {from: 1, to: 40}},
+      {page: 3, labels: ['answers'], skill: 'reading', questionRange: {from: 1, to: 40}},
+    ];
+    const pageText = [
+      {page: 1, text: 'READING PASSAGE 1'},
+      {page: 2, text: ''},
+    ];
+    const {parseTestText, run} = await setup(['reading'], {pages, pageText});
 
-      const outcome = await run();
+    const outcome = await run();
 
-      expect(outcome.status, JSON.stringify(options)).toBe('done');
-      expect(parseTest).toHaveBeenCalledWith(PDF, {pages: [1], userId: 'owner'});
-      expect(parseTestText?.mock.calls.length ?? 0).toBe(0);
+    expect(outcome.status).toBe('done');
+    expect(parseTestText).toHaveBeenCalledWith(pageText, {userId: 'owner'});
+  });
+
+  it('fails, calling no AI task, when the text of a test page was not sent or nothing was recognised', async () => {
+    for (const pageText of [[], [{page: 2, text: 'Answer key'}], [{page: 1, text: '  \n '}]]) {
+      const {parseTestText, parseAnswers, run} = await setup(['reading'], {pageText});
+
+      await expect(run(), JSON.stringify(pageText)).rejects.toMatchObject({statusCode: 422});
+      expect(parseTestText).not.toHaveBeenCalled();
+      expect(parseAnswers).not.toHaveBeenCalled();
     }
   });
 
@@ -189,12 +197,12 @@ describe('import processor', () => {
   });
 
   it('fails without answer pages, before calling the parse tasks', async () => {
-    const {parseTest, run} = await setup(['reading'], {pages: [PAGES[0]]});
+    const {parseTestText, run} = await setup(['reading'], {pages: [PAGES[0]]});
 
     const outcome = await run();
 
     expect(outcome).toMatchObject({status: 'failed', issues: [{code: 'PAGES_MISSING'}]});
-    expect(parseTest).not.toHaveBeenCalled();
+    expect(parseTestText).not.toHaveBeenCalled();
   });
 
   it('blocks Listening without audio and attaches the audio otherwise', async () => {
@@ -308,13 +316,14 @@ describe('saving an imported test', () => {
       sizeBytes: 1,
       originalName: 'test.pdf',
       durationSec: null,
+      pageText: OCR_TEXT,
     });
     const process = createImportProcessor({
       // Real saving, everything else in memory.
       repository: {...state.repository, saveTest: prismaImportRepository.saveTest},
       storage: {put: () => Promise.reject(new Error('not used')), get: async () => PDF, delete: async () => {}},
       labelPages: async () => PAGES,
-      parseTest: async () => outline(['reading']),
+      parseTestText: async () => outline(['reading']),
       parseAnswers: async () => answerKey(['reading']),
     });
     const job: ImportJob = {

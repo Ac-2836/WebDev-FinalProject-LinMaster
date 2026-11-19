@@ -58,7 +58,8 @@ export default defineConfig({
       },
     },
     {
-      command: `npx next build && npx next start --port ${WEB_PORT}`,
+      // `npm run build` (not `next build`) so prebuild copies the in-browser OCR assets the upload page needs.
+      command: `npm run build && npx next start --port ${WEB_PORT}`,
       cwd: path.resolve(__dirname, '../..'),
       url: webUrl,
       reuseExistingServer: reuse,
