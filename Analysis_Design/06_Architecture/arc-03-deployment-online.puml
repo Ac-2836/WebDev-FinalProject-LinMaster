@@ -3,11 +3,11 @@
 title Deployment — Môi trường online (từ 11/11)
 actor "Người dùng" as U
 node "Trình duyệt" as B
-cloud "Cloudflare\n(DNS cho www và api;\nproxy + HTTPS cho api)" as CF
-node "Vercel" {
+cloud "DNS iNET (quản lý qua OnePortal)\nCNAME www → Vercel\nCNAME api → Render" as DNS
+node "Vercel (region sin1, Singapore)" {
   artifact "client (Next.js)\nwww.linmaster.id.vn\npreview *.vercel.app cho mỗi PR\ntự host tài nguyên OCR (/ocr: worker,\nWASM, dữ liệu tiếng Anh)" as C
 }
-node "Render (Web Service)" {
+node "Render (Web Service, US West)" {
   artifact "server (Express)\napi.linmaster.id.vn\nprisma migrate deploy → start" as S
 }
 database "Neon PostgreSQL\n(branch main)" as DB
@@ -18,9 +18,9 @@ node "GitHub" {
   artifact "repo + Actions (CI)" as GH
 }
 U --> B
-B --> C : HTTPS (HTTPS do Vercel)
-B --> CF : api.linmaster.id.vn
-CF --> S : proxy
+B ..> DNS : phân giải tên miền
+B --> C : HTTPS (chứng chỉ do Vercel cấp)
+B --> S : HTTPS api.linmaster.id.vn\n(chứng chỉ do Render cấp)
 C --> S : REST /api/v1 + JWT
 S --> DB : Prisma (TLS)
 S --> B2 : S3 API

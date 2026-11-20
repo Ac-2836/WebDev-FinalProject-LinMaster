@@ -604,7 +604,7 @@ Hai luồng chạy song song: **thiết kế** (sơ đồ, CSDL, wireframe, quy 
 | P5-03 | Hiệu năng: index DB, truy vấn chậm, kích thước bundle, font / ảnh | toàn bộ | TH | S | — | Các trang chính tải nhanh trên môi trường online |
 | P5-04 | Rà Swagger: mọi endpoint có ví dụ, mã lỗi, mô tả rõ ràng | toàn server | TH | S | — | Đọc `/docs` hiểu được mà không cần xem code |
 | P5-05 | E2E bổ sung: library, dashboard, Listening | core | TH | M | P4-08 | Xanh trong CI |
-| P5-06 | Gắn tên miền (nếu đã mua) + HTTPS qua Cloudflare; cập nhật README | deploy | TH | S | P3-09 | Web và API chạy trên tên miền |
+| P5-06 | Gắn tên miền (nếu đã mua) + HTTPS (DNS ở iNET, chứng chỉ do Vercel và Render cấp); cập nhật README | deploy | TH | S | P3-09 | Web và API chạy trên tên miền |
 | P5-07 | Kiểm tra toàn bộ online; sinh lại ERD từ Prisma và đối chiếu bộ sơ đồ (B6); chụp snapshot DB; tag `v1.0`, release notes | quản lý | KH | S | P5-01 → P5-05 | Release `v1.0`; sơ đồ khớp với code |
 
 ## Giai đoạn 6 — Report, thuyết trình, bảo trì (T5 19/11 – CN 22/11)
@@ -643,7 +643,7 @@ Thẻ của KH nặng hơn về khối lượng, nhất là các thẻ L phía c
 | **Local** | Postgres trong Docker (`docker-compose.yml`), lưu file vào `uploads/`, AI dùng key riêng (không có key thì AI trả 503; mock chỉ dùng trong test) | Mặc định khi phát triển |
 | **CI** | Postgres service của GitHub Actions, AI luôn mock; hai job `check` (lint, typecheck, migrate, test, build) và `e2e` (Playwright) | Không gọi Gemini thật trong CI |
 | **Online (từ T4 11/11)** | Client trên **Vercel** (`www.linmaster.id.vn`, preview `*.vercel.app` cho mỗi PR); server trên **Render** (`api.linmaster.id.vn`); DB **Neon**; file trên **Backblaze B2** (S3 API). Vercel và Render deploy qua Git integration khi merge `main` | Build server xong thì chạy `prisma migrate deploy` rồi mới start. Health check `/api/v1/health` |
-| **Tên miền** | `linmaster.id.vn`: `www` → Vercel, `api` → Render. Cloudflare lo DNS cho cả hai và proxy + HTTPS cho `api` (HTTPS của `www` do Vercel) | Việc P5-06 |
+| **Tên miền** | `linmaster.id.vn`: `www` → Vercel, `api` → Render. DNS quản lý ở iNET (OnePortal), CNAME `www` → Vercel, `api` → Render; HTTPS của `www` do Vercel, của `api` do Render cấp | Việc P5-06 |
 
 - **Theo dõi:** UptimeRobot ping 5 phút một lần (đồng thời giữ Render không "ngủ"), có trang status công khai.
 - **Rollback:** Vercel thì *Promote* bản deploy trước. Render thì deploy lại commit trước. Migration chỉ thêm (B5) nên DB không cần rollback.
