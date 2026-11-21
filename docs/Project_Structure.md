@@ -24,7 +24,7 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
                    │ (Neon)       │  │ (Google)     │
                    └──────────────┘  └──────────────┘
 
-  File tải lên (PDF đề, audio): Backblaze B2   DNS: Cloudflare
+  File tải lên (PDF đề, audio): Backblaze B2   DNS: iNET (OnePortal)
   Theo dõi: UptimeRobot                 CI: GitHub Actions
 ```
 
@@ -81,7 +81,7 @@ Tài liệu này mô tả **tech stack**, **kiến trúc** và **cấu trúc th�
 | Vitest, Supertest, Playwright | Unit test, API test, test end-to-end |
 | GitHub Actions | CI trên mỗi PR |
 | Vercel / Render | Deploy front-end (có preview cho từng PR) / back-end |
-| Cloudflare, UptimeRobot | DNS cho `www` và `api`, proxy + HTTPS cho `api` (HTTPS của `www` do Vercel) / theo dõi uptime |
+| iNET (OnePortal), UptimeRobot | DNS: CNAME `www` → Vercel, `api` → Render (HTTPS do Vercel và Render cấp) / theo dõi uptime |
 
 Phiên bản cụ thể được khóa trong `package.json` và lockfile, không ghi ở đây.
 

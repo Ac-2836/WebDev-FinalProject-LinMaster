@@ -47,7 +47,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 
 | Vai trò | Phụ trách | Review PR của |
 |---|---|---|
-| **Khai Hung** — Front-end, Database & AI | Toàn bộ client (giao diện, responsive, a11y), schema database, AI gateway và mọi task AI, mock data và seed, board GitHub Projects, CI, deploy, tên miền (DNS, HTTPS qua Cloudflare) | Tien Hung |
+| **Khai Hung** — Front-end, Database & AI | Toàn bộ client (giao diện, responsive, a11y), schema database, AI gateway và mọi task AI, mock data và seed, board GitHub Projects, CI, deploy, tên miền (DNS ở iNET, HTTPS do Vercel và Render) | Tien Hung |
 | **Tien Hung** — Back-end & DevOps | Hạ tầng server, auth, CRUD, SM-2, chấm điểm, phần không phải AI của luồng tải đề, library, API dashboard, test e2e | Khai Hung |
 | **AI Agent** | Viết code, test, API doc theo issue được giao; đề xuất giải pháp | Không review thay người |
 
@@ -62,7 +62,7 @@ Luật và quy trình bắt buộc khi làm dự án LinMaster. Áp dụng cho *
 | Thêm dependency, đổi tech stack | ✅ khi cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Sửa `Working_rules.md`, `Project_Structure.md` | ✅ qua PR, cả nhóm đồng ý | ❌ chỉ đề xuất |
 | Quyết định thiết kế, phạm vi, nội dung đề, report, slide | ✅ | ❌ chỉ góp ý |
-| Truy cập dashboard Vercel/Render/Neon/Cloudflare, secret | ✅ | ❌ |
+| Truy cập dashboard Vercel/Render/Neon/iNET, secret | ✅ | ❌ |
 
 ---
 
@@ -497,7 +497,7 @@ Giảng viên yêu cầu API doc dùng **Swagger**. Dự án làm như sau:
 | Preview | Mỗi PR (Vercel tự tạo) | Link trong PR |
 | Production | Mỗi lần merge vào `main` | `https://www.linmaster.id.vn` (web), `https://api.linmaster.id.vn` (API) |
 
-- **Tên miền, DNS, HTTPS:** do Khai Hung quản lý qua Cloudflare (PLAN P5-06).
+- **Tên miền, DNS, HTTPS:** do Khai Hung quản lý: DNS ở iNET (OnePortal), HTTPS do Vercel và Render cấp (PLAN P5-06).
 - **Secret của production** chỉ nằm trong phần cài đặt biến môi trường của Vercel/Render, chỉ thành viên có quyền truy cập.
 - **Theo dõi:** UptimeRobot kiểm tra cả web lẫn API, có trang status công khai để đưa vào report.
 - **Sau mỗi lần deploy production:** mở web chạy nhanh các luồng chính (đăng nhập, tra và lưu từ, tải và làm đề, flashcard).

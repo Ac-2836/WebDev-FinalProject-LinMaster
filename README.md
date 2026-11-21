@@ -45,7 +45,7 @@ flowchart LR
   api --> db[("PostgreSQL<br/>Neon")]
   api --> files[("File đề và audio<br/>Backblaze B2")]
   api --> ai[Gemini]
-  dns["Cloudflare, linmaster.id.vn<br/>DNS cho www và api, proxy + HTTPS cho api"] -.-> web
+  dns["DNS iNET (OnePortal), linmaster.id.vn<br/>CNAME www → Vercel, CNAME api → Render"] -.-> web
   dns -.-> api
   monitor[UptimeRobot] -.->|/api/v1/health| api
 ```
